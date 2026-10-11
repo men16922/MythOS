@@ -88,19 +88,24 @@ export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
     return (
       <div>
         <div className="m2-tip__title">{tr(NODE_LABEL[n.kind], lang)}</div>
-        {enc && (n.kind === 'elite' || n.kind === 'boss') && <div className="m2-tip__text" style={{ color: 'var(--m2-threat-2)' }}>{tr(enc.name, lang)}</div>}
+        {enc && (n.kind === 'elite' || n.kind === 'boss') && (
+          <div className="m2-tip__text" style={{ color: 'var(--m2-threat-2)' }}>
+            {tr(enc.name, lang)}
+          </div>
+        )}
         <div className="m2-tip__text">{tr(NODE_HINT[n.kind], lang)}</div>
-        {reachable.has(n.id) && <div className="m2-tip__text" style={{ color: 'var(--m2-amber)', marginTop: 4 }}>{lang === 'ko' ? '이동 시 추적 +3' : 'Entering adds +3 Trace'}</div>}
+        {reachable.has(n.id) && (
+          <div className="m2-tip__text" style={{ color: 'var(--m2-amber)', marginTop: 4 }}>
+            {lang === 'ko' ? '이동 시 추적 +3' : 'Entering adds +3 Trace'}
+          </div>
+        )}
       </div>
     )
   }
 
   return (
     <div className="m2-map">
-      <div
-        className={`m2-map__bg${art.map(run.act) ? ' is-map-art' : ''}`}
-        style={{ backgroundImage: `url(${art.map(run.act) || art.act(run.act, actDef?.image)})` }}
-      />
+      <div className={`m2-map__bg${art.map(run.act) ? ' is-map-art' : ''}`} style={{ backgroundImage: `url(${art.map(run.act) || art.act(run.act, actDef?.image)})` }} />
       <aside className="m2-map__side">
         <div className="m2-map__actnum">{lang === 'ko' ? `${run.act}막 / 3` : `Act ${run.act} of 3`}</div>
         <h1 className="m2-map__title">{actDef ? tr(actDef.name, lang) : ''}</h1>
@@ -144,10 +149,7 @@ export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
       </aside>
 
       <div className="m2-map__scroll" ref={scrollRef}>
-        <div
-          className={`m2-map__board${entering ? ' is-entering' : ''}`}
-          style={{ width: W, height, transformOrigin: enterPos ? `${enterPos.x}px ${enterPos.y}px` : undefined }}
-        >
+        <div className={`m2-map__board${entering ? ' is-entering' : ''}`} style={{ width: W, height, transformOrigin: enterPos ? `${enterPos.x}px ${enterPos.y}px` : undefined }}>
           <svg className="m2-map__edges" width={W} height={height} viewBox={`0 0 ${W} ${height}`}>
             {Object.values(map.nodes).flatMap((n) =>
               n.next.map((to) => {
@@ -156,16 +158,7 @@ export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
                 if (!a || !b) return null
                 const taken = visited.has(n.id) && visited.has(to)
                 const open = n.id === run.nodeId && reachable.has(to)
-                return (
-                  <line
-                    key={`${n.id}-${to}`}
-                    x1={a.x}
-                    y1={a.y}
-                    x2={b.x}
-                    y2={b.y}
-                    className={taken ? 'is-taken' : open ? 'is-open' : ''}
-                  />
-                )
+                return <line key={`${n.id}-${to}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className={taken ? 'is-taken' : open ? 'is-open' : ''} />
               }),
             )}
           </svg>
@@ -204,7 +197,9 @@ export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
                   <button
                     className={cls}
                     onClick={() => enter(n)}
-                    onMouseEnter={() => isReach && sound(n.kind === 'elite' || n.kind === 'boss' ? 'telegraph' : 'ui_hover', n.kind === 'elite' || n.kind === 'boss' ? { volume: 0.5 } : undefined)}
+                    onMouseEnter={() =>
+                      isReach && sound(n.kind === 'elite' || n.kind === 'boss' ? 'telegraph' : 'ui_hover', n.kind === 'elite' || n.kind === 'boss' ? { volume: 0.5 } : undefined)
+                    }
                     aria-label={tr(NODE_LABEL[n.kind], lang)}
                   >
                     <Icon size={n.kind === 'elite' ? 22 : 19} strokeWidth={2.2} />

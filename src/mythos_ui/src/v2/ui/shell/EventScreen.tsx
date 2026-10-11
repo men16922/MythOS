@@ -174,11 +174,7 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
   const rolled = screen.improvised?.rolled ? screen.improvised : null
   const resolved = screen.resolved && screen.resolved.optionIndex >= 0 ? screen.resolved : null
   const views = rx.eventOptions(run, C)
-  const resolvedOpt = resolved
-    ? picked && picked.eventId === ev.id && picked.index === resolved.optionIndex
-      ? picked.opt
-      : views[resolved.optionIndex]?.option
-    : undefined
+  const resolvedOpt = resolved ? (picked && picked.eventId === ev.id && picked.index === resolved.optionIndex ? picked.opt : views[resolved.optionIndex]?.option) : undefined
 
   const choose = (i: number, opt: EventOption, available: boolean) => {
     if (rolling) return
@@ -344,13 +340,13 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
           </div>
         )}
 
-        {pending && !done && !rolling && <Adjudication imp={pending} lang={lang} statValue={run.stats[pending.stat]} chance={rx.chance(run, pending)} onRoll={roll} onCancel={() => setPending(null)} />}
+        {pending && !done && !rolling && (
+          <Adjudication imp={pending} lang={lang} statValue={run.stats[pending.stat]} chance={rx.chance(run, pending)} onRoll={roll} onCancel={() => setPending(null)} />
+        )}
 
         {resolved && (
           <div className={`m2-outcome ${resolved.success ? 'is-win' : 'is-loss'}`}>
-            {resolvedOpt?.check && (
-              <div className="m2-outcome__tag">{resolved.success ? (ko ? '성공' : 'Success') : ko ? '실패' : 'Failed'}</div>
-            )}
+            {resolvedOpt?.check && <div className="m2-outcome__tag">{resolved.success ? (ko ? '성공' : 'Success') : ko ? '실패' : 'Failed'}</div>}
             <Typewriter className="m2-outcome__text" text={tr(resolved.text, lang)} cps={settings.fastAnim ? 400 : 120} />
             <Chips chips={effectChips((resolved.success ? resolvedOpt?.success.effects : resolvedOpt?.failure?.effects) ?? [], C, lang)} />
             <button

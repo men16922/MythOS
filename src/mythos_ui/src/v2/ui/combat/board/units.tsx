@@ -122,10 +122,7 @@ export const UnitSprite = memo(function UnitSprite(p: UnitProps) {
       {p.layer === 'hud' && (
         <div className="m2c-u-hud" style={{ transform: `scale(${s.toFixed(3)})` }}>
           {intent && u.side === 'enemy' && (
-            <div
-              className={`m2c-u-intent${intent.windupLeft > 0 ? ' is-wind' : ''}${p.intentDim ? ' is-dim' : ''}`}
-              style={{ top: -tw * (1.3 * p.scale + 0.16) }}
-            >
+            <div className={`m2c-u-intent${intent.windupLeft > 0 ? ' is-wind' : ''}${p.intentDim ? ' is-dim' : ''}`} style={{ top: -tw * (1.3 * p.scale + 0.16) }}>
               <PatternIcon p={intent.move.pattern} size={13} />
               {intent.damage > 0 && <b>{intent.damage}</b>}
               {intent.windupLeft > 0 && (
@@ -202,10 +199,18 @@ function BurnFlames({ feet, seed, tw, w, layer }: { feet: number; seed: number; 
     <div className={`m2c-u-burn is-${layer}`} style={{ top: `${feet * 100}%` }}>
       {spots.map((dx, i) => {
         const h = tw * (layer === 'back' ? 0.34 : 0.2) * (0.8 + hash(`${seed}:${layer}:${i}`) * 0.4)
-        return <i key={i} className="m2c-flame" style={{ left: w / 2 + dx * tw, top: -tw * (layer === 'back' ? 0.06 : 0), width: h * 0.55, height: h, animationDelay: `${-(seed * 3 + i * 0.29)}s` }} />
+        return (
+          <i
+            key={i}
+            className="m2c-flame"
+            style={{ left: w / 2 + dx * tw, top: -tw * (layer === 'back' ? 0.06 : 0), width: h * 0.55, height: h, animationDelay: `${-(seed * 3 + i * 0.29)}s` }}
+          />
+        )
       })}
       {layer === 'back' &&
-        [0, 1].map((i) => <i key={`e${i}`} className="m2c-fire-ember" style={{ left: w / 2 + (i - 0.5) * tw * 0.3, top: -tw * 0.3, animationDelay: `${-(seed * 2 + i * 0.8)}s` }} />)}
+        [0, 1].map((i) => (
+          <i key={`e${i}`} className="m2c-fire-ember" style={{ left: w / 2 + (i - 0.5) * tw * 0.3, top: -tw * 0.3, animationDelay: `${-(seed * 2 + i * 0.8)}s` }} />
+        ))}
     </div>
   )
 }
@@ -235,12 +240,7 @@ export function Ghost({ g, u, at, scale, move }: { g: BoardGeom; u: UnitState; a
   const flip = nativeRight ? faceLeft : u.facing === 'right'
   return (
     <div className={move ? 'm2c-ghost is-move' : 'm2c-ghost'} style={{ left: c.x, top: c.y, transform: `scale(${s})` }}>
-      <img
-        src={sprite(u.sprite, move ? 'idle' : 'hit')}
-        alt=""
-        style={{ width: w, height: h, left: -w / 2, top: -h * box.feet }}
-        className={flip ? 'is-flip' : undefined}
-      />
+      <img src={sprite(u.sprite, move ? 'idle' : 'hit')} alt="" style={{ width: w, height: h, left: -w / 2, top: -h * box.feet }} className={flip ? 'is-flip' : undefined} />
     </div>
   )
 }

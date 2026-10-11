@@ -59,12 +59,16 @@ test('elite and boss fights open with a line; normal fights and resumed fights d
 test('a companion going down outranks kills in the same enemy phase', () => {
   const prev = state('street')
   const memo = newMemo(prev)
-  const next = after(prev, [
-    { t: 'turn', side: 'enemy', turn: 1 },
-    { t: 'death', uid: 'se_rin', cause: 'damage' },
-    { t: 'death', uid: 'e1', cause: 'damage' },
-    { t: 'turn', side: 'player', turn: 2 },
-  ], { turn: 2, kills: 1, env: 1 })
+  const next = after(
+    prev,
+    [
+      { t: 'turn', side: 'enemy', turn: 1 },
+      { t: 'death', uid: 'se_rin', cause: 'damage' },
+      { t: 'death', uid: 'e1', cause: 'damage' },
+      { t: 'turn', side: 'player', turn: 2 },
+    ],
+    { turn: 2, kills: 1, env: 1 },
+  )
   const m = detectMoment(prev, next, C, 'ko', memo)
   assert.equal(m?.trigger, 'companion_down')
   assert.equal(m?.names.companion, '정세린')
@@ -74,9 +78,24 @@ test('a companion going down outranks kills in the same enemy phase', () => {
 
 test('2+ kills in one player action is a multi-kill; the same in an enemy phase is not', () => {
   const prev = state('street')
-  const kill2 = after(prev, [{ t: 'death', uid: 'e1', cause: 'damage' }, { t: 'death', uid: 'e2', cause: 'damage' }], { kills: 2 })
+  const kill2 = after(
+    prev,
+    [
+      { t: 'death', uid: 'e1', cause: 'damage' },
+      { t: 'death', uid: 'e2', cause: 'damage' },
+    ],
+    { kills: 2 },
+  )
   assert.equal(detectMoment(prev, kill2, C, 'en', newMemo(prev))?.trigger, 'multi_kill')
-  const enemyPhase = after(prev, [{ t: 'turn', side: 'enemy', turn: 1 }, { t: 'death', uid: 'e1', cause: 'damage' }, { t: 'death', uid: 'e2', cause: 'damage' }], { kills: 2 })
+  const enemyPhase = after(
+    prev,
+    [
+      { t: 'turn', side: 'enemy', turn: 1 },
+      { t: 'death', uid: 'e1', cause: 'damage' },
+      { t: 'death', uid: 'e2', cause: 'damage' },
+    ],
+    { kills: 2 },
+  )
   assert.equal(detectMoment(prev, enemyPhase, C, 'en', newMemo(prev)), null)
 })
 
@@ -94,7 +113,8 @@ test('only the first environment kill of a fight speaks, and names the void vict
 test('low HP fires once below 30% and re-arms after recovering past 40%', () => {
   const prev = state('street')
   const memo = newMemo(prev)
-  const hurt = (hp: number, from: CombatState) => after(from, [{ t: 'damage', uid: 'connector', amount: 1, blocked: 0, source: 'enemy' }], { units: [unit('connector', 'party', 'connector', hp), ...from.units.slice(1)] })
+  const hurt = (hp: number, from: CombatState) =>
+    after(from, [{ t: 'damage', uid: 'connector', amount: 1, blocked: 0, source: 'enemy' }], { units: [unit('connector', 'party', 'connector', hp), ...from.units.slice(1)] })
   const low = hurt(8, prev)
   assert.equal(detectMoment(prev, low, C, 'ko', memo)?.trigger, 'low_hp')
   const lower = hurt(5, low)
@@ -107,7 +127,10 @@ test('low HP fires once below 30% and re-arms after recovering past 40%', () => 
 test('boss phase change and near-flawless wins; nothing after a loss', () => {
   const units = [unit('connector', 'party', 'connector', 30), unit('b', 'enemy', 'haetae', 40, 90, 'HAETAE')]
   const prev = state('boss', { units })
-  const phase = after(prev, [{ t: 'phase', uid: 'b', phase: 1, text: t('껍질이 갈라진다.', 'The shell splits.') }, { t: 'death', uid: 'e1', cause: 'damage' }])
+  const phase = after(prev, [
+    { t: 'phase', uid: 'b', phase: 1, text: t('껍질이 갈라진다.', 'The shell splits.') },
+    { t: 'death', uid: 'e1', cause: 'damage' },
+  ])
   const m = detectMoment(prev, phase, C, 'en', newMemo(prev))
   assert.equal(m?.trigger, 'boss_phase')
   assert.equal(m?.context.phaseText, 'The shell splits.')

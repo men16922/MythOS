@@ -22,7 +22,9 @@
   cursor: pointer;
   font-family: var(--m2-display);
   font-weight: 600;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
 .m2-langswitch button.is-on {
   background: var(--m2-cyan);
@@ -71,7 +73,9 @@
   width: 16px;
   height: 16px;
   background: var(--m2-mute);
-  transition: transform 0.2s var(--m2-ease), background 0.2s;
+  transition:
+    transform 0.2s var(--m2-ease),
+    background 0.2s;
 }
 .m2-toggle.is-on .m2-toggle__sw {
   background: rgba(78, 242, 227, 0.25);

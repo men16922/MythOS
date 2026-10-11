@@ -81,7 +81,19 @@ export function RestScreen({ run, C, lang, settings, act }: ScreenProps) {
             >
               <HeartHandshake size={34} />
               <b>{ko ? '대화' : 'Talk'}</b>
-              <span>{run.party.length === 0 ? (ko ? '함께할 동료가 없다' : 'No one to talk to') : canBond ? (ko ? '동료와의 유대 +1' : 'Bond +1 with a companion') : ko ? '유대가 이미 최대' : 'Bonds are maxed'}</span>
+              <span>
+                {run.party.length === 0
+                  ? ko
+                    ? '함께할 동료가 없다'
+                    : 'No one to talk to'
+                  : canBond
+                    ? ko
+                      ? '동료와의 유대 +1'
+                      : 'Bond +1 with a companion'
+                    : ko
+                      ? '유대가 이미 최대'
+                      : 'Bonds are maxed'}
+              </span>
             </button>
           </div>
         )}

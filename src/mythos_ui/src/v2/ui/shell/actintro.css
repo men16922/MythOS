@@ -19,8 +19,7 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(0deg, rgba(3, 9, 11, 0.98) 0%, rgba(3, 9, 11, 0.75) 38%, rgba(3, 9, 11, 0.1) 70%),
-    radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.6));
+    linear-gradient(0deg, rgba(3, 9, 11, 0.98) 0%, rgba(3, 9, 11, 0.75) 38%, rgba(3, 9, 11, 0.1) 70%), radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.6));
 }
 .m2-actintro__inner {
   position: absolute;

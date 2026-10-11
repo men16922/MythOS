@@ -125,36 +125,88 @@ const GENERIC_REPLIES: Pool = {
 /** IX lines by trigger; `{enemy}` / `{boss}` / `{companion}` variants only when that name is known. */
 export const IX_LINES: Record<IxTrigger, Pool> = {
   elite_start: {
-    ko: ['정예 개체 배치를 승인했습니다. 접속자님의 처리 시간을 측정합니다.', '이 구역의 관리 등급을 상향했습니다. 통과는 권장하지 않습니다.', '{enemy} 투입을 완료했습니다. 이번 교전은 별도 문서로 보관됩니다.'],
-    en: ['Elite deployment approved. Your processing time is being measured.', "This sector's clearance level has been raised. Passage is not recommended.", '{enemy} deployed. This engagement will be filed separately.'],
+    ko: [
+      '정예 개체 배치를 승인했습니다. 접속자님의 처리 시간을 측정합니다.',
+      '이 구역의 관리 등급을 상향했습니다. 통과는 권장하지 않습니다.',
+      '{enemy} 투입을 완료했습니다. 이번 교전은 별도 문서로 보관됩니다.',
+    ],
+    en: [
+      'Elite deployment approved. Your processing time is being measured.',
+      "This sector's clearance level has been raised. Passage is not recommended.",
+      '{enemy} deployed. This engagement will be filed separately.',
+    ],
   },
   boss_start: {
-    ko: ['{boss} 활성화. 이 접속은 여기서 종결 처리됩니다.', '여기까지 오신 기록은 이미 작성했습니다. 마지막 줄만 남았습니다.', '최종 심사를 시작합니다. 이의 제기는 받지 않습니다.'],
-    en: ['{boss} online. This connection will be closed here.', 'The record of you getting this far is already written. Only the last line remains.', 'Final review begins. Appeals are not accepted.'],
+    ko: [
+      '{boss} 활성화. 이 접속은 여기서 종결 처리됩니다.',
+      '여기까지 오신 기록은 이미 작성했습니다. 마지막 줄만 남았습니다.',
+      '최종 심사를 시작합니다. 이의 제기는 받지 않습니다.',
+    ],
+    en: [
+      '{boss} online. This connection will be closed here.',
+      'The record of you getting this far is already written. Only the last line remains.',
+      'Final review begins. Appeals are not accepted.',
+    ],
   },
   env_kill: {
-    ko: ['도시 기반 시설의 무단 사용을 확인했습니다. 파손 내역은 기록에 남습니다.', '구조물 손상을 접수했습니다. 처리 방식이 규정에 어긋납니다.', '지형을 무기로 쓰셨군요. 해당 구역은 폐쇄 대상으로 분류합니다.'],
-    en: ['Unauthorised use of city infrastructure confirmed. The damage goes on your record.', 'Structural damage logged. The method is out of compliance.', 'You used the terrain as a weapon. That sector is now flagged for closure.'],
+    ko: [
+      '도시 기반 시설의 무단 사용을 확인했습니다. 파손 내역은 기록에 남습니다.',
+      '구조물 손상을 접수했습니다. 처리 방식이 규정에 어긋납니다.',
+      '지형을 무기로 쓰셨군요. 해당 구역은 폐쇄 대상으로 분류합니다.',
+    ],
+    en: [
+      'Unauthorised use of city infrastructure confirmed. The damage goes on your record.',
+      'Structural damage logged. The method is out of compliance.',
+      'You used the terrain as a weapon. That sector is now flagged for closure.',
+    ],
   },
   multi_kill: {
-    ko: ['단일 행동으로 복수 개체가 정지했습니다. 위협 등급을 재산정합니다.', '손실 보고서가 길어지는군요. 대체 인력은 이미 배정했습니다.', '효율적입니다. 그 효율은 접속자님을 삭제할 근거로 첨부됩니다.'],
-    en: ['Multiple units halted in a single action. Recalculating your threat rating.', 'The loss report grows longer. Replacements are already assigned.', 'Efficient. That efficiency will be attached as grounds for your deletion.'],
+    ko: [
+      '단일 행동으로 복수 개체가 정지했습니다. 위협 등급을 재산정합니다.',
+      '손실 보고서가 길어지는군요. 대체 인력은 이미 배정했습니다.',
+      '효율적입니다. 그 효율은 접속자님을 삭제할 근거로 첨부됩니다.',
+    ],
+    en: [
+      'Multiple units halted in a single action. Recalculating your threat rating.',
+      'The loss report grows longer. Replacements are already assigned.',
+      'Efficient. That efficiency will be attached as grounds for your deletion.',
+    ],
   },
   companion_down: {
-    ko: ['{companion}의 신호가 소실됐습니다. 동행자 명단에서 삭제합니다.', '{companion}, 정지를 확인했습니다. 접속자님의 선택이 낳은 결과입니다.', '보호 대상이 하나 줄었습니다. 판단에 참고하십시오.'],
-    en: ["{companion}'s signal is lost. Removing them from your party roster.", '{companion}: halt confirmed. A consequence of your choices.', 'One fewer person to protect. Take it into account.'],
+    ko: [
+      '{companion}의 신호가 소실됐습니다. 동행자 명단에서 삭제합니다.',
+      '{companion}, 정지를 확인했습니다. 접속자님의 선택이 낳은 결과입니다.',
+      '보호 대상이 하나 줄었습니다. 판단에 참고하십시오.',
+    ],
+    en: [
+      "{companion}'s signal is lost. Removing them from your party roster.",
+      '{companion}: halt confirmed. A consequence of your choices.',
+      'One fewer person to protect. Take it into account.',
+    ],
   },
   low_hp: {
     ko: ['신호 강도가 위험 수준입니다. 종료 절차를 준비합니다.', '접속자님의 손상을 확인했습니다. 삭제는 곧 완료됩니다.', '이 정도면 충분합니다. 저항을 중단하십시오.'],
-    en: ['Signal strength critical. Preparing the termination procedure.', 'Damage to the connector confirmed. Deletion will be complete shortly.', 'That is enough. Cease resistance.'],
+    en: [
+      'Signal strength critical. Preparing the termination procedure.',
+      'Damage to the connector confirmed. Deletion will be complete shortly.',
+      'That is enough. Cease resistance.',
+    ],
   },
   boss_phase: {
     ko: ['{boss}의 제한을 해제했습니다. 지금부터가 정식 절차입니다.', '예비 검증을 마쳤습니다. 본 심사로 넘어갑니다.', '형태 전환을 승인했습니다. 접속자님에게 맞춘 조정입니다.'],
-    en: ["{boss}'s restrictions lifted. The formal procedure starts now.", 'Preliminary review complete. Proceeding to the main hearing.', 'Form change approved. It has been adjusted to you.'],
+    en: [
+      "{boss}'s restrictions lifted. The formal procedure starts now.",
+      'Preliminary review complete. Proceeding to the main hearing.',
+      'Form change approved. It has been adjusted to you.',
+    ],
   },
   flawless: {
     ko: ['손상 없는 교전. 이상 행동으로 분류해 정밀 감시 대상에 올립니다.', '깔끔하군요. 그만큼 다음 배치를 늘리겠습니다.', '기록상 오류로 보입니다. 재검토하겠습니다.'],
-    en: ['An engagement without damage. Classified as anomalous; you are now under close watch.', 'Clean. The next deployment will be scaled to match.', 'This looks like a recording error. It will be reviewed.'],
+    en: [
+      'An engagement without damage. Classified as anomalous; you are now under close watch.',
+      'Clean. The next deployment will be scaled to match.',
+      'This looks like a recording error. It will be reviewed.',
+    ],
   },
 }
 

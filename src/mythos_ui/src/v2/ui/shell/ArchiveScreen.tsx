@@ -17,7 +17,11 @@ import './archive.css'
 
 const KINDS: { kind: MetaUnlockKind; label: Text; hint: Text }[] = [
   { kind: 'archetype', label: L('접속자', 'Archetypes'), hint: L('새로운 방식으로 루프를 시작한다.', 'New ways to start a loop.') },
-  { kind: 'companion', label: L('동료', 'Companions'), hint: L('함께 달릴 사람들. 저마다 카드와 고유 능력을 들고 온다.', 'People who run with you. Each brings cards and a passive.') },
+  {
+    kind: 'companion',
+    label: L('동료', 'Companions'),
+    hint: L('함께 달릴 사람들. 저마다 카드와 고유 능력을 들고 온다.', 'People who run with you. Each brings cards and a passive.'),
+  },
   { kind: 'card_pack', label: L('프로토콜 묶음', 'Protocol packs'), hint: L('보상과 상점에 새 카드가 섞인다.', 'New cards enter rewards and shops.') },
   { kind: 'implant_pack', label: L('임플란트 보급', 'Implant caches'), hint: L('새 임플란트가 드롭 풀에 들어온다.', 'New implants enter the drop pool.') },
   { kind: 'thread', label: L('기억의 실', 'Memory threads'), hint: L('모든 루프에 영구히 따라붙는 작은 이점.', 'Small permanent edges for every loop.') },
@@ -153,13 +157,16 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
     }
     setCharging(u.id)
     sound('roll_tick', { intensity: 0.6 })
-    window.setTimeout(() => {
-      sound('unlock')
-      onProfile(rx.buyUnlock(profile, u.id, C))
-      setCharging(null)
-      setBurst(u.id)
-      window.setTimeout(() => setBurst((b) => (b === u.id ? null : b)), 900)
-    }, profile.settings.fastAnim ? 150 : 620)
+    window.setTimeout(
+      () => {
+        sound('unlock')
+        onProfile(rx.buyUnlock(profile, u.id, C))
+        setCharging(null)
+        setBurst(u.id)
+        window.setTimeout(() => setBurst((b) => (b === u.id ? null : b)), 900)
+      },
+      profile.settings.fastAnim ? 150 : 620,
+    )
   }
 
   const lore = Object.values(C.lore)
@@ -328,7 +335,11 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                 {lore.length > profile.codex.length && (
                   <div className="m2-lore m2-lore--locked">
                     <b className="m2-mono">{lore.length - profile.codex.length}</b>
-                    <span>{ko ? '개의 코덱스 기록이 손상된 채 남아 있다. 루프 도중 사건과 선택으로 되살릴 수 있다.' : 'entries remain corrupted. Events and choices during a loop restore them.'}</span>
+                    <span>
+                      {ko
+                        ? '개의 코덱스 기록이 손상된 채 남아 있다. 루프 도중 사건과 선택으로 되살릴 수 있다.'
+                        : 'entries remain corrupted. Events and choices during a loop restore them.'}
+                    </span>
                   </div>
                 )}
               </>
@@ -362,7 +373,15 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                         <span>{tr(arch?.name, lang)}</span>
                         {h.daily && <span className="m2-hist__daily">{ko ? `오늘의 시드 · ${tr(dateLabel(h.daily), lang)}` : `Daily · ${tr(dateLabel(h.daily), lang)}`}</span>}
                         <span className="m2-hist__res">
-                          {h.result === 'victory' ? tr(ending?.title, lang) || (ko ? '탈출' : 'Escaped') : h.result === 'abandoned' ? (ko ? '포기' : 'Abandoned') : ko ? '삭제됨' : 'Erased'}
+                          {h.result === 'victory'
+                            ? tr(ending?.title, lang) || (ko ? '탈출' : 'Escaped')
+                            : h.result === 'abandoned'
+                              ? ko
+                                ? '포기'
+                                : 'Abandoned'
+                              : ko
+                                ? '삭제됨'
+                                : 'Erased'}
                         </span>
                         <span className="m2-hist__echo m2-mono">+◈{h.echoes}</span>
                       </div>

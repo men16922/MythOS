@@ -60,23 +60,11 @@ export function Tooltip({ content, children, placement = 'top', className, width
   }, [anchor, placement])
 
   return (
-    <span
-      ref={ref}
-      className={className ? `m2-tip-anchor ${className}` : 'm2-tip-anchor'}
-      onMouseEnter={show}
-      onMouseLeave={hide}
-      onFocus={show}
-      onBlur={hide}
-    >
+    <span ref={ref} className={className ? `m2-tip-anchor ${className}` : 'm2-tip-anchor'} onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
       {children}
       {anchor && content
         ? createPortal(
-            <div
-              ref={bubble}
-              className="m2-tip"
-              role="tooltip"
-              style={{ maxWidth: width, left: pos?.left ?? -9999, top: pos?.top ?? -9999, opacity: pos ? 1 : 0 }}
-            >
+            <div ref={bubble} className="m2-tip" role="tooltip" style={{ maxWidth: width, left: pos?.left ?? -9999, top: pos?.top ?? -9999, opacity: pos ? 1 : 0 }}>
               {content}
             </div>,
             document.body,

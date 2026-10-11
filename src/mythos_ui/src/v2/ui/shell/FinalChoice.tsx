@@ -48,7 +48,12 @@ export function FinalChoice({ run, C, lang, act }: ScreenProps) {
               {!gate.ok && gate.reason && (
                 <em>
                   <Lock size={13} /> {tr(gate.reason, lang)}
-                  {progress(def.requires) && <span className="m2-mono"> ({ko ? '현재' : 'now'} {progress(def.requires)})</span>}
+                  {progress(def.requires) && (
+                    <span className="m2-mono">
+                      {' '}
+                      ({ko ? '현재' : 'now'} {progress(def.requires)})
+                    </span>
+                  )}
                 </em>
               )}
             </span>

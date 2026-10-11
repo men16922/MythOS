@@ -9,7 +9,6 @@ import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 import './actintro.css'
 
-
 export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
   const actDef = C.acts[run.act]
   const lines = tr(actDef?.intro, lang).split('\n').filter(Boolean)

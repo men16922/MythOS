@@ -44,7 +44,9 @@
   text-align: left;
   clip-path: var(--m2-cut);
   animation: m2-row-in 0.6s var(--m2-ease) both;
-  transition: transform 0.25s var(--m2-ease), border-color 0.25s;
+  transition:
+    transform 0.25s var(--m2-ease),
+    border-color 0.25s;
 }
 .m2-ending-opt img {
   position: absolute;
@@ -52,7 +54,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s var(--m2-ease), filter 0.4s;
+  transition:
+    transform 0.6s var(--m2-ease),
+    filter 0.4s;
   filter: brightness(0.75);
 }
 .m2-ending-opt__shade {
@@ -205,7 +209,9 @@
   background: rgba(10, 8, 26, 0.75);
   opacity: 0;
   transform: translateY(12px);
-  transition: opacity 0.5s, transform 0.5s var(--m2-ease);
+  transition:
+    opacity 0.5s,
+    transform 0.5s var(--m2-ease);
 }
 .m2-tally.is-in,
 .m2-runstats.is-in {
@@ -249,7 +255,9 @@
   border: 1px solid var(--m2-line);
   opacity: 0;
   transform: translateY(12px);
-  transition: opacity 0.5s, transform 0.5s var(--m2-ease);
+  transition:
+    opacity 0.5s,
+    transform 0.5s var(--m2-ease);
 }
 .m2-runstats > div {
   padding: 10px 12px;

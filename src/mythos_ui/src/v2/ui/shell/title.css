@@ -184,7 +184,11 @@
   text-align: left;
   cursor: pointer;
   color: var(--m2-ink-2);
-  transition: transform 0.16s var(--m2-ease), border-color 0.16s, background 0.16s, color 0.16s;
+  transition:
+    transform 0.16s var(--m2-ease),
+    border-color 0.16s,
+    background 0.16s,
+    color 0.16s;
 }
 .m2-menu-item b {
   display: block;

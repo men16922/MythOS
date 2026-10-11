@@ -117,15 +117,7 @@ export function IntentLabels({ g, tileDmg, focusEnemy, dimIntents }: { g: BoardG
 }
 
 /** Lock-on reticles: follow the locked unit, slide when the lock moves. */
-export function LockOns(p: {
-  g: BoardGeom
-  intents: IntentView[]
-  vc: CombatState
-  C: ContentRegistry
-  focusEnemy: string | null
-  dimIntents: boolean
-  firing: string | null
-}) {
+export function LockOns(p: { g: BoardGeom; intents: IntentView[]; vc: CombatState; C: ContentRegistry; focusEnemy: string | null; dimIntents: boolean; firing: string | null }) {
   const { g, C } = p
   return p.intents
     .filter((iv) => iv.info.move.pattern === 'track' && iv.info.targetUid)

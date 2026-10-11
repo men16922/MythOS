@@ -74,8 +74,7 @@ export const Hand = memo(function Hand(p: HandProps) {
   /** Set while a touch slide is in progress (it started on a card and moved past LONG_SLOP). */
   const sliding = useRef(false)
   const slideEndedAt = useRef(0)
-  const cardAt = (x: number, y: number): HTMLElement | null =>
-    (document.elementFromPoint(x, y)?.closest('[data-card-uid]') as HTMLElement | null) ?? null
+  const cardAt = (x: number, y: number): HTMLElement | null => (document.elementFromPoint(x, y)?.closest('[data-card-uid]') as HTMLElement | null) ?? null
   const pressStart = (uid: string, e: ReactPointerEvent<HTMLDivElement>) => {
     if (e.pointerType === 'mouse') return
     sliding.current = false
@@ -141,7 +140,11 @@ export const Hand = memo(function Hand(p: HandProps) {
   }, [p.cards])
 
   return (
-    <div className={`m2c-hand${p.hidden ? ' is-hidden' : ''}${slideUid ? ' is-sliding' : ''}`} style={{ '--cw': `${cw}px`, '--ch': `${ch}px`, '--fs': `${p.fs}px` } as CSSProperties} data-coach="hand">
+    <div
+      className={`m2c-hand${p.hidden ? ' is-hidden' : ''}${slideUid ? ' is-sliding' : ''}`}
+      style={{ '--cw': `${cw}px`, '--ch': `${ch}px`, '--fs': `${p.fs}px` } as CSSProperties}
+      data-coach="hand"
+    >
       {p.cards.map((card, i) => {
         const def = p.C.cards[card.defId]
         if (!def) return null
@@ -186,7 +189,9 @@ export const Hand = memo(function Hand(p: HandProps) {
               >
                 <CardView def={def} upgraded={card.upgraded} lang={p.lang} playable={pl.ok} selected={armed} reason={pl.reason} />
                 <span className="m2c-key">{i < 9 ? i + 1 : ''}</span>
-                {armed && p.confirmUid === card.uid && <span className="m2c-confirm">{p.lang === 'ko' ? '한 번 더 눌러 사용' : p.touch ? 'Tap again to play' : 'Click again to play'}</span>}
+                {armed && p.confirmUid === card.uid && (
+                  <span className="m2c-confirm">{p.lang === 'ko' ? '한 번 더 눌러 사용' : p.touch ? 'Tap again to play' : 'Click again to play'}</span>
+                )}
               </div>
             </div>
           </div>

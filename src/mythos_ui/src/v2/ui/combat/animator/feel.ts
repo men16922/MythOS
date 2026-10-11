@@ -194,10 +194,17 @@ export function useFeel({ speed, S, later, updFx, updUnit }: FeelDeps): Feel {
         const b = fig.getBoundingClientRect()
         origin = `${b.left + b.width / 2 - a.left}px ${b.top + b.height * 0.6 - a.top}px`
       }
-      el.animate([{ transform: 'scale(1)', transformOrigin: origin }, { transform: 'scale(1.09)', transformOrigin: origin, offset: 0.35 }, { transform: 'scale(1)', transformOrigin: origin }], {
-        duration: 900,
-        easing: 'cubic-bezier(.2,.8,.2,1)',
-      })
+      el.animate(
+        [
+          { transform: 'scale(1)', transformOrigin: origin },
+          { transform: 'scale(1.09)', transformOrigin: origin, offset: 0.35 },
+          { transform: 'scale(1)', transformOrigin: origin },
+        ],
+        {
+          duration: 900,
+          easing: 'cubic-bezier(.2,.8,.2,1)',
+        },
+      )
       // Slow motion: every running board animation plays at 35 % for 300 ms.
       const anims = el.getAnimations({ subtree: true })
       for (const a of anims) a.playbackRate = 0.35

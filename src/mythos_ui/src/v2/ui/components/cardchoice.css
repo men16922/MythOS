@@ -25,7 +25,9 @@
 .m2-choice__slot {
   opacity: 0;
   transform: translateY(60px) rotateY(80deg) scale(0.8);
-  transition: transform 0.55s cubic-bezier(0.2, 1.2, 0.4, 1), opacity 0.35s;
+  transition:
+    transform 0.55s cubic-bezier(0.2, 1.2, 0.4, 1),
+    opacity 0.35s;
 }
 .m2-choice__slot.is-in {
   opacity: 1;

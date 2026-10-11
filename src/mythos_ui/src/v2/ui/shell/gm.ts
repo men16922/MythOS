@@ -15,7 +15,6 @@ interface ImproviseReq {
   act: number
 }
 
-
 function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | null> {
   return Promise.race([p, new Promise<null>((res) => window.setTimeout(() => res(null), ms))])
 }

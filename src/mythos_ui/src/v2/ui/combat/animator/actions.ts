@@ -39,41 +39,44 @@ export function cardSteps(kit: Kit, plan: Plan, ev: Ev<'card'>, evIdx: number): 
       plan.ctxDir = d
       plan.ctxFrom = u.pos
       if (turning && d) turnTo(ev.owner, d, sideOf(u.pos, d, ev.target))
-      later(() => {
-        pose(ev.owner, isAttack ? 'attack' : hasBlock ? 'guard' : 'skill', S(560))
-        if (isAttack && d) lunge(ev.owner, d)
-        else squash(ev.owner)
-        const from = { x: u.pos.x, y: u.pos.y }
-        const pan = panOf(u.pos.x)
-        if (kind === 'bolt' && ev.target) {
-          addFx({ kind: 'bolt', from, to: ev.target, tone: 'party', ms: S(240) })
-          sfx('shoot', { pan })
-        } else if (kind === 'beam' && d) {
-          const r = face.target.mode === 'beam' ? face.target.range : 3
-          const v = DIR_VEC[d]
-          const ex = Math.max(-0.4, Math.min(GRID_W - 0.6, u.pos.x + v.x * r))
-          const ey = Math.max(-0.4, Math.min(GRID_H - 0.6, u.pos.y + v.y * r))
-          addFx({ kind: 'beam', from, to: { x: ex, y: ey }, tone: 'party', ms: S(460) })
-          sfx('beam', { pan })
-        } else if (kind === 'arc' && ev.target) {
-          const at = ev.target
-          addFx({ kind: 'arc', from, to: at, tone: 'party', ms: S(380) })
-          sfx('lob', { pan })
-          if (landsAlone)
-            later(() => {
-              addFx({ kind: 'flare', at, tone: 'party', ms: S(520) })
-              addFx({ kind: 'wave', at, radius: 0.7, tone: 'party', ms: S(480) })
-              trauma(0.22)
-              sfx('explosion', { pan: panOf(at.x), intensity: 0.5, volume: 0.6 })
-            }, S(370))
-        } else if (kind === 'slash' && ev.target) {
-          addFx({ kind: 'slash', at: ev.target, tone: 'party', ms: S(360), dir: d })
-          sfx('swing', { pan })
-        } else {
-          addFx({ kind: 'burst', at: ev.target ?? u.pos, tone: hasBlock ? 'block' : 'party', ms: S(480) })
-          if (!hasBlock) sfx('energy', { pan, volume: 0.6 })
-        }
-      }, S(150 + (turning ? TURN_MS : 0)))
+      later(
+        () => {
+          pose(ev.owner, isAttack ? 'attack' : hasBlock ? 'guard' : 'skill', S(560))
+          if (isAttack && d) lunge(ev.owner, d)
+          else squash(ev.owner)
+          const from = { x: u.pos.x, y: u.pos.y }
+          const pan = panOf(u.pos.x)
+          if (kind === 'bolt' && ev.target) {
+            addFx({ kind: 'bolt', from, to: ev.target, tone: 'party', ms: S(240) })
+            sfx('shoot', { pan })
+          } else if (kind === 'beam' && d) {
+            const r = face.target.mode === 'beam' ? face.target.range : 3
+            const v = DIR_VEC[d]
+            const ex = Math.max(-0.4, Math.min(GRID_W - 0.6, u.pos.x + v.x * r))
+            const ey = Math.max(-0.4, Math.min(GRID_H - 0.6, u.pos.y + v.y * r))
+            addFx({ kind: 'beam', from, to: { x: ex, y: ey }, tone: 'party', ms: S(460) })
+            sfx('beam', { pan })
+          } else if (kind === 'arc' && ev.target) {
+            const at = ev.target
+            addFx({ kind: 'arc', from, to: at, tone: 'party', ms: S(380) })
+            sfx('lob', { pan })
+            if (landsAlone)
+              later(() => {
+                addFx({ kind: 'flare', at, tone: 'party', ms: S(520) })
+                addFx({ kind: 'wave', at, radius: 0.7, tone: 'party', ms: S(480) })
+                trauma(0.22)
+                sfx('explosion', { pan: panOf(at.x), intensity: 0.5, volume: 0.6 })
+              }, S(370))
+          } else if (kind === 'slash' && ev.target) {
+            addFx({ kind: 'slash', at: ev.target, tone: 'party', ms: S(360), dir: d })
+            sfx('swing', { pan })
+          } else {
+            addFx({ kind: 'burst', at: ev.target ?? u.pos, tone: hasBlock ? 'block' : 'party', ms: S(480) })
+            if (!hasBlock) sfx('energy', { pan, volume: 0.6 })
+          }
+        },
+        S(150 + (turning ? TURN_MS : 0)),
+      )
     },
   })
 }
@@ -86,7 +89,8 @@ export function attackSteps(kit: Kit, plan: Plan, ev: Ev<'attack'>, evIdx: numbe
   const mv = u0 ? C.enemies[u0.defId]?.moves.find((m) => m.id === ev.moveId) : undefined
   const pattern = mv?.pattern ?? 'melee'
   const support = pattern === 'buff' || pattern === 'summon'
-  const kind = pattern === 'line' || pattern === 'track' ? 'bolt' : pattern === 'beam' ? 'beam' : pattern === 'lob' ? 'arc' : pattern === 'nova' ? 'nova' : support ? 'burst' : 'slash'
+  const kind =
+    pattern === 'line' || pattern === 'track' ? 'bolt' : pattern === 'beam' ? 'beam' : pattern === 'lob' ? 'arc' : pattern === 'nova' ? 'nova' : support ? 'burst' : 'slash'
   if (u0?.side !== 'enemy') return
   // Face the attack first: the intent's direction, or toward the struck area (lobs).
   const aim = ev.tiles[Math.floor(ev.tiles.length / 2)]

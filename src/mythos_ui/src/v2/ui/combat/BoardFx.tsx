@@ -41,7 +41,23 @@ const ELEMENT_COLOR: Record<AreaElement, [string, string]> = {
   heal: ['#eafff0', '#6ef59a'],
 }
 
-function Particles({ id, n, color, spread, ms, kind, delay = 0 }: { id: number; n: number; color: string; spread: number; ms: number; kind: 'spark' | 'debris' | 'dust' | 'pixels'; delay?: number }) {
+function Particles({
+  id,
+  n,
+  color,
+  spread,
+  ms,
+  kind,
+  delay = 0,
+}: {
+  id: number
+  n: number
+  color: string
+  spread: number
+  ms: number
+  kind: 'spark' | 'debris' | 'dust' | 'pixels'
+  delay?: number
+}) {
   const out: ReactNode[] = []
   for (let i = 0; i < n; i++) {
     const a = rnd(id, i) * Math.PI * 2
@@ -91,7 +107,27 @@ function Tongues({ seed, n, x, y, w, h, ms, delay = 0 }: { seed: number; n: numb
 }
 
 /** Embers / motes / sparks that rise and drift (`kind` picks the look). */
-function Rising({ seed, n, x, y, w, rise, ms, delay = 0, kind }: { seed: number; n: number; x: number; y: number; w: number; rise: number; ms: number; delay?: number; kind: 'ember' | 'mote' | 'smoke' }) {
+function Rising({
+  seed,
+  n,
+  x,
+  y,
+  w,
+  rise,
+  ms,
+  delay = 0,
+  kind,
+}: {
+  seed: number
+  n: number
+  x: number
+  y: number
+  w: number
+  rise: number
+  ms: number
+  delay?: number
+  kind: 'ember' | 'mote' | 'smoke'
+}) {
   const out: ReactNode[] = []
   for (let i = 0; i < n; i++) {
     const style = {
@@ -260,17 +296,59 @@ function AreaBurst({ g, f }: { g: BoardGeom; f: Extract<FxItem, { kind: 'area' }
     const k = posKey(p)
     switch (f.element) {
       case 'fire':
-        nodes.push(<i key={`fl${k}`} className="m2c-tileflash" style={{ left: c.x, top: c.y - tw * 0.05 * s, width: tw * 0.95 * s, height: tw * 0.62 * s, background: `radial-gradient(closest-side, ${core}cc, ${body}77 45%, transparent)`, animationDuration: `${f.ms * 0.28}ms`, animationDelay: `${delay}ms` }} />)
+        nodes.push(
+          <i
+            key={`fl${k}`}
+            className="m2c-tileflash"
+            style={{
+              left: c.x,
+              top: c.y - tw * 0.05 * s,
+              width: tw * 0.95 * s,
+              height: tw * 0.62 * s,
+              background: `radial-gradient(closest-side, ${core}cc, ${body}77 45%, transparent)`,
+              animationDuration: `${f.ms * 0.28}ms`,
+              animationDelay: `${delay}ms`,
+            }}
+          />,
+        )
         nodes.push(<Tongues key={`t${k}`} seed={seed} n={3} x={c.x} y={c.y + tw * 0.08 * s} w={tw * 0.62 * s} h={tw * 0.62 * s} ms={f.ms * 0.85} delay={delay} />)
         nodes.push(<Rising key={`e${k}`} seed={seed} n={4} x={c.x} y={c.y} w={tw * 0.6 * s} rise={tw * 0.9 * s} ms={f.ms} delay={delay} kind="ember" />)
         break
       case 'shock':
         nodes.push(<Lightning key={`l${k}`} seed={seed} x={c.x + (rnd(seed, 1) - 0.5) * tw * 0.2 * s} y={c.y} h={tw * 1.25 * s} ms={f.ms * 0.55} delay={delay} />)
-        nodes.push(<i key={`fl${k}`} className="m2c-tileflash" style={{ left: c.x, top: c.y, width: tw * 0.9 * s, height: tw * 0.55 * s, background: `radial-gradient(closest-side, ${core}, ${body}99 50%, transparent)`, animationDuration: `${f.ms * 0.3}ms`, animationDelay: `${delay}ms` }} />)
+        nodes.push(
+          <i
+            key={`fl${k}`}
+            className="m2c-tileflash"
+            style={{
+              left: c.x,
+              top: c.y,
+              width: tw * 0.9 * s,
+              height: tw * 0.55 * s,
+              background: `radial-gradient(closest-side, ${core}, ${body}99 50%, transparent)`,
+              animationDuration: `${f.ms * 0.3}ms`,
+              animationDelay: `${delay}ms`,
+            }}
+          />,
+        )
         nodes.push(<Rising key={`s${k}`} seed={seed} n={4} x={c.x} y={c.y} w={tw * 0.7 * s} rise={tw * 0.45 * s} ms={f.ms * 0.6} delay={delay} kind="mote" />)
         break
       case 'blast':
-        nodes.push(<i key={`fl${k}`} className="m2c-tileflash is-hot" style={{ left: c.x, top: c.y - tw * 0.1 * s, width: tw * 1.1 * s, height: tw * 0.78 * s, background: `radial-gradient(closest-side, #fff, ${core} 30%, ${body}99 55%, transparent)`, animationDuration: `${f.ms * 0.3}ms`, animationDelay: `${delay}ms` }} />)
+        nodes.push(
+          <i
+            key={`fl${k}`}
+            className="m2c-tileflash is-hot"
+            style={{
+              left: c.x,
+              top: c.y - tw * 0.1 * s,
+              width: tw * 1.1 * s,
+              height: tw * 0.78 * s,
+              background: `radial-gradient(closest-side, #fff, ${core} 30%, ${body}99 55%, transparent)`,
+              animationDuration: `${f.ms * 0.3}ms`,
+              animationDelay: `${delay}ms`,
+            }}
+          />,
+        )
         nodes.push(
           <div key={`d${k}`} className="m2c-burst" style={{ left: c.x, top: c.y - tw * 0.12 * s }}>
             <div className="m2c-delay" style={{ animationDelay: `${delay}ms` }}>
@@ -281,7 +359,13 @@ function AreaBurst({ g, f }: { g: BoardGeom; f: Extract<FxItem, { kind: 'area' }
         nodes.push(<Rising key={`sm${k}`} seed={seed} n={2} x={c.x} y={c.y - tw * 0.1 * s} w={tw * 0.5 * s} rise={tw * 0.55 * s} ms={f.ms * 1.1} delay={delay + 90} kind="smoke" />)
         break
       case 'force':
-        nodes.push(<i key={`r${k}`} className="m2c-ripple" style={{ left: c.x, top: c.y, width: tw * 0.95 * s, height: tw * 0.6 * s, color: body, animationDuration: `${f.ms * 0.55}ms`, animationDelay: `${delay}ms` }} />)
+        nodes.push(
+          <i
+            key={`r${k}`}
+            className="m2c-ripple"
+            style={{ left: c.x, top: c.y, width: tw * 0.95 * s, height: tw * 0.6 * s, color: body, animationDuration: `${f.ms * 0.55}ms`, animationDelay: `${delay}ms` }}
+          />,
+        )
         nodes.push(
           <div key={`d${k}`} className="m2c-burst" style={{ left: c.x, top: c.y }}>
             <div className="m2c-delay" style={{ animationDelay: `${delay}ms` }}>
@@ -292,7 +376,21 @@ function AreaBurst({ g, f }: { g: BoardGeom; f: Extract<FxItem, { kind: 'area' }
         break
       case 'shield':
       case 'heal':
-        nodes.push(<i key={`g${k}`} className="m2c-tileflash is-soft" style={{ left: c.x, top: c.y - tw * 0.2 * s, width: tw * 0.95 * s, height: tw * 0.95 * s, background: `radial-gradient(closest-side, ${core}cc, ${body}66 50%, transparent)`, animationDuration: `${f.ms * 0.7}ms`, animationDelay: `${delay}ms` }} />)
+        nodes.push(
+          <i
+            key={`g${k}`}
+            className="m2c-tileflash is-soft"
+            style={{
+              left: c.x,
+              top: c.y - tw * 0.2 * s,
+              width: tw * 0.95 * s,
+              height: tw * 0.95 * s,
+              background: `radial-gradient(closest-side, ${core}cc, ${body}66 50%, transparent)`,
+              animationDuration: `${f.ms * 0.7}ms`,
+              animationDelay: `${delay}ms`,
+            }}
+          />,
+        )
         nodes.push(<Rising key={`m${k}`} seed={seed} n={3} x={c.x} y={c.y} w={tw * 0.6 * s} rise={tw * 0.7 * s} ms={f.ms} delay={delay} kind="mote" />)
         break
     }
@@ -303,7 +401,14 @@ function AreaBurst({ g, f }: { g: BoardGeom; f: Extract<FxItem, { kind: 'area' }
       {/* centre flash sized to the footprint */}
       <i
         className={soft ? 'm2c-areaflash is-soft' : 'm2c-areaflash'}
-        style={{ left: cc.x, top: cc.y - tw * 0.2 * cs, width: flashW, height: flashW * 0.72, background: `radial-gradient(closest-side, ${core}, ${body}bb 35%, ${body}33 65%, transparent)`, animationDuration: `${f.ms * (soft ? 0.7 : 0.42)}ms` }}
+        style={{
+          left: cc.x,
+          top: cc.y - tw * 0.2 * cs,
+          width: flashW,
+          height: flashW * 0.72,
+          background: `radial-gradient(closest-side, ${core}, ${body}bb 35%, ${body}33 65%, transparent)`,
+          animationDuration: `${f.ms * (soft ? 0.7 : 0.42)}ms`,
+        }}
       />
       {nodes}
     </div>
@@ -387,7 +492,14 @@ function Impact({ g, f }: { g: BoardGeom; f: Extract<FxItem, { kind: 'impact' }>
             <i />
           </div>
         )}
-        <Particles id={f.id + 7} n={f.surface === 'cover' ? 14 : 10} color={f.surface === 'cover' ? '#9fd8d4' : '#ffe2a0'} spread={tw * 0.8 * s} ms={f.ms * 0.8} kind={f.surface === 'cover' ? 'debris' : 'spark'} />
+        <Particles
+          id={f.id + 7}
+          n={f.surface === 'cover' ? 14 : 10}
+          color={f.surface === 'cover' ? '#9fd8d4' : '#ffe2a0'}
+          spread={tw * 0.8 * s}
+          ms={f.ms * 0.8}
+          kind={f.surface === 'cover' ? 'debris' : 'spark'}
+        />
       </div>
     </>
   )
@@ -413,7 +525,10 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
             return (
               <div key={f.id} className="m2c-burst" style={{ left: p.x, top: p.y }}>
                 <i className="m2c-wave" style={{ width: w, height: w * 0.62, color, animationDuration: `${f.ms}ms` }} />
-                <i className="m2c-wave is-inner" style={{ width: w * 0.7, height: w * 0.7 * 0.62, color, animationDuration: `${f.ms * 0.8}ms`, animationDelay: `${f.ms * 0.08}ms` }} />
+                <i
+                  className="m2c-wave is-inner"
+                  style={{ width: w * 0.7, height: w * 0.7 * 0.62, color, animationDuration: `${f.ms * 0.8}ms`, animationDelay: `${f.ms * 0.08}ms` }}
+                />
               </div>
             )
           }
@@ -458,7 +573,11 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
             const len = Math.hypot(x2 - x1, y2 - y1)
             const ang = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
             return (
-              <div key={f.id} className={`m2c-${f.kind} is-${f.tone}`} style={{ left: x1, top: y1, width: len, transform: `rotate(${ang}deg)`, color, animationDuration: `${f.ms}ms` }}>
+              <div
+                key={f.id}
+                className={`m2c-${f.kind} is-${f.tone}`}
+                style={{ left: x1, top: y1, width: len, transform: `rotate(${ang}deg)`, color, animationDuration: `${f.ms}ms` }}
+              >
                 <i style={{ animationDuration: `${f.ms}ms` }} />
               </div>
             )
@@ -478,7 +597,10 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
             case 'burst':
               return (
                 <div key={f.id} className="m2c-burst" style={{ left: p.x, top: p.y - tw * 0.35 * s }}>
-                  <div className="m2c-glow" style={{ background: `radial-gradient(circle, ${color}cc, transparent 65%)`, width: tw * s, height: tw * s, animationDuration: `${f.ms}ms` }} />
+                  <div
+                    className="m2c-glow"
+                    style={{ background: `radial-gradient(circle, ${color}cc, transparent 65%)`, width: tw * s, height: tw * s, animationDuration: `${f.ms}ms` }}
+                  />
                   <Particles id={f.id} n={8} color={color} spread={tw * 0.55 * s} ms={f.ms} kind="spark" />
                 </div>
               )
@@ -495,12 +617,23 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
                 <div
                   key={f.id}
                   className={`m2c-ring${f.kind === 'nova' ? ' is-nova' : ''}`}
-                  style={{ left: p.x, top: p.y, width: tw * (f.kind === 'nova' ? 2.6 : 1.6) * s, height: tw * (f.kind === 'nova' ? 1.5 : 0.95) * s, color, animationDuration: `${f.ms}ms` }}
+                  style={{
+                    left: p.x,
+                    top: p.y,
+                    width: tw * (f.kind === 'nova' ? 2.6 : 1.6) * s,
+                    height: tw * (f.kind === 'nova' ? 1.5 : 0.95) * s,
+                    color,
+                    animationDuration: `${f.ms}ms`,
+                  }}
                 />
               )
             case 'shield':
               return (
-                <div key={f.id} className="m2c-shieldfx" style={{ left: p.x, top: p.y - tw * 0.6 * s, width: tw * 0.95 * s, height: tw * 1.1 * s, animationDuration: `${f.ms}ms` }} />
+                <div
+                  key={f.id}
+                  className="m2c-shieldfx"
+                  style={{ left: p.x, top: p.y - tw * 0.6 * s, width: tw * 0.95 * s, height: tw * 1.1 * s, animationDuration: `${f.ms}ms` }}
+                />
               )
             case 'debris':
               return (
@@ -530,7 +663,17 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
               // Burn tick on a unit: the body goes up in a short burst of fire.
               return (
                 <div key={f.id} className="m2c-fxgroup is-fire">
-                  <i className="m2c-tileflash" style={{ left: p.x, top: chest, width: tw * 0.9 * s, height: tw * 1.1 * s, background: 'radial-gradient(closest-side, #fff1b0, #ff6a14aa 45%, transparent)', animationDuration: `${f.ms * 0.45}ms` }} />
+                  <i
+                    className="m2c-tileflash"
+                    style={{
+                      left: p.x,
+                      top: chest,
+                      width: tw * 0.9 * s,
+                      height: tw * 1.1 * s,
+                      background: 'radial-gradient(closest-side, #fff1b0, #ff6a14aa 45%, transparent)',
+                      animationDuration: `${f.ms * 0.45}ms`,
+                    }}
+                  />
                   <Tongues seed={f.id} n={6} x={p.x} y={p.y - tw * 0.05 * s} w={tw * 0.55 * s} h={tw * 0.75 * s} ms={f.ms} />
                   <Rising seed={f.id} n={6} x={p.x} y={chest} w={tw * 0.5 * s} rise={tw * 0.8 * s} ms={f.ms * 1.2} kind="ember" />
                 </div>
@@ -538,7 +681,17 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
             case 'zap':
               return (
                 <div key={f.id} className="m2c-fxgroup is-shock">
-                  <i className="m2c-tileflash" style={{ left: p.x, top: p.y - tw * 0.25 * s, width: tw * 0.9 * s, height: tw * 0.9 * s, background: 'radial-gradient(closest-side, #fff, #7fdcffaa 45%, transparent)', animationDuration: `${f.ms * 0.4}ms` }} />
+                  <i
+                    className="m2c-tileflash"
+                    style={{
+                      left: p.x,
+                      top: p.y - tw * 0.25 * s,
+                      width: tw * 0.9 * s,
+                      height: tw * 0.9 * s,
+                      background: 'radial-gradient(closest-side, #fff, #7fdcffaa 45%, transparent)',
+                      animationDuration: `${f.ms * 0.4}ms`,
+                    }}
+                  />
                   <Lightning seed={f.id} x={p.x - tw * 0.15 * s} y={p.y} h={tw * 0.75 * s} ms={f.ms * 0.7} small />
                   <Lightning seed={f.id + 3} x={p.x + tw * 0.18 * s} y={p.y + tw * 0.05 * s} h={tw * 0.6 * s} ms={f.ms * 0.7} delay={f.ms * 0.15} small />
                   <div className="m2c-burst" style={{ left: p.x, top: p.y - tw * 0.2 * s }}>
@@ -556,13 +709,33 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
               // A tile catching fire (tone 'fire') or a lobbed shot landing without an area (any other tone).
               return f.tone === 'fire' ? (
                 <div key={f.id} className="m2c-fxgroup is-fire">
-                  <i className="m2c-tileflash" style={{ left: p.x, top: p.y - tw * 0.1 * s, width: tw * 1.1 * s, height: tw * 0.8 * s, background: 'radial-gradient(closest-side, #fff1b0, #ff6a14aa 45%, transparent)', animationDuration: `${f.ms * 0.4}ms` }} />
+                  <i
+                    className="m2c-tileflash"
+                    style={{
+                      left: p.x,
+                      top: p.y - tw * 0.1 * s,
+                      width: tw * 1.1 * s,
+                      height: tw * 0.8 * s,
+                      background: 'radial-gradient(closest-side, #fff1b0, #ff6a14aa 45%, transparent)',
+                      animationDuration: `${f.ms * 0.4}ms`,
+                    }}
+                  />
                   <Tongues seed={f.id} n={4} x={p.x} y={p.y + tw * 0.08 * s} w={tw * 0.6 * s} h={tw * 0.7 * s} ms={f.ms} />
                   <Rising seed={f.id} n={5} x={p.x} y={p.y} w={tw * 0.6 * s} rise={tw * 0.9 * s} ms={f.ms * 1.1} kind="ember" />
                 </div>
               ) : (
                 <div key={f.id} className="m2c-fxgroup">
-                  <i className="m2c-tileflash is-hot" style={{ left: p.x, top: p.y - tw * 0.15 * s, width: tw * 1.1 * s, height: tw * 0.85 * s, background: `radial-gradient(closest-side, #fff, ${color}aa 45%, transparent)`, animationDuration: `${f.ms * 0.45}ms` }} />
+                  <i
+                    className="m2c-tileflash is-hot"
+                    style={{
+                      left: p.x,
+                      top: p.y - tw * 0.15 * s,
+                      width: tw * 1.1 * s,
+                      height: tw * 0.85 * s,
+                      background: `radial-gradient(closest-side, #fff, ${color}aa 45%, transparent)`,
+                      animationDuration: `${f.ms * 0.45}ms`,
+                    }}
+                  />
                   <div className="m2c-burst" style={{ left: p.x, top: p.y - tw * 0.15 * s }}>
                     <Particles id={f.id} n={10} color={color} spread={tw * 0.7 * s} ms={f.ms} kind="spark" />
                   </div>

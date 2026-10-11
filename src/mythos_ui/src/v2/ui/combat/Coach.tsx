@@ -6,7 +6,6 @@ import { sfx } from '../common/sfx.ts'
 import { markTutorialDone as markDone } from './describe.ts'
 import './coach.css'
 
-
 interface StepDef {
   anchor: string
   fallback: string
@@ -33,7 +32,12 @@ const STEPS: StepDef[] = [
     fallback: '.m2c-board',
     title: ['이동은 무료', 'Moving is free'],
     text: ['대원을 누르고 파란 칸을 누르면 이동한다. 턴마다 한 번이고, Z로 되돌릴 수 있다.', 'Click a unit, then a blue tile — once per turn. Z undoes it.'],
-    touch: { text: ['대원을 누르고 파란 칸을 누르면 이동한다. 턴마다 한 번이고, 되돌리기 버튼으로 취소할 수 있다.', 'Tap a unit, then a blue tile — once per turn. The undo button takes it back.'] },
+    touch: {
+      text: [
+        '대원을 누르고 파란 칸을 누르면 이동한다. 턴마다 한 번이고, 되돌리기 버튼으로 취소할 수 있다.',
+        'Tap a unit, then a blue tile — once per turn. The undo button takes it back.',
+      ],
+    },
     place: 'right',
   },
   {
@@ -57,7 +61,10 @@ const STEPS: StepDef[] = [
     fallback: '.m2c-bottom',
     title: ['턴 종료 (E)', 'End Turn (E)'],
     text: ['적이 예고한 공격을 그대로 실행한다. 누르기 전에 붉은 칸을 한 번 더 확인하라.', 'Enemies fire exactly what they telegraphed. Check the red tiles first.'],
-    touch: { title: ['턴 종료', 'End Turn'], text: ['적이 예고한 공격을 그대로 실행한다. 누르기 전에 붉은 칸을 한 번 더 확인하라.', 'Enemies fire exactly what they telegraphed. Check the red tiles first.'] },
+    touch: {
+      title: ['턴 종료', 'End Turn'],
+      text: ['적이 예고한 공격을 그대로 실행한다. 누르기 전에 붉은 칸을 한 번 더 확인하라.', 'Enemies fire exactly what they telegraphed. Check the red tiles first.'],
+    },
     place: 'above',
   },
 ]

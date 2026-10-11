@@ -175,9 +175,7 @@
 .m2c-splash-noart {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(60% 50% at 50% 50%, rgba(255, 61, 110, 0.35), transparent),
-    repeating-linear-gradient(0deg, rgba(255, 61, 110, 0.07) 0 2px, transparent 2px 6px);
+  background: radial-gradient(60% 50% at 50% 50%, rgba(255, 61, 110, 0.35), transparent), repeating-linear-gradient(0deg, rgba(255, 61, 110, 0.07) 0 2px, transparent 2px 6px);
 }
 .m2c-splash-name {
   position: absolute;

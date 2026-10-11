@@ -134,7 +134,11 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
                       <div>
                         <div className="m2-tip__title">{tr(def.name, lang)}</div>
                         <div className="m2-tip__text">{tr(def.text, lang)}</div>
-                        {full && !s.sold && <div className="m2-tip__text" style={{ color: 'var(--m2-amber)' }}>{ko ? '소모품 칸이 가득 찼다' : 'Consumable slots are full'}</div>}
+                        {full && !s.sold && (
+                          <div className="m2-tip__text" style={{ color: 'var(--m2-amber)' }}>
+                            {ko ? '소모품 칸이 가득 찼다' : 'Consumable slots are full'}
+                          </div>
+                        )}
                       </div>
                     }
                   >

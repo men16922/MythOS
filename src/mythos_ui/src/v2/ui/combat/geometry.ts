@@ -73,12 +73,7 @@ export function tileScale(g: BoardGeom, p: Pos): number {
 
 /** Polygon points (far-left, far-right, near-right, near-left), optionally inset (0..0.5 of a tile). */
 export function tileQuad(g: BoardGeom, p: Pos, inset = 0): Pt[] {
-  return [
-    g.project(p.x + inset, p.y + inset),
-    g.project(p.x + 1 - inset, p.y + inset),
-    g.project(p.x + 1 - inset, p.y + 1 - inset),
-    g.project(p.x + inset, p.y + 1 - inset),
-  ]
+  return [g.project(p.x + inset, p.y + inset), g.project(p.x + 1 - inset, p.y + inset), g.project(p.x + 1 - inset, p.y + 1 - inset), g.project(p.x + inset, p.y + 1 - inset)]
 }
 
 export function pts(list: Pt[]): string {

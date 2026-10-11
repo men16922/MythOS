@@ -46,9 +46,7 @@
   right: 0;
   bottom: 0;
   height: 130px;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 34px, rgba(0, 0, 0, 0.35) 34px 36px),
-    linear-gradient(180deg, #2b3a3e, #121c1f);
+  background: repeating-linear-gradient(90deg, transparent 0 34px, rgba(0, 0, 0, 0.35) 34px 36px), linear-gradient(180deg, #2b3a3e, #121c1f);
   border: 2px solid #4b6a70;
   clip-path: var(--m2-cut-sm);
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
@@ -110,10 +108,25 @@
   width: 340px;
   height: 340px;
   margin-left: -170px;
-  background: conic-gradient(from 0deg, transparent 0 8%, rgba(255, 214, 140, 0.18) 10%, transparent 13% 25%, rgba(255, 214, 140, 0.14) 28%, transparent 31% 45%, rgba(255, 214, 140, 0.18) 48%, transparent 51% 65%, rgba(255, 214, 140, 0.14) 68%, transparent 71% 85%, rgba(255, 214, 140, 0.18) 88%, transparent 91%);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 8%,
+    rgba(255, 214, 140, 0.18) 10%,
+    transparent 13% 25%,
+    rgba(255, 214, 140, 0.14) 28%,
+    transparent 31% 45%,
+    rgba(255, 214, 140, 0.18) 48%,
+    transparent 51% 65%,
+    rgba(255, 214, 140, 0.14) 68%,
+    transparent 71% 85%,
+    rgba(255, 214, 140, 0.18) 88%,
+    transparent 91%
+  );
   border-radius: 50%;
   mask-image: radial-gradient(circle, #000 20%, transparent 70%);
-  animation: m2-rays 14s linear infinite, m2-fade 0.8s ease-out;
+  animation:
+    m2-rays 14s linear infinite,
+    m2-fade 0.8s ease-out;
   pointer-events: none;
 }
 @keyframes m2-rays {
@@ -124,11 +137,15 @@
 @keyframes m2-chest-burst {
   0% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(255, 230, 160, 1), 0 0 60px 30px rgba(255, 210, 120, 0.9);
+    box-shadow:
+      0 0 0 0 rgba(255, 230, 160, 1),
+      0 0 60px 30px rgba(255, 210, 120, 0.9);
   }
   100% {
     opacity: 0;
-    box-shadow: 0 0 0 260px rgba(255, 230, 160, 0), 0 0 200px 120px rgba(255, 210, 120, 0);
+    box-shadow:
+      0 0 0 260px rgba(255, 230, 160, 0),
+      0 0 200px 120px rgba(255, 210, 120, 0);
   }
 }
 .m2-cache__loot {

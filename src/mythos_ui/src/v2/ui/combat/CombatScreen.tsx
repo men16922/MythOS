@@ -124,7 +124,7 @@ export function CombatScreen(props: CombatScreenProps) {
   const hoverUnit = hoverPos ? vc.units.find((u) => u.hp > 0 && samePos(u.pos, hoverPos)) : undefined
   const panelUnit = panelHover ? vc.units.find((u) => u.uid === panelHover) : undefined
   const pinnedUnit = pinned ? vc.units.find((u) => u.uid === pinned && u.hp > 0) : undefined
-  const focusEnemy = isArmed ? null : (hoverUnit?.side === 'enemy' ? hoverUnit.uid : panelUnit?.side === 'enemy' ? panelUnit.uid : (pinnedUnit?.uid ?? null))
+  const focusEnemy = isArmed ? null : hoverUnit?.side === 'enemy' ? hoverUnit.uid : panelUnit?.side === 'enemy' ? panelUnit.uid : (pinnedUnit?.uid ?? null)
   const detailUnit = panelUnit ?? hoverUnit ?? pinnedUnit ?? (isArmed ? originUnit : undefined) ?? (hoverPos ? undefined : selUnit) ?? null
   const detailIntent = detailUnit && detailUnit.side === 'enemy' ? (intents.find((i) => i.uid === detailUnit.uid)?.info ?? null) : null
   const hoverTile = hoverPos && !hoverUnit ? (vc.tiles[hoverPos.y]?.[hoverPos.x] ?? null) : null
@@ -257,7 +257,19 @@ export function CombatScreen(props: CombatScreenProps) {
   const crisis = !!conn && conn.hp / Math.max(1, conn.maxHp) < 0.35
   const act = enc?.act ?? props.run.act ?? 1
   const bgm: Bgm =
-    enc?.kind === 'boss' ? (act === 1 ? 'boss1' : act === 2 ? 'boss2' : 'boss_ix') : enc?.kind === 'elite' || crisis ? 'elite' : act === 2 ? 'combat2' : act === 3 ? 'combat3' : 'combat1'
+    enc?.kind === 'boss'
+      ? act === 1
+        ? 'boss1'
+        : act === 2
+          ? 'boss2'
+          : 'boss_ix'
+      : enc?.kind === 'elite' || crisis
+        ? 'elite'
+        : act === 2
+          ? 'combat2'
+          : act === 3
+            ? 'combat3'
+            : 'combat1'
   useEffect(() => {
     playBgm(bgm)
   }, [bgm])
@@ -307,9 +319,16 @@ export function CombatScreen(props: CombatScreenProps) {
   useEffect(() => {
     const el = orbRef.current
     if (el && shownEnergy !== lastEnergy.current) {
-      if (shownEnergy < lastEnergy.current) el.animate([{ transform: 'scale(1)', filter: 'brightness(2.2)' }, { transform: 'scale(0.86)' }, { transform: 'scale(1)', filter: 'none' }], { duration: 380, easing: 'ease-out' })
+      if (shownEnergy < lastEnergy.current)
+        el.animate([{ transform: 'scale(1)', filter: 'brightness(2.2)' }, { transform: 'scale(0.86)' }, { transform: 'scale(1)', filter: 'none' }], {
+          duration: 380,
+          easing: 'ease-out',
+        })
       else {
-        el.animate([{ transform: 'scale(0.8)', filter: 'brightness(2.6)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)', filter: 'none' }], { duration: 520, easing: 'cubic-bezier(.2,.8,.2,1)' })
+        el.animate([{ transform: 'scale(0.8)', filter: 'brightness(2.6)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)', filter: 'none' }], {
+          duration: 520,
+          easing: 'cubic-bezier(.2,.8,.2,1)',
+        })
         sfx('energy', { volume: 0.6 })
       }
     }
@@ -325,7 +344,22 @@ export function CombatScreen(props: CombatScreenProps) {
     if (partyUnits.some((u) => u.uid === m.id)) continue
     const cd = C.companions[m.id]
     if (!cd) continue
-    partyUnits.push({ uid: m.id, defId: m.id, side: 'party', name: cd.name, sprite: cd.sprite, pos: { x: -1, y: -1 }, hp: 0, maxHp: m.maxHp, block: 0, armor: 0, move: 0, moved: true, facing: 'right', statuses: {} })
+    partyUnits.push({
+      uid: m.id,
+      defId: m.id,
+      side: 'party',
+      name: cd.name,
+      sprite: cd.sprite,
+      pos: { x: -1, y: -1 },
+      hp: 0,
+      maxHp: m.maxHp,
+      block: 0,
+      armor: 0,
+      move: 0,
+      moved: true,
+      facing: 'right',
+      statuses: {},
+    })
   }
   const handCards = view.handHidden ? view.base.hand : combat.hand
   const piles = view.handHidden ? view.base : combat
@@ -460,7 +494,9 @@ export function CombatScreen(props: CombatScreenProps) {
           </button>
         )}
         {(!compact || sheet || !isArmed) && <DetailPanel unit={detailUnit} intent={detailIntent} tile={hoverTile} C={C} lang={lang} threats={hoverThreat} touch={touchUI} />}
-        {isArmed && <ArmedPanel k={k} compact={compact} touch={touchUI} name={armedName} text={armedText} confirmMode={confirmMode} dirAimed={tmode === 'line' || tmode === 'beam'} />}
+        {isArmed && (
+          <ArmedPanel k={k} compact={compact} touch={touchUI} name={armedName} text={armedText} confirmMode={confirmMode} dirAimed={tmode === 'line' || tmode === 'beam'} />
+        )}
       </aside>
 
       {compact && help && <HelpPopover k={k} touch={touchUI} onClose={() => setHelp(false)} />}

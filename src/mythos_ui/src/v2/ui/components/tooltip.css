@@ -16,7 +16,9 @@
   color: var(--m2-ink);
   background: rgba(5, 16, 19, 0.97);
   border: 1px solid var(--m2-cyan-dim);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.6);
   transition: opacity 0.12s;
 }
 .m2-tip__title {

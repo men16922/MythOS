@@ -136,7 +136,17 @@ export function PileButtons(p: { k: boolean; discard: number; exhaust: number; c
 }
 
 /** End turn (E). During the enemy phase the same button fast-forwards the timeline. */
-export function EndTurnButton(p: { k: boolean; glow: boolean; danger: boolean; interactive: boolean; canHurry: boolean; canQueueEnd: boolean; enemyPhase: boolean; onEnd: () => void; onHurry: () => void }) {
+export function EndTurnButton(p: {
+  k: boolean
+  glow: boolean
+  danger: boolean
+  interactive: boolean
+  canHurry: boolean
+  canQueueEnd: boolean
+  enemyPhase: boolean
+  onEnd: () => void
+  onHurry: () => void
+}) {
   const { k, interactive, canHurry } = p
   return (
     <button

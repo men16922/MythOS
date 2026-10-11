@@ -27,11 +27,7 @@ export interface ImplantIconProps {
 
 export function ImplantIcon({ def, lang, size = 36, flash, noTip, onClick }: ImplantIconProps) {
   const icon = (
-    <span
-      className={`m2-implant m2-implant--${def.rarity}${flash ? ' is-flash' : ''}${onClick ? ' is-clickable' : ''}`}
-      style={{ width: size, height: size }}
-      onClick={onClick}
-    >
+    <span className={`m2-implant m2-implant--${def.rarity}${flash ? ' is-flash' : ''}${onClick ? ' is-clickable' : ''}`} style={{ width: size, height: size }} onClick={onClick}>
       <img src={art.implant(def.id, def.icon)} alt={tr(def.name, lang)} draggable={false} />
     </span>
   )

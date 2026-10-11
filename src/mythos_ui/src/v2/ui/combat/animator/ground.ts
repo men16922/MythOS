@@ -76,17 +76,33 @@ export function areaSteps(kit: Kit, plan: Plan, ev: Ev<'area'>, evIdx: number): 
       plan.ctxFrom = ev.center
       plan.ctxDir = undefined
       const pan = panOf(ev.center.x)
-      const tone: FxTone = ev.element === 'fire' ? 'fire' : ev.element === 'shock' ? 'shock' : ev.element === 'heal' ? 'heal' : ev.element === 'shield' ? 'block' : ev.element === 'force' ? 'neutral' : ev.side === 'enemy' ? 'enemy' : 'warn'
+      const tone: FxTone =
+        ev.element === 'fire'
+          ? 'fire'
+          : ev.element === 'shock'
+            ? 'shock'
+            : ev.element === 'heal'
+              ? 'heal'
+              : ev.element === 'shield'
+                ? 'block'
+                : ev.element === 'force'
+                  ? 'neutral'
+                  : ev.side === 'enemy'
+                    ? 'enemy'
+                    : 'warn'
       addFx({ kind: 'area', tiles: ev.tiles, center: ev.center, element: ev.element, side: ev.side, ring: S(RING_MS), ms: S(harmful ? 950 : 850) })
       if (harmful) addFx({ kind: 'wave', at: ev.center, radius: rings + 0.65, tone, ms: S(560 + rings * 60) })
       if (ev.element === 'fire' || ev.element === 'blast') addFx({ kind: 'scorch', tiles: ev.tiles, element: ev.element, ms: S(3100) })
       if (ignites.length)
-        later(() => {
-          const vw = shadow.current
-          const at = new Map(ignites.map((e) => [`${e.pos.x},${e.pos.y}`, e.turns]))
-          const tiles = vw.tiles.map((row, y) => row.map((t, x) => (at.has(`${x},${y}`) ? { ...t, fire: Math.max(t.fire ?? 0, at.get(`${x},${y}`) ?? 0) } : t)))
-          commit({ ...vw, tiles })
-        }, S(rings * RING_MS + 260))
+        later(
+          () => {
+            const vw = shadow.current
+            const at = new Map(ignites.map((e) => [`${e.pos.x},${e.pos.y}`, e.turns]))
+            const tiles = vw.tiles.map((row, y) => row.map((t, x) => (at.has(`${x},${y}`) ? { ...t, fire: Math.max(t.fire ?? 0, at.get(`${x},${y}`) ?? 0) } : t)))
+            commit({ ...vw, tiles })
+          },
+          S(rings * RING_MS + 260),
+        )
       if (harmful) {
         trauma(Math.min(0.85, 0.3 + 0.05 * n))
         // Freeze on the bloom of the centre flash.

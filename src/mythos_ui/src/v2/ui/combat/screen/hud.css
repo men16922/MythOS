@@ -50,9 +50,7 @@
   align-items: center;
   justify-content: center;
   gap: 1px;
-  background:
-    radial-gradient(circle at 40% 35%, rgba(220, 255, 252, 0.9), rgba(78, 242, 227, 0.75) 30%, rgba(10, 90, 96, 0.95) 70%, #032024),
-    #032024;
+  background: radial-gradient(circle at 40% 35%, rgba(220, 255, 252, 0.9), rgba(78, 242, 227, 0.75) 30%, rgba(10, 90, 96, 0.95) 70%, #032024), #032024;
   border: 2px solid rgba(160, 255, 248, 0.85);
   box-shadow:
     0 0 22px rgba(78, 242, 227, 0.55),

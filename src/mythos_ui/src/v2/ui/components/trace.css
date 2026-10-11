@@ -55,7 +55,9 @@
   height: 100%;
   background: var(--t);
   box-shadow: 0 0 10px var(--t);
-  transition: width 0.7s var(--m2-ease), background 0.4s;
+  transition:
+    width 0.7s var(--m2-ease),
+    background 0.4s;
 }
 .m2-trace--purge .m2-trace__fill,
 .m2-trace--hunted .m2-trace__fill {

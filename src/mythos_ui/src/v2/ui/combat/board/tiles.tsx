@@ -132,9 +132,28 @@ function CoverBlock({ g, p, hp }: { g: BoardGeom; p: Pos; hp: number }) {
       {hp < COVER_HP && (
         // Damaged: cracks split the front face and the top.
         <g className="m2c-cover-cracks">
-          <polyline points={pts([{ x: tnl.x + (tnr.x - tnl.x) * 0.38, y: tnl.y }, { x: tnl.x + (tnr.x - tnl.x) * 0.46, y: tnl.y + h * 0.35 }, { x: tnl.x + (tnr.x - tnl.x) * 0.36, y: tnl.y + h * 0.62 }, { x: nl.x + (nr.x - nl.x) * 0.44, y: nl.y }])} />
-          <polyline points={pts([{ x: tnl.x + (tnr.x - tnl.x) * 0.46, y: tnl.y + h * 0.35 }, { x: tnl.x + (tnr.x - tnl.x) * 0.66, y: tnl.y + h * 0.5 }, { x: tnl.x + (tnr.x - tnl.x) * 0.74, y: tnl.y + h * 0.8 }])} />
-          <polyline points={pts([{ x: tnl.x + (tnr.x - tnl.x) * 0.38, y: tnl.y }, { x: tfl.x + (tfr.x - tfl.x) * 0.5, y: (tfl.y + tnl.y) / 2 }, { x: tfl.x + (tfr.x - tfl.x) * 0.62, y: tfl.y }])} />
+          <polyline
+            points={pts([
+              { x: tnl.x + (tnr.x - tnl.x) * 0.38, y: tnl.y },
+              { x: tnl.x + (tnr.x - tnl.x) * 0.46, y: tnl.y + h * 0.35 },
+              { x: tnl.x + (tnr.x - tnl.x) * 0.36, y: tnl.y + h * 0.62 },
+              { x: nl.x + (nr.x - nl.x) * 0.44, y: nl.y },
+            ])}
+          />
+          <polyline
+            points={pts([
+              { x: tnl.x + (tnr.x - tnl.x) * 0.46, y: tnl.y + h * 0.35 },
+              { x: tnl.x + (tnr.x - tnl.x) * 0.66, y: tnl.y + h * 0.5 },
+              { x: tnl.x + (tnr.x - tnl.x) * 0.74, y: tnl.y + h * 0.8 },
+            ])}
+          />
+          <polyline
+            points={pts([
+              { x: tnl.x + (tnr.x - tnl.x) * 0.38, y: tnl.y },
+              { x: tfl.x + (tfr.x - tfl.x) * 0.5, y: (tfl.y + tnl.y) / 2 },
+              { x: tfl.x + (tfr.x - tfl.x) * 0.62, y: tfl.y },
+            ])}
+          />
         </g>
       )}
     </g>
@@ -225,7 +244,14 @@ export const GroundFire = memo(function GroundFire({ g, p, turns }: { g: BoardGe
       <i
         key={i}
         className={big ? 'm2c-flame is-back' : 'm2c-flame'}
-        style={{ left: at.x, top: at.y, width: h * (big ? 0.72 : 0.62), height: h, animationDelay: `${-(r * 2 + i * 0.23)}s`, animationDuration: `${(big ? 1.05 : 0.7) + k * 0.3}s` }}
+        style={{
+          left: at.x,
+          top: at.y,
+          width: h * (big ? 0.72 : 0.62),
+          height: h,
+          animationDelay: `${-(r * 2 + i * 0.23)}s`,
+          animationDuration: `${(big ? 1.05 : 0.7) + k * 0.3}s`,
+        }}
       />
     )
   }

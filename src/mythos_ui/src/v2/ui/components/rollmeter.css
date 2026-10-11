@@ -46,7 +46,9 @@
   width: 3px;
   margin-left: -1.5px;
   background: #fff;
-  box-shadow: 0 0 10px #fff, 0 0 20px var(--m2-cyan);
+  box-shadow:
+    0 0 10px #fff,
+    0 0 20px var(--m2-cyan);
 }
 .m2-roll__scale {
   display: flex;

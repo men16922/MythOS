@@ -15,7 +15,10 @@
   font-family: var(--m2-body);
   color: var(--m2-ink);
   user-select: none;
-  transition: transform 0.16s var(--m2-ease), filter 0.16s, opacity 0.16s;
+  transition:
+    transform 0.16s var(--m2-ease),
+    filter 0.16s,
+    opacity 0.16s;
   filter: drop-shadow(0 0.4em 0.7em rgba(0, 0, 0, 0.55));
 }
 .m2-card--sm {
@@ -108,7 +111,9 @@
   place-items: center;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #c9fffa, var(--m2-cyan) 45%, #0b6e68 100%);
-  box-shadow: 0 0 0 0.12em #03110f, 0 0 0.8em rgba(78, 242, 227, 0.55);
+  box-shadow:
+    0 0 0 0.12em #03110f,
+    0 0 0.8em rgba(78, 242, 227, 0.55);
   font-family: var(--m2-mono);
   font-weight: 700;
   font-size: 1em;
@@ -155,7 +160,9 @@
   line-height: 1.15;
   letter-spacing: 0.01em;
   color: #fff;
-  text-shadow: 0 1px 0 #000, 0 0 0.6em rgba(0, 0, 0, 0.9);
+  text-shadow:
+    0 1px 0 #000,
+    0 0 0.6em rgba(0, 0, 0, 0.9);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

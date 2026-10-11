@@ -32,10 +32,7 @@ export function Typewriter({ text, cps = 90, instant, className, tick = true }: 
     return () => window.clearInterval(id)
   }, [done, text, cps, tick])
   return (
-    <div
-      className={`m2-type${done ? '' : ' is-typing'}${className ? ` ${className}` : ''}`}
-      onClick={() => !done && setState({ text, n: text.length })}
-    >
+    <div className={`m2-type${done ? '' : ' is-typing'}${className ? ` ${className}` : ''}`} onClick={() => !done && setState({ text, n: text.length })}>
       {text.slice(0, n)}
       {!done && <span className="m2-type__caret" />}
       {!done && <span className="m2-type__rest">{text.slice(n)}</span>}

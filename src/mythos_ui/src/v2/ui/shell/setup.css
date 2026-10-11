@@ -60,7 +60,10 @@
   cursor: pointer;
   overflow: hidden;
   clip-path: var(--m2-cut);
-  transition: border-color 0.18s, transform 0.18s var(--m2-ease), box-shadow 0.18s;
+  transition:
+    border-color 0.18s,
+    transform 0.18s var(--m2-ease),
+    box-shadow 0.18s;
 }
 .m2-arch:hover {
   transform: translateY(-3px);
@@ -68,7 +71,9 @@
 }
 .m2-arch.is-on {
   border-color: var(--m2-cyan);
-  box-shadow: inset 0 0 0 1px var(--m2-cyan), inset 0 0 50px rgba(78, 242, 227, 0.12);
+  box-shadow:
+    inset 0 0 0 1px var(--m2-cyan),
+    inset 0 0 50px rgba(78, 242, 227, 0.12);
 }
 .m2-arch.is-locked {
   cursor: not-allowed;
@@ -272,7 +277,9 @@
   background: #000;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.15s var(--m2-ease), border-color 0.15s;
+  transition:
+    transform 0.15s var(--m2-ease),
+    border-color 0.15s;
 }
 .m2-comp img {
   width: 100%;
@@ -315,7 +322,9 @@
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 .m2-paradox button.is-on {
   background: var(--m2-threat);

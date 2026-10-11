@@ -28,8 +28,7 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 60% 50%, transparent 30%, rgba(3, 9, 11, 0.85) 80%),
-    linear-gradient(90deg, rgba(3, 9, 11, 0.9) 0, rgba(3, 9, 11, 0.4) 320px, transparent 60%);
+    radial-gradient(ellipse at 60% 50%, transparent 30%, rgba(3, 9, 11, 0.85) 80%), linear-gradient(90deg, rgba(3, 9, 11, 0.9) 0, rgba(3, 9, 11, 0.4) 320px, transparent 60%);
   pointer-events: none;
 }
 .m2-map__side {
@@ -64,7 +63,9 @@
   border: 1px solid color-mix(in srgb, var(--t) 40%, transparent);
   background: color-mix(in srgb, var(--t) 7%, rgba(4, 12, 15, 0.9));
   margin-bottom: 22px;
-  transition: border-color 0.4s, background 0.4s;
+  transition:
+    border-color 0.4s,
+    background 0.4s;
 }
 .m2-map__trace--alert {
   --t: var(--m2-amber);
@@ -157,7 +158,10 @@
 .m2-map__board {
   position: relative;
   flex: none;
-  transition: transform 0.42s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.42s, filter 0.42s;
+  transition:
+    transform 0.42s cubic-bezier(0.7, 0, 0.3, 1),
+    opacity 0.42s,
+    filter 0.42s;
 }
 .m2-map__board.is-entering {
   transform: scale(2.6);
@@ -214,7 +218,10 @@
   color: var(--k);
   cursor: default;
   background: transparent;
-  transition: transform 0.18s var(--m2-ease), opacity 0.3s, filter 0.3s;
+  transition:
+    transform 0.18s var(--m2-ease),
+    opacity 0.3s,
+    filter 0.3s;
 }
 .m2-node::before {
   content: '';

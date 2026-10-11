@@ -25,7 +25,18 @@ export function CardGhosts(p: { cards: CardFx[]; g: BoardGeom; boardLeft: number
       <div
         key={f.id}
         className="m2c-ghostcard"
-        style={{ left: f.rect.left, top: f.rect.top, width: f.rect.width, height: f.rect.height, '--tx': `${tx}px`, '--ty': `${ty}px`, animationDuration: `${f.ms}ms`, '--fs': `${p.fs}px` } as CSSProperties}
+        style={
+          {
+            left: f.rect.left,
+            top: f.rect.top,
+            width: f.rect.width,
+            height: f.rect.height,
+            '--tx': `${tx}px`,
+            '--ty': `${ty}px`,
+            animationDuration: `${f.ms}ms`,
+            '--fs': `${p.fs}px`,
+          } as CSSProperties
+        }
       >
         <CardView def={def} upgraded={f.upgraded} lang={p.lang} />
       </div>

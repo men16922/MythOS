@@ -21,7 +21,9 @@
   flex-direction: column;
   background: linear-gradient(180deg, #0c1d22, #071316);
   border: 1px solid var(--m2-line-2);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(78, 242, 227, 0.12);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(78, 242, 227, 0.12);
   clip-path: var(--m2-cut);
   animation: m2-modal-in 0.26s var(--m2-ease);
 }

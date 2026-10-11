@@ -86,8 +86,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
     units.map((u) => {
       // X-ray (fade units in front of the hovered tile) is for inspecting/moving. While aiming a card it would
       // fade the very unit you are aiming at (the hover tile goes stale under the direction arrows), so it is off.
-      const xray =
-        !props.originUid && !!hover && hover.y < u.pos.y && u.pos.y - hover.y <= 2 && Math.abs(hover.x - u.pos.x) <= 1 && !(hover.x === u.pos.x && hover.y === u.pos.y)
+      const xray = !props.originUid && !!hover && hover.y < u.pos.y && u.pos.y - hover.y <= 2 && Math.abs(hover.x - u.pos.x) <= 1 && !(hover.x === u.pos.x && hover.y === u.pos.y)
       const reach = unitScale(C, u) > 1.2 ? 1 : 0
       // Fade the upper sprite when it would hide a unit or terrain (cover / hazard / void) right behind it.
       const terrainBehind = (dx: number) => {
@@ -101,16 +100,12 @@ export function Board({ registerBoard, ...props }: BoardProps) {
       const occluding =
         units.some(
           (v) =>
-            v.uid !== u.uid &&
-            v.hp > 0 &&
-            ((v.pos.y === u.pos.y - 1 && Math.abs(v.pos.x - u.pos.x) <= reach) ||
-              (reach > 0 && v.pos.y === u.pos.y - 2 && v.pos.x === u.pos.x)),
+            v.uid !== u.uid && v.hp > 0 && ((v.pos.y === u.pos.y - 1 && Math.abs(v.pos.x - u.pos.x) <= reach) || (reach > 0 && v.pos.y === u.pos.y - 2 && v.pos.x === u.pos.x)),
         ) ||
         (reach === 0 && terrainBehind(0))
       const behind = posKey({ x: u.pos.x, y: u.pos.y - 1 })
       const hitShort =
-        u.pos.y > 0 &&
-        (moveSet.has(behind) || targetSet.has(behind) || units.some((v) => v.uid !== u.uid && v.hp > 0 && v.pos.x === u.pos.x && v.pos.y === u.pos.y - 1))
+        u.pos.y > 0 && (moveSet.has(behind) || targetSet.has(behind) || units.some((v) => v.uid !== u.uid && v.hp > 0 && v.pos.x === u.pos.x && v.pos.y === u.pos.y - 1))
       return (
         <UnitSprite
           key={u.uid}
@@ -146,14 +141,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         {props.threat &&
           Object.entries(props.threat).map(([k, v]) => {
             const [x, y] = k.split(',').map(Number) as [number, number]
-            return (
-              <polygon
-                key={`th${k}`}
-                points={pts(tileQuad(g, { x, y }, 0.04))}
-                className="m2c-heat"
-                style={{ '--heat': Math.min(1, v / 8) } as CSSProperties}
-              />
-            )
+            return <polygon key={`th${k}`} points={pts(tileQuad(g, { x, y }, 0.04))} className="m2c-heat" style={{ '--heat': Math.min(1, v / 8) } as CSSProperties} />
           })}
         {/* move range */}
         {props.moves.map((p) => (
@@ -166,13 +154,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         {/* intents */}
         <g className={props.dimIntents ? 'm2c-intents is-faded' : 'm2c-intents'}>
           {intents.map((iv) => (
-            <IntentShapes
-              key={iv.uid}
-              g={g}
-              iv={iv}
-              dim={!!props.focusEnemy && props.focusEnemy !== iv.uid}
-              hot={props.firing === iv.uid || props.focusEnemy === iv.uid}
-            />
+            <IntentShapes key={iv.uid} g={g} iv={iv} dim={!!props.focusEnemy && props.focusEnemy !== iv.uid} hot={props.firing === iv.uid || props.focusEnemy === iv.uid} />
           ))}
         </g>
         {/* reinforcement drop zones */}

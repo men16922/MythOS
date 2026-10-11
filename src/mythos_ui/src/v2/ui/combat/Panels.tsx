@@ -125,7 +125,12 @@ export const PartyPanel = memo(function PartyPanel(p: {
               </span>
               <span className="m2c-pu-hp">
                 <span className="m2c-pu-fill" style={{ width: `${pct * 100}%` }} />
-                {dmg > 0 && <span className="m2c-pu-threat" style={{ left: `${Math.max(0, pct - dmg / Math.max(1, u.maxHp)) * 100}%`, width: `${Math.min(pct, dmg / Math.max(1, u.maxHp)) * 100}%` }} />}
+                {dmg > 0 && (
+                  <span
+                    className="m2c-pu-threat"
+                    style={{ left: `${Math.max(0, pct - dmg / Math.max(1, u.maxHp)) * 100}%`, width: `${Math.min(pct, dmg / Math.max(1, u.maxHp)) * 100}%` }}
+                  />
+                )}
                 <b>
                   {u.hp}/{u.maxHp}
                 </b>
@@ -222,9 +227,7 @@ export const DetailPanel = memo(function DetailPanel(p: {
             )}
           </p>
         )}
-        {p.tile.ttl !== undefined && (
-          <p className="m2c-d-sub">{ko(lang, `임시 전류 · ${p.tile.ttl}턴 뒤 꺼진다.`, `Temporary · shorts out in ${p.tile.ttl} turn(s).`)}</p>
-        )}
+        {p.tile.ttl !== undefined && <p className="m2c-d-sub">{ko(lang, `임시 전류 · ${p.tile.ttl}턴 뒤 꺼진다.`, `Temporary · shorts out in ${p.tile.ttl} turn(s).`)}</p>}
         {p.threats > 0 && <p className="m2c-d-warn">{ko(lang, `이 칸에 예고된 피해 ${p.threats}`, `${p.threats} damage incoming here`)}</p>}
       </div>
     )
@@ -256,7 +259,9 @@ export const DetailPanel = memo(function DetailPanel(p: {
     <div className={`m2c-detail is-${u.side}`}>
       <div className="m2c-panel-h">
         {u.side === 'enemy' ? ko(lang, '적성 개체', 'HOSTILE') : u.side === 'neutral' ? ko(lang, '민간인', 'CIVILIAN') : ko(lang, '아군', 'SQUAD')}
-        {tier && tier !== 'normal' && <em className={`m2c-tag is-${tier}`}>{tier === 'minion' ? ko(lang, '하급', 'MINION') : tier === 'elite' ? ko(lang, '정예', 'ELITE') : ko(lang, '보스', 'BOSS')}</em>}
+        {tier && tier !== 'normal' && (
+          <em className={`m2c-tag is-${tier}`}>{tier === 'minion' ? ko(lang, '하급', 'MINION') : tier === 'elite' ? ko(lang, '정예', 'ELITE') : ko(lang, '보스', 'BOSS')}</em>
+        )}
       </div>
       <div className="m2c-d-head">
         <span className={V2_SPRITES[u.sprite] ? 'm2c-d-face is-body' : 'm2c-d-face'}>

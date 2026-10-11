@@ -15,8 +15,7 @@
   padding: 12px 16px 14px 18px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--gm-a) 42%, transparent);
-  background:
-    linear-gradient(180deg, rgba(20, 14, 40, 0.88), rgba(6, 8, 18, 0.9));
+  background: linear-gradient(180deg, rgba(20, 14, 40, 0.88), rgba(6, 8, 18, 0.9));
   backdrop-filter: blur(6px);
   box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.55),
@@ -292,9 +291,7 @@
   width: min(500px, calc(100vw - 32px));
   padding: 7px 14px 8px 7px;
   border: 1px solid color-mix(in srgb, var(--ix) 55%, transparent);
-  background:
-    repeating-linear-gradient(0deg, rgba(255, 61, 110, 0.05) 0 1px, transparent 1px 3px),
-    linear-gradient(90deg, rgba(40, 4, 14, 0.94), rgba(10, 6, 10, 0.92));
+  background: repeating-linear-gradient(0deg, rgba(255, 61, 110, 0.05) 0 1px, transparent 1px 3px), linear-gradient(90deg, rgba(40, 4, 14, 0.94), rgba(10, 6, 10, 0.92));
   box-shadow:
     0 14px 40px rgba(0, 0, 0, 0.6),
     0 0 26px color-mix(in srgb, var(--ix) 28%, transparent);

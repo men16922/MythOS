@@ -16,7 +16,9 @@
   background: linear-gradient(180deg, rgba(4, 13, 16, 0.96), rgba(4, 13, 16, 0.86));
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--m2-line);
-  box-shadow: 0 1px 0 rgba(78, 242, 227, 0.08), 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 1px 0 rgba(78, 242, 227, 0.08),
+    0 10px 30px rgba(0, 0, 0, 0.4);
 }
 .m2-topbar::after {
   content: '';
@@ -215,7 +217,9 @@
   font-size: 14px;
   cursor: pointer;
   clip-path: var(--m2-cut-sm);
-  transition: background 0.15s, transform 0.1s;
+  transition:
+    background 0.15s,
+    transform 0.1s;
 }
 .m2-deckbtn:hover {
   background: rgba(30, 90, 94, 0.8);

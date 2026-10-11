@@ -77,11 +77,7 @@ export function Prologue(props: { lang: Lang; onDone: () => void }) {
   return (
     <div className="m2p-root" onClick={next} role="presentation">
       {SHOTS.map((s, i) => (
-        <div
-          key={s.image}
-          className={`m2p-shot${i === index ? ' is-active' : ''}`}
-          style={{ backgroundImage: `url(${asset(s.image)})` }}
-        />
+        <div key={s.image} className={`m2p-shot${i === index ? ' is-active' : ''}`} style={{ backgroundImage: `url(${asset(s.image)})` }} />
       ))}
       <div className="m2p-vignette" />
       <div className="m2p-caption" key={index}>

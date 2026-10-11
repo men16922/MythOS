@@ -108,7 +108,10 @@ export function effectChips(effects: RunEffect[], C: ContentRegistry, lang: Lang
       }
       case 'bond': {
         const def = C.companions[e.id]
-        out.push({ text: s(`${def ? tr(def.name, lang) : ''} 유대 ${sign(e.amount)}`, `${def ? tr(def.name, lang) : ''} bond ${sign(e.amount)}`), tone: e.amount >= 0 ? 'good' : 'bad' })
+        out.push({
+          text: s(`${def ? tr(def.name, lang) : ''} 유대 ${sign(e.amount)}`, `${def ? tr(def.name, lang) : ''} bond ${sign(e.amount)}`),
+          tone: e.amount >= 0 ? 'good' : 'bad',
+        })
         break
       }
       case 'stat':

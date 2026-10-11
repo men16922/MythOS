@@ -50,7 +50,26 @@ interface CombatInputDeps {
 
 export function useCombatInput(d: CombatInputDeps) {
   const { combat, C, k, interactive, canQueueEnd, canHurry, tg, playable, rootRef, commitAction, showToast, endTurnQueue, pinned, setPinned, setThreatOn, setAltHeld } = d
-  const { setSel, armed, setArmed, hoverPos, setHoverPos, setHoverDir, living, selUnit, selUid, armedCard, armedDef, itemIndex, itemDef, isArmed, origin, originUnit, confirmMode, options } = tg
+  const {
+    setSel,
+    armed,
+    setArmed,
+    hoverPos,
+    setHoverPos,
+    setHoverDir,
+    living,
+    selUnit,
+    selUid,
+    armedCard,
+    armedDef,
+    itemIndex,
+    itemDef,
+    isArmed,
+    origin,
+    originUnit,
+    confirmMode,
+    options,
+  } = tg
   const doEndTurn = endTurnQueue.endTurn
 
   const relRect = (el: Element): RectLike | undefined => {

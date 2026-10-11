@@ -52,9 +52,7 @@ export function TitleScreen({ profile, run, savedAt, C, today, daily, onContinue
             MYTHOS <span className="m2-title__ver">2.0 · SIGNAL RUN</span>
           </span>
         </h1>
-        <p className="m2-title__tag">
-          {ko ? '지워지기 전에, 도시의 끝까지 달려라.' : 'Run the city end to end before it erases you.'}
-        </p>
+        <p className="m2-title__tag">{ko ? '지워지기 전에, 도시의 끝까지 달려라.' : 'Run the city end to end before it erases you.'}</p>
 
         <nav className="m2-title__menu">
           {run && (
@@ -70,7 +68,8 @@ export function TitleScreen({ profile, run, savedAt, C, today, daily, onContinue
               <span>
                 <b>{ko ? '이어하기' : 'Continue'}</b>
                 <small>
-                  {run.daily ? `${ko ? '오늘의 시드' : 'Daily Signal'} ${tr(dateLabel(run.daily), lang)}` : ko ? `루프 ${run.loop}` : `Loop ${run.loop}`} · {tr(arch?.name, lang)} · {tr(actDef?.name, lang)} · {tr(SCREEN_LABEL[run.screen.kind], lang)}
+                  {run.daily ? `${ko ? '오늘의 시드' : 'Daily Signal'} ${tr(dateLabel(run.daily), lang)}` : ko ? `루프 ${run.loop}` : `Loop ${run.loop}`} · {tr(arch?.name, lang)} ·{' '}
+                  {tr(actDef?.name, lang)} · {tr(SCREEN_LABEL[run.screen.kind], lang)}
                 </small>
                 {savedAt && <small className="m2-title__saved">{ko ? `자동 저장 · ${savedAgo(savedAt, lang)}` : `Auto-saved · ${savedAgo(savedAt, lang)}`}</small>}
               </span>
@@ -102,8 +101,7 @@ export function TitleScreen({ profile, run, savedAt, C, today, daily, onContinue
             <span>
               <b>{ko ? '오늘의 시드' : 'Daily Signal'}</b>
               <small>
-                {tr(dateLabel(today), lang)} ·{' '}
-                <em className={`m2-daily-best${daily?.best.won ? ' is-won' : daily ? ' is-tried' : ''}`}>{tr(dailyLabel(daily), lang)}</em>
+                {tr(dateLabel(today), lang)} · <em className={`m2-daily-best${daily?.best.won ? ' is-won' : daily ? ' is-tried' : ''}`}>{tr(dailyLabel(daily), lang)}</em>
                 {daily && ` · ${tr(attemptsLabel(daily.attempts), lang)}`}
               </small>
             </span>

@@ -53,8 +53,7 @@ body {
   line-height: 1.55;
   color: var(--m2-ink);
   background:
-    radial-gradient(1200px 700px at 70% -10%, rgba(40, 140, 140, 0.16), transparent 60%),
-    radial-gradient(900px 600px at -10% 110%, rgba(255, 61, 110, 0.07), transparent 60%),
+    radial-gradient(1200px 700px at 70% -10%, rgba(40, 140, 140, 0.16), transparent 60%), radial-gradient(900px 600px at -10% 110%, rgba(255, 61, 110, 0.07), transparent 60%),
     var(--m2-void);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -116,7 +115,9 @@ body {
   cursor: pointer;
   clip-path: var(--m2-cut-sm);
   isolation: isolate;
-  transition: transform 0.12s var(--m2-ease), color 0.15s;
+  transition:
+    transform 0.12s var(--m2-ease),
+    color 0.15s;
 }
 .m2-btn::before {
   content: '';
@@ -189,7 +190,10 @@ body {
   color: var(--m2-ink-2);
   cursor: pointer;
   clip-path: var(--m2-cut-sm);
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
 }
 .m2-iconbtn:hover {
   color: var(--m2-cyan);

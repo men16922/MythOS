@@ -28,8 +28,7 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 50% at 50% 35%, rgba(240, 205, 117, 0.12), transparent 70%),
-    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(78, 242, 227, 0.08), transparent 70%);
+    radial-gradient(ellipse 60% 50% at 50% 35%, rgba(240, 205, 117, 0.12), transparent 70%), radial-gradient(ellipse 80% 60% at 50% 100%, rgba(78, 242, 227, 0.08), transparent 70%);
   pointer-events: none;
 }
 .m2-reward__panel {
@@ -70,7 +69,11 @@
   cursor: pointer;
   clip-path: var(--m2-cut-sm);
   animation: m2-row-in 0.45s var(--m2-ease) both;
-  transition: transform 0.15s var(--m2-ease), border-color 0.15s, opacity 0.3s, filter 0.3s;
+  transition:
+    transform 0.15s var(--m2-ease),
+    border-color 0.15s,
+    opacity 0.3s,
+    filter 0.3s;
 }
 .m2-rrow:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.01);
@@ -171,7 +174,9 @@
   background: rgba(8, 20, 24, 0.9);
   cursor: pointer;
   text-align: center;
-  transition: transform 0.15s var(--m2-ease), border-color 0.15s;
+  transition:
+    transform 0.15s var(--m2-ease),
+    border-color 0.15s;
 }
 .m2-rpick__opt:hover:not(:disabled) {
   transform: translateY(-3px);

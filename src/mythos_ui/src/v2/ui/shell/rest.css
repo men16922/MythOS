@@ -64,7 +64,10 @@
   cursor: pointer;
   clip-path: var(--m2-cut);
   animation: m2-row-in 0.5s var(--m2-ease) both;
-  transition: transform 0.18s var(--m2-ease), border-color 0.18s, box-shadow 0.18s;
+  transition:
+    transform 0.18s var(--m2-ease),
+    border-color 0.18s,
+    box-shadow 0.18s;
 }
 .m2-restopt:nth-child(2) {
   animation-delay: 70ms;
@@ -122,7 +125,9 @@
   border: 1px solid rgba(255, 182, 72, 0.35);
   background: rgba(30, 20, 6, 0.6);
   cursor: pointer;
-  transition: transform 0.18s var(--m2-ease), border-color 0.18s;
+  transition:
+    transform 0.18s var(--m2-ease),
+    border-color 0.18s;
 }
 .m2-bondpick:hover:not(:disabled) {
   transform: translateY(-4px);

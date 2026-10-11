@@ -39,14 +39,20 @@ export function aggregateIntents(intents: IntentView[], c: CombatState): { tileD
       else cur.dmg += iv.info.damage
       cur.uids.push(iv.uid)
       if (pushes && pushes.kind === 'push') {
-        const away =
-          iv.info.dir && iv.info.move.pattern !== 'lob' && iv.info.move.pattern !== 'nova' ? iv.info.dir : dirToward(iv.info.target ?? iv.unit.pos, p)
+        const away = iv.info.dir && iv.info.move.pattern !== 'lob' && iv.info.move.pattern !== 'nova' ? iv.info.dir : dirToward(iv.info.target ?? iv.unit.pos, p)
         const d = away && pushes.dir === 'toward' ? ({ up: 'down', down: 'up', left: 'right', right: 'left' } as const)[away] : away
         cur.push = d ?? null
         // Mirrors engine pushUnit: a grounded enemy shoved onto a void tile falls (allies stop at the rim).
         const victim = units.find((u) => u.hp > 0 && u.pos.x === p.x && u.pos.y === p.y)
         const dest = d ? add(p, d) : null
-        if (victim && dest && victim.side === 'enemy' && !victim.flying && c.tiles[dest.y]?.[dest.x]?.kind === 'void' && !units.some((u) => u.hp > 0 && u.pos.x === dest.x && u.pos.y === dest.y))
+        if (
+          victim &&
+          dest &&
+          victim.side === 'enemy' &&
+          !victim.flying &&
+          c.tiles[dest.y]?.[dest.x]?.kind === 'void' &&
+          !units.some((u) => u.hp > 0 && u.pos.x === dest.x && u.pos.y === dest.y)
+        )
           cur.drops = true
       }
       tileDmg.set(key, cur)

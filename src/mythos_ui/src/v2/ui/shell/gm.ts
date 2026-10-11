@@ -22,7 +22,7 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | null> {
 
 /** Local models sometimes leak byte-fallback tokens ("<0xEC><0x87><0xB3>") instead of the character they
  *  encode. Decode runs of them back to UTF-8; drop anything that still does not decode cleanly. */
-export function cleanGmText(text: string): string {
+function cleanGmText(text: string): string {
   return text
     .replace(/(?:<0x[0-9A-Fa-f]{2}>)+/g, (run) => {
       const bytes = new Uint8Array((run.match(/[0-9A-Fa-f]{2}(?=>)/g) ?? []).map((h) => parseInt(h, 16)))
@@ -52,7 +52,7 @@ export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeo
   }
 }
 
-export interface CompanionReplyReq {
+interface CompanionReplyReq {
   lang: Lang
   companion: string
   message: string
@@ -97,7 +97,7 @@ const KEYWORDS: [StatKey, RegExp][] = [
 const REWARD_BY_STAT: Record<StatKey, Improvisation['reward']> = { str: 'credits', agi: 'trace_down', int: 'card', cha: 'credits', obs: 'heal' }
 const RISK_BY_STAT: Record<StatKey, Improvisation['risk']> = { str: 'hp', agi: 'trace', int: 'trace', cha: 'credits', obs: 'hp' }
 
-export function localImprovise(action: string): Improvisation {
+function localImprovise(action: string): Improvisation {
   const stat = KEYWORDS.find(([, re]) => re.test(action))?.[0] ?? 'obs'
   return {
     action,

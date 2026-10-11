@@ -27,7 +27,7 @@ export interface FightMemo {
   lastLineTurn: number | null
 }
 
-export const IX_PRIORITY: Record<IxTrigger, number> = {
+const IX_PRIORITY: Record<IxTrigger, number> = {
   boss_phase: 6,
   companion_down: 5,
   flawless: 5,
@@ -40,7 +40,7 @@ export const IX_PRIORITY: Record<IxTrigger, number> = {
 
 type DeathEvent = Extract<CombatEvent, { t: 'death' }>
 
-export const LOW_HP = 0.3
+const LOW_HP = 0.3
 const LOW_HP_REARM = 0.4
 
 function connectorRatio(c: CombatState): number {

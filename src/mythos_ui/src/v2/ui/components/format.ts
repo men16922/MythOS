@@ -49,11 +49,6 @@ export function statLabel(stat: StatKey, lang: Lang): string {
   return tr(STAT_LABEL[stat], lang)
 }
 
-/** Event stat-check chance (design doc §3). */
-export function chancePct(stat: number, dc: number): number {
-  return Math.max(5, Math.min(95, 50 + (stat - dc) * 10))
-}
-
 const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`)
 
 export interface EffectChip {

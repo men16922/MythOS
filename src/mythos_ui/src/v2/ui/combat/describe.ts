@@ -35,7 +35,7 @@ const PATTERN: Record<EnemyMove['pattern'], Text> = {
 
 export const TRACK_NOTE = L('추적 조준 — 회피 불가 (방어·해킹·처치로 대응)', "Lock-on — can't be dodged (block, hack or kill)")
 
-export function patternLabel(p: EnemyMove['pattern'], lang: Lang): string {
+function patternLabel(p: EnemyMove['pattern'], lang: Lang): string {
   return tr(PATTERN[p], lang)
 }
 

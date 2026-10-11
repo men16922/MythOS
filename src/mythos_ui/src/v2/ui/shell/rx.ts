@@ -22,7 +22,7 @@ import type {
 type R = RunState
 type C = ContentRegistry
 
-export interface Gate {
+interface Gate {
   ok: boolean
   reason?: Text
 }

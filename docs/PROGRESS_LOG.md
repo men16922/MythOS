@@ -1,6 +1,10 @@
 # Progress Log
 
-Last updated: 2026-10-12
+Last updated: 2026-10-13
+
+## 2026-10-13 — Sync pass, plan correction
+
+- Status: done, committed. `NEXT_PLAN.md` no longer asks to install plugin 1.8.0 (installed, `/ship` present). Verified: `make check` green (node 269, Python 253, 7 DB skipped). Unverified: e2e/playthrough (no code changed), `git-sha` label on Cloud Run. Every other open item is owner-side (accounts, listen-tests, push, deploy-preview, harness reseed).
 
 ## 2026-10-12 — Unassisted UI run wins the whole game; quick playthrough, verify-preview, definition of done
 

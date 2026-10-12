@@ -39,8 +39,8 @@ TIMELINE: list[tuple[str, str, float, float, tuple[str, str] | None]] = [
     ("veo", "se_rin", 0.5, 6.5, None),
     (
         "game",
-        "03_combat",
-        -10.0,
+        "09_fight_haetae",
+        18.0,
         9.0,
         ("적이 칠 칸이 미리 보인다", "Every enemy move is telegraphed"),
     ),

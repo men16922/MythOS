@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-13
 
+## 2026-10-13 — Store cut, voices settled, trailer outputs cleaned
+
+- Store cut (`cinematic.py build --cut store`, 53 s): the painted Veo shots as a ~10 s hook (owner: the store video should match the game's art), then real gameplay — `record_trailer.py --scenes store` records a real run dropped into the Haetae boss and the Incinerator elite, each turn planned by the simulator's expert and played through real clicks, pointer parked off the board (no tile tooltips), plus the map; fights cropped in ×1.22 so the board reads on a phone. The photoreal cut now uses the Haetae fight too. Se-rin = shared voice "Ember" (owner pick from 14 directed takes; clicks removed by hand). `make cinematic` builds both.
+- Cleaned `outputs/trailer/` 1.9 GB → 1.0 GB (intermediates, rejected Gemini stills, Korean VO, auditions, the superseded painted/Korean cut and the old 40 s trailer). Kept: both finals, Veo shots, stills, VO, score, used recordings. Verified: contact sheets, `make check` green. Not verified: human viewing/listening.
+
 ## 2026-10-13 — Cinematic v2: photoreal shots, English narration
 
 - Owner direction: English narration only (IX = ElevenLabs "Adam" deep, picked from an 11-voice audition; Korean TTS dropped), a photoreal live-action look like the 1.x art. `gen_stills.py --engine codex` (Codex image, gpt-image-2) re-shoots the 8 key-art compositions as film stills — Gemini 3 Pro / 3.1 Flash image kept the painterly style and was rejected (`stills_gemini/` kept for reference). `gen_veo.py --style photo` animates them (8 Veo 3.1 calls), `cinematic.py build --style photo` → `outputs/trailer/cinematic/mythos2_cinematic_photo.mp4` (78.5 s, 1080p) + `_web.mp4` (60 MB). English captions primary, `--skip <line>` drops a narration line.

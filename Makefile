@@ -355,15 +355,21 @@ trailer:
 trailer-cut:
 	$(VENV)/bin/python scripts/trailer/record_trailer.py --cut-only --keep-raw
 
-# Cinematic trailer (scripts/trailer/cinematic.py): Veo key-art shots + 1080p gameplay + IX narration + music.
-# `cinematic-assets` makes the billed pieces once (Vertex Veo, ElevenLabs); `cinematic` only re-cuts them.
+# Cinematic trailer (scripts/trailer/cinematic.py) → outputs/trailer/cinematic/:
+#   mythos2_cinematic_photo.mp4 (YouTube/SNS: photoreal Veo shots) and mythos2_cinematic_store.mp4 (Play Store: painted
+#   hook + expert-bot gameplay). `cinematic-assets` makes the billed pieces once (Codex stills, Vertex Veo, ElevenLabs);
+#   `cinematic` only re-cuts them.
 cinematic-assets:
 	$(VENV)/bin/python scripts/trailer/gen_veo.py --shot all
+	$(VENV)/bin/python scripts/trailer/gen_stills.py --shot all --engine codex
+	$(VENV)/bin/python scripts/trailer/gen_veo.py --shot all --style photo
 	$(VENV)/bin/python scripts/trailer/record_trailer.py --out outputs/trailer/hq --scale 1.5 --record-only
+	$(VENV)/bin/python scripts/trailer/record_trailer.py --out outputs/trailer/hq --scale 1.5 --record-only --scenes store
 	$(VENV)/bin/python scripts/trailer/cinematic.py audio
 
 cinematic:
-	$(VENV)/bin/python scripts/trailer/cinematic.py build
+	$(VENV)/bin/python scripts/trailer/cinematic.py build --style photo
+	$(VENV)/bin/python scripts/trailer/cinematic.py build --cut store
 
 # --- Android app (Capacitor; docs/android.md) ---------------------------------------------------------------------
 

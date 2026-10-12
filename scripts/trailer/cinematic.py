@@ -91,8 +91,11 @@ NARRATION: list[tuple[str, str, str, float]] = [
     ("06_ix_win", "ix", "[slowly] Congratulations. [pause] You defeated me.", 60.4),
     ("07_ix_loop", "ix", "[quietly] And the loop... has begun again.", 66.2),
 ]
-# Owner-picked IX narrator (audition 2026-10-13: "Adam", deep narrative); Se-rin: English premade "Sarah".
-VOICES = {"ix": "wBXNqKUATyqu0RtYt25i", "se_rin": "EXAVITQu4vr4xnSDxMaL"}
+# Owner-picked IX narrator (audition 2026-10-13: "Adam", deep narrative). Se-rin: shared-library "Vivian - Deep,
+# Calm and Slightly Raspy", top of a 14-take audition (outputs/trailer/cinematic/audition_serin/ranking.json).
+VOICES = {"ix": "wBXNqKUATyqu0RtYt25i", "se_rin": "BKy54CdI9KEYxRNAQAsk"}
+# Se-rin's take wants the most expressive setting (eleven_v3: 0.0 = creative); IX stays a little steadier.
+STABILITY = {"ix": 0.3, "se_rin": 0.0}
 
 MUSIC_PROMPT = (
     "Cinematic dark synthwave trailer score, instrumental only, about 82 seconds, for a cyberpunk tactics game "
@@ -164,7 +167,7 @@ def cmd_audio(args: argparse.Namespace) -> int:
             {
                 "text": text,
                 "model_id": "eleven_v3",
-                "voice_settings": {"stability": 0.3},
+                "voice_settings": {"stability": STABILITY[speaker]},
             },
             dest,
             key,

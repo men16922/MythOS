@@ -10,7 +10,6 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 
 - `[ ]` `[manual]` **SFX listen-test** — the impact layers were tuned by offline measurement only (all tests are muted).
 - `[ ]` `[manual]` **Android release** — Play Console developer account ($25), an upload keystore (owner-held), package id check (`com.projectmythos.signalrun` is permanent once uploaded), register the upload-key and Play app-signing SHA-1s in Firebase (Google sign-in), then an internal-testing AAB. Tester list for Firebase App Distribution.
-- `[ ]` `[manual]` **`git push`** — `main` (2.0) and `1.0` (archive).
 
 - `[ ]` Next deploy: `make deploy-preview` then `make verify-preview` — first real check of the `git-sha` revision label (written 2026-10-12, only tested against a local server).
 - `[ ]` `[manual]` Overnight model routing: `Makefile` pins actor `claude-sonnet-5` / critic `claude-fable-5-1`; plugin 1.8.0 defaults both to Opus 5.5 — owner cost call. Plugin 1.8.0 is installed (`/ship` available).

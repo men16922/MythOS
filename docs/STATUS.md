@@ -21,7 +21,7 @@ Production (2026-10-11): Cloud Run `mythos-api` serves 2.0 — revision `00121` 
 
 Authority plan: `docs/NEXT_PLAN.md`.
 
-1. **Owner calls** — Play Console developer account ($25 one-time) + upload key (Play Store release, Play Games Services), SFX listen-test, App Distribution testers, `git push` if the agent's push was blocked.
+1. **Owner calls** — Play Console developer account ($25 one-time) + upload key (Play Store release, Play Games Services), SFX listen-test, App Distribution testers.
 2. **Watch production** — first real players on 2.0: Cloud Run logs (`v2 gm` outcomes, 401/429 rates), the 19:00 KST push job status, Crashlytics.
 
 ## Open Risks

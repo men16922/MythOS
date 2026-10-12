@@ -99,6 +99,45 @@ VOICES = {"ix": "wBXNqKUATyqu0RtYt25i", "se_rin": "WtA85syCrJwasGeHGH2p"}
 # Se-rin's take wants the most expressive setting (eleven_v3: 0.0 = creative); IX stays a little steadier.
 STABILITY = {"ix": 0.3, "se_rin": 0.0}
 
+# Store cut (Play Store promo video): the painted Veo shots only (matches the game's art), a ~10 s cinematic hook,
+# then mostly real gameplay recorded with `record_trailer.py --scenes store` (expert-bot fights, the map).
+STORE_TIMELINE: list[tuple[str, str, float, float, tuple[str, str] | None]] = [
+    ("veo", "title", 0.5, 4.5, None),
+    ("veo", "se_rin", 1.0, 5.0, None),
+    ("game", "09_fight_haetae", 2.6, 3.2, None),
+    (
+        "game",
+        "09_fight_haetae",
+        18.0,
+        8.0,
+        ("적이 칠 칸이 미리 보인다", "Every enemy move is telegraphed"),
+    ),
+    (
+        "game",
+        "10_fight_incinerator",
+        26.0,
+        7.0,
+        ("밀어서 불길로, 벽으로, 낭떠러지로", "Push them into fire, walls and the void"),
+    ),
+    (
+        "game",
+        "08_map",
+        6.0,
+        4.0,
+        ("네오서울을 가로지를 경로를 짜라", "Plan your route across Neo-Seoul"),
+    ),
+    ("game", "02_event", -5.0, 4.0, ("모든 선택에는 대가가 있다", "Every choice has a price")),
+    ("game", "04_cutscene", -5.5, 3.5, ("함께 걸은 사람들", "The people who walk with you")),
+    ("game", "05_ix", -4.5, 4.0, ("IX는 당신의 선택을 기억한다", "IX remembers what you chose")),
+    ("veo", "ix", 0.0, 4.0, None),
+    ("card", "logo", 0.0, 6.0, None),
+]
+STORE_LINES = {"01_ix_welcome": 0.5, "03_serin_run": 4.6, "04_ix_last": 36.0, "07_ix_loop": 43.7}
+# The score's first impact (≈20 s into music.mp3) lands on the cut to gameplay at 9.5 s.
+STORE_MUSIC_OFFSET = 10.5
+# Fights: crop in on the board (factor, vertical centre as a fraction of the frame) so the tiles read on a phone.
+ZOOM = {"09_fight_haetae": (1.22, 0.44), "10_fight_incinerator": (1.22, 0.44)}
+
 MUSIC_PROMPT = (
     "Cinematic dark synthwave trailer score, instrumental only, about 82 seconds, for a cyberpunk tactics game "
     "set in a rainy neon Seoul ruled by a polite, cold AI. 0-20s: rain texture, a lonely detuned synth motif, low "
@@ -269,6 +308,11 @@ def segment(
         ss = start if start >= 0 else max(0.0, duration(path) + start)
         inputs = ["-ss", f"{ss:.2f}", "-t", f"{length}", "-i", str(path)]
         graph = f"[0:v]scale={W}:{H}:flags=lanczos,fps={FPS},setsar=1"
+        if src in ZOOM:
+            f, yc = ZOOM[src]
+            graph += (
+                f",crop=iw/{f}:ih/{f}:(iw-iw/{f})/2:ih*{yc}-ih/{f}/2,scale={W}:{H}:flags=lanczos"
+            )
         if kind == "game":
             # Real UI footage: a slow push-in so it reads as part of the film, not a screen capture.
             graph += f",zoompan=z='1.0+0.0008*on':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={W}x{H}:fps={FPS}"
@@ -327,9 +371,15 @@ def segment(
 
 
 def cmd_build(args: argparse.Namespace) -> int:
-    LINES = [n for n in NARRATION if n[0] not in set(args.skip or [])]  # noqa: N806
+    store = args.cut == "store"
+    timeline = STORE_TIMELINE if store else TIMELINE
+    LINES = [  # noqa: N806
+        (n[0], n[1], n[2], STORE_LINES[n[0]]) if store else n
+        for n in NARRATION
+        if n[0] not in set(args.skip or []) and (not store or n[0] in STORE_LINES)
+    ]
     segs, t = [], 0.0
-    for i, (kind, src, start, length, caption) in enumerate(TIMELINE):
+    for i, (kind, src, start, length, caption) in enumerate(timeline):
         segs.append(segment(i, kind, src, start, length, caption))
         print(f"seg {i:02d} {src:<12} {t:5.1f}s → {t + length:5.1f}s")
         t += length
@@ -362,7 +412,8 @@ def cmd_build(args: argparse.Namespace) -> int:
         limit = nxt[3] if nxt else total
         if end > limit:
             print(f"  ! {vid} ends at {end:.1f}s, past {limit:.1f}s — move cues or trim the line")
-    inputs = ["-i", str(picture), "-i", str(OUT / "music.mp3")]
+    music_ss = ["-ss", f"{STORE_MUSIC_OFFSET}"] if store else []
+    inputs = ["-i", str(picture), *music_ss, "-i", str(OUT / "music.mp3")]
     for vid, *_ in LINES:
         inputs += ["-i", str(VO / f"{vid}.mp3")]
     vo_labels = []
@@ -392,7 +443,7 @@ def cmd_build(args: argparse.Namespace) -> int:
     graph.append(
         f"[duck][amb][vo_a]amix=inputs=3:normalize=0,atrim=0:{total},alimiter=limit=0.89,loudnorm=I=-15:TP=-1.5:LRA=11[a]"
     )
-    tag = "_photo" if VEO.name == "veo_photo" else ""
+    tag = ("_photo" if VEO.name == "veo_photo" else "") + ("_store" if store else "")
     final = OUT / f"mythos2_cinematic{tag}.mp4"
     run(
         [
@@ -473,6 +524,12 @@ def main() -> int:
     a.add_argument("--se-rin-voice")
     a.add_argument("--music-ms", type=int, default=82000)
     b = sub.add_parser("build", help="cut the cinematic from the generated pieces")
+    b.add_argument(
+        "--cut",
+        default="cinematic",
+        choices=["cinematic", "store"],
+        help="store = Play Store promo",
+    )
     b.add_argument("--skip", nargs="*", help="narration line ids to leave out (e.g. 03_serin_run)")
     b.add_argument(
         "--style", default="art", choices=["art", "photo"], help="photo = the live-action Veo shots"

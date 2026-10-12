@@ -206,6 +206,78 @@ def start_daily_run(page: Page, base: str) -> None:
     page.wait_for_selector(".m2-options .m2-option", timeout=10000)
 
 
+def enter_fight(page: Page, base: str, encounter: str, companions: list[str]) -> None:
+    """A real run (GameShell, not the dev sandbox) dropped straight into `encounter` with the given party."""
+    start_daily_run(page, base)
+    page.evaluate(
+        """async ([enc, comps]) => { const m = window.__m2; const run = structuredClone(m.run);
+          const { startCombat } = await import('/src/v2/engine/combat.ts');
+          for (const id of comps) { const d = m.C.companions[id]; if (!d || run.party.some((p) => p.id === id)) continue;
+            if (run.party.length >= 2) run.party.shift();
+            run.party.push({ id, hp: d.maxHp, maxHp: d.maxHp, bond: 1 });
+            for (const card of d.cards) { run.uidCounter += 1; run.deck.push({ uid: `k${run.uidCounter}`, defId: card, upgraded: false }) } }
+          run.screen = { kind: 'combat', combat: startCombat(run, enc, m.C), nodeKind: 'boss' }; m.setRun(run) }""",
+        [encounter, companions],
+    )
+    page.wait_for_selector(".m2c-hitgrid polygon", timeout=15000)
+    page.wait_for_timeout(1200)
+    with contextlib.suppress(Exception):
+        page.locator(
+            "button:has-text('튜토리얼 건너뛰기'), button:has-text('Skip tutorial')"
+        ).first.click(timeout=1500)
+    page.mouse.move(4, 360)
+    page.wait_for_timeout(1500)
+
+
+def play_expert_turns(page: Page, turns: int) -> None:
+    """Each turn planned by the simulator's expert bot, executed through real clicks (scripts/dev/ui_playthrough.py);
+    the pointer is parked off the board after every step so no tile tooltip covers the shot."""
+    sys.path.insert(0, str(ROOT / "scripts" / "dev"))
+    import ui_playthrough as bot
+
+    original = bot.click_tile
+
+    def click_and_park(pg: Page, pos: dict) -> None:
+        original(pg, pos)
+        pg.mouse.move(4, 360)
+
+    bot.click_tile = click_and_park
+    try:
+        for _ in range(turns):
+            if page.evaluate(
+                "() => { const r = window.__m2.run; return !r || r.screen.kind !== 'combat' }"
+            ):
+                break
+            bot.play_combat_turn(page)
+            page.mouse.move(4, 360)
+            page.wait_for_timeout(4200)  # the enemy phase plays out on screen
+    finally:
+        bot.click_tile = original
+
+
+def scene_fight_haetae(page: Page, base: str) -> None:
+    enter_fight(page, base, "a1_boss_haetae", ["se_rin", "tae_o"])
+    play_expert_turns(page, 4)
+
+
+def scene_fight_incinerator(page: Page, base: str) -> None:
+    enter_fight(page, base, "a2_elite_incinerator", ["se_rin", "su_ah"])
+    play_expert_turns(page, 4)
+
+
+def scene_map(page: Page, base: str) -> None:
+    start_daily_run(page, base)
+    set_run(page, "run.screen = { kind: 'map' }")
+    page.wait_for_timeout(5500)
+
+
+# Store cut extras (record with --scenes store): the map and two fights played well, end to end.
+STORE_SCENES = [
+    ("08_map", scene_map, 4.0, ""),
+    ("09_fight_haetae", scene_fight_haetae, 30.0, ""),
+    ("10_fight_incinerator", scene_fight_incinerator, 30.0, ""),
+]
+
 # name, function, seconds kept from the END of the recording, caption (ko)
 SCENES = [
     ("01_title", scene_title, 3.2, "세계:접속"),
@@ -219,14 +291,15 @@ SCENES = [
 OUTRO = "MYTHOS 2.0 · SIGNAL RUN"
 
 
-def record(out: Path, base: str, keep_raw: bool) -> list[Path]:
+def record(out: Path, base: str, keep_raw: bool, scenes: list | None = None) -> list[Path]:
     raw = out / "raw"
-    shutil.rmtree(raw, ignore_errors=True)
-    raw.mkdir(parents=True)
+    if scenes is None:  # a full recording starts clean; an extra scene set adds to the same folder
+        shutil.rmtree(raw, ignore_errors=True)
+    raw.mkdir(parents=True, exist_ok=True)
     clips: list[Path] = []
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        for name, fn, keep, _caption in SCENES:
+        for name, fn, keep, _caption in scenes or SCENES:
             hq = SCALE != 1.0
             # Playwright's own recorder is ~1 Mbit VP8 at CSS-pixel size; --scale captures CDP screencast frames at
             # device pixels instead (crisp 1080p from the same 1280x720 layout), timed by their real timestamps.
@@ -540,6 +613,12 @@ def main() -> int:
         action="store_true",
         help="record <out>/raw and skip the cut (cinematic input)",
     )
+    ap.add_argument(
+        "--scenes",
+        default="trailer",
+        choices=["trailer", "store"],
+        help="store = the map and two expert-played fights, added to <out>/raw",
+    )
     args = ap.parse_args()
     global SCALE
     SCALE = args.scale
@@ -591,7 +670,12 @@ def main() -> int:
         wait_http(f"http://127.0.0.1:{api_port}/api/v2/health")
         wait_http(f"http://localhost:{ui_port}/")
         print("recording…")
-        clips = record(out, f"http://localhost:{ui_port}", args.keep_raw)
+        clips = record(
+            out,
+            f"http://localhost:{ui_port}",
+            args.keep_raw,
+            STORE_SCENES if args.scenes == "store" else None,
+        )
         if args.record_only:
             print(f"recorded → {out / 'raw'}")
             return 0

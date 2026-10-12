@@ -4,7 +4,7 @@ Last updated: 2026-10-13
 
 ## 2026-10-13 — Pushed main; preview revision deployed and verified
 
-- `main` pushed by the owner (origin `742e64d`; `1.0` already there). `make deploy-preview` → `mythos-api-00123-qex` at 0 % traffic; `make verify-preview` 5/5 PASS (first real check of the `git-sha` label = HEAD `7e57217`, health, postgres store, Gemini GM, google auth, served bundle = committed). Promotion is the owner's call.
+- `main` pushed by the owner (origin `742e64d`; `1.0` already there). `make deploy-preview` → `mythos-api-00123-qex` at 0 % traffic; `make verify-preview` 5/5 PASS (first real check of the `git-sha` label = HEAD `7e57217`, health, postgres store, Gemini GM, google auth, served bundle = committed). Promotion is the owner's call. Owner promoted it (2026-10-13): 100 % on `00123`, prod `/api/v2/health` ok. The first promote failed — gcloud's default project is another one; `verify_preview.py` now prints `--to-revisions <rev>=100 --project …`.
 
 ## 2026-10-13 — Sync pass, plan correction
 

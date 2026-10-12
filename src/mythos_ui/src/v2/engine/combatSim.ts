@@ -175,7 +175,14 @@ export function evaluate(c: CombatState, C: ContentRegistry): number {
 interface Action {
   score: number
   apply: (c: CombatState) => void
+  /** What a UI would have to do to take this action (for `planGreedyTurn`). */
+  step?: PlanStep
 }
+
+/** One UI-expressible move of the greedy bot: reposition a unit, or play a card (optionally after stepping to a spot). */
+export type PlanStep =
+  | { kind: 'move'; uid: string; to: Pos }
+  | { kind: 'card'; cardUid: string; origin: string; spot: Pos | null; target: PlayTarget }
 
 function damages(effects: readonly Effect[]): boolean {
   return effects.some((e) => e.kind === 'damage' && e.amount > 0)
@@ -260,6 +267,7 @@ function bestCardAction(c: CombatState, C: ContentRegistry, base: number): Actio
                 if (spot) moveInPlace(st, uid, spot)
                 playCardInPlace(st, C, cardUid, uid, tgt)
               },
+              step: { kind: 'card', cardUid, origin: uid, spot: spot ? { ...spot } : null, target: { ...tgt } },
             }
           }
         }
@@ -306,6 +314,44 @@ function reposition(c: CombatState, C: ContentRegistry): void {
     }
     if (bestPos) moveInPlace(c, u.uid, bestPos)
   }
+}
+
+/**
+ * The steps greedy would take this turn, in order, without touching `c0` (consumables are not planned: a UI bot
+ * plays cards and steps). Lets a browser bot play like the simulator's expert through real clicks.
+ */
+export function planGreedyTurn(c0: CombatState, C: ContentRegistry): PlanStep[] {
+  const c = leanClone(c0)
+  const steps: PlanStep[] = []
+  for (let step = 0; step < 20 && c.phase === 'player'; step++) {
+    const base = evaluate(c, C)
+    const card = bestCardAction(c, C, base)
+    if (!card || card.score <= 0.1 || !card.step) break
+    card.apply(c)
+    steps.push(card.step)
+  }
+  if (c.phase === 'player') {
+    for (const u of livingParty(c)) {
+      if (u.moved) continue
+      const before = { ...u.pos }
+      let bestPos: Pos | null = null
+      let bestScore = evaluate(c, C)
+      for (const p of legalMoves(c, u.uid)) {
+        const s = leanClone(c)
+        moveInPlace(s, u.uid, p)
+        const v = evaluate(s, C)
+        if (v > bestScore + 0.01) {
+          bestScore = v
+          bestPos = p
+        }
+      }
+      if (bestPos && !samePos(bestPos, before)) {
+        moveInPlace(c, u.uid, bestPos)
+        steps.push({ kind: 'move', uid: u.uid, to: { ...bestPos } })
+      }
+    }
+  }
+  return steps
 }
 
 export function greedyTurn(c: CombatState, C: ContentRegistry): void {

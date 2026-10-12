@@ -39,6 +39,8 @@ make check            # skills mirror, doc budget, ruff/eslint, mypy (+strict on
 make test-v2          # engine/content tests: node --test src/v2/ (Node native TS)
 make test             # Python unittest: /api/v2 (saves, GM, talk) + overnight-harness scripts
 make test-e2e-v2      # headless muted browser smoke (needs make frontend-build)
+make playthrough-quick # ~3 min: 5 map nodes + shop/safehouse/treasure/final-choice tour through the real UI (bot, muted, private ports)
+make playthrough      # whole run through the real UI (~20 min, assist mode; `ui_playthrough.py --no-god` for unassisted)
 make test-db          # Postgres save-store tests (MYTHOS_RUN_DB_TESTS=1; needs make dev-up)
 ```
 
@@ -46,7 +48,7 @@ Browser testing is **always silent** (`?mute=1` / localStorage `mythos2.mute=1`)
 
 ### Deploy
 
-`make deploy` (Cloud Run, env-preserving, `.env` `PROJECT_ID`) / `make deploy-preview` (no-traffic tagged revision). Deploys are owner decisions; `git push` is owner-only.
+`make deploy` (Cloud Run, env-preserving, `.env` `PROJECT_ID`) / `make deploy-preview` (no-traffic tagged revision). Both stamp the revision with a `git-sha` label. After a preview deploy run `make verify-preview` (read-only: revision built from HEAD, health, google sign-in, served bundle = committed bundle) before anyone promotes it. Deploys are owner decisions; `git push` is owner-only.
 
 ## Architecture
 
@@ -63,6 +65,17 @@ Browser testing is **always silent** (`?mute=1` / localStorage `mythos2.mute=1`)
 - Config via `.env`: `OLLAMA_BASE_URL`, `OLLAMA_MODEL_STORY` (local GM; `gemma4:8b-64k` is the locally installed model), `MYTHOS_NARRATIVE_PROVIDER=vertex` + `PROJECT_ID` (cloud GM via ADC), `DATABASE_URL`, `MYTHOS_AUTH` (`open` locally; `google` on Cloud Run = Firebase Google sign-in required for cloud saves/GM/leaderboard, see `docs/online.md`), `MYTHOS_CORS_ORIGINS`. Never print or commit `.env` values.
 - `MYTHOS_LOG_LEVEL` controls server log verbosity (tests use `ERROR`). `MYTHOS_RUN_DB_TESTS=1` opts into Postgres tests. `outputs/` is gitignored.
 - Asset generation: Vertex Gemini image (scenes/cards), Codex image (transparent sprites), Vertex Lyria (music loops) — `scripts/v2_assets/`, with a call budget ledger.
+
+## Definition of done
+
+Say "done" only with evidence, and say what was not checked:
+
+- **Refactor / rename / removal**: grep for leftover references to the old name or path before claiming it is complete.
+- **Code**: the relevant gate output (`make check`, `make test-v2`, …) — not "should pass". Gameplay changes also go through `gameplay-qa`.
+- **UI / flow change**: exercise it in the real UI (muted, one tab; `make playthrough-quick` or the combat sandbox), not only unit tests.
+- **Deploy**: `make verify-preview` green and the revision's `git-sha` label equals HEAD. A deploy command exiting 0 is not proof.
+- Anything not run is written as "unverified" in the reply and in `PROGRESS_LOG.md`. Do not add unrequested features or change defaults (e.g. auto-sync behaviour) without asking.
+- Commit what is verified and checkpointed (the plugin's `ship` skill does the checkpoint → budget → gate → commit sequence); `git push` stays the owner's.
 
 ## Agent execution constraints (from /insights 2026-07-05 — recurring friction)
 

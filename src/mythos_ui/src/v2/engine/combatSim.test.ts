@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { startCombat } from './combat.ts'
-import { autoPlay, leanClone } from './combatSim.ts'
+import { playCardInPlace, startCombat } from './combat.ts'
+import { autoPlay, leanClone, planGreedyTurn } from './combatSim.ts'
 import { FIXTURE as C, makeRun } from './combat.fixture.test.ts'
 
 const party = [{ id: 'se_rin', hp: 20, maxHp: 20, bond: 0 }]
@@ -42,4 +42,23 @@ test('leanClone is a faithful deep copy (minus the event log)', () => {
   if (tile) tile.kind = 'void'
   assert.notEqual(c.units[0]?.pos.x, 99)
   assert.equal(c.tiles[0]?.[0]?.kind, 'floor')
+})
+
+test('planGreedyTurn is read-only and its first card step is playable as planned', () => {
+  const c = startCombat(makeRun({ party }), 'terrain', C)
+  const before = JSON.stringify(c)
+  const plan = planGreedyTurn(c, C)
+  assert.equal(JSON.stringify(c), before, 'planning must not mutate the combat')
+  assert.ok(plan.length > 0)
+  const first = plan[0]
+  assert.ok(first)
+  if (first.kind === 'card') {
+    const played = leanClone(c)
+    if (first.spot) {
+      const u = played.units.find((x) => x.uid === first.origin)
+      assert.ok(u)
+      u.pos = { ...first.spot }
+    }
+    assert.doesNotThrow(() => playCardInPlace(played, C, first.cardUid, first.origin, first.target))
+  }
 })

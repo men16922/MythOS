@@ -1,6 +1,14 @@
 # Progress Log
 
-Last updated: 2026-10-11
+Last updated: 2026-10-12
+
+## 2026-10-12 — Unassisted UI run wins the whole game; quick playthrough, verify-preview, definition of done
+
+- Status: done, committed.
+- Changed: the bot plays each turn with the simulator's expert (`planGreedyTurn` in `engine/combatSim.ts`, run in-page; the first step is executed through real tile clicks and number keys, then replanned). New `make playthrough-quick` (`--max-nodes 5`, then the shop/safehouse/treasure/final-choice tour). New `make verify-preview` (`scripts/dev/verify_preview.py`, read-only): the no-traffic revision must carry `git-sha` = HEAD, `/api/health` + `/api/v2/health` ok, sign-in mode google, served `app.js` = committed bundle; prints the promote command only when all pass. `make deploy` / `deploy-preview` now stamp the revision with `git-sha=<short>[-dirty]`. `CLAUDE.md` gains a "Definition of done" section (evidence before "done", say what is unverified). `.claude/harness-config.json`: removed the stale `harness_root` pin to plugin 1.4.0 (the overnight runner was resolving through it; now follows the newest install), added `doc_budget_cmd` and `ship.hold_back`.
+- Verified: `make check` green (node 269, Python 253, 7 DB skipped). **Unassisted** whole run (`ui_playthrough.py --runs 1 --max-minutes 40 --no-god`): victory (`ending_noble_sacrifice`), 24 map nodes, three acts, 0 console errors, 10 min — earlier the same bot lost at the end of act 1. `make playthrough-quick`: 2 min, OK. `verify_preview.py --url` checked against a local server (flags open auth, passes bundle and health); new `tests/test_verify_preview.py` covers pass / open auth / stale bundle. Not run against Cloud Run (no deploy made): the `git-sha` label path is unverified until the next `make deploy-preview`.
+- Blockers: none. Plugin `ship` skill lives in the plugin repo (1.8.0, committed locally there, not pushed or installed); the installed 1.7.0 in this repo has no `/ship` yet.
+- Next: next `make deploy-preview` then `make verify-preview`; owner items unchanged (accounts, voice pins, SFX listen, harness reseed). `Makefile` still pins the overnight actor/critic to `claude-sonnet-5` / `claude-fable-5-1`; the plugin's new default is Opus 5.5 for both (owner cost call).
 
 ## 2026-10-12 — Whole-run UI bot (`make playthrough`)
 
@@ -64,11 +72,4 @@ Last updated: 2026-10-11
 - Tests: `tests/test_v2_llm_usage.py` (both backends' usage extraction against fake clients, missing metadata → zero, price math, env parsing), store contract (token sums on memory + Postgres), API → dashboard end to end. Known undercount: calls abandoned by the timeout are counted, their tokens are not.
 - The GM cost guard itself stays off (owner) — the per-player 400 calls/day cap still applies; decide on a tighter cap once a few days of real tokens/day are visible.
 
-## 2026-10-11 — Combat balance pass: Incinerator tuned; card audit (no change)
-
-- Per-encounter telemetry (mixed bot, 4 seed blocks × 60 runs): the curve is as designed (Act 1 ≈ 0–3 % losses, Act 2 elites/boss 0–8 %, Act 3 6–27 %, IX 26 %), with one outlier — `a2_elite_incinerator` lost 20 % of the time and cost 15.7 HP per fight vs 0–5 % and ≈ 4 HP for the other Act 2 elites. In isolation (starter decks × 60 seeds × 3 archetypes): mixed 91 % win / 15.5 HP lost, greedy 5.0 HP lost vs 0.4–0.7 for Reaver and Captain.
-- Levers tried one at a time (isolated mixed win / HP lost): firestorm burn 3 → 2: 96 % / 12.7 · plus drone cooldown 3 → 4: 97 % / 12.2 · plus HP 40 → 34: 96 % / 11.6. Only the burn change moves it; the others are marginal, so the change is **burn 3 → 2 and nothing else**. Run level: Incinerator loses 20 % → 16 %, 15.7 → 12.6 HP; greedy bot loses 0 of 70 (was 1 %); overall mixed 41 % unchanged (98 → 99 wins / 240). It stays the hardest Act 2 elite on purpose — it punishes standing in ground fire.
-- Card value, measured (`engine/card-value.report.ts`, added): two extra copies of each card in a starter deck vs. none, six encounters, same seeds. Independent seed sets agree at r = 0.90–0.97, so it is signal, not noise. **The first run (greedy bot) was biased**: it showed Guard cards (`bulwark`, `guard_protocol`, `suah_living_metal`) as the weakest cards, but a free Guard on the connector does nothing for the greedy bot (it already takes ~2.5 HP per Act 3 fight and over-values Guard in its evaluation) while for the mixed bot it cuts HP lost 12.0 → 7.5 (Guard 4) → 5.5 (Guard 8). Under the mixed bot those three are average. Standalone strongest (mixed): `hot_wire`, `blink_strike`, `shield_bash`, `vector_kick`; weakest under **both** bots: `afterburner`, `serin_undertow`, `kinship` — all setup/synergy cards (draw engine for the Overclock pack, a pull that needs a collision, a long-fight Guard power), which a starter-deck test undervalues by construction. **No card was changed**: a standalone number cannot justify retuning a synergy card. Watch list for real-play data, not a tuning order. The earlier crude points-per-energy list (static, ignores statuses) is superseded and wrong about `hot_wire`.
-- Greedy bot baseline note: 98–99 % over 240 runs on these blocks (the docs' 100 % was a different 360-run sample); it was 98 % before this change.
-
-- Older entries: `bin/docs/archive/progress-2026-10-11-mythos2-late.md` (event balance audit).
+- Older entries: `bin/docs/archive/progress-2026-10-11-mythos2-late.md` (event balance audit, combat balance pass).

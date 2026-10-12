@@ -100,7 +100,77 @@ def shot_step(page: Page, name: str) -> None:
         page.screenshot(path=f"{d}/step_{name}.png")
 
 
+GRID_W = 7
+PLAN_JS = """async () => {
+  const r = window.__m2 && window.__m2.run
+  if (!r || r.screen.kind !== 'combat') return null
+  const m = await import('/src/v2/engine/combatSim.ts')
+  const c = r.screen.combat
+  return { plan: m.planGreedyTurn(c, window.__m2.C), hand: c.hand.map((x) => x.uid),
+           units: Object.fromEntries(c.units.map((u) => [u.uid, u.pos])) }
+}"""
+SIG_JS = """() => { const r = window.__m2.run; if (!r || r.screen.kind !== 'combat') return 'gone'
+  const c = r.screen.combat; return JSON.stringify([c.hand.map((x) => x.uid), c.energy, c.units.map((u) => [u.uid, u.pos, u.hp]), c.phase]) }"""
+DIRS = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
+
+
+def click_tile(page: Page, pos: dict) -> None:
+    tiles = centers(page, ".m2c-hitgrid polygon")
+    x, y = tiles[int(pos["y"]) * GRID_W + int(pos["x"])]
+    page.mouse.click(x, y)
+    page.wait_for_timeout(350)
+
+
+def run_step(page: Page, step: dict, info: dict) -> None:
+    """Take one planned step through the real UI: select the unit by its tile, press the card's number, click the target."""
+    here = dict(info["units"][step["uid"] if step["kind"] == "move" else step["origin"]])
+    if step["kind"] == "move":
+        click_tile(page, here)
+        click_tile(page, step["to"])
+        return
+    if step["spot"]:
+        click_tile(page, here)
+        click_tile(page, step["spot"])
+        here = dict(step["spot"])
+    click_tile(
+        page, here
+    )  # select the acting unit (a card with no fixed owner uses the selected unit)
+    page.keyboard.press(str(info["hand"].index(step["cardUid"]) + 1))
+    page.wait_for_timeout(300)
+    target = step["target"]
+    if "pos" in target:
+        click_tile(page, target["pos"])
+    elif "dir" in target:
+        dx, dy = DIRS[target["dir"]]
+        click_tile(page, {"x": here["x"] + dx, "y": here["y"] + dy})
+    else:
+        click_tile(page, here)  # an untargeted card plays when its own tile is clicked
+
+
 def play_combat_turn(page: Page) -> None:
+    """Play the turn the simulator's expert (greedy) bot would, but only through real clicks and keys."""
+    if len(centers(page, ".m2c-hitgrid polygon")) != GRID_W * 5:
+        page.wait_for_timeout(600)  # the board is still loading in
+        return
+    fails = 0
+    for _ in range(14):
+        data = page.evaluate(PLAN_JS)
+        if not data or not data["plan"]:
+            break
+        before = page.evaluate(SIG_JS)
+        run_step(page, data["plan"][0], data)
+        page.wait_for_timeout(500)
+        if page.evaluate(SIG_JS) == before:
+            fails += 1
+            page.keyboard.press("Escape")  # disarm a half-made selection before trying again
+            page.wait_for_timeout(200)
+            if fails >= 2:
+                break
+    page.keyboard.press("e")
+    page.wait_for_timeout(2500)
+
+
+def play_combat_turn_simple(page: Page) -> None:
     """Step toward the nearest foe, then play each card on its first legal target (or any unit), then end the turn."""
     uids = page.evaluate(
         "() => window.__m2.run.screen.combat.units.filter((u) => u.side === 'enemy' && u.hp > 0).map((u) => u.uid)"
@@ -288,7 +358,7 @@ def tour_screens(page: Page) -> list[str]:
 
 
 def play_one(
-    page: Page, base: str, max_seconds: float, daily: bool, god: bool
+    page: Page, base: str, max_seconds: float, daily: bool, god: bool, max_nodes: int = 0
 ) -> tuple[bool, str, Counter]:
     seen: Counter = Counter()
     page.goto(f"{base}/?mute=1")
@@ -330,6 +400,8 @@ def play_one(
             if os.environ.get("PLAYTHROUGH_DEBUG"):
                 print("   god:", res)
         seen[st["kind"]] += 1
+        if max_nodes and st["kind"] == "map" and (st.get("visited") or 0) >= max_nodes:
+            return True, f"quick: {st['visited']} map nodes played", seen
         if god and st["kind"] == "combat" and (st.get("combatTurn") or 0) % 1000 in (12, 24):
             # The bot hits too softly to finish some fights (the engine's own bots win them in ~6 turns). Wear the foes
             # down to 1 HP through the dev hook (bumping `turn` makes the screen adopt the edited state), so the fight
@@ -384,6 +456,12 @@ def main() -> int:
     )
     ap.add_argument(
         "--no-god", action="store_true", help="do not top up HP: the bot usually dies in act 1-2"
+    )
+    ap.add_argument(
+        "--max-nodes",
+        type=int,
+        default=0,
+        help="stop playing after this many map nodes, then tour the shop/safehouse/treasure/final choice (quick check)",
     )
     args = ap.parse_args()
     api_port, ui_port = free_port(), free_port()
@@ -447,6 +525,7 @@ def main() -> int:
                     args.max_minutes * 60,
                     args.daily,
                     not args.no_god,
+                    args.max_nodes,
                 )
                 if ok and kind_of(page) != "ended":
                     try:

@@ -2,6 +2,10 @@
 
 Last updated: 2026-10-13
 
+## 2026-10-13 — Pushed main; preview revision deployed and verified
+
+- `main` pushed by the owner (origin `742e64d`; `1.0` already there). `make deploy-preview` → `mythos-api-00123-qex` at 0 % traffic; `make verify-preview` 5/5 PASS (first real check of the `git-sha` label = HEAD `7e57217`, health, postgres store, Gemini GM, google auth, served bundle = committed). Promotion is the owner's call.
+
 ## 2026-10-13 — Sync pass, plan correction
 
 - Status: done, committed. `NEXT_PLAN.md` no longer asks to install plugin 1.8.0 (installed, `/ship` present). Verified: `make check` green (node 269, Python 253, 7 DB skipped). Unverified: e2e/playthrough (no code changed), `git-sha` label on Cloud Run. Every other open item is owner-side (accounts, listen-tests, push, deploy-preview, harness reseed).

@@ -9,6 +9,7 @@ Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (pau
 Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.md` · owner guide: `docs/test/mythos2_first_play.md` · Android: `docs/android.md`.
 
 - `[ ]` `[manual]` **SFX listen-test** — the impact layers were tuned by offline measurement only (all tests are muted).
+- `[ ]` `[manual]` **Cinematic trailer review** — watch/listen to `outputs/trailer/cinematic/mythos2_cinematic.mp4`; voices are provisional (pin IX/Se-rin in `voices.json`, then `cinematic.py audio --force all` + `make cinematic`). Edit lines/timing in `scripts/trailer/cinematic.py`.
 - `[ ]` `[manual]` **Android release** — Play Console developer account ($25), an upload keystore (owner-held), package id check (`com.projectmythos.signalrun` is permanent once uploaded), register the upload-key and Play app-signing SHA-1s in Firebase (Google sign-in), then an internal-testing AAB. Tester list for Firebase App Distribution.
 
 - `[ ]` `[manual]` Overnight model routing: `Makefile` pins actor `claude-sonnet-5` / critic `claude-fable-5-1`; plugin 1.8.0 defaults both to Opus 5.5 — owner cost call. Plugin 1.8.0 is installed (`/ship` available).

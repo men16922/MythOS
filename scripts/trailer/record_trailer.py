@@ -17,6 +17,7 @@ The game is always recorded muted (``?mute=1``); music is added in the edit, nev
 from __future__ import annotations
 
 import argparse
+import base64
 import contextlib
 import os
 import re
@@ -33,6 +34,8 @@ ROOT = Path(__file__).resolve().parents[2]
 MUSIC = ROOT / "resources" / "neo-seoul" / "v2" / "music"
 UI = ROOT / "src" / "mythos_ui"
 W, H = 1280, 720
+# --scale records the same 1280x720 layout at a higher pixel density (1.5 → 1920x1080 frames for the cinematic cut).
+SCALE = 1.0
 # Apple SD Gothic Neo carries the Hangul glyphs (Menlo has none); the captions are Korean.
 FONT = "/System/Library/Fonts/AppleSDGothicNeo.ttc"
 
@@ -224,30 +227,117 @@ def record(out: Path, base: str, keep_raw: bool) -> list[Path]:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         for name, fn, keep, _caption in SCENES:
+            hq = SCALE != 1.0
+            # Playwright's own recorder is ~1 Mbit VP8 at CSS-pixel size; --scale captures CDP screencast frames at
+            # device pixels instead (crisp 1080p from the same 1280x720 layout), timed by their real timestamps.
             ctx = browser.new_context(
                 viewport={"width": W, "height": H},
-                record_video_dir=str(raw),
-                record_video_size={"width": W, "height": H},
+                device_scale_factor=SCALE,
+                **(
+                    {}
+                    if hq
+                    else {
+                        "record_video_dir": str(raw),
+                        "record_video_size": {"width": W, "height": H},
+                    }
+                ),
             )
             page = ctx.new_page()
+            cast = Screencast(page, raw / f"{name}_frames") if hq else None
             errors: list[str] = []
             page.on("pageerror", lambda e, errors=errors: errors.append(str(e)))
             try:
+                if cast:
+                    cast.start()
                 fn(page, base)
             finally:
+                if cast:
+                    cast.stop()
                 video = page.video
                 ctx.close()
             if errors:
                 print(f"  ! {name}: page errors: {errors[:2]}")
-            src = Path(video.path()) if video else None
-            if not src or not src.exists():
-                raise SystemExit(f"no recording for {name}")
-            dest = raw / f"{name}.webm"
-            src.rename(dest)
+            if cast:
+                dest = cast.assemble(raw / f"{name}.mp4", round(W * SCALE), round(H * SCALE))
+            else:
+                src = Path(video.path()) if video else None
+                if not src or not src.exists():
+                    raise SystemExit(f"no recording for {name}")
+                dest = raw / f"{name}.webm"
+                src.rename(dest)
             clips.append(dest)
             print(f"  recorded {name} ({keep}s kept of the tail)")
         browser.close()
     return clips
+
+
+class Screencast:
+    """CDP Page.startScreencast frames (JPEG + timestamp) → a VFR H.264 clip (port of 1.x scripts/cbt/hq_record.py)."""
+
+    def __init__(self, page: Page, frames: Path) -> None:
+        shutil.rmtree(frames, ignore_errors=True)
+        frames.mkdir(parents=True)
+        self.dir, self.frames, self.on = frames, [], False
+        self.cdp = page.context.new_cdp_session(page)
+        self.cdp.on("Page.screencastFrame", self._frame)
+
+    def _frame(self, params: dict) -> None:
+        with contextlib.suppress(Exception):
+            self.cdp.send("Page.screencastFrameAck", {"sessionId": params["sessionId"]})
+        if self.on:
+            path = self.dir / f"f{len(self.frames):06d}.jpg"
+            path.write_bytes(base64.b64decode(params["data"]))
+            self.frames.append(
+                (float(params.get("metadata", {}).get("timestamp") or time.time()), path)
+            )
+
+    def start(self) -> None:
+        self.on = True
+        self.cdp.send("Page.startScreencast", {"format": "jpeg", "quality": 92, "everyNthFrame": 1})
+
+    def stop(self) -> None:
+        self.on = False
+        with contextlib.suppress(Exception):
+            self.cdp.send("Page.stopScreencast")
+
+    def assemble(self, dest: Path, width: int, height: int) -> Path:
+        if len(self.frames) < 2:
+            raise SystemExit(f"screencast captured {len(self.frames)} frames for {dest.name}")
+        lines = [
+            f"file '{p.name}'\nduration {max(1 / 60, min(5.0, nxt - ts)):.4f}"
+            for (ts, p), (nxt, _) in zip(self.frames, self.frames[1:], strict=False)
+        ]
+        lines.append(f"file '{self.frames[-1][1].name}'")
+        (self.dir / "concat.txt").write_text("\n".join(lines))
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-v",
+                "error",
+                "-y",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                "concat.txt",
+                "-vf",
+                f"scale={width}:{height}:flags=lanczos,fps=30",
+                "-c:v",
+                "libx264",
+                "-crf",
+                "15",
+                "-preset",
+                "slow",
+                "-pix_fmt",
+                "yuv420p",
+                str(dest.resolve()),
+            ],
+            cwd=self.dir,
+            check=True,
+        )
+        shutil.rmtree(self.dir, ignore_errors=True)
+        return dest
 
 
 def cut(out: Path, clips: list[Path]) -> Path:
@@ -439,7 +529,20 @@ def main() -> int:
         action="store_true",
         help="re-cut the recordings already in <out>/raw (no re-recording)",
     )
+    ap.add_argument(
+        "--scale",
+        type=float,
+        default=1.0,
+        help="pixel density of the recording (1.5 = 1080p frames)",
+    )
+    ap.add_argument(
+        "--record-only",
+        action="store_true",
+        help="record <out>/raw and skip the cut (cinematic input)",
+    )
     args = ap.parse_args()
+    global SCALE
+    SCALE = args.scale
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     if args.cut_only:
@@ -489,6 +592,9 @@ def main() -> int:
         wait_http(f"http://localhost:{ui_port}/")
         print("recording…")
         clips = record(out, f"http://localhost:{ui_port}", args.keep_raw)
+        if args.record_only:
+            print(f"recorded → {out / 'raw'}")
+            return 0
         print("cutting…")
         final = cut(out, clips)
         if not args.keep_raw:

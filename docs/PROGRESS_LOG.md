@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-13
 
+## 2026-10-13 — Cinematic trailer (Veo + gameplay + IX narration)
+
+- Status: done (first cut), committed; owner listening/viewing pending. `make cinematic-assets` (billed: 8 Vertex Veo 3.1 image-to-video shots from the game's key art with native ambience, `gen_veo.py`; 1080p gameplay via CDP screencast, `record_trailer.py --scale 1.5 --record-only`; 7 Korean IX/Se-rin lines + an 82 s score from ElevenLabs, `cinematic.py audio`) then `make cinematic` (cut only) → `outputs/trailer/cinematic/mythos2_cinematic.mp4` (78.5 s, 1080p, 135 MB master) + `_web.mp4` (56 MB). Ported from the 1.x teaser pipeline. Voices are provisional (first audition candidate: IX Junjin, Se-rin Yooni).
+- Verified: frame contact sheet (every 2 s) and waveform; Gemini 2.5 Pro transcription of the final mix — all 7 lines intelligible, no clipping/gaps reported; −13.4 LUFS. The default `make trailer` still builds (regression run). `make check` green. Not verified: human listening; Veo cost (9 calls incl. one fallback).
+
 ## 2026-10-13 — Pushed main; preview revision deployed and verified
 
 - `main` pushed by the owner (origin `742e64d`; `1.0` already there). `make deploy-preview` → `mythos-api-00123-qex` at 0 % traffic; `make verify-preview` 5/5 PASS (first real check of the `git-sha` label = HEAD `7e57217`, health, postgres store, Gemini GM, google auth, served bundle = committed). Promotion is the owner's call. Owner promoted it (2026-10-13): 100 % on `00123`, prod `/api/v2/health` ok. The first promote failed — gcloud's default project is another one; `verify_preview.py` now prints `--to-revisions <rev>=100 --project …`.
@@ -59,25 +64,4 @@ Last updated: 2026-10-13
 - 1.x's story bible had one thing 2.0 lacked: `ix_temptation_mirror` — IX's strongest attack is not force but an accurate, polite quotation of what the player really did ("you already optimised; I merely scaled it"). `content/ixMirror.ts` + `EventDef.ixMirror` (set on `a3_ix_offer`): IX quotes up to three of the run's real choices, highest priority first (the five companion-arc payoffs outrank the older flags, then saved citizen, woken Kai, Lin-yue's ledger, the opened Spire door, the left mark, déjà vu, and a loud/quiet-run remark), closes with the verdict, or says "a very clean connection" when there is nothing to quote. Authored and deterministic, shown after the event text finishes typing. Browser-checked with four flags set and with none; `narrative.test.ts` proves every quoted flag is set by some event, IX stays 합쇼체, priorities and the cap.
 - #7 twist bank: nothing to port — all three twists already exist in 2.0 (Se-rin's hidden line, the grid collecting rather than deleting, the player's earlier self).
 
-## 2026-10-11 — Stat inner voices (1.x port #2)
-
-- After a stat check resolves (event option or Improvise), the stat that was rolled talks back in one authored line under the outcome text, once the text has finished typing: 근력 rough and loyal, 민첩 a jumpy kid, 지능 a cold 합쇼체 analyst, 매력 a soft teasing older sister, 관측 an old dry watcher. 5 stats × 4 success + 4 failure lines, KO/EN, no numbers (the chips already carry them). Picked by a stable hash of (stat, outcome, event:option), so the same moment always sounds the same; no LLM, no balance effect. Each voice has its own colour.
-- `Typewriter` gained an `onDone` callback; the voice mounts on completion. Verified in a real browser against the dev server (success path and failure path, console clean) and by `narrative.test.ts` (counts, length, no digits, distinct registers, deterministic spread).
-
-## 2026-10-11 — 1.x port, Wave 1 (naming guard, agendas, flag reachability, boss stacking)
-
-- Owner directive: "포팅 계획까지 포함하여 잔여 작업 전부 검증 완료시까지 수행 … 개선사항은 스스로 판단 … 게임의 재미 최우선". Executing `docs/plans/2026-10-11-port-from-1x.md` wave by wave.
-- **#1 naming/register guard**: `talk.absent_companion_named` rejects a line naming a companion the context never gives (party, event title, chosen action, player name; the speaker is always allowed) on narration, companion chat and IX → authored fallback; `drop_polite_sentences` removes polite endings from every Korean companion reply except Kai (the one 해요체 speaker). Naming rule added to the narrate prompt; the client now sends `party` in the chat context. "한" is checked only in English (it is an ordinary Korean word).
-- **#8 agendas**: `talk.AGENDAS` — one quiet inner goal per companion (KO/EN, written against the new arcs), injected as "never state it, let it colour tone".
-- **#10 reachability**: `narrative.test.ts` now also proves every flag reader has a setter that can share its party (≤ 2 companions) within act order. All chains pass.
-- **#12 boss stacking**: verified with decks of 4/8 extra burn cards and with pre-applied burn 6/12 — realistic burn builds shorten bosses 25–30 % but do not raise IX's mixed win rate (65 → 61 %), so no 1.x-style stack cap is needed. A pre-applied 12 burn would halve boss length, but one card gives at most 4 and burn decays by 1 per turn.
-- Tests: `tests/test_v2_talk.py` (naming, register, agendas), `tests/test_v2_api.py` (absent-name narration falls back).
-
-## 2026-10-11 — GM token usage + cost in the dashboard (1.x port #4, first of Wave 1)
-
-- The GM cost guard decision had no number to stand on: `v2_gm_usage` counted calls but not tokens. `llm.py` backends now report the billed tokens of the call they just made (`Usage`, thread-local `take_last_usage`; Gemini adds thinking tokens to output), `_GMRunner` hands them to `log_gm` through a request-scoped ContextVar, and `record_gm_usage` adds them to the day/route/outcome row (migration 014 + `SCHEMA_STATEMENTS`). `/admin` "AI GM 일별 호출" gained input/output tokens and an estimated cost.
-- No price is assumed: cost shows only when the server has `MYTHOS_GM_PRICE_IN_PER_M` / `MYTHOS_GM_PRICE_OUT_PER_M` (USD per million). **Owner**: set both on the Cloud Run service (from the current Vertex price list) to turn the cost column on; until then it reads "—" and tokens are the signal.
-- Tests: `tests/test_v2_llm_usage.py` (both backends' usage extraction against fake clients, missing metadata → zero, price math, env parsing), store contract (token sums on memory + Postgres), API → dashboard end to end. Known undercount: calls abandoned by the timeout are counted, their tokens are not.
-- The GM cost guard itself stays off (owner) — the per-player 400 calls/day cap still applies; decide on a tighter cap once a few days of real tokens/day are visible.
-
-- Older entries: `bin/docs/archive/progress-2026-10-11-mythos2-late.md` (event balance audit, combat balance pass).
+Older 2026-10-11 entries: `bin/docs/archive/progress-2026-10-11-mythos2-port.md`.

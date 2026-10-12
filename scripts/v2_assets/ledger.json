@@ -2230,6 +2230,72 @@
    "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Triumphant victory, bright uplifting synthwave, 100 bpm: heroic synth brass melody with gayageum, warm steady groove, relieved and proud.",
    "seed": 635895762,
    "ts": "2026-10-10T23:26:37"
+  },
+  "trailer/veo/blackout.mp4": {
+   "generations": 1,
+   "image": "art/act1.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A dark blacked-out alley in a cyberpunk city at night, rain falling on puddles. Two surveillance drones overhead sweep red search beams slowly across the wet ground, the orange tarp and the parked scooters. Steam drifts. Slow lateral camera move, tense and quiet. Keep the exact composition, characters, palette and painterly style of the reference image. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T02:28:53"
+  },
+  "trailer/veo/echo_eater.mp4": {
+   "generations": 1,
+   "image": "boss/a2_boss_echo_eater.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A hooded glitch-wraith made of black shredded data and violet light floats in a flooded underground market tunnel lit by lanterns. Fragments of broken screens orbit it and flicker. Its single violet eye pulses, its clawed hands slowly open, digital glitch artefacts ripple across its body. Slow push-in, eerie. Keep the exact composition, characters, palette and painterly style of the reference image. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T02:28:55"
+  },
+  "trailer/veo/haetae.mp4": {
+   "generations": 1,
+   "image": "boss/a1_boss_haetae.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A massive armoured suppression tank shaped like a mythical Korean haetae lion with tank treads, stone-and-steel scales and glowing golden eyes, advances slowly through a rainy neon street at night. Its red warning lights spin, treads grind, rain bounces off the armour, the eyes flare brighter. Low camera angle, slow dolly back, heavy and threatening. Keep the exact composition, characters, palette and painterly style of the reference image. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T02:28:43"
+  },
+  "trailer/veo/ix.mp4": {
+   "generations": 1,
+   "image": "boss/a3_boss_ix.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A towering white humanoid administrator AI made of porcelain-like armour plates stands in front of concentric white halo rings in a dark void. A red crystal core glows in its chest. The halo rings slowly rotate, the red core pulses like a heartbeat, faint particles of light rise. The figure stays perfectly still and calm. Slow, monumental push-in. Keep the exact composition, characters, palette and painterly style of the reference image. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T02:30:50"
+  },
+  "trailer/veo/rewrite.mp4": {
+   "generations": 1,
+   "image": "ending/ending_noble_sacrifice.webp",
+   "model": "veo-3.0-generate-001",
+   "prompt": "A cloaked figure presses both hands into a burning golden rupture inside a giant sphere of black cables above a night city. Streams of golden light particles pour out and flow over the skyline, sparks and embers flying, cables straining. Slow orbiting camera, triumphant and tragic. Keep the exact composition, characters, palette and painterly style of the reference image. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T02:38:24"
+  },
+  "trailer/veo/se_rin.mp4": {
+   "generations": 1,
+   "image": "cutscenes/se_rin_first_light.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A young Korean woman with long black hair in a black leather jacket stands in a rainy neon alley at night holding a paper coffee cup, steam rising from it. Police lights flash red and blue far behind her. She slowly lifts her eyes to the camera with a guarded, wry look. Gentle push-in, rain drops, shallow depth of field. Keep the exact composition, characters, palette and painterly style of the reference image. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T02:28:42"
+  },
+  "trailer/veo/spire_dawn.mp4": {
+   "generations": 1,
+   "image": "ending/ending_code_rewrite.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A lone figure stands on a high ledge looking at a vast white spire covered in glowing data panels under a pale moon above a cyberpunk city at night. The data panels slowly flicker and dissolve into drifting particles, the city lights twinkle below. Slow pull-back, quiet and hopeful. Keep the exact composition, characters, palette and painterly style of the reference image. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T02:31:23"
+  },
+  "trailer/veo/title.mp4": {
+   "generations": 1,
+   "image": "art/title.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "Cinematic slow push-in on a lone figure in a long coat standing on the edge of a wet rooftop in a rain-soaked cyberpunk Seoul at night. Heavy rain streaks through cyan and magenta neon. Far away a white spire rises into storm clouds, a single red eye at its top slowly brightens. Small drones drift past with blinking red lights. The coat moves in the wind. Keep the exact composition, characters, palette and painterly style of the reference image. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T02:26:28"
   }
- }
+ },
+ "veo_calls": 9,
+ "veo_failed": 1
 }

@@ -8,7 +8,7 @@ COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
 .PHONY: setup frontend-setup clean lint python-lint frontend-lint format typecheck python-typecheck frontend-build \
-	test test-v2 test-db test-e2e-v2 trailer trailer-cut playthrough playthrough-quick verify-preview check check-auto check-skills sync-skills check-doc-budget \
+	test test-v2 test-db test-e2e-v2 trailer trailer-cut cinematic cinematic-assets playthrough playthrough-quick verify-preview check check-auto check-skills sync-skills check-doc-budget \
 	api api-stop api-cloud cloud-image cloud-run-local deploy deploy-preview \
 	android-web android-apk android-firebase android-emulator android-distribute android-icons \
 	firebase-web firebase-sha firebase-auth-domains push-schedule push-test \
@@ -354,6 +354,16 @@ trailer:
 
 trailer-cut:
 	$(VENV)/bin/python scripts/trailer/record_trailer.py --cut-only --keep-raw
+
+# Cinematic trailer (scripts/trailer/cinematic.py): Veo key-art shots + 1080p gameplay + IX narration + music.
+# `cinematic-assets` makes the billed pieces once (Vertex Veo, ElevenLabs); `cinematic` only re-cuts them.
+cinematic-assets:
+	$(VENV)/bin/python scripts/trailer/gen_veo.py --shot all
+	$(VENV)/bin/python scripts/trailer/record_trailer.py --out outputs/trailer/hq --scale 1.5 --record-only
+	$(VENV)/bin/python scripts/trailer/cinematic.py audio
+
+cinematic:
+	$(VENV)/bin/python scripts/trailer/cinematic.py build
 
 # --- Android app (Capacitor; docs/android.md) ---------------------------------------------------------------------
 

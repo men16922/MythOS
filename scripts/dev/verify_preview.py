@@ -101,6 +101,7 @@ def main() -> int:
 
     results: list[tuple[str, bool, str]] = []
     revision = ""
+    project = ""
     if args.url:
         base = args.url.rstrip("/")
     else:
@@ -149,7 +150,8 @@ def main() -> int:
         print(f"\nAll {len(results)} checks passed for {base}.")
         if revision:
             print(
-                f"Promote (owner call): gcloud run services update-traffic {SERVICE} --to-latest --region {REGION}"
+                f"Promote (owner call): gcloud run services update-traffic {SERVICE}"
+                f" --to-revisions {revision}=100 --region {REGION} --project {project}"
             )
         return 0
     print("\nNOT safe to promote.")

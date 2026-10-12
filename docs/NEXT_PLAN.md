@@ -12,6 +12,9 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 - `[ ]` `[manual]` **Android release** — Play Console developer account ($25), an upload keystore (owner-held), package id check (`com.projectmythos.signalrun` is permanent once uploaded), register the upload-key and Play app-signing SHA-1s in Firebase (Google sign-in), then an internal-testing AAB. Tester list for Firebase App Distribution.
 - `[ ]` `[manual]` **`git push`** — `main` (2.0) and `1.0` (archive).
 
+- `[ ]` Next deploy: `make deploy-preview` then `make verify-preview` — first real check of the `git-sha` revision label (written 2026-10-12, only tested against a local server).
+- `[ ]` `[manual]` Overnight model routing: `Makefile` pins actor `claude-sonnet-5` / critic `claude-fable-5-1`; plugin 1.8.0 defaults both to Opus 5.5 — owner cost call. Also install plugin 1.8.0 (push the plugin repo) to get `/ship`.
+
 ## After the first wave of players
 
 - `[ ]` Balance from real play (numbers live in `v2/content`; measure with `simulateRun` on fixed seed blocks before/after). Watch list of possibly strong/weak cards from the 2026-10-11 audit is in `PROGRESS_LOG.md`; check the dashboard's killers and win rates first.

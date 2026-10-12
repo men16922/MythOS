@@ -3,6 +3,8 @@
 Repo-specific things a future unattended iteration should know before repeating a mistake.
 One line per lesson, dated, newest on top. Lessons about the archived 1.x runtime were removed with it (branch `1.0`).
 
+- 2026-10-12: a versioned `harness_root` pin in `.claude/harness-config.json` (a plugin cache path) silently keeps `make overnight` on the old runner after plugin upgrades (it sat on 1.4.0 while 1.7.0 was installed). Don't pin a cache path; leave the key out so the Makefile follows the newest install.
+- 2026-10-12: a UI bot that clicks like a player but decides like a naive one "can't win" — that was a bot limit, not a game fault. Planning each turn with the engine's own expert (`planGreedyTurn`) and only *executing* through real clicks took the unassisted run from losing in act 1 to a full victory.
 - 2026-10-11: the run simulator's mixed-bot win rate swings ±6 % between seed blocks (28–41 % for identical content). A single 60-run block once read a new card set as "−10 %" that was pure noise — compare balance A/B on the **same** seed blocks (or ≥3 blocks) before believing a delta.
 - 2026-10-11: anything the engine sets "for N turns" during the **enemy phase** (enemy-lit fire, enemy electrify) is ticked down by that same phase's end-of-phase decay — without a +1 it vanishes before the player ever sees it, and standing-in-fire checks double-apply. Check `inEnemyPhase` for timed ground/status effects.
 - 2026-10-11: parallel agents on one working tree only work with disjoint file ownership written into each prompt; re-read a file right before editing it (another agent may have changed it since), and keep cross-cutting edits (types contract, GameShell mounts) with the lead.

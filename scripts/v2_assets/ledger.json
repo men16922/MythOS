@@ -1,6 +1,7 @@
 {
- "image_calls": 266,
- "image_failed": 362,
+ "codex_image_calls": 9,
+ "image_calls": 311,
+ "image_failed": 393,
  "lyria_calls": 21,
  "lyria_failed": 0,
  "outputs": {
@@ -2231,6 +2232,62 @@
    "seed": 635895762,
    "ts": "2026-10-10T23:26:37"
   },
+  "trailer/stills/blackout.png": {
+   "art": "art/act1.webp",
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape (1536x1024), and do nothing else (no files, no code). Use the first attached image only as the shot's layout: re-shoot that composition as a real photograph with real people, real materials and real light — it must NOT look painted, illustrated or like concept art. A blacked-out narrow alley between old concrete apartment blocks at night in heavy rain, an orange tarp shelter and parked scooters, two surveillance drones overhead casting red searchlight beams onto the flooded ground, steam drifting. Photorealistic live-action film still, shot on an ARRI Alexa with anamorphic lenses, shallow depth of field, real rain, wet reflective asphalt, practical neon light in cyan, magenta and red, volumetric haze, film grain, high dynamic range, Blade Runner 2049 / Ghost in the Shell (2017) production design, set in a near-future Seoul. Not a painting, not an illustration, not anime, not 3D-render plastic. No text, no letters, no subtitles, no watermark, no logo. 16:9. Keep the important subject inside the central 16:9 band (the top and bottom will be cropped).",
+   "ts": "2026-10-13T03:02:51"
+  },
+  "trailer/stills/echo_eater.png": {
+   "art": "boss/a2_boss_echo_eater.webp",
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape (1536x1024), and do nothing else (no files, no code). Use the first attached image only as the shot's layout: re-shoot that composition as a real photograph with real people, real materials and real light — it must NOT look painted, illustrated or like concept art. A tall hooded spectral figure made of torn black cloth and shredded data fragments, a single violet glowing eye, long clawed hands lit violet from within, floating in a flooded underground market tunnel with paper lanterns, broken screens orbiting it. Film VFX realism, eerie, smoke and rain. Photorealistic live-action film still, shot on an ARRI Alexa with anamorphic lenses, shallow depth of field, real rain, wet reflective asphalt, practical neon light in cyan, magenta and red, volumetric haze, film grain, high dynamic range, Blade Runner 2049 / Ghost in the Shell (2017) production design, set in a near-future Seoul. Not a painting, not an illustration, not anime, not 3D-render plastic. No text, no letters, no subtitles, no watermark, no logo. 16:9. Keep the important subject inside the central 16:9 band (the top and bottom will be cropped).",
+   "ts": "2026-10-13T03:03:53"
+  },
+  "trailer/stills/haetae.png": {
+   "art": "boss/a1_boss_haetae.webp",
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape (1536x1024), and do nothing else (no files, no code). Use the first attached image only as the shot's layout: re-shoot that composition as a real photograph with real people, real materials and real light — it must NOT look painted, illustrated or like concept art. A massive real-world military suppression tank designed like a Korean haetae guardian lion: heavy tank treads, weathered bronze-and-steel armour scales, a single horn, glowing amber eyes, red warning beacons, advancing through a rainy neon street at night. Practical-effects / film VFX realism, huge scale. Photorealistic live-action film still, shot on an ARRI Alexa with anamorphic lenses, shallow depth of field, real rain, wet reflective asphalt, practical neon light in cyan, magenta and red, volumetric haze, film grain, high dynamic range, Blade Runner 2049 / Ghost in the Shell (2017) production design, set in a near-future Seoul. Not a painting, not an illustration, not anime, not 3D-render plastic. No text, no letters, no subtitles, no watermark, no logo. 16:9. Keep the important subject inside the central 16:9 band (the top and bottom will be cropped).",
+   "ts": "2026-10-13T03:03:42"
+  },
+  "trailer/stills/ix.png": {
+   "art": "boss/a3_boss_ix.webp",
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape (1536x1024), and do nothing else (no files, no code). Use the first attached image only as the shot's layout: re-shoot that composition as a real photograph with real people, real materials and real light — it must NOT look painted, illustrated or like concept art. A towering humanoid administrator machine with smooth white ceramic armour plates and gold trim, a glowing red crystal core in its chest, standing calm and symmetrical in front of huge concentric rings of white light in a dark server hall. Real practical-suit / film VFX realism, cold and monumental. Photorealistic live-action film still, shot on an ARRI Alexa with anamorphic lenses, shallow depth of field, real rain, wet reflective asphalt, practical neon light in cyan, magenta and red, volumetric haze, film grain, high dynamic range, Blade Runner 2049 / Ghost in the Shell (2017) production design, set in a near-future Seoul. Not a painting, not an illustration, not anime, not 3D-render plastic. No text, no letters, no subtitles, no watermark, no logo. 16:9. Keep the important subject inside the central 16:9 band (the top and bottom will be cropped).",
+   "ts": "2026-10-13T03:03:58"
+  },
+  "trailer/stills/rewrite.png": {
+   "art": "ending/ending_noble_sacrifice.webp",
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape (1536x1024), and do nothing else (no files, no code). Use the first attached image only as the shot's layout: re-shoot that composition as a real photograph with real people, real materials and real light — it must NOT look painted, illustrated or like concept art. A cloaked figure pressing both hands into a burning golden rupture inside a giant sphere of black cables high above a night city, streams of golden light particles and sparks pouring out over the skyline. Film VFX realism, heroic and tragic. Photorealistic live-action film still, shot on an ARRI Alexa with anamorphic lenses, shallow depth of field, real rain, wet reflective asphalt, practical neon light in cyan, magenta and red, volumetric haze, film grain, high dynamic range, Blade Runner 2049 / Ghost in the Shell (2017) production design, set in a near-future Seoul. Not a painting, not an illustration, not anime, not 3D-render plastic. No text, no letters, no subtitles, no watermark, no logo. 16:9. Keep the important subject inside the central 16:9 band (the top and bottom will be cropped).",
+   "ts": "2026-10-13T03:04:34"
+  },
+  "trailer/stills/se_rin.png": {
+   "art": "cutscenes/se_rin_first_light.webp",
+   "generations": 3,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape (1536x1024), and do nothing else (no files, no code). Use the first attached image only as the shot's layout: re-shoot that composition as a real photograph with real people, real materials and real light — it must NOT look painted, illustrated or like concept art. The young Korean woman from the second reference image (same face, long black hair with bangs, black leather jacket) standing in a rainy neon alley at night holding a steaming paper coffee cup, magenta neon above her, blurred red and blue police lights far behind, guarded wry look at the camera. Framing and pose from the first reference image. Match the photographic realism and the face of the person in the later attached image. Photorealistic live-action film still, shot on an ARRI Alexa with anamorphic lenses, shallow depth of field, real rain, wet reflective asphalt, practical neon light in cyan, magenta and red, volumetric haze, film grain, high dynamic range, Blade Runner 2049 / Ghost in the Shell (2017) production design, set in a near-future Seoul. Not a painting, not an illustration, not anime, not 3D-render plastic. No text, no letters, no subtitles, no watermark, no logo. 16:9. Keep the important subject inside the central 16:9 band (the top and bottom will be cropped).",
+   "ts": "2026-10-13T03:03:07"
+  },
+  "trailer/stills/spire_dawn.png": {
+   "art": "ending/ending_code_rewrite.webp",
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape (1536x1024), and do nothing else (no files, no code). Use the first attached image only as the shot's layout: re-shoot that composition as a real photograph with real people, real materials and real light — it must NOT look painted, illustrated or like concept art. A lone figure in a coat standing on a high glass ledge at night looking at a vast white spire covered in glowing data panels, a pale cyan full moon, the neon city far below. Match the photographic realism and the face of the person in the later attached image. Photorealistic live-action film still, shot on an ARRI Alexa with anamorphic lenses, shallow depth of field, real rain, wet reflective asphalt, practical neon light in cyan, magenta and red, volumetric haze, film grain, high dynamic range, Blade Runner 2049 / Ghost in the Shell (2017) production design, set in a near-future Seoul. Not a painting, not an illustration, not anime, not 3D-render plastic. No text, no letters, no subtitles, no watermark, no logo. 16:9. Keep the important subject inside the central 16:9 band (the top and bottom will be cropped).",
+   "ts": "2026-10-13T03:04:40"
+  },
+  "trailer/stills/title.png": {
+   "art": "art/title.webp",
+   "generations": 4,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape (1536x1024), and do nothing else (no files, no code). Use the first attached image only as the shot's layout: re-shoot that composition as a real photograph with real people, real materials and real light — it must NOT look painted, illustrated or like concept art. A lone hooded figure in a long dark coat seen from behind on the edge of a rain-soaked rooftop at night, water tanks and cables around, looking over a dense neon city towards a distant white monolithic spire with one glowing red eye near its top, small drones with red lights in the stormy sky. Match the photographic realism and the face of the person in the later attached image. Photorealistic live-action film still, shot on an ARRI Alexa with anamorphic lenses, shallow depth of field, real rain, wet reflective asphalt, practical neon light in cyan, magenta and red, volumetric haze, film grain, high dynamic range, Blade Runner 2049 / Ghost in the Shell (2017) production design, set in a near-future Seoul. Not a painting, not an illustration, not anime, not 3D-render plastic. No text, no letters, no subtitles, no watermark, no logo. 16:9. Keep the important subject inside the central 16:9 band (the top and bottom will be cropped).",
+   "ts": "2026-10-13T03:03:12"
+  },
   "trailer/veo/blackout.mp4": {
    "generations": 1,
    "image": "art/act1.webp",
@@ -2294,8 +2351,72 @@
    "prompt": "Cinematic slow push-in on a lone figure in a long coat standing on the edge of a wet rooftop in a rain-soaked cyberpunk Seoul at night. Heavy rain streaks through cyan and magenta neon. Far away a white spire rises into storm clouds, a single red eye at its top slowly brightens. Small drones drift past with blinking red lights. The coat moves in the wind. Keep the exact composition, characters, palette and painterly style of the reference image. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
    "seconds": 8,
    "ts": "2026-10-13T02:26:28"
+  },
+  "trailer/veo_photo/blackout.mp4": {
+   "generations": 1,
+   "image": "art/act1.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A dark blacked-out alley in a cyberpunk city at night, rain falling on puddles. Two surveillance drones overhead sweep red search beams slowly across the wet ground, the orange tarp and the parked scooters. Steam drifts. Slow lateral camera move, tense and quiet. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T03:12:17"
+  },
+  "trailer/veo_photo/echo_eater.mp4": {
+   "generations": 1,
+   "image": "boss/a2_boss_echo_eater.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A hooded glitch-wraith made of black shredded data and violet light floats in a flooded underground market tunnel lit by lanterns. Fragments of broken screens orbit it and flicker. Its single violet eye pulses, its clawed hands slowly open, digital glitch artefacts ripple across its body. Slow push-in, eerie. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T03:14:48"
+  },
+  "trailer/veo_photo/haetae.mp4": {
+   "generations": 1,
+   "image": "boss/a1_boss_haetae.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A massive armoured suppression tank shaped like a mythical Korean haetae lion with tank treads, stone-and-steel scales and glowing golden eyes, advances slowly through a rainy neon street at night. Its red warning lights spin, treads grind, rain bounces off the armour, the eyes flare brighter. Low camera angle, slow dolly back, heavy and threatening. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T03:14:59"
+  },
+  "trailer/veo_photo/ix.mp4": {
+   "generations": 1,
+   "image": "boss/a3_boss_ix.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A towering white humanoid administrator AI made of porcelain-like armour plates stands in front of concentric white halo rings in a dark void. A red crystal core glows in its chest. The halo rings slowly rotate, the red core pulses like a heartbeat, faint particles of light rise. The figure stays perfectly still and calm. Slow, monumental push-in. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T03:14:58"
+  },
+  "trailer/veo_photo/rewrite.mp4": {
+   "generations": 1,
+   "image": "ending/ending_noble_sacrifice.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A cloaked figure presses both hands into a burning golden rupture inside a giant sphere of black cables above a night city. Streams of golden light particles pour out and flow over the skyline, sparks and embers flying, cables straining. Slow orbiting camera, triumphant and tragic. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T03:17:09"
+  },
+  "trailer/veo_photo/se_rin.mp4": {
+   "generations": 1,
+   "image": "cutscenes/se_rin_first_light.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A young Korean woman with long black hair in a black leather jacket stands in a rainy neon alley at night holding a paper coffee cup, steam rising from it. Police lights flash red and blue far behind her. She slowly lifts her eyes to the camera with a guarded, wry look. Gentle push-in, rain drops, shallow depth of field. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T03:12:26"
+  },
+  "trailer/veo_photo/spire_dawn.mp4": {
+   "generations": 1,
+   "image": "ending/ending_code_rewrite.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "A lone figure stands on a high ledge looking at a vast white spire covered in glowing data panels under a pale moon above a cyberpunk city at night. The data panels slowly flicker and dissolve into drifting particles, the city lights twinkle below. Slow pull-back, quiet and hopeful. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T03:17:08"
+  },
+  "trailer/veo_photo/title.mp4": {
+   "generations": 1,
+   "image": "art/title.webp",
+   "model": "veo-3.1-generate-001",
+   "prompt": "Cinematic slow push-in on a lone figure in a long coat standing on the edge of a wet rooftop in a rain-soaked cyberpunk Seoul at night. Heavy rain streaks through cyan and magenta neon. Far away a white spire rises into storm clouds, a single red eye at its top slowly brightens. Small drones drift past with blinking red lights. The coat moves in the wind. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
+   "seconds": 8,
+   "ts": "2026-10-13T03:12:27"
   }
  },
- "veo_calls": 9,
+ "veo_calls": 17,
  "veo_failed": 1
 }

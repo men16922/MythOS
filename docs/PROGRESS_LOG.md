@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-13
 
+## 2026-10-13 — Cinematic v2: photoreal shots, English narration
+
+- Owner direction: English narration only (IX = ElevenLabs "Adam" deep, picked from an 11-voice audition; Korean TTS dropped), a photoreal live-action look like the 1.x art. `gen_stills.py --engine codex` (Codex image, gpt-image-2) re-shoots the 8 key-art compositions as film stills — Gemini 3 Pro / 3.1 Flash image kept the painterly style and was rejected (`stills_gemini/` kept for reference). `gen_veo.py --style photo` animates them (8 Veo 3.1 calls), `cinematic.py build --style photo` → `outputs/trailer/cinematic/mythos2_cinematic_photo.mp4` (78.5 s, 1080p) + `_web.mp4` (60 MB). English captions primary, `--skip <line>` drops a narration line.
+- Verified: contact sheet; Gemini transcription per window — every line transcribed; "HAETAE" was read as "hate" (now "Hae-tae"), the last lines were masked → stronger ducking (music 0.55, sidechain ratio 10). −13.7 LUFS. `make check` green. Not verified: human listening; Veo billing against credits (billing export lags a day).
+
 ## 2026-10-13 — Cinematic trailer (Veo + gameplay + IX narration)
 
 - Status: done (first cut), committed; owner listening/viewing pending. `make cinematic-assets` (billed: 8 Vertex Veo 3.1 image-to-video shots from the game's key art with native ambience, `gen_veo.py`; 1080p gameplay via CDP screencast, `record_trailer.py --scale 1.5 --record-only`; 7 Korean IX/Se-rin lines + an 82 s score from ElevenLabs, `cinematic.py audio`) then `make cinematic` (cut only) → `outputs/trailer/cinematic/mythos2_cinematic.mp4` (78.5 s, 1080p, 135 MB master) + `_web.mp4` (56 MB). Ported from the 1.x teaser pipeline. Voices are provisional (first audition candidate: IX Junjin, Se-rin Yooni).

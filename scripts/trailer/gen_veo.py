@@ -34,6 +34,12 @@ AUDIO = " Audio: ambient sound effects only (rain, distant city hum, machinery) 
 STYLE = (
     " Keep the exact composition, characters, palette and painterly style of the reference image."
 )
+# --style photo animates the live-action stills from gen_stills.py instead of the painted key art.
+STILLS = ROOT / "outputs" / "trailer" / "cinematic" / "stills"
+PHOTO_STYLE = (
+    " Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces,"
+    " costumes and lighting of the reference frame."
+)
 
 SHOTS: dict[str, dict[str, str]] = {
     "title": {
@@ -118,7 +124,8 @@ def png_bytes(path: Path) -> bytes:
 
 def generate(client, types, name: str, duration: int, resolution: str) -> tuple[str, str]:
     shot = SHOTS[name]
-    image = types.Image(image_bytes=png_bytes(ART / shot["image"]), mime_type="image/png")
+    source = STILLS / f"{name}.png" if OUT.name == "veo_photo" else ART / shot["image"]
+    image = types.Image(image_bytes=png_bytes(source), mime_type="image/png")
     prompt = shot["prompt"] + STYLE + AUDIO
     last = ""
     for model in VEO_MODELS:
@@ -153,7 +160,7 @@ def generate(client, types, name: str, duration: int, resolution: str) -> tuple[
             dest = OUT / f"{name}.mp4"
             dest.write_bytes(video.video_bytes)
             ledger_record(
-                f"trailer/veo/{name}.mp4",
+                f"trailer/{OUT.name}/{name}.mp4",
                 {"model": model, "image": shot["image"], "prompt": prompt, "seconds": duration},
             )
             return name, f"ok {model} -> {dest.relative_to(ROOT)}"
@@ -171,7 +178,16 @@ def main() -> int:
     ap.add_argument("--resolution", default="1080p", choices=["720p", "1080p"])
     ap.add_argument("--force", action="store_true", help="regenerate shots that already exist")
     ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument(
+        "--style",
+        default="art",
+        choices=["art", "photo"],
+        help="photo = animate gen_stills.py output",
+    )
     args = ap.parse_args()
+    global OUT, STYLE
+    if args.style == "photo":
+        OUT, STYLE = OUT.with_name("veo_photo"), PHOTO_STYLE
 
     from google import genai
     from google.genai import types

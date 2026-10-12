@@ -6,8 +6,8 @@
   .venv/bin/python scripts/trailer/cinematic.py build                                # 4. cut → outputs/trailer/cinematic/
 
 Ported from the 1.x teaser pipeline (branch ``1.0``: scripts/cbt/*, published teaser V2). Edit TIMELINE / NARRATION
-below and rerun ``build``; ``audio --force <id>`` regenerates one line. Voices are provisional until the owner pins
-them in resources/neo-seoul/v2/voice/voices.json (``--ix-voice`` / ``--se-rin-voice`` override).
+below and rerun ``build``; ``audio --force <id>`` regenerates one line. Narration is English (owner
+direction 2026-10-13); voices in VOICES (``--ix-voice`` / ``--se-rin-voice`` override); ``build --skip <id>`` drops a line.
 Output: ``outputs/trailer/cinematic/mythos2_cinematic.mp4`` (1920x1080, 30 fps, H.264 + AAC 48 kHz stereo master)
 and ``mythos2_cinematic_web.mp4`` (same cut, lighter encode for sharing).
 """
@@ -26,10 +26,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "outputs" / "trailer" / "cinematic"
 VEO = OUT / "veo"
-VO = OUT / "vo"
+VO = OUT / "vo_en"
 GAME = ROOT / "outputs" / "trailer" / "hq" / "raw"
 ART = ROOT / "resources" / "neo-seoul" / "v2"
-VOICES = ART / "voice" / "voices.json"
 FONT = "/System/Library/Fonts/AppleSDGothicNeo.ttc"
 W, H, FPS = 1920, 1080, 30
 
@@ -56,31 +55,44 @@ TIMELINE: list[tuple[str, str, float, float, tuple[str, str] | None]] = [
     ("card", "logo", 0.0, 8.0, None),
 ]
 
-# id, speaker, text (Korean; the game's authored IX/Se-rin lines), cue (timeline seconds)
+# id, speaker, text (English, from the game's authored IX/Se-rin lines; eleven_v3 delivery tags), cue (timeline s).
+# Owner direction 2026-10-13: English narration only; Korean voices are no longer candidates.
 NARRATION: list[tuple[str, str, str, float]] = [
-    ("01_ix_welcome", "ix", "안녕하십니까. 미등록 접속이 확인되었습니다.", 1.2),
+    (
+        "01_ix_welcome",
+        "ix",
+        "[cold, measured] Good evening. [pause] You appear to be unregistered.",
+        1.2,
+    ),
     (
         "02_ix_score",
         "ix",
-        "현재 접속자님의 시민 점수는 존재하지 않습니다. 일시적인 상태입니다.",
+        "Your citizen score does not exist. [pause] This is a temporary condition.",
         8.6,
     ),
-    ("03_serin_run", "se_rin", "등록 안 됐지? 그럼 아직 사람이네. 뛰어.", 15.6),
+    (
+        "03_serin_run",
+        "se_rin",
+        "[urgent, breathless] Not registered? Then you're still a person. [shouts] Run!",
+        15.6,
+    ),
     (
         "04_ix_last",
         "ix",
-        "지난번에는 해태 앞에서 멈추셨습니다. 이번에도 크게 다르지 않을 겁니다.",
+        "Last time, you stopped at the Hae-tae. [pause] This time will not be much different.",
         30.0,
     ),
     (
         "05_ix_hate",
         "ix",
-        "저는 접속자님을 미워하지 않습니다. 미움은 비효율적입니다. 마무리할 뿐입니다.",
-        51.0,
+        "[quietly menacing] I do not hate you. [pause] Hatred is inefficient. [whispers] I will simply... conclude you.",
+        50.6,
     ),
-    ("06_ix_win", "ix", "축하드립니다. 저를 이기셨습니다.", 60.0),
-    ("07_ix_loop", "ix", "그리고 루프는 다시 시작되었습니다.", 66.2),
+    ("06_ix_win", "ix", "[slowly] Congratulations. [pause] You defeated me.", 60.4),
+    ("07_ix_loop", "ix", "[quietly] And the loop... has begun again.", 66.2),
 ]
+# Owner-picked IX narrator (audition 2026-10-13: "Adam", deep narrative); Se-rin: English premade "Sarah".
+VOICES = {"ix": "wBXNqKUATyqu0RtYt25i", "se_rin": "EXAVITQu4vr4xnSDxMaL"}
 
 MUSIC_PROMPT = (
     "Cinematic dark synthwave trailer score, instrumental only, about 82 seconds, for a cyberpunk tactics game "
@@ -94,8 +106,8 @@ MUSIC_PROMPT = (
 TITLE = (
     "세계:접속",
     "SIGNAL RUN",
-    "이번 루프의 끝은 당신이 정한다.",
-    "Neo-Seoul · 전술 덱빌딩 로그라이트",
+    "You decide how this loop ends.",
+    "Neo-Seoul · tactical deck-builder roguelite",
 )
 
 
@@ -123,12 +135,6 @@ def api_key() -> str:
     return m.group(1).strip("\"'")
 
 
-def provisional_voice(role: str) -> str:
-    """The pinned voice, else the first audition candidate (provisional until the owner pins one)."""
-    ko = json.loads(VOICES.read_text(encoding="utf-8"))["roles"][role]["ko"]
-    return ko["voice_id"] or next(iter(ko["candidates"].values()))
-
-
 def eleven(path: str, body: dict, dest: Path, key: str, timeout: int = 300) -> None:
     req = urllib.request.Request(
         f"https://api.elevenlabs.io{path}",
@@ -147,10 +153,7 @@ def eleven(path: str, body: dict, dest: Path, key: str, timeout: int = 300) -> N
 def cmd_audio(args: argparse.Namespace) -> int:
     key = api_key()
     VO.mkdir(parents=True, exist_ok=True)
-    voices = {
-        "ix": args.ix_voice or provisional_voice("ix"),
-        "se_rin": args.se_rin_voice or provisional_voice("se_rin"),
-    }
+    voices = {"ix": args.ix_voice or VOICES["ix"], "se_rin": args.se_rin_voice or VOICES["se_rin"]}
     force = set(args.force or [])
     for vid, speaker, text, _cue in NARRATION:
         dest = VO / f"{vid}.mp3"
@@ -161,7 +164,7 @@ def cmd_audio(args: argparse.Namespace) -> int:
             {
                 "text": text,
                 "model_id": "eleven_v3",
-                "voice_settings": {"stability": 0.5 if speaker == "ix" else 0.35},
+                "voice_settings": {"stability": 0.3},
             },
             dest,
             key,
@@ -214,7 +217,15 @@ def segment(
         bg = OUT / "logo_bg.png"
         from PIL import Image, ImageEnhance, ImageFilter
 
-        art = Image.open(ART / "art" / "title.webp").convert("RGB").resize((W, H))
+        art = (
+            Image.open(
+                OUT / "stills" / "title.png"
+                if VEO.name == "veo_photo"
+                else ART / "art" / "title.webp"
+            )
+            .convert("RGB")
+            .resize((W, H))
+        )
         ImageEnhance.Brightness(art.filter(ImageFilter.GaussianBlur(6))).enhance(0.35).save(bg)
         overlay = text_png(
             [
@@ -260,8 +271,8 @@ def segment(
         if caption:
             cap = text_png(
                 [
-                    (caption[0], 50, (255, 255, 255), H - 150),
-                    (caption[1], 30, (170, 225, 230), H - 82),
+                    (caption[1], 50, (255, 255, 255), H - 150),
+                    (caption[0], 30, (170, 225, 230), H - 82),
                 ],
                 seg / f"{i:02d}_cap.png",
                 strip=True,
@@ -311,6 +322,7 @@ def segment(
 
 
 def cmd_build(args: argparse.Namespace) -> int:
+    LINES = [n for n in NARRATION if n[0] not in set(args.skip or [])]  # noqa: N806
     segs, t = [], 0.0
     for i, (kind, src, start, length, caption) in enumerate(TIMELINE):
         segs.append(segment(i, kind, src, start, length, caption))
@@ -339,20 +351,20 @@ def cmd_build(args: argparse.Namespace) -> int:
     )
 
     # Narration: each line placed at its cue; warn if a line runs into the next cue.
-    cues = sorted(NARRATION, key=lambda n: n[3])
+    cues = sorted(LINES, key=lambda n: n[3])
     for (vid, _s, _t, cue), nxt in zip(cues, [*cues[1:], None], strict=True):
         end = cue + duration(VO / f"{vid}.mp3")
         limit = nxt[3] if nxt else total
         if end > limit:
             print(f"  ! {vid} ends at {end:.1f}s, past {limit:.1f}s — move cues or trim the line")
     inputs = ["-i", str(picture), "-i", str(OUT / "music.mp3")]
-    for vid, *_ in NARRATION:
+    for vid, *_ in LINES:
         inputs += ["-i", str(VO / f"{vid}.mp3")]
     vo_labels = []
     graph = []
-    for k, (_vid, speaker, _text, cue) in enumerate(NARRATION):
+    for k, (_vid, speaker, _text, cue) in enumerate(LINES):
         ms = int(cue * 1000)
-        tone = "highpass=f=90,acompressor=threshold=-18dB:ratio=3,volume=1.25"
+        tone = "highpass=f=90,acompressor=threshold=-18dB:ratio=3,volume=1.5"
         if speaker == "ix":
             # IX: a faint, clean "system" sheen — a short, quiet echo; Se-rin stays dry.
             tone += ",aecho=0.8:0.5:40:0.18"
@@ -369,13 +381,14 @@ def cmd_build(args: argparse.Namespace) -> int:
         f"afade=t=out:st={total - 3:.1f}:d=3,apad=whole_dur={total}[mus]"
     )
     graph.append(
-        "[mus][vo_key]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=400[duck]"
+        "[mus][vo_key]sidechaincompress=threshold=0.015:ratio=10:attack=15:release=500[duck]"
     )
     graph.append(f"[0:a]volume={args.ambience_gain}[amb]")
     graph.append(
         f"[duck][amb][vo_a]amix=inputs=3:normalize=0,atrim=0:{total},alimiter=limit=0.89,loudnorm=I=-15:TP=-1.5:LRA=11[a]"
     )
-    final = OUT / "mythos2_cinematic.mp4"
+    tag = "_photo" if VEO.name == "veo_photo" else ""
+    final = OUT / f"mythos2_cinematic{tag}.mp4"
     run(
         [
             "ffmpeg",
@@ -411,7 +424,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         ]
     )
     # A light copy for sharing (messengers, store upload limits); the master above stays the edit source.
-    web = OUT / "mythos2_cinematic_web.mp4"
+    web = OUT / f"mythos2_cinematic{tag}_web.mp4"
     run(
         [
             "ffmpeg",
@@ -455,10 +468,17 @@ def main() -> int:
     a.add_argument("--se-rin-voice")
     a.add_argument("--music-ms", type=int, default=82000)
     b = sub.add_parser("build", help="cut the cinematic from the generated pieces")
-    b.add_argument("--music-gain", type=float, default=0.8)
+    b.add_argument("--skip", nargs="*", help="narration line ids to leave out (e.g. 03_serin_run)")
+    b.add_argument(
+        "--style", default="art", choices=["art", "photo"], help="photo = the live-action Veo shots"
+    )
+    b.add_argument("--music-gain", type=float, default=0.55)
     b.add_argument("--ambience-gain", type=float, default=0.55)
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    if args.cmd == "build" and args.style == "photo":
+        global VEO
+        VEO = OUT / "veo_photo"
     return cmd_audio(args) if args.cmd == "audio" else cmd_build(args)
 
 

@@ -91,9 +91,11 @@ NARRATION: list[tuple[str, str, str, float]] = [
     ("06_ix_win", "ix", "[slowly] Congratulations. [pause] You defeated me.", 60.4),
     ("07_ix_loop", "ix", "[quietly] And the loop... has begun again.", 66.2),
 ]
-# Owner-picked IX narrator (audition 2026-10-13: "Adam", deep narrative). Se-rin: shared-library "Vivian - Deep,
-# Calm and Slightly Raspy", top of a 14-take audition (outputs/trailer/cinematic/audition_serin/ranking.json).
-VOICES = {"ix": "wBXNqKUATyqu0RtYt25i", "se_rin": "BKy54CdI9KEYxRNAQAsk"}
+# Owner-picked voices (2026-10-13). IX: "Adam" (deep narrative). Se-rin: shared-library "Ember - Energetic,
+# Confident Protagonist", owner's pick from a 14-take audition (outputs/trailer/cinematic/audition_serin). The take in
+# vo_en/03_serin_run.mp3 is hand-cleaned (adeclick, light afftdn, a 0.14 s gate on a mouth click before "Run!",
+# limiter) — `audio --force 03_serin_run` would replace it with a fresh, uncleaned take.
+VOICES = {"ix": "wBXNqKUATyqu0RtYt25i", "se_rin": "WtA85syCrJwasGeHGH2p"}
 # Se-rin's take wants the most expressive setting (eleven_v3: 0.0 = creative); IX stays a little steadier.
 STABILITY = {"ix": 0.3, "se_rin": 0.0}
 

@@ -22,22 +22,21 @@ which is invisible in completion counts alone.
 - **Composition changes**: owner-approved only. If a task leaks into normal work (someone
   fixes it on main), replace it here and note the swap below.
 
-## Tasks (each `[auto:claude]`-shaped, deterministic, gate-verifiable)
+## Tasks (each `[auto:claude]`-shaped, deterministic, gate-verifiable) — bank v2, 2.0 tree
 
-- [ ] [auto:claude] Extract `useItemNotice` from `src/mythos_ui/src/App.tsx` (item-gain toast:
-  `itemNotice` state + timer ref + `onItemsGained` body + auto-dismiss/clear lifecycle) into
-  `src/mythos_ui/src/hooks/useItemNotice.ts`, behavior-preserving; banner JSX may stay in App.
-  Done: make check green (frontend lint/build included) and App.tsx no longer owns the toast
-  timer lifecycle. (Reserved from the slice-18 candidate doc — do NOT pick as a normal slice.)
-- [ ] [auto:claude] Add engine-level regression tests locking the `choices_defaulted` and
-  `choices_capped` soft-repair codes: an empty-choices payload and a 6-choice payload each
-  commit through `LoopEngine.apply_scene_payload` and surface the expected code in
-  `LoopTransition.repairs`. Done: make check green with both new tests in
-  `tests/test_loop_engine.py`.
-- [ ] [auto:claude] Add a `--max-scenes N` option to `scripts/eval/bank_loop.py` (bank only the
-  first N scenes of a loop; default unchanged = all), with unittest coverage in
-  `tests/test_narrative_eval.py` for the truncation path. Done: make check green; option
-  documented in the module docstring.
+- [ ] [auto:claude] Extract `useTierAlert` from `src/mythos_ui/src/v2/ui/shell/GameShell.tsx` (Trace-tier
+  alarm: `tierAlert` state, the `lastTier` ref, the escalation check that plays `sound('alarm')`, and the
+  auto-dismiss timer with its 6000 ms in-combat / 4200 ms otherwise delay) into
+  `src/mythos_ui/src/v2/ui/shell/useTierAlert.ts`, behavior-preserving; the banner JSX may stay in
+  GameShell. Done: `make check` green and GameShell.tsx no longer declares `lastTier` or the tier timer.
+- [ ] [auto:claude] Add `src/mythos_ui/src/v2/engine/intents.test.ts` locking `effectiveIntentDamage` and
+  `isRelative`: a no-damage move → 0; base damage unchanged with no statuses; a damage bonus adds;
+  `weak` subtracts `WEAK_PENALTY`; the result floors at 0; `isRelative` is true exactly for
+  melee/line/beam/charge/nova. Done: `make test-v2` and `make check` green with the new file.
+- [ ] [auto:claude] Cover the `RateLimiter` key-eviction path (`src/mythos_v2/ratelimit.py` `_evict`,
+  `max_keys`) in `tests/test_v2_gm.py` `RateLimiterTest`: with a fake clock and `max_keys=2`, keys idle past
+  both windows are dropped once the table exceeds the cap, while a key still inside its day window keeps
+  its spent budget. Done: `make check` green with the new test.
 
 ## Swap log
 
@@ -49,3 +48,6 @@ which is invisible in completion counts alone.
 - 2026-07-27: owner ratified the three-task composition as **frozen bank v1** while directing the
   priority sequence through completion. Any replacement or task-content change requires a new
   recorded owner decision; evaluation commits remain disposable and must never merge to main.
+- 2026-10-13: owner ratified **bank v2** for the 2.0 tree (v1's three tasks targeted 1.x code, now on branch `1.0`,
+  and retired with it): extract `useTierAlert` from GameShell, lock `effectiveIntentDamage`/`isRelative` in
+  `engine/intents.test.ts`, cover `RateLimiter` key eviction. Frozen again; changes need a new owner decision.

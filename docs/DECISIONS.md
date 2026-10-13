@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-13 — Overnight harness: held-out bank v2 for the 2.0 tree; model pins kept
+
+- **Context**: bank v1 (`scripts/overnight/heldout-bank.md`, frozen 2026-07-27) targeted 1.x code now on branch `1.0`; plugin 1.8.0 defaults actor and critic to Opus 5.5 while the `Makefile` pins actor `claude-sonnet-5` / critic `claude-fable-5-1`.
+- **Decision**: owner approved bank v2 (extract `useTierAlert`, lock `effectiveIntentDamage`/`isRelative`, cover `RateLimiter` eviction) — frozen again, mechanical audit PASS (open in source, not in NEXT_PLAN, the claude contract compiles). Owner kept the current model pins (cost unchanged).
+- **Trade-off**: the bank is small (3 tasks) so it can be audited 100 %; Opus-default quality is not used unless the owner revisits cost.
+
 ## 2026-10-11 — Operator dashboard is rebuilt for 2.0 (`/admin`), gated by a Google email allow-list
 
 - **Context**: owner — "Admin용 대시보드는 어디갔어?" then "내 계정으로 admin을 잡고, 2.0용으로 새로 만들고싶어". The 1.x dashboard was invite-key based and went to branch `1.0` with the archive.

@@ -12,8 +12,6 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 - `[ ]` `[manual]` **Trailer review** — `outputs/trailer/cinematic/mythos2_cinematic_photo.mp4` (YouTube/SNS, photoreal, 78 s) and `mythos2_cinematic_store.mp4` (Play Store promo, painted hook + real fights, 53 s); English narration (IX = Adam, Se-rin = Ember). Recut free with `make cinematic`. Veo billing (export, 2026-10-13): 136 s = 17 clips, ₩73,916 gross, monthly promotional credits covered ₩30,276 and ran out mid-batch → net ≈ ₩43,640; further Veo calls bill in full.
 - `[ ]` `[manual]` **Android release** — Play Console developer account ($25), an upload keystore (owner-held), package id check (`com.projectmythos.signalrun` is permanent once uploaded), register the upload-key and Play app-signing SHA-1s in Firebase (Google sign-in), then an internal-testing AAB — the build side is ready: drop in `android/keystore.properties` and run `VERSION_CODE=1 make android-aab` (signs, verifies, checks the 200 MB cap; verified with a throwaway key). Tester list for Firebase App Distribution.
 
-- `[ ]` `[manual]` Overnight model routing: `Makefile` pins actor `claude-sonnet-5` / critic `claude-fable-5-1`; plugin 1.8.0 defaults both to Opus 5.5 — owner cost call. Plugin 1.8.0 is installed (`/ship` available).
-
 ## After the first wave of players
 
 - `[ ]` Balance from real play (numbers live in `v2/content`; measure with `simulateRun` on fixed seed blocks before/after). Watch list of possibly strong/weak cards from the 2026-10-11 audit is in `PROGRESS_LOG.md`; check the dashboard's killers and win rates first.
@@ -25,4 +23,4 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 
 ## Agent operations
 
-- `[ ]` `[manual]` Re-seed the overnight harness against the 2.0 tree: `scripts/overnight/heldout-bank.md` is the owner-ratified frozen v1 and its 3 tasks target 1.x code (branch `1.0`) — a replacement bank needs a recorded owner decision. Until then, run unattended loops only with explicit 2.0 seeds. A ready-to-ratify replacement is drafted in `docs/plans/2026-10-13-heldout-bank-v2-proposal.md` (3 tasks, checked open) — owner says yes/amend.
+- Held-out bank v2 (2.0 tree) ratified and model pins kept, 2026-10-13 (`DECISIONS.md`). Unattended loops on the 2.0 tree need explicit `[auto:*]` seeds here (`overnight-harness:overnight-seed`); none are queued.

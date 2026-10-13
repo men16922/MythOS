@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-10-12
+Last updated: 2026-10-13
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **`main` is Mythos 2.0 only; 1.x is archived on branch `1.0`.** Production runs 2.0 (Cloud Run rev `00123`, /admin dashboard live, Google sign-in required, daily push at 19:00 KST). Pending owner calls: Play Console account + upload key (Play Store, Play Games), App Distribution testers, SFX listen-test. Deploy = `make deploy-preview` → `make verify-preview` (revision = HEAD, health, google sign-in, bundle) → the promote command `verify-preview` prints (pins the verified revision and `--project`; gcloud's default project is a different one). Tune balance with the simulator on fixed seed blocks, not by feel. **Test muted (`?mute=1`) with one browser tab at most.**
+> ▶ NEXT SESSION: **All agent-side work is done; what is left is owner-only** (`docs/NEXT_PLAN.md`): listen to the 4 flagged SFX groups (`outputs/sfx-review/index.html`) and judge the 3 trailer spots (`docs/test/sfx_trailer_prereview.md`); Play Console account + upload key → `VERSION_CODE=1 make android-aab`; pin voice-over voices (`pin.py`). After the owner's call: recut the trailer (`make cinematic`), Play upload + SHA-1 (`make firebase-sha`), voice batch. Held-out bank is v2 (2.0 tree), model pins kept. **`main` is Mythos 2.0 only; 1.x is on branch `1.0`.** Production = Cloud Run rev `00123`. Deploy = `make deploy-preview` → `make verify-preview` → promote command. **Test muted (`?mute=1`), one browser tab at most.**
 
 ## Snapshot
 

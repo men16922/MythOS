@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-13
 
+## 2026-10-13 — SFX and trailer pre-review (owner: "AI 사전 검토")
+
+- SFX: `sfx.ts` loaded in headless Chromium (`--mute-audio`), the node feeding `ctx.destination` tapped by a ScriptProcessor → 50 WAVs of the real master output in `outputs/sfx-review/wav/`. Measured: every cue sounds, 0 clipped samples, max peak −0.6 dBFS. Confirmed by waveform correlation: hit_light / hit_heavy / explosion / wall_slam share a dominant `attack` layer (0.76–0.90), kill / void share `glitch` (0.90). Gemini 2.5 Pro per-cue critique kept only where measurement agrees (its "identical" claims for zap/status_shock and swing/card_draw were false: 0.22 / 0.15; its "alarm too loud" contradicts a −19 dBFS peak). Listening page `outputs/sfx-review/index.html`.
+- Trailer: ffmpeg black/freeze/silence/EBU R128 on both cuts (photo −13.4 LUFS / −1.2 dBTP, store −14.2 / −0.9, no gaps) + Gemini QC. Found and fixed: the store cut's ×1.22 board zoom also cropped the Haetae boss splash title to "…태" — `cinematic.py` `ZOOM` now starts at source second 10; store cut rebuilt (53.2 s, loudness unchanged), frames checked. Open for the owner: "Hae-tae" at photo 0:30 transcribes as "hate/hatetech" in the mix (raw take "Hete/hayte"), a dense Korean text shot at store 0:36–0:40.
+- Owner checklist: `docs/test/sfx_trailer_prereview.md`. Verified: `make check` green. Not verified: human listening/viewing (the decision itself).
+
 ## 2026-10-13 — Remaining-work pass: production watch, Veo bill, bank v2 draft
 
 - Status: done, committed. Every P0 item left is owner-side (listen/view, Play account, model-routing cost call); this pass did the agent-side remainder. Production (Cloud Run logs, 3 days): only owner/QA traffic, 0 × 429/5xx; the 10-11 405s were emulator CORS preflights before the origin fix — preflight is 200 now for `https://localhost`, `http://localhost`, `capacitor://localhost`; both push jobs ran 10-13 19:00 KST OK. No real players yet → no balance data, GM guard stays as decided 10-11. Veo bill from the BigQuery export: 136 s (17 clips) ₩73,916, promo credits ₩30,276 then exhausted → net ≈ ₩43,640. Drafted `docs/plans/2026-10-13-heldout-bank-v2-proposal.md` (3 open 2.0 tasks) for owner ratification; frozen v1 untouched.

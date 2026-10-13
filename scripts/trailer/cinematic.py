@@ -135,8 +135,10 @@ STORE_TIMELINE: list[tuple[str, str, float, float, tuple[str, str] | None]] = [
 STORE_LINES = {"01_ix_welcome": 0.5, "03_serin_run": 4.6, "04_ix_last": 36.0, "07_ix_loop": 43.7}
 # The score's first impact (≈20 s into music.mp3) lands on the cut to gameplay at 9.5 s.
 STORE_MUSIC_OFFSET = 10.5
-# Fights: crop in on the board (factor, vertical centre as a fraction of the frame) so the tiles read on a phone.
-ZOOM = {"09_fight_haetae": (1.22, 0.44), "10_fight_incinerator": (1.22, 0.44)}
+# Fights: crop in on the board (factor, vertical centre as a fraction of the frame, from source second) so the tiles
+# read on a phone. Earlier source time stays full-frame: the boss splash puts its title ("해태") at the left edge,
+# which the crop cut to "…태".
+ZOOM = {"09_fight_haetae": (1.22, 0.44, 10.0), "10_fight_incinerator": (1.22, 0.44, 10.0)}
 
 MUSIC_PROMPT = (
     "Cinematic dark synthwave trailer score, instrumental only, about 82 seconds, for a cyberpunk tactics game "
@@ -308,8 +310,8 @@ def segment(
         ss = start if start >= 0 else max(0.0, duration(path) + start)
         inputs = ["-ss", f"{ss:.2f}", "-t", f"{length}", "-i", str(path)]
         graph = f"[0:v]scale={W}:{H}:flags=lanczos,fps={FPS},setsar=1"
-        if src in ZOOM:
-            f, yc = ZOOM[src]
+        if src in ZOOM and start >= ZOOM[src][2]:
+            f, yc, _ = ZOOM[src]
             graph += (
                 f",crop=iw/{f}:ih/{f}:(iw-iw/{f})/2:ih*{yc}-ih/{f}/2,scale={W}:{H}:flags=lanczos"
             )

@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 2026-10-11
+Last updated: 2026-10-13
 
 ## Current State
 
@@ -22,7 +22,7 @@ Production (2026-10-13): Cloud Run `mythos-api` serves 2.0 — revision `00123` 
 Authority plan: `docs/NEXT_PLAN.md`.
 
 1. **Owner calls** — Play Console developer account ($25 one-time) + upload key (Play Store release, Play Games Services), SFX listen-test, App Distribution testers.
-2. **Watch production** — first real players on 2.0: Cloud Run logs (`v2 gm` outcomes, 401/429 rates), the 19:00 KST push job status, Crashlytics.
+2. **Watch production** — first real players on 2.0: Cloud Run logs (`v2 gm` outcomes, 401/429 rates), the 19:00 KST push job status, Crashlytics. Checked 2026-10-13: only owner/QA traffic so far (no real players → no balance data yet), 0 × 429, 0 × 5xx, the 10-11 405s were Android-emulator CORS preflights from before the origin fix (preflight now 200 for all three Capacitor origins), push jobs ran 10-13 19:00 KST with OK status.
 
 ## Open Risks
 

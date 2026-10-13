@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+// Release signing (upload key, owner-held): android/keystore.properties (gitignored) with storeFile, storePassword,
+// keyAlias, keyPassword — or another file via -PkeystoreProperties=<path>. Without it the release build is
+// unsigned, exactly as before. scripts/android/build-aab.sh refuses to run without one.
+def ksFile = project.hasProperty('keystoreProperties') ? file(project.property('keystoreProperties')) : rootProject.file('keystore.properties')
+def ks = new Properties()
+if (ksFile.exists()) ksFile.withInputStream { ks.load(it) }
+
 android {
     namespace = "com.projectmythos.signalrun"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -17,8 +24,19 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (ksFile.exists()) {
+            release {
+                storeFile file(ks.getProperty('storeFile'))
+                storePassword ks.getProperty('storePassword')
+                keyAlias ks.getProperty('keyAlias')
+                keyPassword ks.getProperty('keyPassword')
+            }
+        }
+    }
     buildTypes {
         release {
+            if (ksFile.exists()) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

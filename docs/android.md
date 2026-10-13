@@ -161,22 +161,17 @@ No signing key exists in the repo or on the build machine. These steps are the o
    keyAlias=upload
    keyPassword=…
    ```
-   and add to `android/app/build.gradle`:
-   ```gradle
-   def ksFile = rootProject.file('keystore.properties')
-   def ks = new Properties(); if (ksFile.exists()) ks.load(new FileInputStream(ksFile))
-   android {
-       signingConfigs { release { if (ksFile.exists()) { storeFile file(ks.storeFile); storePassword ks.storePassword; keyAlias ks.keyAlias; keyPassword ks.keyPassword } } }
-       buildTypes { release { signingConfig signingConfigs.release } }
-   }
-   ```
+   `android/app/build.gradle` already reads it (or `-PkeystoreProperties=<path>`); without it the release build stays
+   unsigned and debug builds are unaffected.
 3. **Build the bundle** against the production API (https):
    ```bash
-   scripts/android/build-web.sh
-   (cd src/mythos_ui/android && ./gradlew bundleRelease -PversionCode=<N> -PversionName=2.0.<x>)
+   VERSION_CODE=<N> make android-aab        # VERSION_NAME defaults to 2.0.<N>
    # → android/app/build/outputs/bundle/release/app-release.aab
    ```
-   `versionCode` must go up with every Play upload.
+   `scripts/android/build-aab.sh` refuses without the signing config or a `VERSION_CODE`, then checks that `jarsigner`
+   verifies the bundle and that it is under 200 MB. `versionCode` must go up with every Play upload. (Verified
+   2026-10-13 end to end with a throwaway key: signed, 128 MB.) Register the upload key's SHA-1 for Google sign-in with
+   `KEYSTORE=~/keys/mythos-upload.jks KEY_ALIAS=upload STOREPASS_FILE=<file> make firebase-sha`.
 4. **Play Console** (owner account, one-time US$25 registration): create the app with the package id above, turn on
    **Play App Signing** (Google holds the app signing key and your keystore is only the upload key), then upload the AAB to
    Internal testing first. Play needs a privacy policy URL, the Data safety form (crash data through Crashlytics,

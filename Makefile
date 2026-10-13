@@ -10,7 +10,7 @@ FRONTEND_DIR ?= src/mythos_ui
 .PHONY: setup frontend-setup clean lint python-lint frontend-lint format typecheck python-typecheck frontend-build \
 	test test-v2 test-db test-e2e-v2 trailer trailer-cut cinematic cinematic-assets playthrough playthrough-quick verify-preview check check-auto check-skills sync-skills check-doc-budget \
 	api api-stop api-cloud cloud-image cloud-run-local deploy deploy-preview \
-	android-web android-apk android-firebase android-emulator android-distribute android-icons \
+	android-web android-apk android-aab android-firebase android-emulator android-distribute android-icons \
 	firebase-web firebase-sha firebase-auth-domains push-schedule push-test \
 	dev-up dev-down infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell \
 	_harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
@@ -377,6 +377,8 @@ android-web:         # web bundle for the app (dist-app/) + copy resources/neo-s
 	@scripts/android/build-web.sh
 android-apk:         # debug APK (needs the Android SDK; see docs/android.md)
 	@scripts/android/build-apk.sh
+android-aab:         # OWNER: signed release bundle for Play (needs android/keystore.properties; VERSION_CODE=<n> required)
+	@scripts/android/build-aab.sh
 android-firebase:    # fetch google-services.json for the registered Firebase Android app (not committed)
 	@scripts/android/fetch-firebase-config.sh
 android-emulator:    # boot the headless, silent emulator profile used for smoke tests

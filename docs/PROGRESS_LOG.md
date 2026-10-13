@@ -6,6 +6,7 @@ Last updated: 2026-10-13
 
 - Status: done, committed. Every P0 item left is owner-side (listen/view, Play account, model-routing cost call); this pass did the agent-side remainder. Production (Cloud Run logs, 3 days): only owner/QA traffic, 0 × 429/5xx; the 10-11 405s were emulator CORS preflights before the origin fix — preflight is 200 now for `https://localhost`, `http://localhost`, `capacitor://localhost`; both push jobs ran 10-13 19:00 KST OK. No real players yet → no balance data, GM guard stays as decided 10-11. Veo bill from the BigQuery export: 136 s (17 clips) ₩73,916, promo credits ₩30,276 then exhausted → net ≈ ₩43,640. Drafted `docs/plans/2026-10-13-heldout-bank-v2-proposal.md` (3 open 2.0 tasks) for owner ratification; frozen v1 untouched.
 - Verified: `make check` green. Not verified: Crashlytics (console only), the admin dashboard numbers (needs owner sign-in).
+- Android release build side: `build.gradle` reads the upload key from `android/keystore.properties` (gitignored; unsigned as before without it), `make android-aab` (`scripts/android/build-aab.sh`) builds the signed AAB, refuses without a key or `VERSION_CODE`, verifies the signature and the 200 MB cap. Verified end to end with a throwaway key (signed by it, 128 MB, versionName in the manifest; key and AAB deleted), both refusal paths, and the debug APK still builds. Not verified: a real upload key, a Play upload.
 
 ## 2026-10-13 — Store cut, voices settled, trailer outputs cleaned
 

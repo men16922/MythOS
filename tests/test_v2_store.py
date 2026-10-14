@@ -14,6 +14,7 @@ from unittest import mock
 
 from psycopg_pool import PoolTimeout
 
+from mythos_v2 import store
 from mythos_v2.daily import DailyResult
 from mythos_v2.store import (
     DEFAULT_DATABASE_URL,
@@ -34,6 +35,7 @@ V2_MIGRATIONS = (
     "012_v2_saves_created_at.sql",
     "013_v2_gm_usage.sql",
     "014_v2_gm_usage_tokens.sql",
+    "015_v2_gm_reports.sql",
 )
 DAY = date(2026, 10, 11)
 
@@ -95,6 +97,42 @@ class _StoreContract:
         case.assertTrue(self.store.delete_save(self.player, "run"))
         case.assertFalse(self.store.delete_save(self.player, "run"))
         case.assertIsNone(self.store.get_save(self.player, "run"))
+
+    def test_delete_player_erases_every_table_and_only_that_player(self) -> None:
+        case = self._case()
+        other = f"tp_{uuid.uuid4().hex[:12]}"
+        for who in (self.player, other):
+            self.store.put_save(who, "profile", {"v": 1})
+            self.store.put_save(who, "run", {"v": 1})
+            self.store.append_history(who, f"{who}_r", {"id": f"{who}_r"})
+            self.store.submit_daily(DAY, who, "n", _result(self.archetype, floors=3))
+        removed = self.store.delete_player(self.player)
+        case.assertEqual(removed, {"saves": 2, "history": 1, "daily": 1})
+        case.assertIsNone(self.store.get_save(self.player, "profile"))
+        case.assertIsNone(self.store.get_save(self.player, "run"))
+        case.assertEqual(self.store.list_history(self.player, 10), [])
+        board = self.store.daily_board(DAY, self.archetype, 10, self.player)
+        case.assertIsNone(board.me)
+        case.assertEqual(board.total, 1)
+        # the other player is untouched; a repeat is a no-op
+        case.assertIsNotNone(self.store.get_save(other, "run"))
+        case.assertEqual(len(self.store.list_history(other, 10)), 1)
+        case.assertEqual(
+            self.store.delete_player(self.player), {"saves": 0, "history": 0, "daily": 0}
+        )
+        self.store.delete_player(other)
+
+    def test_gm_reports_newest_first_since_a_moment(self) -> None:
+        case = self._case()
+        marker = uuid.uuid4().hex
+        start = datetime.now(UTC) - timedelta(seconds=5)
+        self.store.record_gm_report("talk", "companion", "ko", f"first {marker}")
+        self.store.record_gm_report("narrate", "event", "en", f"second {marker}")
+        mine = [r for r in self.store.admin_gm_reports(start) if marker in r.text]
+        case.assertEqual([r.text for r in mine], [f"second {marker}", f"first {marker}"])
+        case.assertEqual((mine[0].route, mine[0].kind, mine[0].lang), ("narrate", "event", "en"))
+        future = datetime.now(UTC) + timedelta(minutes=1)
+        case.assertEqual(self.store.admin_gm_reports(future), [])
 
     def test_history_append_list_and_conflict(self) -> None:
         case = self._case()
@@ -324,7 +362,7 @@ class PostgresStoreTest(_StoreContract, unittest.TestCase):
 
 
 class SchemaParityTest(unittest.TestCase):
-    def test_embedded_ddl_matches_migrations_009_to_014(self) -> None:
+    def test_embedded_ddl_matches_migrations_009_to_015(self) -> None:
         migrations = ";".join(
             (MIGRATIONS / name).read_text(encoding="utf-8") for name in V2_MIGRATIONS
         )
@@ -336,6 +374,22 @@ class SchemaParityTest(unittest.TestCase):
     def test_ddl_is_idempotent(self) -> None:
         for statement in SCHEMA_STATEMENTS:
             self.assertIn("IF NOT EXISTS", statement)
+
+
+class DeletePlayerCoversEveryTableTest(unittest.TestCase):
+    def test_every_table_with_a_player_id_is_erased(self) -> None:
+        """A new per-player table must join ``delete_player`` (Play policy: account deletion erases all data)."""
+        source = Path(store.__file__).read_text(encoding="utf-8")
+        tables = {
+            m.group(1)
+            for stmt in SCHEMA_STATEMENTS
+            if (m := re.match(r"CREATE TABLE IF NOT EXISTS (\w+) \(", stmt)) and "player_id" in stmt
+        }
+        self.assertEqual(tables, {"v2_saves", "v2_run_history", "v2_daily_scores"})
+        body = source[source.index("class PostgresV2Store") :]
+        body = body[body.index("def delete_player") : body.index("def append_history")]
+        for table in tables:
+            self.assertIn(f'"{table}"', body)
 
 
 class BuildStoreTest(unittest.TestCase):

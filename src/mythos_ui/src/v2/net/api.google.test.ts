@@ -189,3 +189,31 @@ test('503 to a signed-in request (token check unavailable) counts as offline', a
   assert.deepEqual(res, { kind: 'network' })
   fakes.setHandler(handler)
 })
+
+test('deleteAccount: pending saves go out first, then DELETE /account; the unsent history queue is dropped', async () => {
+  net.setAuthSource({ ready: () => Promise.resolve(), signedIn: () => true, getIdToken: async () => 'tok' })
+  const order: string[] = []
+  let historyUp = false
+  fakes.setHandler((c) => {
+    if (c.path === '/config') return { status: 200, body: CONFIG }
+    order.push(`${c.method} ${c.path}`)
+    if (c.path === '/history') return historyUp ? { status: 200, body: { ok: true } } : { status: 503, body: {} }
+    if (c.path === '/account') return { status: 200, body: { ok: true, removed: {}, sign_in_record_deleted: true } }
+    return { status: 200, body: { ok: true } }
+  })
+  await net.appendHistory({ id: 'queued' } as never) // stays queued (server busy)
+  void net.saveProfile(profileOf(7) as never)
+  order.length = 0
+  const res = await net.deleteAccount()
+  assert.deepEqual(res, { kind: 'deleted', signInRecordDeleted: true })
+  assert.deepEqual(order, ['PUT /profile', 'DELETE /account'])
+  historyUp = true
+  order.length = 0
+  await net.appendHistory({ id: 'later' } as never)
+  assert.deepEqual(order, ['POST /history']) // only the new record; the erased account's queue is gone
+  assert.equal(net.loadProfileLocal()?.loops, 7) // this device keeps its progress
+
+  fakes.setHandler((c) => (c.path === '/config' ? { status: 200, body: CONFIG } : { status: 500, body: {} }))
+  assert.deepEqual(await net.deleteAccount(), { kind: 'failed' })
+  fakes.setHandler(handler)
+})

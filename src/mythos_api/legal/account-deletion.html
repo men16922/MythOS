@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>계정·데이터 삭제 · Account deletion — 세계:접속 Signal Run</title>
+<style>{{STYLE}}</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>계정·데이터 삭제</h1>
+  <p class="meta">세계:접속 — Signal Run (Mythos 2.0) · 개발자 {{DEVELOPER}}</p>
+  <nav><a href="#en">English</a><a href="/privacy">개인정보처리방침</a><a href="/">게임으로</a></nav>
+</header>
+
+<section lang="ko">
+<h2>게임 안에서 삭제 (Android 앱 또는 웹)</h2>
+<ol>
+  <li>게임을 엽니다. 앱이 없으면 이 사이트의 <a href="/">웹 버전</a>에서 같은 Google 계정으로 로그인해도 됩니다.</li>
+  <li>Google로 로그인한 상태에서 톱니바퀴 아이콘으로 <b>설정</b>을 엽니다.</li>
+  <li>프로필 아래의 <b>계정 삭제</b>를 누릅니다.</li>
+  <li>안내를 읽고 <b>영구 삭제</b>를 누릅니다.</li>
+</ol>
+
+<h2>앱 없이 요청</h2>
+<p>게임에 접속할 수 없으면 {{CONTACT_KO_INLINE}}로 <b>로그인에 쓴 Google 이메일</b>을 적어 삭제를 요청하세요. 본인 확인 뒤 30일 안에 삭제하고 결과를 알려 드립니다.</p>
+
+<h2>삭제되는 정보</h2>
+<ul>
+  <li>클라우드 저장(아카이브 진행, 진행 중인 작전)</li>
+  <li>지난 작전 기록 전체</li>
+  <li>오늘의 시드 순위표 항목(표시 이름과 결과)</li>
+  <li>Google 로그인 정보(Firebase Authentication의 계정 식별자, 이메일, 이름, 사진)</li>
+</ul>
+<p>서버 데이터는 요청 즉시 지워지며 되돌릴 수 없습니다.</p>
+
+<h2>남는 정보</h2>
+<ul>
+  <li>서버 접속 기록(IP, 익명 ID 등): 보안을 위해 최대 30일 보관 뒤 자동 삭제.</li>
+  <li>오류 보고(Android, 계정과 연결되지 않음): 최대 90일 보관 뒤 자동 삭제.</li>
+  <li>AI 대사 날짜별 호출 수 집계와 신고한 AI 대사(90일 보관): 누구의 것인지 저장하지 않아 계정과 연결되지 않습니다.</li>
+  <li>기기 안의 진행 기록: 기기에만 있으므로 앱을 지우거나 브라우저의 사이트 데이터를 지우면 사라집니다.</li>
+</ul>
+</section>
+
+<section class="lang" id="en" lang="en">
+<h1>Account and data deletion</h1>
+<p class="meta">MYTHOS — Signal Run (세계:접속) · Developer {{DEVELOPER}}</p>
+
+<h2>Delete in the game (Android app or web)</h2>
+<ol>
+  <li>Open the game. Without the app, sign in with the same Google account on the <a href="/">web version</a> on this site.</li>
+  <li>While signed in with Google, open <b>Settings</b> with the gear icon.</li>
+  <li>Under your profile, press <b>Delete account</b>.</li>
+  <li>Read the notice and press <b>Delete for good</b>.</li>
+</ol>
+
+<h2>Request without the app</h2>
+<p>If you cannot reach the game, email {{CONTACT_EN_INLINE}} with <b>the Google email you signed in with</b>. After confirming it is you, we delete the account within 30 days and tell you when it is done.</p>
+
+<h2>What is deleted</h2>
+<ul>
+  <li>Cloud saves (Archive progress, the run in progress)</li>
+  <li>All finished-run records</li>
+  <li>Daily Signal leaderboard entries (display name and results)</li>
+  <li>Your Google sign-in record (account id, email, name, photo in Firebase Authentication)</li>
+</ul>
+<p>Server data is erased immediately and cannot be recovered.</p>
+
+<h2>What is kept</h2>
+<ul>
+  <li>Server access logs (IP, the anonymous id, …): kept up to 30 days for security, then deleted automatically.</li>
+  <li>Crash reports (Android, not linked to your account): kept up to 90 days, then deleted automatically.</li>
+  <li>Daily AI-call counts and reported AI lines (kept 90 days): stored without any player id, so they are not linked to your account.</li>
+  <li>Progress on your device: it lives only there and goes away when you uninstall the app or clear the browser's site data.</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

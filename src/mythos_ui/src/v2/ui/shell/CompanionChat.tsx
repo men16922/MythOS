@@ -8,6 +8,7 @@ import type { ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/
 import { TALK_LIMITS, type TalkTurn } from '../../net/api.ts'
 import { portrait } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
+import { ReportLine } from '../components/ReportLine.tsx'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { companionReply } from './gm.ts'
@@ -17,6 +18,8 @@ interface Msg {
   id: number
   role: TalkTurn['role']
   text: string
+  /** A model wrote it (offer the report flag). */
+  llm?: boolean
 }
 
 interface Props {
@@ -92,7 +95,7 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening }: 
     )
     if (abort.signal.aborted) return
     setWaiting(false)
-    setMsgs((prev) => [...prev, { id: nextId + 1, role: 'companion', text: reply.text }])
+    setMsgs((prev) => [...prev, { id: nextId + 1, role: 'companion', text: reply.text, llm: reply.source === 'llm' }])
     window.setTimeout(() => inputRef.current?.focus(), 0)
   }
 
@@ -119,6 +122,7 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening }: 
         {msgs.map((m) => (
           <div key={m.id} className={`m2-chat__msg is-${m.role}`}>
             {m.role === 'companion' && m.id === latestId ? <Typewriter text={m.text} cps={settings.fastAnim ? 400 : 48} /> : <span>{m.text}</span>}
+            {m.llm && <ReportLine className="m2-chat__report" line={{ route: 'talk', kind: `companion:${companionId}`, lang, text: m.text }} lang={lang} />}
           </div>
         ))}
         {waiting && (

@@ -33,6 +33,9 @@ export type SignInFailure = 'cancelled' | 'not-configured' | 'offline' | 'popup-
 
 export type SignInResult = { ok: true; adopted: net.AdoptSummary | null } | { ok: false; reason: SignInFailure }
 
+/** Account deletion outcome. `signInRecordDeleted` false = the game data is gone but the Google sign-in record is not yet. */
+export type DeleteAccountOutcome = { ok: true; signInRecordDeleted: boolean | null } | { ok: false; reason: 'offline' | 'failed' | 'busy' | 'signed-out' }
+
 /** One platform's Firebase Auth (web SDK or the native plugin). Methods may reject; the machine catches. */
 export interface AuthBackend {
   /** Subscribe to the signed-in user (the first call reports the restored session, null when there is none). */
@@ -60,6 +63,8 @@ export interface AuthDeps extends AuthPlatform {
   beforeSwitch(): Promise<void>
   /** After a sign-in: adopt the account's saves. */
   afterSignIn(): Promise<net.AdoptSummary | null>
+  /** Erase the account's cloud data on the server (sends pending saves first). */
+  deleteRemote(): Promise<net.DeleteAccountResult>
 }
 
 export interface Auth extends net.AuthSource {
@@ -69,6 +74,8 @@ export interface Auth extends net.AuthSource {
   start(): void
   signIn(): Promise<SignInResult>
   signOut(): Promise<void>
+  /** Erase the account's cloud data and sign-in record, then end the session (this device keeps its progress). */
+  deleteAccount(): Promise<DeleteAccountOutcome>
   /** Re-check availability (e.g. after `/config` arrived). */
   refresh(): void
   /** net/api.ts: the server rejected a freshly refreshed token; end the session locally (no flush). */
@@ -307,6 +314,25 @@ export function createAuth(deps: AuthDeps): Auth {
         })
     },
 
+    async deleteAccount() {
+      if (switching) return { ok: false, reason: 'busy' }
+      if (status.kind !== 'signed-in') return { ok: false, reason: 'signed-out' }
+      switching = true
+      try {
+        const res = await deps.deleteRemote().catch((): net.DeleteAccountResult => ({ kind: 'failed' }))
+        if (res.kind !== 'deleted') return { ok: false, reason: res.kind }
+        // Signed out before the backend call: nothing more may go out under the erased account.
+        token = null
+        remember(null)
+        set(signedOutStatus())
+        const b = await ensureBackend()
+        if (typeof b !== 'string') await b.signOut().catch(() => undefined)
+        return { ok: true, signInRecordDeleted: res.signInRecordDeleted }
+      } finally {
+        switching = false
+      }
+    },
+
     async signOut() {
       if (switching || status.kind !== 'signed-in') return
       switching = true
@@ -367,6 +393,7 @@ function create(platform: AuthPlatform): Auth {
     now: () => Date.now(),
     beforeSwitch: () => net.flushSaves(),
     afterSignIn: () => net.adoptAccount(),
+    deleteRemote: () => net.deleteAccount(),
   })
 }
 

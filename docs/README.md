@@ -11,7 +11,7 @@ Agents do not read all of `docs/`; follow the order below.
 2. `STATUS.md` — current baseline, active focus, risks.
 3. `NEXT_PLAN.md` — rolling plan with open work only.
 4. `PROGRESS_LOG.md` — latest increments (newest on top).
-5. Only when needed: `GAMEPLAY.md` (rules), `plans/2026-10-10-mythos-2.0.md` (design/build contract), `android.md`, `online.md`.
+5. Only when needed: `GAMEPLAY.md` (rules), `plans/2026-10-10-mythos-2.0.md` (design/build contract), `android.md`, `online.md`, `play-store.md`.
 
 ## Current Docs
 
@@ -23,7 +23,8 @@ Agents do not read all of `docs/`; follow the order below.
 | `PROGRESS_LOG.md` | Latest short work log |
 | `GAMEPLAY.md` | Game rules (Korean) |
 | `android.md` | Android app (Capacitor + Firebase) build/release |
-| `online.md` | Google sign-in, daily leaderboard, daily push (server + owner checklist) |
+| `online.md` | Google sign-in, daily leaderboard, daily push, account deletion, AI line reports, policy pages |
+| `play-store.md` | Google Play submission sheet: listing text, graphics, content rating, Data safety, owner steps |
 | `COMPLETED_SUMMARY.md` | Compressed record of completed milestones |
 | `DECISIONS.md` | Hard-to-reverse decisions |
 | `LESSONS.md` | Repo-specific traps for future (unattended) iterations |

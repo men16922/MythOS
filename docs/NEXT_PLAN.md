@@ -1,6 +1,6 @@
 # Next Plan
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`.
 
@@ -10,7 +10,7 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 
 - `[ ]` `[manual]` **SFX listen-test** — AI/measurement pre-review done 2026-10-13 (all 50 cues render, 0 clipping): listen only to the 4 flagged groups in `docs/test/sfx_trailer_prereview.md` via `outputs/sfx-review/index.html`.
 - `[ ]` `[manual]` **Trailer review** — pre-review done 2026-10-13 (store-cut boss-title crop fixed and recut; 3 spots to judge in `docs/test/sfx_trailer_prereview.md`) — `outputs/trailer/cinematic/mythos2_cinematic_photo.mp4` (YouTube/SNS, photoreal, 78 s) and `mythos2_cinematic_store.mp4` (Play Store promo, painted hook + real fights, 53 s); English narration (IX = Adam, Se-rin = Ember). Recut free with `make cinematic`. Veo billing (export, 2026-10-13): 136 s = 17 clips, ₩73,916 gross, monthly promotional credits covered ₩30,276 and ran out mid-batch → net ≈ ₩43,640; further Veo calls bill in full.
-- `[ ]` `[manual]` **Android release** — Play Console developer account ($25), an upload keystore (owner-held), package id check (`com.projectmythos.signalrun` is permanent once uploaded), register the upload-key and Play app-signing SHA-1s in Firebase (Google sign-in), then an internal-testing AAB — the build side is ready: drop in `android/keystore.properties` and run `VERSION_CODE=1 make android-aab` (signs, verifies, checks the 200 MB cap; verified with a throwaway key). Tester list for Firebase App Distribution.
+- `[ ]` `[manual]` **Android release** — follow `docs/play-store.md` "Owner steps": Play Console account ($25; a new personal account needs a 12-tester × 14-day closed test before production — recruit testers now), `MYTHOS_CONTACT_EMAIL` in `.env` + deploy-preview → verify → promote (the `/privacy` and `/account-deletion` pages and in-app account deletion / AI-line reporting ship with it), grant `roles/firebaseauth.admin` to `mythos-run@` (command in the sheet), upload keystore → `VERSION_CODE=1 make android-aab`, paste the prepared listing / Data safety / content-rating answers, upload `outputs/play-store/` graphics (`scripts/android/store_assets.py`).
 
 ## After the first wave of players
 

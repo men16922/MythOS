@@ -159,3 +159,19 @@
 .m2-account-section .m2-account__note {
   max-width: none;
 }
+
+/* account deletion: the inline confirmation under the Settings buttons */
+.m2-account-delete {
+  display: grid;
+  gap: 10px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--m2-threat);
+  background: rgba(40, 6, 10, 0.55);
+  animation: m2-fade 0.2s ease-out;
+}
+.m2-account-delete p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--m2-ink-2);
+}

@@ -79,6 +79,21 @@ class AdminPlayer:
         return max(stamps) if stamps else None
 
 
+#: At most this many flagged AI lines come back to the dashboard.
+MAX_GM_REPORTS = 100
+
+
+@dataclass(frozen=True)
+class GMReport:
+    """One AI line a player flagged as offensive (no player id is kept)."""
+
+    created_at: datetime
+    route: str
+    kind: str
+    lang: str
+    text: str
+
+
 @dataclass(frozen=True)
 class AdminRun:
     """One finished-run record (``RunRecord``) with its server-side arrival time."""
@@ -217,6 +232,7 @@ def build_overview(
     days: int,
     server: dict[str, Any],
     gm_price: tuple[float, float] | None = None,
+    gm_reports: list[GMReport] | None = None,
 ) -> dict[str, Any]:
     """The whole dashboard payload. ``runs``/``daily_rows`` are expected to cover the last ``days`` days."""
     days = max(1, min(MAX_DAYS, days))
@@ -361,6 +377,16 @@ def build_overview(
         )
 
     return {
+        "gm_reports": [
+            {
+                "at": _iso(r.created_at),
+                "route": r.route,
+                "kind": r.kind,
+                "lang": r.lang,
+                "text": r.text,
+            }
+            for r in (gm_reports or [])[:MAX_GM_REPORTS]
+        ],
         "generated_at": _iso(now),
         "today": today.isoformat(),
         "days": days,
@@ -436,10 +462,12 @@ __all__ = [
     "BOARD_TOP",
     "DEFAULT_DAYS",
     "MAX_DAYS",
+    "MAX_GM_REPORTS",
     "MAX_PLAYERS",
     "MAX_RUN_ROWS",
     "AdminPlayer",
     "AdminRun",
+    "GMReport",
     "GMStats",
     "build_overview",
     "player_ref",

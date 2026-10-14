@@ -35,7 +35,7 @@ import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, cast
 
 from mythos_v2.config import PROJECT_ROOT, env
 from mythos_v2.log import get_logger
@@ -310,6 +310,88 @@ def build_verifier(project_id: str | None) -> TokenVerifier:
     return FirebaseTokenVerifier(project_id)
 
 
+# --- account deletion -----------------------------------------------------------------------------------------
+
+#: Identity Toolkit admin endpoint (what firebase-admin's ``auth.delete_user`` calls).
+ACCOUNTS_DELETE_URL = "https://identitytoolkit.googleapis.com/v1/projects/{project}/accounts:delete"
+ADMIN_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
+
+#: ``(url, bearer access token, json body) -> (http status, response text)``
+AdminPost = Callable[[str, str, dict[str, str]], tuple[int, str]]
+
+
+class AccountDeleter(Protocol):
+    def delete_user(self, uid: str) -> bool:
+        """Remove the Firebase Auth user (its Google email, name, photo). True when it is gone (or never
+        existed); False when it could not be removed now. Never raises."""
+        ...
+
+
+def _admin_post(url: str, access_token: str, body: dict[str, str]) -> tuple[int, str]:
+    import httpx
+
+    response = httpx.post(
+        url, json=body, headers={"Authorization": f"Bearer {access_token}"}, timeout=8.0
+    )
+    return response.status_code, response.text
+
+
+def _adc_access_token() -> str:
+    """An OAuth access token for the server's own identity (Cloud Run: its service account)."""
+    import google.auth
+    from google.auth.transport.requests import Request as AuthRequest
+
+    credentials, _ = google.auth.default(scopes=list(ADMIN_SCOPES))
+    cast(Any, credentials).refresh(AuthRequest())  # google-auth ships no annotations here
+    token = credentials.token
+    if not isinstance(token, str) or not token:
+        raise RuntimeError("no access token")
+    return token
+
+
+class FirebaseAccountDeleter:
+    """Deletes Firebase Auth users with the server's own credentials (no firebase-admin dependency).
+
+    The service account needs ``firebaseauth.users.delete`` on the project (Firebase Authentication Admin, or
+    Editor). A failure is logged by class/status only and reported as False; the caller has already erased the
+    game data, so only the sign-in record waits for a retry."""
+
+    def __init__(
+        self,
+        project_id: str,
+        *,
+        access_token: Callable[[], str] | None = None,
+        post: AdminPost | None = None,
+    ) -> None:
+        self._url = ACCOUNTS_DELETE_URL.format(project=project_id)
+        self._access_token = access_token or _adc_access_token
+        self._post = post or _admin_post
+
+    def delete_user(self, uid: str) -> bool:
+        try:
+            status, text = self._post(self._url, self._access_token(), {"localId": uid})
+        except Exception as exc:
+            _logger.warning("v2 account: sign-in record not deleted: %s", type(exc).__name__)
+            return False
+        if 200 <= status < 300 or (status == 400 and "USER_NOT_FOUND" in text):
+            return True
+        _logger.warning("v2 account: sign-in record not deleted", extra={"status": status})
+        return False
+
+
+class _NoAccountDeleter:
+    """No Firebase project configured: there is no sign-in record to delete."""
+
+    def delete_user(self, uid: str) -> bool:
+        return False
+
+
+def build_account_deleter(project_id: str | None) -> AccountDeleter:
+    if not project_id:
+        return _NoAccountDeleter()
+    return FirebaseAccountDeleter(project_id)
+
+
 # --- config ---------------------------------------------------------------------------------------------------
 
 
@@ -389,19 +471,23 @@ class AuthConfig:
 
 
 __all__ = [
+    "ACCOUNTS_DELETE_URL",
     "GOOGLE_PLAYER_ID_RE",
     "GOOGLE_PLAYER_PREFIX",
     "SECURETOKEN_CERTS_URL",
     "WEB_CONFIG_KEYS",
+    "AccountDeleter",
     "AuthConfig",
     "AuthMode",
     "CertFetcher",
     "CertsUnavailableError",
+    "FirebaseAccountDeleter",
     "FirebaseTokenVerifier",
     "Identity",
     "TokenError",
     "TokenVerifier",
     "bearer_token",
+    "build_account_deleter",
     "build_verifier",
     "cache_max_age",
     "fetch_securetoken_certs",

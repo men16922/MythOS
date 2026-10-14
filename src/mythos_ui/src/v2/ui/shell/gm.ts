@@ -1,8 +1,10 @@
 // Mythos 2.0 — AI GM calls (narrate / improvise / companion chat / IX comms) with authored/local fallbacks.
 // Never blocks the UI: callers render authored text first and swap/add the GM line when it arrives.
+// Every line a model wrote is noted in ui/common/aiLines.ts so the player can report it from Settings.
 
 import type { Improvisation, Lang, StatKey } from '../../engine/types.ts'
 import * as net from '../../net/api.ts'
+import { noteAiLine } from '../common/aiLines.ts'
 import { pickCompanionReply } from './talkLines.ts'
 
 type NarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro'
@@ -45,7 +47,9 @@ export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeo
     const res = await withTimeout(net.narrate({ kind, lang, context }), timeoutMs)
     if (!res) return null
     if (res.source === 'fallback' && !acceptFallback) return null
-    return res.text ? cleanGmText(res.text) || null : null
+    const text = res.text ? cleanGmText(res.text) || null : null
+    if (text && res.source === 'llm') noteAiLine({ route: 'narrate', kind, lang, text })
+    return text
   } catch {
     return null
   }
@@ -65,7 +69,10 @@ export async function companionReply(req: CompanionReplyReq, signal?: AbortSigna
   try {
     const res = await withTimeout(net.talk({ mode: 'companion', ...req }, { signal }), 11500)
     const text = res ? cleanGmText(res.text) : ''
-    if (res && text) return { text, source: res.source }
+    if (res && text) {
+      if (res.source === 'llm') noteAiLine({ route: 'talk', kind: `companion:${req.companion}`, lang: req.lang, text })
+      return { text, source: res.source }
+    }
   } catch {
     /* fall through to the local pool */
   }
@@ -79,7 +86,9 @@ export async function ixLine(trigger: net.IxTrigger, lang: Lang, context: Ctx, t
   try {
     const res = await withTimeout(net.talk({ mode: 'ix', lang, trigger, context }, { signal, timeoutMs }), timeoutMs)
     if (!res || res.source !== 'llm') return null
-    return cleanGmText(res.text) || null
+    const text = cleanGmText(res.text) || null
+    if (text) noteAiLine({ route: 'talk', kind: `ix:${trigger}`, lang, text })
+    return text
   } catch {
     return null
   }
@@ -117,22 +126,22 @@ const VALID_RISK: Improvisation['risk'][] = ['hp', 'trace', 'credits']
 export async function improvise(req: ImproviseReq): Promise<Improvisation> {
   const local = localImprovise(req.action)
   try {
-    const res: Partial<Improvisation> | null = await withTimeout(net.improvise(req), 16000)
+    const res: Partial<net.ImproviseResult> | null = await withTimeout(net.improvise(req), 16000)
     if (!res) return local
     const stat = VALID_STATS.includes(res.stat as StatKey) ? (res.stat as StatKey) : local.stat
     const dc = Math.max(3, Math.min(9, Math.round(Number(res.dc) || local.dc)))
     let reward = VALID_REWARD.includes(res.reward as Improvisation['reward']) ? (res.reward as Improvisation['reward']) : local.reward
     if (reward === 'implant' && dc < 7) reward = 'credits'
     const risk = VALID_RISK.includes(res.risk as Improvisation['risk']) ? (res.risk as Improvisation['risk']) : local.risk
-    return {
-      action: req.action,
-      stat,
-      dc,
-      reward,
-      risk,
-      successText: res.successText?.ko || res.successText?.en ? cleanText(res.successText) : local.successText,
-      failureText: res.failureText?.ko || res.failureText?.en ? cleanText(res.failureText) : local.failureText,
+    const successText = res.successText?.ko || res.successText?.en ? cleanText(res.successText) : local.successText
+    const failureText = res.failureText?.ko || res.failureText?.en ? cleanText(res.failureText) : local.failureText
+    if (res.source === 'llm') {
+      const ko = req.lang === 'ko'
+      const pick = (t: Improvisation['successText']) => (ko ? t.ko || t.en : t.en || t.ko)
+      const text = `${ko ? '성공' : 'Success'}: ${pick(successText)}\n${ko ? '실패' : 'Failure'}: ${pick(failureText)}`
+      noteAiLine({ route: 'improvise', kind: 'event', lang: req.lang, text })
     }
+    return { action: req.action, stat, dc, reward, risk, successText, failureText }
   } catch {
     return local
   }

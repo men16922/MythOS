@@ -9,6 +9,7 @@ import os
 import time
 import unittest
 from collections.abc import Callable
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 from unittest import mock
 
@@ -50,6 +51,18 @@ class FakeVerifier:
         if token.startswith("good:") and len(token) > 5:
             return token[5:]
         raise TokenError("bad signature")
+
+
+class FakeDeleter:
+    """Records the Firebase uids it was asked to delete; ``ok`` is the answer."""
+
+    def __init__(self, ok: bool = True) -> None:
+        self.ok = ok
+        self.uids: list[str] = []
+
+    def delete_user(self, uid: str) -> bool:
+        self.uids.append(uid)
+        return self.ok
 
 
 def bearer(uid: str) -> dict[str, str]:
@@ -99,6 +112,7 @@ def _client(
     mode: AuthMode = "open",
     web_config: dict[str, str] | None = None,
     verifier: FakeVerifier | None = None,
+    deleter: FakeDeleter | None = None,
     **settings: Any,
 ) -> TestClient:
     app = FastAPI()
@@ -109,6 +123,7 @@ def _client(
             settings=V2Settings(**settings),
             auth=AuthConfig(mode=mode, project_id="demo-mythos", web_config=web_config),
             verifier=verifier or FakeVerifier(),
+            account_deleter=deleter or FakeDeleter(),
         )
     )
     return TestClient(app)
@@ -234,6 +249,12 @@ IDENTITY_ROUTES: list[tuple[str, str, dict[str, Any] | None]] = [
     ("POST", "/api/v2/gm/narrate", {"kind": "boss", "lang": "en"}),
     ("POST", "/api/v2/gm/improvise", {"lang": "en", "action": "look around"}),
     ("POST", "/api/v2/gm/talk", {"mode": "ix", "lang": "en", "trigger": "boss_start"}),
+    ("DELETE", "/api/v2/account", None),
+    (
+        "POST",
+        "/api/v2/gm/report",
+        {"route": "talk", "kind": "companion", "lang": "ko", "text": "x"},
+    ),
 ]
 
 
@@ -284,6 +305,97 @@ class GoogleModeTest(unittest.TestCase):
     def test_non_bearer_authorization_is_not_a_sign_in(self) -> None:
         res = self.client.get("/api/v2/profile", headers={"Authorization": "Basic dTpw"})
         self.assertEqual(res.status_code, 401)
+
+
+class GMReportTest(unittest.TestCase):
+    def test_a_flagged_line_reaches_the_dashboard_without_a_player_id(self) -> None:
+        store = MemoryV2Store()
+        client = _client(store_factory=lambda: store, mode="google", reports_per_minute=2)
+        body = {"route": "talk", "kind": "companion:se_rin", "lang": "ko", "text": "  나쁜 대사  "}
+        res = client.post("/api/v2/gm/report", headers=bearer("u1"), json=body)
+        self.assertEqual(res.status_code, 200, res.text)
+        self.assertEqual(res.json(), {"ok": True})
+        (row,) = store.admin_gm_reports(datetime.min.replace(tzinfo=UTC))
+        self.assertEqual(
+            (row.route, row.kind, row.lang, row.text),
+            ("talk", "companion:se_rin", "ko", "나쁜 대사"),
+        )
+        self.assertNotIn(player_id_for_uid("u1"), repr(row))
+        # rate limited per player
+        client.post("/api/v2/gm/report", headers=bearer("u1"), json=body)
+        limited = client.post("/api/v2/gm/report", headers=bearer("u1"), json=body)
+        self.assertEqual(limited.status_code, 429)
+
+    def test_invalid_reports_are_422(self) -> None:
+        client = _client()
+        good = {"route": "narrate", "kind": "event", "lang": "en", "text": "line"}
+        for bad in (
+            {**good, "route": "admin"},
+            {**good, "kind": "Bad Kind"},
+            {**good, "lang": "fr"},
+            {**good, "text": ""},
+            {**good, "text": "   "},
+            {**good, "text": "x" * 2001},
+        ):
+            with self.subTest(bad=bad):
+                res = client.post("/api/v2/gm/report", headers=HEADERS, json=bad)
+                self.assertEqual(res.status_code, 422, res.text)
+
+
+class AccountDeletionTest(unittest.TestCase):
+    def _fill(self, client: TestClient, headers: dict[str, str]) -> None:
+        client.put("/api/v2/profile", headers=headers, json={"echoes": 3})
+        client.put("/api/v2/run", headers=headers, json={"hp": 9})
+        client.post("/api/v2/history", headers=headers, json={"id": "run_aaaaaaaa"})
+
+    def test_signed_in_deletion_erases_data_then_the_sign_in_record(self) -> None:
+        deleter = FakeDeleter()
+        client = _client(mode="google", deleter=deleter)
+        self._fill(client, bearer("u1"))
+        self._fill(client, bearer("u2"))
+        res = client.delete("/api/v2/account", headers=bearer("u1"))
+        self.assertEqual(res.status_code, 200, res.text)
+        self.assertEqual(
+            res.json(),
+            {
+                "ok": True,
+                "removed": {"saves": 2, "history": 1, "daily": 0},
+                "sign_in_record_deleted": True,
+            },
+        )
+        self.assertEqual(deleter.uids, ["u1"])
+        self.assertIsNone(client.get("/api/v2/profile", headers=bearer("u1")).json()["data"])
+        self.assertEqual(client.get("/api/v2/history", headers=bearer("u1")).json()["records"], [])
+        self.assertEqual(
+            client.get("/api/v2/profile", headers=bearer("u2")).json()["data"], {"echoes": 3}
+        )
+
+    def test_a_failed_record_removal_still_erases_the_data(self) -> None:
+        client = _client(mode="google", deleter=FakeDeleter(ok=False))
+        self._fill(client, bearer("u1"))
+        res = client.delete("/api/v2/account", headers=bearer("u1")).json()
+        self.assertFalse(res["sign_in_record_deleted"])
+        self.assertEqual(res["removed"]["saves"], 2)
+        self.assertIsNone(client.get("/api/v2/run", headers=bearer("u1")).json()["data"])
+
+    def test_open_mode_device_id_has_no_sign_in_record(self) -> None:
+        deleter = FakeDeleter()
+        client = _client(deleter=deleter)
+        self._fill(client, HEADERS)
+        res = client.delete("/api/v2/account", headers=HEADERS).json()
+        self.assertIsNone(res["sign_in_record_deleted"])
+        self.assertEqual(res["removed"]["saves"], 2)
+        self.assertEqual(deleter.uids, [])
+        bad = client.delete("/api/v2/account", headers={"X-Player-Id": "g_" + "0" * 32})
+        self.assertEqual(bad.status_code, 400)
+
+    def test_nothing_about_the_player_is_logged(self) -> None:
+        client = _client(mode="google")
+        with self.assertLogs("mythos.v2", level="INFO") as logs:
+            client.delete("/api/v2/account", headers=bearer("secret-uid"))
+        text = "\n".join(f"{r.getMessage()} {r.__dict__}" for r in logs.records)
+        self.assertNotIn("secret-uid", text)
+        self.assertNotIn(player_id_for_uid("secret-uid"), text)
 
 
 class OpenModeTest(unittest.TestCase):

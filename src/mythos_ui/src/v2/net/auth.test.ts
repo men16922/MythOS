@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import type { AdoptSummary } from './api.ts'
+import type { AdoptSummary, DeleteAccountResult } from './api.ts'
 import {
   classifySignInError,
   createAuth,
@@ -49,7 +49,9 @@ class FakeBackend implements AuthBackend {
   }
 }
 
-function setup(opts: { remembered?: AuthUser; restoreAlways?: boolean; backend?: FakeBackend | UnavailableReason; known?: UnavailableReason | null } = {}) {
+function setup(
+  opts: { remembered?: AuthUser; restoreAlways?: boolean; backend?: FakeBackend | UnavailableReason; known?: UnavailableReason | null; deleteResult?: DeleteAccountResult } = {},
+) {
   const store = new Map<string, string>()
   if (opts.remembered) store.set(SESSION_KEY, JSON.stringify(opts.remembered))
   const backend = opts.backend ?? new FakeBackend()
@@ -69,6 +71,10 @@ function setup(opts: { remembered?: AuthUser; restoreAlways?: boolean; backend?:
     afterSignIn: async (): Promise<AdoptSummary> => {
       log.push('adopt')
       return { profile: 'push-local', run: 'none' }
+    },
+    deleteRemote: async (): Promise<DeleteAccountResult> => {
+      log.push('delete')
+      return opts.deleteResult ?? { kind: 'deleted', signInRecordDeleted: true }
     },
   }
   const auth = createAuth(deps)
@@ -139,6 +145,7 @@ test('the identity switches only after the flush (the Firebase listener cannot j
       statusAtFlush = auth.status().kind
     },
     afterSignIn: async () => null,
+    deleteRemote: async () => ({ kind: 'failed' }),
   })
   await auth.signIn()
   assert.equal(statusAtFlush, 'signed-out')
@@ -270,4 +277,30 @@ test('tokenRejected ends the session locally without a flush and signs the backe
   await tick()
   assert.equal((s.backend as FakeBackend).signedOut, 1)
   assert.deepEqual(s.log, [], 'no flush: the server refuses this account’s requests')
+})
+
+test('deleteAccount: the server erases first, then the session ends and the backend signs out', async () => {
+  const s = setup()
+  await s.auth.signIn()
+  s.log.length = 0
+  const res = await s.auth.deleteAccount()
+  assert.deepEqual(res, { ok: true, signInRecordDeleted: true })
+  assert.deepEqual(s.log, ['delete'])
+  assert.equal(s.auth.status().kind, 'signed-out')
+  assert.equal((s.backend as FakeBackend).signedOut, 1)
+  assert.equal(s.store.has(SESSION_KEY), false)
+  assert.equal(await s.auth.getIdToken(), null)
+})
+
+test('deleteAccount: offline / refused keeps the player signed in; signed out has nothing to delete', async () => {
+  for (const kind of ['offline', 'failed'] as const) {
+    const s = setup({ deleteResult: { kind } })
+    await s.auth.signIn()
+    assert.deepEqual(await s.auth.deleteAccount(), { ok: false, reason: kind })
+    assert.equal(s.auth.status().kind, 'signed-in')
+    assert.equal((s.backend as FakeBackend).signedOut, 0)
+  }
+  const anon = setup()
+  assert.deepEqual(await anon.auth.deleteAccount(), { ok: false, reason: 'signed-out' })
+  assert.deepEqual(anon.log, [])
 })

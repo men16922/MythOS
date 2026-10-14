@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 
 ## Current State
 
@@ -12,6 +12,7 @@ Last updated: 2026-10-13
 - **Server** `src/mythos_api` (SPA, `/resources`, CORS for the Android app, `/api/health`) + `src/mythos_v2` (`/api/v2`: Firebase Google sign-in (`MYTHOS_AUTH`), profile/run saves in `v2_saves` with memory fallback, per-player run history, daily-seed leaderboard `v2_daily_scores`; GM narrate / improvise / talk via Ollama locally or Vertex Gemini). `docs/online.md`.
 - **Android** `src/mythos_ui/android` — Capacitor app with Firebase: Crashlytics, App Distribution, native Google sign-in, FCM daily-seed push (see `docs/android.md`).
 - **Online UI** — account chip/settings, `DailyBoard` leaderboard (auto-submit at daily run end), anonymous play stays fully offline.
+- **Play policy pieces** (2026-10-14, not deployed yet) — in-app account deletion (`DELETE /api/v2/account`: saves, history, daily rows + the Firebase sign-in record), AI-line reporting (inline flags + Settings list → `v2_gm_reports`, shown on `/admin`), `/privacy` + `/account-deletion` pages; submission sheet + store graphics in `docs/play-store.md`.
 
 Latest verified baseline (2026-10-12): `make check` green (`node --test src/v2` 268 + Python unittest 250 + 7 DB tests skipped without Postgres), `make test-db` 22, `make test-e2e-v2` (headless, muted, incl. sign-in note + leaderboard submit), `make playthrough-quick` (2 min) and a whole unassisted UI run to a victory ending (10 min, 0 console errors), headless save/continue/reload, emulator push delivery; real Google sign-in on the web (token verified server-side, `g_` save) and the native sign-in sheet on Android. Sim P0 over 360 runs: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5: 78 / 3.
 
@@ -21,7 +22,7 @@ Production (2026-10-13): Cloud Run `mythos-api` serves 2.0 — revision `00123` 
 
 Authority plan: `docs/NEXT_PLAN.md`.
 
-1. **Owner calls** — Play Console developer account ($25 one-time) + upload key (Play Store release, Play Games Services), SFX listen-test, App Distribution testers.
+1. **Owner calls** — Play release per `docs/play-store.md` (account, contact email + deploy, `firebaseauth.admin` grant for `mythos-run@`, upload key, 12 closed-test testers), SFX listen-test, trailer spots, voice pins.
 2. **Watch production** — first real players on 2.0: Cloud Run logs (`v2 gm` outcomes, 401/429 rates), the 19:00 KST push job status, Crashlytics. Checked 2026-10-13: only owner/QA traffic so far (no real players → no balance data yet), 0 × 429, 0 × 5xx, the 10-11 405s were Android-emulator CORS preflights from before the origin fix (preflight now 200 for all three Capacitor origins), push jobs ran 10-13 19:00 KST with OK status.
 
 ## Open Risks
@@ -30,4 +31,5 @@ Authority plan: `docs/NEXT_PLAN.md`.
 - **Balance noise**: mixed-bot win rate swings ±6 % by seed block — A/B on identical blocks (`docs/LESSONS.md`).
 - **GM quality**: local `gemma4:8b-64k` lines are serviceable; Vertex `gemini-3.5-flash` is sharper. All lines are cleaned and have authored fallbacks.
 - **Generated assets** were spot-checked, not hand-curated; regenerate single files with `scripts/v2_assets/` (call-budget ledger).
+- **Account deletion on production**: until `mythos-run@` has `roles/firebaseauth.admin`, deletion erases the game data but reports `sign_in_record_deleted: false` (remove the user in the Firebase console; the policy page promises 30 days).
 - **Overnight harness**: its held-out task bank and Dev Graph experiments targeted 1.x and stay on branch `1.0`; new unattended seeds must target the 2.0 tree.

@@ -63,7 +63,7 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
     <div className="m2-actintro" onClick={go}>
       <div className="m2-actintro__art" style={{ backgroundImage: `url(${art.act(run.act, actDef?.image)})` }} />
       <div className="m2-actintro__shade" />
-      <GmCard className="m2-actintro__gm" text={shown > 0 ? gmLine : null} lang={lang} fast={settings.fastAnim} />
+      <GmCard className="m2-actintro__gm" text={shown > 0 ? gmLine : null} lang={lang} fast={settings.fastAnim} report={{ route: 'narrate', kind: 'act_intro' }} />
       <div className="m2-actintro__inner">
         <div className="m2-actintro__num">
           {run.act}

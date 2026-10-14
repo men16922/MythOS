@@ -1,0 +1,91 @@
+/* ReportLine.tsx: the small "report this AI line" flag. Quiet until hovered; never the loudest thing near a line. */
+.m2-report {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--m2-mute);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+  pointer-events: auto;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    opacity 0.15s;
+}
+.m2-report:hover:not(:disabled),
+.m2-report:focus-visible {
+  opacity: 1;
+  color: var(--m2-threat);
+  border-color: color-mix(in srgb, var(--m2-threat) 45%, transparent);
+}
+.m2-report:disabled {
+  cursor: default;
+}
+.m2-report.is-sent {
+  opacity: 1;
+  color: var(--m2-cyan-2);
+}
+.m2-report.is-failed {
+  opacity: 1;
+  color: var(--m2-amber);
+}
+
+/* Settings: the recent AI lines list */
+.m2-toggle.m2-ailines {
+  display: grid;
+  gap: 8px;
+  cursor: default;
+  align-items: stretch;
+}
+.m2-ailines .m2-toggle__text b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.m2-ailines__empty {
+  color: var(--m2-mute);
+  font-size: 12px;
+}
+.m2-ailines ol {
+  display: grid;
+  gap: 6px;
+  max-height: 220px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.m2-ailines li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border-left: 2px solid var(--m2-line-2);
+  background: rgba(4, 12, 14, 0.6);
+}
+.m2-ailines li p {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--m2-ink-2);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.m2-ailines li small {
+  display: block;
+  color: var(--m2-mute);
+  font-size: 11px;
+}

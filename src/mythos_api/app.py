@@ -6,7 +6,8 @@ The game itself runs in the browser (`src/mythos_ui/src/v2`); this process only
   daily-seed leaderboard, Google sign-in via Firebase ID tokens),
 - serves the operator dashboard page at ``/admin`` (its data comes from ``/api/v2/admin/overview``, which only
   allow-listed Google accounts may read),
-- answers CORS for the Android app (Capacitor WebView, origin https://localhost).
+- answers CORS for the Android app (Capacitor WebView, origin https://localhost),
+- serves the store-required policy pages ``/privacy`` and ``/account-deletion`` (``mythos_api.legal``).
 
 The 1.x runtime that used to live here (`/api/v1`, WebSocket loops, the invite-key tester dashboard) is
 archived on branch `1.0`; the 2.0 dashboard is new.
@@ -23,6 +24,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
+from mythos_api import legal
 from mythos_v2.api import create_v2_router
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -83,6 +85,20 @@ def create_app() -> FastAPI:
                 "Referrer-Policy": "no-referrer",
             },
         )
+
+    # Public, indexable policy pages (Play Console links them); rendered once from env at startup.
+    legal_pages = legal.render_all_from_env()
+
+    def _legal(page: str) -> HTMLResponse:
+        return HTMLResponse(legal_pages[page], headers={"Cache-Control": "public, max-age=300"})
+
+    @app.get("/privacy", include_in_schema=False)
+    def privacy_page() -> HTMLResponse:
+        return _legal("privacy")
+
+    @app.get("/account-deletion", include_in_schema=False)
+    def account_deletion_page() -> HTMLResponse:
+        return _legal("account-deletion")
 
     if RESOURCES_DIR.is_dir():
         app.mount("/resources", StaticFiles(directory=RESOURCES_DIR), name="resources")

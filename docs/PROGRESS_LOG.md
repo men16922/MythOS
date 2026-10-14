@@ -1,6 +1,11 @@
 # Progress Log
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
+
+## 2026-10-14 — Play submission prerequisites (owner: "잔여 작업 계속해서 수행")
+
+- Status: done, committed; not deployed. Google Play blockers found by audit and built: **account deletion** (Settings → 계정 삭제 → inline confirm → `DELETE /api/v2/account`: pending saves flushed and chained first, `delete_player` erases saves/history/daily rows in one transaction, then the Firebase user via the Identity Toolkit admin REST with the service account — `mythos-run@` lacks `firebaseauth.admin`, so production would report the record as kept until the owner grants it); **AI-line reporting** (Play AI-generated content policy: inline flags on chat replies and event/act GM cards, Settings list of this session's AI lines for the click-through IX/boss lines → `POST /gm/report` → `v2_gm_reports` (migration 015, no player id, 90-day prune) → `/admin`); **policy pages** `/privacy` + `/account-deletion` (ko/en; processors Google + Neon verified from the live service config; contact from `MYTHOS_CONTACT_EMAIL`). `docs/play-store.md`: listing text (ko/en, within limits), content-rating and Data safety answers, owner steps; `scripts/android/store_assets.py` → `outputs/play-store/` (512 icon, ko/en feature graphics, 7+7 1920×1080 screenshots of real screens).
+- Verified: `make check` green (node 274, Python 272 + 9 DB skipped), `make test-db` 27 (delete_player + reports on real Postgres), `make test-e2e-v2`, `make playthrough-quick` (118 s); headless muted UI checks — deletion confirm/cancel/offline note (desktop + phone width), report flags on act intro + event card sending the right payload and the Settings list mirroring reported state, policy pages without horizontal scroll at 390 px; graphics checked by eye. Not verified: a real signed-in deletion against Firebase (needs the owner's account and the IAM grant), the chat-reply flag in the UI (type-checked only; chat appears only after a rest-stop bond), Play Console acceptance of the answers.
 
 ## 2026-10-13 — SFX and trailer pre-review (owner: "AI 사전 검토")
 

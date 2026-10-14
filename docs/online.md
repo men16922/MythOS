@@ -37,6 +37,8 @@ else the gitignored `.firebase/web-config.json` from `make firebase-web`). CORS 
 | `PUT /daily/{date}` | identity (both modes) | body `{"name", "result": DailyResult}` → `{"rank", "total", "best", "improved"}` |
 | `GET /daily/{date}?archetype=&limit=` | public; `me` when identified | `{"date", "archetype", "total", "entries": [{"rank", "name", "result", "me"}], "me": {"rank", "name", "result"} \| null}` |
 | `GET /admin/overview?days=` | admin Google account | operator dashboard payload (see "Admin dashboard") |
+| `DELETE /account` | identity | erase the player's rows → `{"ok", "removed": {saves, history, daily}, "sign_in_record_deleted": true\|false\|null}` (see "Account deletion") |
+| `POST /gm/report` | identity | body `{route: narrate\|improvise\|talk, kind, lang, text ≤ 2000}` → `{"ok"}`; 10/min per player (`MYTHOS_V2_REPORTS_PER_MINUTE`) |
 
 `DailyResult` = `{archetype /^[a-z_]{1,32}$/, won: bool, act 1..3, floors 0..80, echoes 0..999, kills 0..999,
 secs?: 1..86400}`; strict JSON types (no `"2"`, `true` or `2.0` for an int); unknown keys ignored; violations → 422.
@@ -44,6 +46,27 @@ Submit date: today or yesterday in KST; read date: today and the 29 days before 
 `detail`. `limit` 1..50 (default 20). Names: NFC, control/format characters dropped, whitespace collapsed, at most
 16 characters, empty → `익명` (over 200 raw characters → 422). Writes are limited per player
 (`MYTHOS_V2_DAILY_PER_MINUTE`, default 10/min) → 429.
+
+## Account deletion, AI line reports, policy pages (Play policy)
+
+- **Account deletion** (Play: in-app + web): Settings → 계정 삭제 → inline confirmation → `DELETE /api/v2/account`. Pending
+  saves go out first and the DELETE is chained behind them; the server deletes `v2_saves`, `v2_run_history` and
+  `v2_daily_scores` rows in one transaction (`store.delete_player`; a test fails if a new table with `player_id` is
+  not covered), then the Firebase Auth user through the Identity Toolkit admin endpoint with the service account's own
+  credentials (`auth.FirebaseAccountDeleter`, no firebase-admin). The client then signs out; this device keeps its
+  local progress. The Cloud Run service account needs `roles/firebaseauth.admin` for the last step — without it
+  the call still erases the data and answers `sign_in_record_deleted: false` (logged as `sign-in-record-kept`; remove
+  the user in the Firebase console within 30 days, as the policy page promises).
+- **AI line reports** (Play AI-generated content policy): every model-written line is noted in memory
+  (`ui/common/aiLines.ts`); Settings → "AI 대사 신고" lists this session's lines with a flag each (the only place for the
+  click-through IX comms and boss card), and chat replies plus the event/act GM cards carry an inline flag. A flag
+  posts only the line, its source and language to `v2_gm_reports` (`migrations/015`; no player id; pruned after 90
+  days); the `/admin` dashboard lists them.
+- **Policy pages**: `/privacy` and `/account-deletion` (Korean + English, `src/mythos_api/legal/`), filled at startup
+  with `MYTHOS_CONTACT_EMAIL` (without it they point at the store listing's developer email) and
+  `MYTHOS_DEVELOPER_NAME` (default `Project Mythos`); `make deploy` passes both from `.env`. Bump
+  `legal.EFFECTIVE_DATE` when the text changes. These are the URLs for Play Console's privacy-policy and
+  account-deletion fields.
 
 ## Admin dashboard (`/admin`)
 

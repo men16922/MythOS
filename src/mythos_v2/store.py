@@ -32,10 +32,12 @@ from datetime import UTC, date, datetime, timedelta
 from typing import Any, Literal
 
 from mythos_v2.admin import (
+    MAX_GM_REPORTS,
     MAX_PLAYERS,
     MAX_RUN_ROWS,
     AdminPlayer,
     AdminRun,
+    GMReport,
     profile_summary,
     run_from_fields,
     run_summary,
@@ -48,7 +50,7 @@ SLOTS: tuple[Slot, ...] = ("profile", "run")
 
 DEFAULT_DATABASE_URL = "postgresql://mythos:mythos@localhost:5432/mythos"
 
-#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql + 013_v2_gm_usage.sql + 014_v2_gm_usage_tokens.sql (those files are
+#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql + 013_v2_gm_usage.sql + 014_v2_gm_usage_tokens.sql + 015_v2_gm_reports.sql (those files are
 #: canonical; a test asserts they match). Every statement is idempotent.
 SCHEMA_STATEMENTS: tuple[str, ...] = (
     """CREATE TABLE IF NOT EXISTS v2_saves (
@@ -107,12 +109,23 @@ END $$""",
 )""",
     "ALTER TABLE v2_gm_usage ADD COLUMN IF NOT EXISTS prompt_tokens BIGINT NOT NULL DEFAULT 0",
     "ALTER TABLE v2_gm_usage ADD COLUMN IF NOT EXISTS output_tokens BIGINT NOT NULL DEFAULT 0",
+    """CREATE TABLE IF NOT EXISTS v2_gm_reports (
+  id BIGSERIAL PRIMARY KEY,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  route TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  lang TEXT NOT NULL,
+  text TEXT NOT NULL
+)""",
+    "CREATE INDEX IF NOT EXISTS idx_v2_gm_reports_created ON v2_gm_reports(created_at DESC)",
 )
 
 #: Per-player history kept by the in-memory store (Postgres keeps everything).
 MEMORY_HISTORY_CAP = 100
 #: Days of daily boards kept by the in-memory store (older than the newest submit minus this are dropped).
 MEMORY_DAILY_DAYS = 40
+#: Flagged AI lines are kept this long (pruned on insert; the privacy policy states it).
+GM_REPORT_KEEP_DAYS = 90
 
 _logger = get_logger("mythos.v2.store")
 
@@ -175,6 +188,12 @@ class V2Store(ABC):
         """Top ``limit`` entries (best first), the board size, and ``player_id``'s own entry."""
         raise NotImplementedError
 
+    @abstractmethod
+    def delete_player(self, player_id: str) -> dict[str, int]:
+        """Erase everything stored for ``player_id`` (both save slots, run history, daily-board rows) in one
+        go. Returns the rows removed per table. ``v2_gm_usage`` holds no player ids, so it is untouched."""
+        raise NotImplementedError
+
     # --- operator dashboard (read-only; see ``admin.build_overview``) -------------------------------------
 
     @abstractmethod
@@ -205,6 +224,16 @@ class V2Store(ABC):
         """(day, route, outcome, calls, prompt_tokens, output_tokens) rows for days ``>= since``."""
         raise NotImplementedError
 
+    @abstractmethod
+    def record_gm_report(self, route: str, kind: str, lang: str, text: str) -> None:
+        """Keep one flagged AI line; drop flags older than ``GM_REPORT_KEEP_DAYS``."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def admin_gm_reports(self, since: datetime, limit: int = MAX_GM_REPORTS) -> list[GMReport]:
+        """Flagged AI lines at or after ``since``, newest first."""
+        raise NotImplementedError
+
     def close(self) -> None:  # noqa: B027 - optional hook, default no-op
         """Release resources (pool); no-op for the memory store."""
 
@@ -217,6 +246,7 @@ class MemoryV2Store(V2Store):
         self._saves: dict[tuple[str, str], SaveBlob] = {}
         self._first_saved: dict[tuple[str, str], datetime] = {}
         self._gm_usage: dict[tuple[date, str, str], tuple[int, int, int]] = {}
+        self._gm_reports: list[GMReport] = []
         # record id -> (player_id, created_at, data)
         self._history: dict[tuple[str, str], tuple[datetime, dict[str, Any]]] = {}
         # (day, archetype) -> player_id -> best entry
@@ -246,6 +276,21 @@ class MemoryV2Store(V2Store):
     def delete_save(self, player_id: str, slot: Slot) -> bool:
         with self._lock:
             return self._saves.pop((player_id, slot), None) is not None
+
+    def delete_player(self, player_id: str) -> dict[str, int]:
+        with self._lock:
+            saves = [key for key in self._saves if key[0] == player_id]
+            for key in saves:
+                del self._saves[key]
+                self._first_saved.pop(key, None)
+            history = [key for key in self._history if key[0] == player_id]
+            for key in history:
+                del self._history[key]
+            daily_rows = 0
+            for board in self._daily.values():
+                if board.pop(player_id, None) is not None:
+                    daily_rows += 1
+        return {"saves": len(saves), "history": len(history), "daily": daily_rows}
 
     def append_history(self, player_id: str, record_id: str, data: dict[str, Any]) -> None:
         with self._lock:
@@ -362,6 +407,19 @@ class MemoryV2Store(V2Store):
                 (d, r, o, n, p, t) for (d, r, o), (n, p, t) in self._gm_usage.items() if d >= since
             ]
 
+    def record_gm_report(self, route: str, kind: str, lang: str, text: str) -> None:
+        now = utc_now()
+        cutoff = now - timedelta(days=GM_REPORT_KEEP_DAYS)
+        with self._lock:
+            self._gm_reports = [r for r in self._gm_reports if r.created_at >= cutoff]
+            self._gm_reports.append(GMReport(now, route, kind, lang, text))
+
+    def admin_gm_reports(self, since: datetime, limit: int = MAX_GM_REPORTS) -> list[GMReport]:
+        with self._lock:
+            rows = [r for r in self._gm_reports if r.created_at >= since]
+        rows.sort(key=lambda r: r.created_at, reverse=True)
+        return rows[: max(0, limit)]
+
     def admin_daily(self, since: date) -> list[tuple[date, DailyEntry]]:
         with self._lock:
             return [
@@ -465,6 +523,22 @@ class PostgresV2Store(V2Store):
                 (player_id, slot),
             )
             return bool(cursor.rowcount)
+
+    def delete_player(self, player_id: str) -> dict[str, int]:
+        # One transaction: either every table forgets the player or none does.
+        with self._conn() as conn:
+            counts = {
+                name: conn.execute(
+                    f"DELETE FROM {table} WHERE player_id = %s",  # fixed table names below
+                    (player_id,),
+                ).rowcount
+                for name, table in (
+                    ("saves", "v2_saves"),
+                    ("history", "v2_run_history"),
+                    ("daily", "v2_daily_scores"),
+                )
+            }
+        return {name: max(0, int(count)) for name, count in counts.items()}
 
     def append_history(self, player_id: str, record_id: str, data: dict[str, Any]) -> None:
         from psycopg.types.json import Jsonb
@@ -727,6 +801,33 @@ class PostgresV2Store(V2Store):
                 int(r["calls"]),
                 int(r["prompt_tokens"]),
                 int(r["output_tokens"]),
+            )
+            for r in rows
+        ]
+
+    def record_gm_report(self, route: str, kind: str, lang: str, text: str) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                "INSERT INTO v2_gm_reports (route, kind, lang, text) VALUES (%s, %s, %s, %s)",
+                (route, kind, lang, text),
+            )
+            conn.execute(
+                "DELETE FROM v2_gm_reports WHERE created_at < now() - make_interval(days => %s)",
+                (GM_REPORT_KEEP_DAYS,),
+            )
+
+    def admin_gm_reports(self, since: datetime, limit: int = MAX_GM_REPORTS) -> list[GMReport]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT created_at, route, kind, lang, text FROM v2_gm_reports
+                WHERE created_at >= %s ORDER BY created_at DESC LIMIT %s
+                """,
+                (since, max(0, limit)),
+            ).fetchall()
+        return [
+            GMReport(
+                r["created_at"], str(r["route"]), str(r["kind"]), str(r["lang"]), str(r["text"])
             )
             for r in rows
         ]

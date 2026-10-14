@@ -274,6 +274,7 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
           pending={gmWait === ev.id}
           lang={lang}
           fast={settings.fastAnim}
+          report={{ route: 'narrate', kind: 'event' }}
         />
       </div>
 

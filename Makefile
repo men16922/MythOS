@@ -317,6 +317,10 @@ deploy:
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
 	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
 	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
+	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME; do \
+		VAL=$$(grep -E "^$$KEY=" .env | cut -d= -f2- | tr -d '"'); \
+		test -z "$$VAL" || AUTH_ENV="$$AUTH_ENV@@$$KEY=$$VAL"; \
+	done; \
 	echo "Deploying mythos-api (2.0) to project [$$PROJECT_ID] region [$(REGION)] (env-preserving, MYTHOS_AUTH=google)…"; \
 	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --update-labels "git-sha=$$(git rev-parse --short HEAD)$$(git diff --quiet HEAD -- || echo -dirty)" --quiet
 
@@ -330,6 +334,10 @@ deploy-preview:
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
 	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
 	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
+	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME; do \
+		VAL=$$(grep -E "^$$KEY=" .env | cut -d= -f2- | tr -d '"'); \
+		test -z "$$VAL" || AUTH_ENV="$$AUTH_ENV@@$$KEY=$$VAL"; \
+	done; \
 	echo "Deploying a NO-TRAFFIC preview revision (tag v2-preview) of mythos-api to [$$PROJECT_ID] [$(REGION)] (MYTHOS_AUTH=google)…"; \
 	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --update-labels "git-sha=$$(git rev-parse --short HEAD)$$(git diff --quiet HEAD -- || echo -dirty)" --no-traffic --tag v2-preview --quiet
 

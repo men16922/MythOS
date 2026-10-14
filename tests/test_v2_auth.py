@@ -22,12 +22,15 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
 
 from mythos_v2.auth import (
+    ACCOUNTS_DELETE_URL,
     GOOGLE_PLAYER_ID_RE,
     AuthConfig,
     CertsUnavailableError,
+    FirebaseAccountDeleter,
     FirebaseTokenVerifier,
     TokenError,
     bearer_token,
+    build_account_deleter,
     cache_max_age,
     load_web_config,
     parse_auth_mode,
@@ -339,6 +342,47 @@ class HelpersTest(unittest.TestCase):
         self.assertEqual((cfg.mode, cfg.project_id), ("google", "fb-proj"))
         with mock.patch.dict(os.environ, {**env, "MYTHOS_FIREBASE_PROJECT": ""}):
             self.assertEqual(AuthConfig.from_env().project_id, "gcp")
+
+
+class AccountDeleterTest(unittest.TestCase):
+    def make(self, status: int, text: str = "{}") -> tuple[FirebaseAccountDeleter, list[Any]]:
+        calls: list[Any] = []
+
+        def post(url: str, token: str, body: dict[str, str]) -> tuple[int, str]:
+            calls.append((url, token, body))
+            return status, text
+
+        return FirebaseAccountDeleter(PROJECT, access_token=lambda: "tok", post=post), calls
+
+    def test_posts_the_uid_to_the_admin_endpoint(self) -> None:
+        deleter, calls = self.make(200)
+        self.assertTrue(deleter.delete_user(UID))
+        self.assertEqual(
+            calls, [(ACCOUNTS_DELETE_URL.format(project=PROJECT), "tok", {"localId": UID})]
+        )
+
+    def test_an_already_missing_user_counts_as_deleted(self) -> None:
+        deleter, _ = self.make(400, '{"error": {"message": "USER_NOT_FOUND"}}')
+        self.assertTrue(deleter.delete_user(UID))
+
+    def test_failures_return_false_and_log_no_uid(self) -> None:
+        for status in (403, 500):
+            deleter, _ = self.make(status, "PERMISSION_DENIED")
+            with self.assertLogs("mythos", level=logging.WARNING) as logs:
+                self.assertFalse(deleter.delete_user(UID))
+            self.assertNotIn(UID, "\n".join(f"{r.getMessage()} {r.__dict__}" for r in logs.records))
+
+        def no_credentials() -> str:
+            raise RuntimeError(f"no ADC for {UID}")
+
+        broken = FirebaseAccountDeleter(PROJECT, access_token=no_credentials)
+        with self.assertLogs("mythos", level=logging.WARNING) as logs:
+            self.assertFalse(broken.delete_user(UID))
+        self.assertNotIn(UID, "\n".join(r.getMessage() for r in logs.records))
+
+    def test_no_project_means_no_record(self) -> None:
+        self.assertFalse(build_account_deleter(None).delete_user(UID))
+        self.assertIsInstance(build_account_deleter(PROJECT), FirebaseAccountDeleter)
 
 
 class NoPersonalDataInLogsTest(unittest.TestCase):

@@ -174,9 +174,8 @@ No signing key exists in the repo or on the build machine. These steps are the o
    `KEYSTORE=~/keys/mythos-upload.jks KEY_ALIAS=upload STOREPASS_FILE=<file> make firebase-sha`.
 4. **Play Console** (owner account, one-time US$25 registration): create the app with the package id above, turn on
    **Play App Signing** (Google holds the app signing key and your keystore is only the upload key), then upload the AAB to
-   Internal testing first. Play needs a privacy policy URL, the Data safety form (crash data through Crashlytics,
-   the Google account (Firebase Auth: account id, email, name), gameplay saves, the AI GM text and the daily
-   leaderboard name through the API, and the FCM topic subscription) and a content rating. Register the upload and
+   Internal testing first. The listing text, Data safety and content-rating answers, the privacy-policy and
+   account-deletion URLs and the graphics are prepared in `docs/play-store.md`. Register the upload and
    app-signing keys' SHA-1 for Google sign-in first (see [Google sign-in](#google-sign-in)).
 5. **Size.** The AAB base module must stay under Play's 200 MB compressed download limit. Today it is about 125 MB
    (art and music are already webp/m4a). If it grows, move the art into a Play Asset Delivery install-time pack.

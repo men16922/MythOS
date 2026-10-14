@@ -486,3 +486,15 @@
     transform: translateX(-10px);
   }
 }
+
+/* GmCard: the inline AI-line report flag sits at the end of the label row */
+.m2-gmcard__report {
+  margin-left: auto;
+  font-family: var(--m2-body, inherit);
+  letter-spacing: normal;
+  text-transform: none;
+}
+.m2-chat__report {
+  float: right;
+  margin: 2px -6px -4px 6px;
+}

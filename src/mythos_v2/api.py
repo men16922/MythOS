@@ -16,9 +16,12 @@ Routes
   GET/PUT /profile                 MetaProfile JSON blob
   GET/PUT/DELETE /run              RunState JSON blob
   POST /history, GET /history      finished-run records (RunRecord)
+  DELETE /account                  erase the player's saves, history and daily rows (+ the Firebase sign-in
+                                   record when signed in) → {ok, removed, sign_in_record_deleted}
   POST /gm/narrate                 {kind, lang, context} → {text, source}
   POST /gm/improvise               {lang, event, action, stats, act} → Improvisation + source
   POST /gm/talk                    {mode: companion|ix, lang, …} → {text, source}
+  POST /gm/report                  {route, kind, lang, text} → {ok}: flag an offensive AI line (no player id kept)
   PUT  /daily/{date}               {name, result} → {rank, total, best, improved}  (identity required)
   GET  /daily/{date}?archetype=&limit=   public board; ``me`` when the caller is identified
   GET  /admin/overview?days=       operator dashboard data (the ``/admin`` page); admin Google accounts only
@@ -62,12 +65,14 @@ from mythos_v2.log import get_logger
 from . import admin, daily, gm, talk
 from .auth import (
     GOOGLE_PLAYER_PREFIX,
+    AccountDeleter,
     AuthConfig,
     CertsUnavailableError,
     Identity,
     TokenError,
     TokenVerifier,
     bearer_token,
+    build_account_deleter,
     build_verifier,
     player_id_for_uid,
 )
@@ -128,6 +133,7 @@ class V2Settings:
     writes_per_minute: int = 120
     daily_per_minute: int = 10
     admin_per_minute: int = 30
+    reports_per_minute: int = 10
     gm_concurrency: int = 4
     #: USD per million (prompt, output) tokens for the dashboard's cost estimate; None = show tokens only.
     gm_price: tuple[float, float] | None = None
@@ -145,6 +151,7 @@ class V2Settings:
             writes_per_minute=_env_int("MYTHOS_V2_WRITES_PER_MINUTE", 120),
             daily_per_minute=_env_int("MYTHOS_V2_DAILY_PER_MINUTE", 10),
             admin_per_minute=_env_int("MYTHOS_V2_ADMIN_PER_MINUTE", 30),
+            reports_per_minute=_env_int("MYTHOS_V2_REPORTS_PER_MINUTE", 10),
             gm_concurrency=max(1, _env_int("MYTHOS_V2_GM_CONCURRENCY", 4)),
             gm_price=_env_price(),
         )
@@ -215,6 +222,17 @@ class DailyResultBody(BaseModel):
             kills=self.kills,
             secs=self.secs,
         )
+
+
+class ReportBody(BaseModel):
+    """A player flags an AI line as offensive. Only the line itself is kept, never who sent it."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    route: Literal["narrate", "improvise", "talk"]
+    kind: str = Field(pattern=r"^[a-z][a-z0-9_:-]{0,39}$")
+    lang: Literal["ko", "en"]
+    text: str = Field(min_length=1, max_length=2000)
 
 
 class DailySubmitBody(BaseModel):
@@ -362,13 +380,15 @@ def create_v2_router(
     auth: AuthConfig | None = None,
     verifier: TokenVerifier | None = None,
     now: Callable[[], datetime] | None = None,
+    account_deleter: AccountDeleter | None = None,
 ) -> APIRouter:
     """Build the ``/api/v2`` router. Defaults read the environment; tests inject
     ``store_factory=MemoryV2Store``, a fake ``llm_factory``, an ``AuthConfig``, a token ``verifier``
-    and a ``now`` clock (for the KST date windows)."""
+    a ``now`` clock (for the KST date windows) and an ``account_deleter`` (Firebase user removal)."""
     cfg = settings or V2Settings.from_env()
     auth_cfg = auth or AuthConfig.from_env()
     token_verifier = verifier or build_verifier(auth_cfg.project_id)
+    deleter = account_deleter or build_account_deleter(auth_cfg.project_id)
     clock = now or (lambda: datetime.now(UTC))
     holder = StoreHolder(store_factory)
     runner = _GMRunner(llm_factory or build_text_llm, cfg.gm_concurrency)
@@ -376,6 +396,7 @@ def create_v2_router(
     write_limiter = RateLimiter(cfg.writes_per_minute)
     daily_limiter = RateLimiter(cfg.daily_per_minute)
     admin_limiter = RateLimiter(cfg.admin_per_minute)
+    report_limiter = RateLimiter(cfg.reports_per_minute)
     gm_stats = admin.GMStats(clock())
 
     @asynccontextmanager
@@ -388,6 +409,11 @@ def create_v2_router(
 
     async def signed_in_player(request: Request) -> str | None:
         """The player of a verified Bearer token; None without one; 401 for a token that fails."""
+        uid = await signed_in_uid(request)
+        return None if uid is None else player_id_for_uid(uid)
+
+    async def signed_in_uid(request: Request) -> str | None:
+        """The Firebase uid of a verified Bearer token; None without one; 401 for a token that fails."""
         token = bearer_token(request.headers.get("authorization"))
         if token is None:
             return None
@@ -398,7 +424,7 @@ def create_v2_router(
             raise _unauthorized() from None
         except CertsUnavailableError:
             raise HTTPException(status_code=503, detail="sign-in check unavailable") from None
-        return player_id_for_uid(uid)
+        return uid
 
     async def require_player(
         request: Request,
@@ -560,6 +586,38 @@ def create_v2_router(
         records = await store_call(lambda s: s.list_history(player_id, limit))
         return {"records": records}
 
+    # --- account deletion (Play policy: in-app + web) -------------------------------------------------
+
+    @router.delete("/account")
+    async def v2_delete_account(
+        request: Request,
+        x_player_id: Annotated[str | None, Header()] = None,
+    ) -> dict[str, Any]:
+        """Erase everything the server keeps for the caller: both save slots, run history and daily-board rows,
+        then (signed in) the Firebase sign-in record with the Google email/name/photo. The data rows go first,
+        so a failed record removal never leaves game data behind; ``sign_in_record_deleted`` is false then and
+        a repeat call retries it. Nothing about the player is logged."""
+        uid = await signed_in_uid(request)
+        if uid is not None:
+            player_id = player_id_for_uid(uid)
+        elif auth_cfg.mode == "google":
+            raise _unauthorized()
+        else:
+            client_id = _client_player_id(x_player_id)
+            if client_id is None:
+                raise HTTPException(status_code=400, detail="missing or invalid X-Player-Id")
+            player_id = client_id
+        check_write_rate(player_id)
+        removed = await store_call(lambda s: s.delete_player(player_id))
+        record_deleted: bool | None = None
+        if uid is not None:
+            record_deleted = await run_in_threadpool(deleter.delete_user, uid)
+        _logger.info(
+            "v2 account deleted",
+            extra={"outcome": "ok" if record_deleted is not False else "sign-in-record-kept"},
+        )
+        return {"ok": True, "removed": removed, "sign_in_record_deleted": record_deleted}
+
     # --- daily-seed leaderboard ----------------------------------------------------------------------
 
     def board_day(day_key: str, window_days: int) -> date:
@@ -624,16 +682,17 @@ def create_v2_router(
         first_day = daily.today_kst(moment) - timedelta(days=days - 1)
         since = datetime.combine(first_day, dtime.min, tzinfo=daily.KST)
 
-        def _load(s: V2Store) -> tuple[Any, Any, Any, Any, str]:
+        def _load(s: V2Store) -> tuple[Any, Any, Any, Any, Any, str]:
             return (
                 s.admin_players(),
                 s.admin_runs(since),
                 s.admin_daily(first_day),
                 s.admin_gm_usage(first_day),
+                s.admin_gm_reports(since),
                 s.kind,
             )
 
-        players, runs, daily_rows, gm_usage, store_kind = await store_call(_load)
+        players, runs, daily_rows, gm_usage, reports, store_kind = await store_call(_load)
         server = {
             "auth": auth_cfg.mode,
             "store": store_kind,
@@ -649,6 +708,7 @@ def create_v2_router(
             days=days,
             server=server,
             gm_price=cfg.gm_price,
+            gm_reports=reports,
         )
 
     # --- AI GM -------------------------------------------------------------------
@@ -831,6 +891,18 @@ def create_v2_router(
         if text is not None:
             return text, "llm", outcome
         return talk.fallback_ix(trigger, body.lang, context), "fallback", outcome
+
+    @router.post("/gm/report", dependencies=[Depends(limit_gm_body)])
+    async def v2_gm_report(body: ReportBody, player_id: player_dep) -> dict[str, Any]:
+        """Keep a flagged AI line for the operator (``/admin``). The player id only feeds the rate limit."""
+        if not report_limiter.allow(player_id):
+            raise HTTPException(status_code=429, detail="too many reports")
+        text = body.text.strip()
+        if not text:
+            raise HTTPException(status_code=422, detail="text is required")
+        await store_call(lambda s: s.record_gm_report(body.route, body.kind, body.lang, text))
+        _logger.info("v2 gm report", extra={"status": f"{body.route}:{body.kind}"})
+        return {"ok": True}
 
     @router.post("/gm/talk", dependencies=[Depends(limit_gm_body)])
     async def v2_gm_talk(body: TalkBody, player_id: player_dep) -> dict[str, Any]:

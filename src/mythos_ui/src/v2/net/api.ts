@@ -616,6 +616,42 @@ export function clearRun(): Promise<boolean> {
   return deleteRunRemote()
 }
 
+// ---------------------------------------------------------------- account deletion
+
+export type DeleteAccountResult = { kind: 'deleted'; signInRecordDeleted: boolean | null } | { kind: 'offline' } | { kind: 'failed' }
+
+/**
+ * Erase this player's cloud data (`DELETE /account`): both save slots, run history, daily-board rows and, when signed
+ * in, the sign-in record. Debounced saves go out first and the DELETE is chained behind both slots' writes, so no
+ * earlier PUT can land after it. On success the unsent history queue and pending saves are dropped (they belong to the
+ * erased account); the local mirror stays, so this device keeps playing offline as it does after a sign-out.
+ */
+export async function deleteAccount(): Promise<DeleteAccountResult> {
+  await flushSaves()
+  let res: SendResult = { kind: 'skipped' }
+  const run = async (): Promise<void> => {
+    res = await apiSend('DELETE', '/account', { timeoutMs: TIMEOUT_MS.save })
+  }
+  const next = Promise.all([chain.profile, chain.run]).then(run, run)
+  chain.profile = next
+  chain.run = next
+  await next
+  const done = res as SendResult
+  // `skipped`: signed in but no token can be had right now (offline token refresh) — nothing was sent.
+  if (done.kind === 'network' || done.kind === 'skipped') return { kind: 'offline' }
+  if (done.kind !== 'http' || done.status < 200 || done.status >= 300) return { kind: 'failed' }
+  for (const slot of ['profile', 'run'] as const) {
+    const entry = pending[slot]
+    if (entry?.timer) clearTimeout(entry.timer)
+    pending[slot] = null
+    for (const resolve of entry?.waiters ?? []) resolve(false)
+    storageRemove(SYNCED_KEY[slot])
+  }
+  storageRemove(PENDING_HISTORY_KEY)
+  const flag = isRecord(done.body) ? done.body.sign_in_record_deleted : undefined
+  return { kind: 'deleted', signInRecordDeleted: typeof flag === 'boolean' ? flag : null }
+}
+
 // ---------------------------------------------------------------- run history
 
 function readPendingHistory(): RunRecord[] {
@@ -836,6 +872,30 @@ export async function talk(req: TalkRequest, opts: { signal?: AbortSignal; timeo
   })
   if (!isRecord(res) || typeof res.text !== 'string' || !res.text.trim()) return null
   return { text: res.text, source: res.source === 'llm' ? 'llm' : 'fallback' }
+}
+
+// ---------------------------------------------------------------- AI line reports
+
+export type ReportRoute = 'narrate' | 'improvise' | 'talk'
+export interface AiLineReport {
+  route: ReportRoute
+  /** What produced it: 'event', 'boss', 'companion:se_rin', 'ix:boss_start', … (`^[a-z][a-z0-9_:-]{0,39}$`). */
+  kind: string
+  lang: Lang
+  text: string
+}
+
+/** Flag an AI-written line as offensive (Google Play AI-generated content policy). Only the line is sent on; the server
+ *  keeps no player id with it. True when the server took it. */
+export async function reportAiLine(report: AiLineReport): Promise<boolean> {
+  const text = report.text.trim().slice(0, 2000)
+  const kind = report.kind.toLowerCase().replace(/[^a-z0-9_:-]/g, '_').slice(0, 40)
+  if (!text || !/^[a-z]/.test(kind)) return false
+  const res = await request<{ ok?: boolean }>('POST', '/gm/report', {
+    body: JSON.stringify({ route: report.route, kind, lang: report.lang, text }),
+    timeoutMs: TIMEOUT_MS.save,
+  })
+  return res?.ok === true
 }
 
 // ---------------------------------------------------------------- lifecycle

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { Lang, MetaProfile } from '../../engine/types.ts'
 import { pushControl } from '../common/nativeBridge.ts'
 import { AccountSection } from './AccountControl.tsx'
+import { AiLinesSection } from './AiLinesSection.tsx'
 import { Modal } from './Modal.tsx'
 
 type Settings = MetaProfile['settings']
@@ -129,6 +130,7 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
           onClick={() => onChange({ ...settings, fastAnim: !settings.fastAnim })}
         />
         <AccountSection lang={lang} />
+        <AiLinesSection lang={lang} />
         {APP_BUILD && <DailyPushToggle lang={lang} />}
         {APP_BUILD && <CrashReportsToggle ko={ko} />}
       </div>

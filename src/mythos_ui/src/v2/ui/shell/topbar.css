@@ -280,3 +280,17 @@
     text-shadow: none;
   }
 }
+/* Party line-up button: sits right after the deployed portraits; "+N" = companions on the bench. */
+.m2-topbar__partybtn {
+  position: relative;
+  flex: none;
+  width: auto;
+  min-width: 32px;
+  height: 32px;
+  gap: 3px;
+  padding: 0 7px;
+}
+.m2-topbar__benchn {
+  color: var(--m2-amber);
+  font-size: 11px;
+}

@@ -156,6 +156,30 @@ class PromptTest(unittest.TestCase):
         self.assertIn("접속자: <<오늘 어땠어?>>", user)
         self.assertTrue(user.rstrip().endswith("(1~3문장, 대사만):"))
 
+    def test_ix_prompt_carries_loop_memory_only_when_sent(self) -> None:
+        memory = [
+            "지난 루프들에서 이 해태에게 세 번 쓰러졌다",
+            "지난 접속: 유령 신호로 접속해 C-17 블랙아웃에서 해태에게 쓰러졌다",
+        ]
+        _, user = talk.ix_messages("boss_start", "ko", {"boss": "해태", "memory": memory})
+        self.assertIn(
+            "IX의 기록(지난 루프, 사실): 지난 루프들에서 이 해태에게 세 번 쓰러졌다 / 지난 접속",
+            user,
+        )
+        self.assertIn("지어내지 않는다", user)
+        self.assertIn("새로 세거나 더하지 않는다", user)
+        _, plain = talk.ix_messages("boss_start", "ko", {"boss": "해태"})
+        self.assertNotIn("IX의 기록", plain)
+        _, en = talk.ix_messages(
+            "elite_start",
+            "en",
+            {"enemy": "Incinerator", "memory": ["Earlier loops ended at this Incinerator twice"]},
+        )
+        self.assertIn(
+            "IX's record (earlier loops, true): Earlier loops ended at this Incinerator twice", en
+        )
+        self.assertIn("Never invent any other past", en)
+
     def test_english_prompt_and_android_persona(self) -> None:
         system, user = talk.companion_messages("kai", "en", {"bond": 1}, [], "How are you?")
         self.assertIn("You are Kai", system)

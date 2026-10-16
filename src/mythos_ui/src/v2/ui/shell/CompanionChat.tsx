@@ -13,6 +13,7 @@ import { ReportLine } from '../components/ReportLine.tsx'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { companionReply } from './gm.ts'
+import { rx } from './rx.ts'
 import './voices.css'
 
 interface Msg {
@@ -36,7 +37,7 @@ interface Props {
 export function CompanionChat({ run, C, lang, settings, companionId, opening }: Props) {
   const ko = lang === 'ko'
   const def = C.companions[companionId]
-  const member = run.party.find((m) => m.id === companionId)
+  const member = rx.roster(run).find((m) => m.id === companionId)
   const [msgs, setMsgs] = useState<Msg[]>(() => [{ id: 0, role: 'companion', text: opening }])
   const [draft, setDraft] = useState('')
   const [waiting, setWaiting] = useState(false)

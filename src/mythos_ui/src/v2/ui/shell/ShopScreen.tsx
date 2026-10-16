@@ -35,7 +35,8 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
   // numbers shown are exactly what the purchase does — no duplicated constants.
   const rich = { ...run, credits: Number.MAX_SAFE_INTEGER }
   const healed = rx.shopHeal(rich, C)
-  const healGain = healed === rich ? 0 : healed.hp - run.hp + healed.party.reduce((sum, m, i) => sum + m.hp - (run.party[i]?.hp ?? m.hp), 0)
+  const crewBefore = rx.roster(run)
+  const healGain = healed === rich ? 0 : healed.hp - run.hp + rx.roster(healed).reduce((sum, m) => sum + m.hp - (crewBefore.find((b) => b.id === m.id)?.hp ?? m.hp), 0)
   const scrubbed = rx.shopScrub(rich, C)
   const scrubDrop = scrubbed === rich ? 0 : run.trace - scrubbed.trace
 

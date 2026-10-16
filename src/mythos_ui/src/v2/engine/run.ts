@@ -50,6 +50,7 @@ import type {
   Improvisation,
   MapNode,
   MetaProfile,
+  PartyMember,
   NodeKind,
   Outcome,
   RewardState,
@@ -116,6 +117,11 @@ const IMPLANT_PRICE: Record<ImplantRarity, [number, number]> = {
 const t = (ko: string, en: string): Text => ({ ko, en })
 const clamp = (min: number, max: number, v: number): number => Math.min(max, Math.max(min, v))
 const clone = <T>(x: T): T => structuredClone(x)
+
+/** Every recruited companion: deployed first, then the bench. */
+export function roster(run: Pick<RunState, 'party' | 'bench'>): PartyMember[] {
+  return [...run.party, ...(run.bench ?? [])]
+}
 const nowIso = (): string => new Date().toISOString()
 
 type ScreenOf<K extends RunScreen['kind']> = Extract<RunScreen, { kind: K }>
@@ -178,12 +184,12 @@ function healConnector(run: RunState, amount: number): void {
 
 function healParty(run: RunState, amount: number): void {
   healConnector(run, amount)
-  for (const m of run.party) m.hp = clamp(1, m.maxHp, m.hp + Math.max(0, amount))
+  for (const m of roster(run)) m.hp = clamp(1, m.maxHp, m.hp + Math.max(0, amount))
 }
 
 function healPartyPct(run: RunState, pct: number): void {
   run.hp = clamp(1, run.maxHp, run.hp + Math.round((run.maxHp * pct) / 100))
-  for (const m of run.party) m.hp = clamp(1, m.maxHp, m.hp + Math.round((m.maxHp * pct) / 100))
+  for (const m of roster(run)) m.hp = clamp(1, m.maxHp, m.hp + Math.round((m.maxHp * pct) / 100))
 }
 
 function addStat(stats: Stats, key: StatKey, amount: number): void {
@@ -238,10 +244,13 @@ function gainConsumable(run: RunState, id: string, C: ContentRegistry): boolean 
 
 function joinCompanion(run: RunState, id: string, C: ContentRegistry): boolean {
   const def = C.companions[id]
-  if (!def || run.party.length >= MAX_PARTY || run.party.some((m) => m.id === id)) return false
+  if (!def || roster(run).some((m) => m.id === id)) return false
   const tier = run.mastery?.[id] ?? 0
   // Mastery II: you already know each other — start at bond 1 (the bond card is one safehouse closer).
-  run.party.push({ id, hp: def.maxHp, maxHp: def.maxHp, bond: tier >= 2 ? 1 : 0 })
+  const member: PartyMember = { id, hp: def.maxHp, maxHp: def.maxHp, bond: tier >= 2 ? 1 : 0 }
+  // A full party sends the newcomer to the bench; the player swaps on the map.
+  if (run.party.length < MAX_PARTY) run.party.push(member)
+  else (run.bench ??= []).push(member)
   for (const card of def.cards) addCard(run, card, C)
   applyConcretePassive(run, def.passive)
   // Mastery I: their signature card starts upgraded (what bond 3 would otherwise earn).
@@ -254,7 +263,7 @@ function joinCompanion(run: RunState, id: string, C: ContentRegistry): boolean {
 
 /** Raise a companion's bond; level 2 adds their bond card, level 3 upgrades their signature card. */
 function raiseBond(run: RunState, id: string, amount: number, C: ContentRegistry): boolean {
-  const m = run.party.find((p) => p.id === id)
+  const m = roster(run).find((p) => p.id === id)
   const def = C.companions[id]
   if (!m || !def) return false
   const before = m.bond
@@ -362,7 +371,7 @@ export function conditionMet(run: RunState, cond: Condition | undefined, C: Cont
     const n = name(id)
     return fail(`${n.ko} 동행 필요`, `Requires ${n.en}`)
   }
-  if (cond.noCompanion && run.party.some((m) => m.id === cond.noCompanion)) {
+  if (cond.noCompanion && roster(run).some((m) => m.id === cond.noCompanion)) {
     const n = name(cond.noCompanion)
     return fail(`${n.ko} 동행 중 불가`, `Not with ${n.en}`)
   }
@@ -783,7 +792,7 @@ function advanceAct(run: RunState, C: ContentRegistry): void {
   run.map = generateActMap(run.act, run, C, { paradox: run.paradox, exclude: run.seenEvents })
   run.nodeId = null
   run.hp = clamp(1, run.maxHp, run.hp + Math.ceil((run.maxHp - run.hp) / 2))
-  for (const m of run.party) m.hp = clamp(1, m.maxHp, m.hp + Math.ceil((m.maxHp - m.hp) / 2))
+  for (const m of roster(run)) m.hp = clamp(1, m.maxHp, m.hp + Math.ceil((m.maxHp - m.hp) / 2))
   log(run, 'start', C.acts[run.act]?.name ?? t(`${run.act}막`, `Act ${run.act}`))
   run.screen = { kind: 'act_intro' }
 }
@@ -815,8 +824,7 @@ export interface EventOptionView {
 
 /** Companions the Act 2 recruit event offers (≤ 2, deterministic per run + act). */
 export function recruitCandidates(run: RunState, C: ContentRegistry): string[] {
-  if (run.party.length >= MAX_PARTY) return []
-  const pool = run.pools.companions.filter((id) => C.companions[id] && !run.party.some((m) => m.id === id))
+  const pool = run.pools.companions.filter((id) => C.companions[id] && !roster(run).some((m) => m.id === id))
   return sample({ rng: hashSeed(`${run.seed}:recruit:${run.act}`) }, pool, 2)
 }
 
@@ -826,9 +834,18 @@ function recruitOption(id: string, C: ContentRegistry): EventOption | null {
   return {
     label: t(`${d.name.ko} 영입`, `Recruit ${d.name.en}`),
     hint: t(`${d.role.ko} · ${d.passiveText.ko}`, `${d.role.en} · ${d.passiveText.en}`),
-    requires: { partySizeAtMost: MAX_PARTY - 1 },
     success: { text: d.bondLines[0] ?? d.alias, effects: [{ kind: 'companion', id }] },
   }
+}
+
+/** The recruit scene's decline when both slots are already filled: no "go alone" bonus, nobody joins. */
+const KEEP_LINEUP: EventOption = {
+  label: t('지금 인원으로 간다', 'Go with who you have'),
+  hint: t('새 동료 없음', 'No one new'),
+  success: {
+    text: t('“자리가 없어.” 기다리던 사람들이 고개를 끄덕이고 어둠 속으로 흩어진다.', '“We’re full.” The ones who waited nod and scatter back into the dark.'),
+    effects: [],
+  },
 }
 
 function optionList(run: RunState, def: EventDef, C: ContentRegistry): EventOption[] {
@@ -836,7 +853,8 @@ function optionList(run: RunState, def: EventDef, C: ContentRegistry): EventOpti
   const extra = recruitCandidates(run, C)
     .map((id) => recruitOption(id, C))
     .filter((o): o is EventOption => o !== null)
-  return [...def.options, ...extra]
+  // A full party is not "alone": the authored go-alone bonus only applies with a free slot.
+  return [...(run.party.length >= MAX_PARTY ? [KEEP_LINEUP] : def.options), ...extra]
 }
 
 export function eventOptions(run: RunState, C: ContentRegistry): EventOptionView[] {
@@ -1236,6 +1254,25 @@ export const leaveRest: SimpleReducer = (run) =>
   onScreen(run, 'rest', (next) => {
     next.screen = { kind: 'map' }
   })
+
+// ---------------------------------------------------------------- party (deployment)
+
+/**
+ * Choose who is deployed (on the map only): `ids` are recruited companions, at most MAX_PARTY, in slot order;
+ * everyone else goes to the bench. HP and bond travel with each companion. Rejected (run unchanged) for an
+ * unknown, duplicate or over-full list.
+ */
+export function setDeployment(run: RunState, ids: readonly string[]): RunState {
+  const all = roster(run)
+  if (ids.length > MAX_PARTY || new Set(ids).size !== ids.length || ids.some((id) => !all.some((m) => m.id === id))) return run
+  return onScreen(run, 'map', (next) => {
+    const crew = roster(next)
+    const same = next.party.length === ids.length && next.party.every((m, i) => m.id === ids[i])
+    if (same) return false
+    next.party = ids.map((id) => crew.find((m) => m.id === id) as PartyMember)
+    next.bench = crew.filter((m) => !ids.includes(m.id))
+  })
+}
 
 // ---------------------------------------------------------------- treasure
 

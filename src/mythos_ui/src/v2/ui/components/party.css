@@ -1,0 +1,111 @@
+/* PartyModal.tsx: deployed / bench line-up. Deployed cards carry the cyan edge; the bench is quieter. */
+.m2-party__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.m2-party__note {
+  margin: 0 0 12px;
+  color: var(--m2-mute);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.m2-party__label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 14px 0 8px;
+  color: var(--m2-ink-2);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.m2-party__label .m2-mono {
+  color: var(--m2-mute);
+}
+.m2-party__empty {
+  margin: 0;
+  color: var(--m2-mute);
+  font-size: 13px;
+}
+.m2-party__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.m2-partycard {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 10px;
+  border: 1px solid var(--m2-line-2);
+  border-left-width: 3px;
+  background: rgba(4, 12, 14, 0.55);
+}
+.m2-partycard.is-deployed {
+  border-left-color: var(--m2-cyan-2);
+  background: rgba(78, 242, 227, 0.06);
+}
+.m2-partycard > img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  object-position: top;
+  border: 1px solid var(--m2-line-2);
+}
+.m2-partycard__body {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.m2-partycard__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+.m2-partycard__head b {
+  color: var(--m2-ink);
+  font-size: 14px;
+}
+.m2-partycard__head small {
+  color: var(--m2-mute);
+  font-size: 11.5px;
+}
+.m2-partycard__head .m2-bondpips {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+}
+.m2-partycard__body p {
+  margin: 0;
+  color: var(--m2-ink-2);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.m2-partycard__body p b {
+  color: var(--m2-ink);
+}
+.m2-partycard__passive {
+  color: var(--m2-mute) !important;
+}
+.m2-partycard__act {
+  grid-column: 1 / -1;
+  justify-self: end;
+  min-height: 36px;
+}
+.m2-partycard__hp {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+.m2-partycard__hp .m2-mono {
+  color: var(--m2-ink-2);
+  font-size: 11.5px;
+}

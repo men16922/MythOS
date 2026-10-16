@@ -3,6 +3,7 @@
 
 import { buyUnlock, canBuyUnlock, unlockedArchetypes, unlockedCompanions } from '../../engine/meta.ts'
 import * as Run from '../../engine/run.ts'
+import { freshRunSeed } from '../common/runSeed.ts'
 import type {
   ArchetypeDef,
   CardInstance,
@@ -14,6 +15,7 @@ import type {
   Improvisation,
   MetaProfile,
   MetaUnlockDef,
+  PartyMember,
   RunState,
   StatKey,
   Text,
@@ -32,13 +34,19 @@ const REST_SCRUB = 30
 export const rx = {
   // ---------------------------------------------------------- loop start / map
   /** `daily` = KST date key for a daily-seed run (same run for everyone that day; see engine/daily.ts). */
-  newRun: (p: MetaProfile, o: { archetype: string; companion?: string | null; paradox: number; daily?: string }, C: C): R => Run.newRun(p, o, C),
+  /** A normal run gets a fresh random seed (different map every time); a daily keeps the date seed. */
+  newRun: (p: MetaProfile, o: { archetype: string; companion?: string | null; paradox: number; daily?: string; seed?: number }, C: C): R =>
+    Run.newRun(p, { ...o, seed: o.daily ? undefined : (o.seed ?? freshRunSeed()) }, C),
   continueActIntro: (r: R, C: C): R => Run.startAct(r, C),
   enterNode: (r: R, id: string, C: C): R => Run.enterNode(r, id, C),
   reachable: (r: R): string[] => (r.screen.kind === 'map' ? Run.reachableNodes(r) : []),
   updateCombat: (r: R, c: CombatState, C: C): R => Run.updateCombat(r, c, C),
   abandon: (r: R): R => Run.abandonRun(r),
   discardConsumable: (r: R, index: number, C: C): R => Run.discardConsumable(r, index, C),
+  /** Who is deployed (map only; at most two, in slot order); everyone else is benched. */
+  setDeployment: (r: R, ids: string[]): R => Run.setDeployment(r, ids),
+  /** Every recruited companion, deployed first, then the bench. */
+  roster: (r: R): PartyMember[] => Run.roster(r),
 
   // ---------------------------------------------------------- reward
   takeCredits: (r: R, C: C): R => Run.takeRewardCredits(r, C),

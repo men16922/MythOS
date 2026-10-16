@@ -19,7 +19,10 @@ import { onNative, pushControl } from '../common/nativeBridge.ts'
 import { DailyBoard } from '../components/DailyBoard.tsx'
 import { CommsLogModal } from '../components/CommsLogModal.tsx'
 import { DeckModal } from '../components/DeckModal.tsx'
+import { PartyModal } from '../components/PartyModal.tsx'
 import { setCommsRun } from '../common/commsLog.ts'
+import { setAiEnabled } from './gm.ts'
+import { loopMemory } from '../common/loopMemory.ts'
 import { ErrorBoundary } from '../components/ErrorBoundary.tsx'
 import { SCREEN_LABEL, TRACE_EFFECT, TRACE_LABEL, savedAgo, traceTier, type TraceTier } from '../components/format.ts'
 import { Modal } from '../components/Modal.tsx'
@@ -135,6 +138,7 @@ export function GameShell() {
   const view: View = viewState === 'run' && !run ? 'title' : viewState
   const [deckOpen, setDeckOpen] = useState(false)
   const [commsOpen, setCommsOpen] = useState(false)
+  const [partyOpen, setPartyOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   // 'newloop' / 'daily': a run is live and the player asked for a new one (abandon first, then go on).
   const [confirm, setConfirm] = useState<null | 'abandon' | 'newloop' | 'daily'>(null)
@@ -194,6 +198,7 @@ export function GameShell() {
           setSettingsOpen(false)
           setDeckOpen(false)
           setCommsOpen(false)
+          setPartyOpen(false)
           setView('title')
           setFlagDaily(true)
           setBoard({ date: dateKeyAt(Date.now()) })
@@ -242,13 +247,18 @@ export function GameShell() {
     if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__m2 = { run, profile, setRun, setProfile, setView, C }
   }, [run, profile, setRun, setProfile, C])
 
+  // Settings → "AI 대사 사용": gm.ts skips every model call while it is off.
+  useEffect(() => {
+    setAiEnabled(profile.settings.ai)
+  }, [profile.settings.ai])
+
   // The comms log follows the live run (a new run id starts its own log; Continue reloads it).
   useEffect(() => {
     setCommsRun(run?.id ?? null)
   }, [run?.id])
 
   const openMenu = useCallback(() => setMenuOpen(true), [])
-  const modalOpen = deckOpen || commsOpen || settingsOpen || menuOpen || board !== null || confirm !== null || discardIdx !== null
+  const modalOpen = deckOpen || commsOpen || partyOpen || settingsOpen || menuOpen || board !== null || confirm !== null || discardIdx !== null
   useEffect(() => {
     duckMusic(modalOpen)
   }, [modalOpen])
@@ -447,6 +457,7 @@ export function GameShell() {
             lang={lang}
             onDeck={() => setDeckOpen(true)}
             onComms={() => setCommsOpen(true)}
+            onParty={() => setPartyOpen(true)}
             onSettings={() => setSettingsOpen(true)}
             onMenu={() => setMenuOpen(true)}
             savedAt={game.savedAt}
@@ -483,7 +494,15 @@ export function GameShell() {
               <span>{tr(TRACE_EFFECT[tierAlert], lang)}</span>
             </div>
           )}
-          {view === 'run' && run && <IxComms combat={run.screen.kind === 'combat' ? run.screen.combat : ixFinal} C={C} lang={lang} settings={profile.settings} />}
+          {view === 'run' && run && (
+            <IxComms
+              combat={run.screen.kind === 'combat' ? run.screen.combat : ixFinal}
+              C={C}
+              lang={lang}
+              settings={profile.settings}
+              memoryFor={(encounterId) => loopMemory(profile, C, lang, encounterId)}
+            />
+          )}
           {view === 'run' && run && <BossNarration combat={run.screen.kind === 'combat' ? run.screen.combat : null} C={C} lang={lang} settings={profile.settings} />}
         </main>
 
@@ -496,6 +515,7 @@ export function GameShell() {
           />
         )}
         {commsOpen && run && <CommsLogModal C={C} lang={lang} onClose={() => setCommsOpen(false)} />}
+        {partyOpen && run && <PartyModal run={run} C={C} lang={lang} onChange={setRun} onClose={() => setPartyOpen(false)} />}
         {discardIdx !== null && run && run.consumables[discardIdx] && (
           <Modal
             onClose={() => setDiscardIdx(null)}

@@ -42,6 +42,8 @@ interface Props {
   C: ContentRegistry
   lang: Lang
   settings: MetaProfile['settings']
+  /** IX's facts about earlier loops for this fight (ui/common/loopMemory.ts); sent with boss / elite openers only. */
+  memoryFor?: (encounterId: string) => string[]
 }
 
 /** Calls `ready` once `minDelay` has passed and the board has been out of the enemy phase for `settle` ms. */
@@ -70,7 +72,7 @@ function timingFor(m: IxMoment, ended: boolean): { minDelay: number; settle: num
   return { minDelay: 900, settle: 0 } // let the hit land first
 }
 
-export function IxComms({ combat, C, lang, settings }: Props) {
+export function IxComms({ combat, C, lang, settings, memoryFor }: Props) {
   const [line, setLine] = useState<Line | null>(null)
   const seen = useRef<CombatState | null>(null)
   const memo = useRef<FightMemo | null>(null)
@@ -120,7 +122,10 @@ export function IxComms({ combat, C, lang, settings }: Props) {
     let logId: number | null = null
     const report = { route: 'talk', kind: `ix:${m.trigger}` } as const
 
-    void ixLine(m.trigger, lang, m.context, LLM_WAIT_MS, ctrl.signal).then((text) => {
+    const opener = m.trigger === 'boss_start' || m.trigger === 'elite_start'
+    const memory = opener ? (memoryFor?.(combat.encounterId) ?? []) : []
+    const context = memory.length ? { ...m.context, memory } : m.context
+    void ixLine(m.trigger, lang, context, LLM_WAIT_MS, ctrl.signal).then((text) => {
       if (!text || ctrl.signal.aborted) return
       if (!shown) {
         llmText = text

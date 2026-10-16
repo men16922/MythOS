@@ -31,7 +31,7 @@ import { useCombatAnimator, viewFrom } from './animator.ts'
 import type { FxItem, RectLike } from './animator.ts'
 import { Board } from './Board.tsx'
 import { Coach } from './Coach.tsx'
-import { tutorialDone } from './describe.ts'
+import { markTutorialDone, tutorialDone } from './describe.ts'
 import { Hand } from './Hand.tsx'
 import { ArmedPanel, DetailPanel, PartyPanel, PileModal, TopStrip } from './Panels.tsx'
 import { EndTurnButton, HelpPopover, ItemSlots, KeyLegend, PileButtons } from './screen/hud.tsx'
@@ -276,6 +276,18 @@ export function CombatScreen(props: CombatScreenProps) {
 
   const bossArt = enc?.kind === 'boss' ? ART.bosses[combat.encounterId] : undefined
   const [splash, setSplash] = useState(enc?.kind === 'boss')
+
+  // The coach marks never block play, so a player can fight straight through them: once they have been on screen,
+  // the end of this fight counts as seen. Before, only "skip" or the last "got it" stored that, and
+  // the tips came back every fight.
+  const coachShown = useRef(false)
+  const coachVisible = coach && interactive && !splash
+  useEffect(() => {
+    if (coachVisible) coachShown.current = true
+  }, [coachVisible])
+  useEffect(() => {
+    if (combat.phase !== 'player' && coachShown.current) markTutorialDone()
+  }, [combat.phase])
   useEffect(() => {
     const intro = () => {
       const title = enc ? tr(enc.name, lang) : ''
@@ -570,7 +582,7 @@ export function CombatScreen(props: CombatScreenProps) {
 
       {zoomInst && zoomDef && <CardZoom fs={zoomFs} def={zoomDef} upgraded={zoomInst.upgraded} lang={lang} play={playable[zoomInst.uid]} />}
 
-      {coach && interactive && !splash && <Coach root={rootEl} lang={lang} onClose={() => setCoach(false)} touch={touchUI} />}
+      {coachVisible && <Coach root={rootEl} lang={lang} onClose={() => setCoach(false)} touch={touchUI} />}
 
       {pile && <PileModal kind={pile} cards={piles[pile]} C={C} lang={lang} onClose={() => setPile(null)} />}
     </div>

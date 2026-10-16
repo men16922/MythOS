@@ -35,7 +35,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from .gm import Lang, clean_line, decode_byte_tokens, language_ok, split_sentences
+from .gm import Lang, clean_line, decode_byte_tokens, language_ok, memory_block, split_sentences
 
 TalkRole = Literal["player", "companion"]
 IxTrigger = Literal[
@@ -1056,10 +1056,11 @@ def ix_messages(trigger: IxTrigger, lang: Lang, context: Mapping[str, Any]) -> t
         phase_en=f" Change: {phase}" if phase else "",
     )
     # The place stays out of the prompt: the model only echoed it back as boilerplate.
+    memory = memory_block(lang, context)
     if lang == "ko":
-        user = f"상황: {situation}\n\nIX의 짧은 통신(1~2문장, 대사만):"
+        user = f"상황: {situation}{memory}\n\nIX의 짧은 통신(1~2문장, 대사만):"
     else:
-        user = f"Situation: {situation}\n\nIX's short comms line (1-2 sentences, dialogue only):"
+        user = f"Situation: {situation}{memory}\n\nIX's short comms line (1-2 sentences, dialogue only):"
     return _IX_SYSTEM[lang], user
 
 

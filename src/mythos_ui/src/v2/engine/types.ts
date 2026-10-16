@@ -684,7 +684,9 @@ export interface RunState {
   deck: CardInstance[]
   implants: string[]
   consumables: string[] // max 3
-  party: PartyMember[] // companions (max 2)
+  party: PartyMember[] // deployed companions (max 2): they fight, lend passives and own playable cards
+  /** Recruited but not deployed (no cap). Swapped with `party` on the map (`setDeployment`). Absent in older saves. */
+  bench?: PartyMember[]
   /** Unlock-filtered pools frozen at newRun so the run never needs the profile. */
   pools: { cards: string[]; implants: string[]; companions: string[] }
   flags: Record<string, number>
@@ -757,7 +759,8 @@ export interface MetaProfile {
   companionsMet: string[]
   history: RunRecord[] // newest first, capped at 30
   lastDeath?: { killedBy: string; act: number; loop: number }
-  settings: { lang: Lang; sfx: boolean; bgm: boolean; fastAnim: boolean }
+  /** `ai`: AI-written lines (GM narration, companion replies, IX comms, Improvise judging); off = authored text only. */
+  settings: { lang: Lang; sfx: boolean; bgm: boolean; fastAnim: boolean; ai: boolean }
   /** Daily-seed records by KST date key, newest kept (capped at DAILY_CAP days). */
   daily?: Record<string, DailyRecord>
   /** Companion bond cutscenes seen (content/cutscenes.ts ids); replayable from the Archive gallery. */

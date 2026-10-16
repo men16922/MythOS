@@ -55,7 +55,7 @@ def snapshot(page: Page) -> dict:
         """() => { const r = window.__m2 && window.__m2.run; if (!r) return { kind: 'none' };
           const s = r.screen; return { kind: s.kind, act: r.act, hp: r.hp, node: r.nodeId, visited: r.visited.length,
             combatTurn: s.kind === 'combat' ? s.combat.turn : null, foes: s.kind === 'combat' ? s.combat.units.filter((u) => u.side === 'enemy').map((u) => u.hp).join(',') : null, me: s.kind === 'combat' ? (s.combat.units.find((u) => u.defId === 'connector') || {}).hp : null, hand: s.kind === 'combat' ? s.combat.hand.length : null, energy: s.kind === 'combat' ? s.combat.energy : null, phase: s.kind === 'combat' ? s.combat.phase : null,
-            resolved: s.kind === 'event' ? !!(s.resolved || (s.improvised && s.improvised.rolled)) : null, rng: r.rng } }"""
+            resolved: s.kind === 'event' ? !!(s.resolved || (s.improvised && s.improvised.rolled)) : null, rng: r.rng, seed: r.seed } }"""
     )
 
 
@@ -116,7 +116,10 @@ DIRS = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
 
 def click_tile(page: Page, pos: dict) -> None:
     tiles = centers(page, ".m2c-hitgrid polygon")
-    x, y = tiles[int(pos["y"]) * GRID_W + int(pos["x"])]
+    index = int(pos["y"]) * GRID_W + int(pos["x"])
+    if index >= len(tiles):
+        return  # the fight ended between planning and clicking (the board is gone): nothing to click
+    x, y = tiles[index]
     page.mouse.click(x, y)
     page.wait_for_timeout(350)
 

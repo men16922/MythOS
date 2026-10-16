@@ -24,7 +24,9 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
   const heal = rx.restHealAmount(run, C)
   const scrub = rx.restScrubAmount()
   const canUpgrade = rx.canUpgradeAny(run, C)
-  const canBond = run.party.some((m) => m.bond < 3)
+  // The whole crew rests here, benched companions included.
+  const crew = rx.roster(run)
+  const canBond = crew.some((m) => m.bond < 3)
 
   const pick = (c: Choice) => {
     if (done) return
@@ -44,7 +46,7 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
     }
   }
 
-  const bonded = chosen?.kind === 'bond' ? run.party.find((m) => m.id === chosen.id) : undefined
+  const bonded = chosen?.kind === 'bond' ? crew.find((m) => m.id === chosen.id) : undefined
   const bondDef = bonded ? C.companions[bonded.id] : undefined
   // The first time a tier-2 / tier-3 bond is reached, that companion's quiet scene plays before the chat.
   const scene = bonded ? cutsceneAtBond(bonded.id, bonded.bond) : undefined
@@ -99,7 +101,7 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
               <HeartHandshake size={34} />
               <b>{ko ? '대화' : 'Talk'}</b>
               <span>
-                {run.party.length === 0
+                {crew.length === 0
                   ? ko
                     ? '함께할 동료가 없다'
                     : 'No one to talk to'
@@ -117,7 +119,7 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
 
         {!done && bondPick && (
           <div className="m2-rest__bond">
-            {run.party.map((m) => {
+            {crew.map((m) => {
               const def = C.companions[m.id]
               if (!def) return null
               return (

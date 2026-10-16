@@ -19,3 +19,16 @@ export const STAT_LABEL: Record<string, Text> = {
   cha: { ko: '매력', en: 'CHA' },
   obs: { ko: '관찰', en: 'OBS' },
 }
+
+/** True when the word's last Hangul syllable has a final consonant (받침); non-Hangul counts as yes. */
+export function hasBatchim(word: string): boolean {
+  const code = word.charCodeAt(word.length - 1) - 0xac00
+  return code < 0 || code > 11171 || code % 28 !== 0
+}
+
+/** "로" / "으로" after a Korean word (ㄹ 받침 takes "로"). */
+export function withRo(word: string): string {
+  const code = word.charCodeAt(word.length - 1) - 0xac00
+  const plainRo = code >= 0 && code <= 11171 && (code % 28 === 0 || code % 28 === 8)
+  return `${word}${plainRo ? '로' : '으로'}`
+}

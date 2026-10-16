@@ -1,6 +1,6 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
 import { art } from '../components/art.ts'
-import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, MessagesSquare, Settings, Shuffle } from 'lucide-react'
+import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, MessagesSquare, Settings, Shuffle, Users } from 'lucide-react'
 import { useEffect } from 'react'
 import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
@@ -25,6 +25,8 @@ export interface TopBarProps {
   onDeck: () => void
   /** The run's comms log (every GM / IX / companion line seen this run). */
   onComms: () => void
+  /** The party screen (deployed + bench; swaps on the map). */
+  onParty: () => void
   onSettings: () => void
   /** Pause menu: save & quit / settings / abandon. */
   onMenu: () => void
@@ -34,7 +36,7 @@ export interface TopBarProps {
   onDiscard?: (index: number) => void
 }
 
-export function TopBar({ run, C, lang, onDeck, onComms, onSettings, onMenu, savedAt, onDiscard }: TopBarProps) {
+export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onMenu, savedAt, onDiscard }: TopBarProps) {
   // Mark implants as seen after their pulse has played.
   const implantKey = run.implants.join('|')
   useEffect(() => {
@@ -162,6 +164,18 @@ export function TopBar({ run, C, lang, onDeck, onComms, onSettings, onMenu, save
           )
         })}
       </div>
+
+      <button
+        type="button"
+        className="m2-iconbtn m2-topbar__partybtn"
+        onClick={onParty}
+        title={lang === 'ko' ? '파티 편성' : 'Party line-up'}
+        aria-label={lang === 'ko' ? '파티 편성' : 'Party line-up'}
+        data-testid="party-btn"
+      >
+        <Users size={15} />
+        {(run.bench?.length ?? 0) > 0 && <span className="m2-topbar__benchn m2-mono">+{run.bench?.length}</span>}
+      </button>
 
       <div className="m2-topbar__implants">
         {run.implants.map((id, i) => {

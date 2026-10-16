@@ -3,6 +3,7 @@
 Repo-specific things a future unattended iteration should know before repeating a mistake.
 One line per lesson, dated, newest on top. Lessons about the archived 1.x runtime were removed with it (branch `1.0`).
 
+- 2026-10-17: with random run seeds a UI-bot failure is no longer reproducible by rerunning — log the run's `seed` with every failure (and screenshot at the failing step) before calling it flaky. Also: a "mark done on unmount" effect fires on React StrictMode's dev double-mount; tie such flags to a real event (fight end) instead.
 - 2026-10-12: a versioned `harness_root` pin in `.claude/harness-config.json` (a plugin cache path) silently keeps `make overnight` on the old runner after plugin upgrades (it sat on 1.4.0 while 1.7.0 was installed). Don't pin a cache path; leave the key out so the Makefile follows the newest install.
 - 2026-10-12: a UI bot that clicks like a player but decides like a naive one "can't win" — that was a bot limit, not a game fault. Planning each turn with the engine's own expert (`planGreedyTurn`) and only *executing* through real clicks took the unassisted run from losing in act 1 to a full victory.
 - 2026-10-11: the run simulator's mixed-bot win rate swings ±6 % between seed blocks (28–41 % for identical content). A single 60-run block once read a new card set as "−10 %" that was pure noise — compare balance A/B on the **same** seed blocks (or ≥3 blocks) before believing a delta.

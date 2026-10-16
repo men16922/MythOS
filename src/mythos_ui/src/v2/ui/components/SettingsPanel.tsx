@@ -129,6 +129,16 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
           hint={ko ? '텍스트와 전투 연출을 빠르게 넘긴다' : 'Text and combat animations play faster'}
           onClick={() => onChange({ ...settings, fastAnim: !settings.fastAnim })}
         />
+        <Toggle
+          on={settings.ai}
+          label={ko ? 'AI 대사 사용' : 'AI-written lines'}
+          hint={
+            ko
+              ? 'GM 내레이션, 동료의 대답, IX 통신, 자유 행동 판정을 AI가 쓴다. 끄면 미리 쓰인 대사만 나온다.'
+              : 'AI writes GM narration, companion replies, IX comms and judges improvised actions. Off = authored lines only.'
+          }
+          onClick={() => onChange({ ...settings, ai: !settings.ai })}
+        />
         <AccountSection lang={lang} />
         <AiLinesSection lang={lang} />
         {APP_BUILD && <DailyPushToggle lang={lang} />}

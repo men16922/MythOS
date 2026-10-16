@@ -17,6 +17,15 @@ interface ImproviseReq {
   act: number
 }
 
+/** Player setting (Settings → "AI 대사 사용"): off = no model call at all, every caller takes its authored path. */
+let aiEnabled = true
+export function setAiEnabled(on: boolean): void {
+  aiEnabled = on
+}
+export function aiOn(): boolean {
+  return aiEnabled
+}
+
 function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | null> {
   return Promise.race([p, new Promise<null>((res) => window.setTimeout(() => res(null), ms))])
 }
@@ -43,6 +52,7 @@ function cleanText(t: Improvisation['successText']): Improvisation['successText'
 
 /** Returns the GM's line, or null (no backend, timeout, or a server fallback when `acceptFallback` is off). */
 export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeoutMs = 12000, acceptFallback = false): Promise<string | null> {
+  if (!aiEnabled) return null
   try {
     const res = await withTimeout(net.narrate({ kind, lang, context }), timeoutMs)
     if (!res) return null
@@ -67,6 +77,7 @@ interface CompanionReplyReq {
  *  unreachable / ~11 s timeout) the client's own in-voice pool. Never changes game state. */
 export async function companionReply(req: CompanionReplyReq, signal?: AbortSignal): Promise<{ text: string; source: 'llm' | 'fallback' | 'local' }> {
   try {
+    if (!aiEnabled) throw new Error('ai off') // straight to the authored in-voice pool
     const res = await withTimeout(net.talk({ mode: 'companion', ...req }, { signal }), 11500)
     const text = res ? cleanGmText(res.text) : ''
     if (res && text) {
@@ -83,6 +94,7 @@ export async function companionReply(req: CompanionReplyReq, signal?: AbortSigna
 /** IX's LLM comms line for a combat moment, or null (timeout, no backend, server fallback). The caller is
  *  already showing an authored line and swaps this in once. */
 export async function ixLine(trigger: net.IxTrigger, lang: Lang, context: Ctx, timeoutMs = 4000, signal?: AbortSignal): Promise<string | null> {
+  if (!aiEnabled) return null
   try {
     const res = await withTimeout(net.talk({ mode: 'ix', lang, trigger, context }, { signal, timeoutMs }), timeoutMs)
     if (!res || res.source !== 'llm') return null
@@ -126,6 +138,7 @@ const VALID_RISK: Improvisation['risk'][] = ['hp', 'trace', 'credits']
  *  `ai`: the model wrote the outcome texts (the comms log marks them). */
 export async function improvise(req: ImproviseReq): Promise<{ imp: Improvisation; ai: boolean }> {
   const local = localImprovise(req.action)
+  if (!aiEnabled) return { imp: local, ai: false }
   try {
     const res: Partial<net.ImproviseResult> | null = await withTimeout(net.improvise(req), 16000)
     if (!res) return { imp: local, ai: false }

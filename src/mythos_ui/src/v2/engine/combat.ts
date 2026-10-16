@@ -260,7 +260,9 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
   c.handSize = 5 + activePassive(c, C, 'handSize') + thread('handSize')
   if (thread('bumpDamage')) c.threadBump = thread('bumpDamage')
 
-  c.draw = shuffle(c, run.deck.map((card) => ({ ...card })))
+  // A benched companion's cards stay in the deck but sit this fight out (their owner is not on the board).
+  const benched = new Set((run.bench ?? []).map((m) => m.id))
+  c.draw = shuffle(c, run.deck.filter((card) => !benched.has(C.cards[card.defId]?.owner ?? '')).map((card) => ({ ...card })))
   // ITB opening: enemies advance and telegraph before the first player turn.
   enemiesTelegraph(c, C, true)
   announceIncoming(c, enc)

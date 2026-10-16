@@ -15,6 +15,7 @@ import { fmtText } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { narrate } from './gm.ts'
+import { killerName, loopMemory } from '../common/loopMemory.ts'
 import { rx } from './rx.ts'
 import './archive.css'
 
@@ -31,22 +32,6 @@ const KINDS: { kind: MetaUnlockKind; label: Text; hint: Text }[] = [
 ]
 
 type SideTab = 'codex' | 'endings' | 'memories' | 'history'
-
-/** Who killed the connector, as IX would name it: an enemy, not a map label. `killedBy` may be an
- *  encounter id ("Behind Cover") — then name its toughest enemy instead. */
-function killerName(killerId: string | undefined, C: ContentRegistry): Text | undefined {
-  if (!killerId) return undefined
-  const direct = C.enemies[killerId]
-  if (direct) return direct.name
-  const enc = C.encounters[killerId]
-  if (!enc) return undefined
-  const TIER = { boss: 3, elite: 2, normal: 1, minion: 0 } as const
-  const lead = enc.enemies
-    .map((e) => C.enemies[e.id])
-    .filter((d): d is NonNullable<typeof d> => !!d)
-    .sort((a, b) => TIER[b.tier] - TIER[a.tier] || b.hp - a.hp)[0]
-  return lead?.name ?? enc.name
-}
 
 function ixLine(profile: MetaProfile, C: ContentRegistry, lang: Lang): string {
   const lines = C.ixLines
@@ -138,6 +123,7 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
       killedBy: killer ? tr(killer, lang) : undefined,
       lastAct: profile.lastDeath?.act,
       wins: profile.wins,
+      memory: loopMemory(profile, C, lang),
     }).then((text) => {
       if (alive && text) setGmIx({ key: ixKey, text })
     })

@@ -27,6 +27,7 @@ import {
   restHeal,
   restScrub,
   restUpgrade,
+  setDeployment,
   shopBuyCard,
   shopBuyConsumable,
   shopBuyImplant,
@@ -270,11 +271,58 @@ test('bonus objective, elite and boss rewards, act transition and recruit event'
   run = continueEvent(run, C)
   assert.equal(run.screen.kind, 'map')
 
-  // Without candidates the recruit event is skipped.
-  const solo = structuredClone(run)
-  solo.screen = { kind: 'act_intro' }
-  solo.seenEvents = []
-  assert.equal(startAct(solo, C).screen.kind, 'map', 'party full → no recruit')
+  // A full party still meets the recruit scene (newcomers go to the bench) until nobody is left to recruit.
+  const again = structuredClone(run)
+  again.screen = { kind: 'act_intro' }
+  again.seenEvents = []
+  assert.equal(screen(startAct(again, C), 'event').eventId, 'a2_recruit', 'party full → still a candidate left')
+  const full = eventOptions(startAct(again, C), C)
+  assert.equal(full[0]?.option.label.en, 'Go with who you have', 'a full party gets no go-alone bonus')
+  assert.deepEqual(full[0]?.option.success.effects, [])
+  const everyone = structuredClone(again)
+  everyone.bench = [{ id: recruit === 'han' ? 'tae_o' : 'han', hp: 20, maxHp: 20, bond: 0 }]
+  assert.equal(startAct(everyone, C).screen.kind, 'map', 'roster complete → no recruit')
+})
+
+test('party: a full party benches the newcomer; deployment swaps on the map only; bench cards sit fights out', () => {
+  let run = structuredClone(atMap(1234, unlocked('comp_tae_o', 'comp_han')))
+  run.act = 2
+  run.screen = { kind: 'event', eventId: 'a2_recruit', resolved: null, improvised: null }
+  run.party.push({ id: 'tae_o', hp: 9, maxHp: 30, bond: 1 })
+  run = chooseEventOption(run, 1, C) // the only candidate left: Han
+  assert.deepEqual(run.party.map((m) => m.id), ['se_rin', 'tae_o'])
+  assert.deepEqual(run.bench?.map((m) => m.id), ['han'])
+  const hanCard = C.companions.han?.cards[0] as string
+  assert.ok(run.deck.some((c) => c.defId === hanCard), 'a benched recruit still brings their cards')
+  run = continueEvent(run, C)
+  assert.equal(run.screen.kind, 'map')
+
+  // Swap Tae-o out for Han: HP and bond travel with each companion.
+  assert.equal(setDeployment(run, ['se_rin', 'han', 'tae_o']), run, 'three deployed → rejected')
+  assert.equal(setDeployment(run, ['se_rin', 'kai']), run, 'not recruited → rejected')
+  assert.equal(setDeployment(run, ['han', 'han']), run, 'duplicate → rejected')
+  assert.equal(setDeployment(run, ['se_rin', 'tae_o']), run, 'no change → same run')
+  const swapped = setDeployment(run, ['se_rin', 'han'])
+  assert.deepEqual(swapped.party.map((m) => m.id), ['se_rin', 'han'])
+  assert.deepEqual(swapped.bench, [{ id: 'tae_o', hp: 9, maxHp: 30, bond: 1 }])
+  assert.deepEqual(run.party.map((m) => m.id), ['se_rin', 'tae_o'], 'pure: the input run is untouched')
+  const offMap = { ...swapped, screen: { kind: 'rest', done: false } as RunScreen }
+  assert.equal(setDeployment(offMap, ['se_rin', 'tae_o']), offMap, 'only on the map')
+
+  // The benched companion's cards stay in the deck but are not drawn into a fight.
+  const fight = enter(swapped, 'combat', { encounterId: 'n1_2' })
+  const c = screen(fight, 'combat').combat
+  const owners = [...c.draw, ...c.hand].map((k) => C.cards[k.defId]?.owner)
+  assert.ok(!owners.includes('tae_o'), 'no benched cards in the fight')
+  assert.ok(owners.includes('han'), 'the deployed recruit fights with their cards')
+  assert.equal(c.units.some((u) => u.uid === 'tae_o'), false)
+
+  // Bench members still rest, bond at the safehouse and count as recruited for event conditions.
+  const rest = enter(swapped, 'rest')
+  assert.equal(restBond(rest, 'tae_o', C).bench?.[0]?.bond, 2)
+  assert.ok((restHeal(rest, C).bench?.[0]?.hp ?? 0) > 9, 'the safehouse heals the bench too')
+  assert.equal(conditionMet(swapped, { noCompanion: 'tae_o' }, C).ok, false, 'benched still counts as recruited')
+  assert.equal(conditionMet(swapped, { companion: 'tae_o' }, C).ok, false, 'arc events need them deployed')
 })
 
 test('defeat ends the run in Forced Erasure and banks a last death', () => {

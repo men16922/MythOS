@@ -416,7 +416,7 @@ test('variety: every act has a gamble, a companion conflict, an IX contact and a
     const both = e.requires?.companions ?? []
     if (e.acts.includes(1)) {
       // Act 1 has one companion: the conflict is with someone asking to join, who can be recruited on the spot.
-      assert.ok(e.requires?.companion && e.requires.noCompanion && e.requires.partySizeAtMost === 1, e.id)
+      assert.ok(e.requires?.companion && e.requires.noCompanion, e.id)
       const joins = effects(e).filter((fx) => fx.kind === 'companion')
       assert.ok(joins.length === 1 && joins[0]?.kind === 'companion' && joins[0].id === e.requires.noCompanion, e.id)
     } else {

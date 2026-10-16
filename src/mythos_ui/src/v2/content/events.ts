@@ -2001,20 +2001,20 @@ const A1_EXTRA: EventDef[] = [
   },
   {
     // Act 1 has a single companion, so the "conflict" is the starting Se-rin against a deserter who
-    // asks to join. Taking him fills the party now (the Act 2 recruit is then skipped).
+    // asks to join. Taking him fills the second slot now; the Act 2 recruit still comes (newcomers go to the bench).
     id: 'a1_let_the_hound_in',
     acts: [1],
     title: t('사냥개를 들일 것인가', 'Let the Hound In?'),
     image: 'v2/events/a1_let_the_hound_in.webp',
     speaker: 'se_rin',
-    requires: { companion: 'se_rin', noCompanion: 'tae_o', partySizeAtMost: 1 },
+    requires: { companion: 'se_rin', noCompanion: 'tae_o' },
     text: t(
       '폐건물 계단참. 흉터 난 사내가 옆구리를 누르고 앉아 있다. 손가락 사이로 피가 샌다. 어깨에는 긁어낸 집행부 휘장.\n“같이 가자. 드론은 내가 너희보다 잘 안다.”\n세린이 칼을 뽑아 든다. “집행부 개는 안 데려가. 저 흉터, 누굴 쫓다 생긴 건지 물어봐.”\n두 사람의 눈이 당신에게 꽂힌다.',
       'A stairwell in a gutted building. A scarred man sits pressing his side, blood seeping between his fingers. A scraped-off enforcement patch on his shoulder.\n“Take me with you. I know drones better than either of you.”\nSe-rin draws her knife. “I don’t take enforcement dogs. Ask him who he was chasing when he got that scar.”\nThey both look at you.',
     ),
     options: [
       {
-        label: t('태오를 받아들인다 (2막 영입 대신)', 'Take Tae-o in (instead of an Act 2 recruit)'),
+        label: t('태오를 받아들인다', 'Take Tae-o in'),
         hint: t('태오 즉시 합류 · 추적 +8', 'Tae-o joins now · +8 Trace'),
         success: {
           text: t(

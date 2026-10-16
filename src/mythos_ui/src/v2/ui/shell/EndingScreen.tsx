@@ -6,20 +6,15 @@ import { computeEchoes } from '../../engine/meta.ts'
 import type { Lang, RunState } from '../../engine/types.ts'
 import { dateLabel, isDateKey, shiftDateKey } from '../../engine/daily.ts'
 import type { SubmitOutcome } from '../../net/daily.ts'
-import { tr } from '../common/lang.ts'
+import { hasBatchim, tr } from '../common/lang.ts'
 import { CountUp } from '../components/CountUp.tsx'
 import { dayOf, IMPROVED, submitLine } from '../components/dailyBoard.ts'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { narrate } from './gm.ts'
+import { commsEntries } from '../common/commsLog.ts'
 import type { ScreenProps } from './types.ts'
 import './ending.css'
-
-/** True when the word's last Hangul syllable has a final consonant (받침); non-Hangul counts as yes. */
-function hasBatchim(word: string): boolean {
-  const code = word.charCodeAt(word.length - 1) - 0xac00
-  return code < 0 || code > 11171 || code % 28 !== 0
-}
 
 function authoredChronicle(run: RunState, lang: Lang, C: ScreenProps['C']): string {
   const ko = lang === 'ko'
@@ -123,6 +118,11 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
         // not "floors": the model read 24 as the tower's height ("24층 높이의 ARK 첨탑")
         sectorsCleared: run.tally.floors,
         highlights: run.log.slice(-14).map((l) => tr(l.note, lang)),
+        // What the player typed as free actions this loop (comms log), for the chronicle to weave one in.
+        improvised: commsEntries()
+          .filter((e) => e.speaker === 'player' && !e.companion)
+          .slice(-3)
+          .map((e) => (e.where ? `${e.where}: ${e.text}` : e.text)),
       },
       15000,
       true,

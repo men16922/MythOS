@@ -93,7 +93,7 @@ test('newProfile and migrateProfile tolerate garbage', () => {
   assert.equal(m.history[0]?.result, 'victory')
   assert.deepEqual(m.history[0]?.party, ['se_rin'])
   assert.equal(m.lastDeath?.killedBy, 'b1')
-  assert.deepEqual(m.settings, { lang: 'en', sfx: false, bgm: true, fastAnim: false })
+  assert.deepEqual(m.settings, { lang: 'en', sfx: false, bgm: true, fastAnim: false, ai: true })
   assert.deepEqual(migrateProfile(JSON.parse(JSON.stringify(m))), m, 'migrate is idempotent')
 })
 

@@ -517,6 +517,26 @@
 .m2-taunt.is-leaving {
   animation: m2-taunt-out 0.32s ease-in both;
 }
+.m2-taunt.is-below {
+  transform: translate(-50%, 10px);
+  border-radius: 2px 10px 10px 10px;
+  animation-name: m2-taunt-in-below;
+}
+.m2-taunt.is-below.is-leaving {
+  animation-name: m2-taunt-out-below;
+}
+@keyframes m2-taunt-in-below {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 2px) scale(0.96);
+  }
+}
+@keyframes m2-taunt-out-below {
+  to {
+    opacity: 0;
+    transform: translate(-50%, 18px);
+  }
+}
 .m2-taunt.is-fast {
   animation-duration: 0.12s;
 }

@@ -24,6 +24,8 @@ interface Bubble {
   name: string
   left: number
   top: number
+  /** No room above the unit (phone top rows): the bubble hangs below it instead. */
+  below: boolean
   leaving: boolean
 }
 
@@ -34,13 +36,20 @@ interface Props {
   settings: MetaProfile['settings']
 }
 
-function spot(uid: string): { left: number; top: number } {
+/** Bubble room needed above a unit before it flips below (the HUD strip and IX's banner live up there). */
+const ROOM_ABOVE = 170
+
+function spot(uid: string): { left: number; top: number; below: boolean } {
   const el = document.querySelector(`[data-uid="${CSS.escape(uid)}"]`)
   const r = el?.getBoundingClientRect()
   const W = window.innerWidth
-  if (!r || r.width === 0) return { left: W / 2, top: 120 }
-  return { left: Math.max(130, Math.min(W - 130, r.left + r.width / 2)), top: Math.max(70, r.top) }
+  if (!r || r.width === 0) return { left: W / 2, top: 120, below: true }
+  const left = Math.max(110, Math.min(W - 110, r.left + r.width / 2))
+  return r.top >= ROOM_ABOVE ? { left, top: r.top, below: false } : { left, top: r.bottom, below: true }
 }
+
+/** IX's comms banner is up (it takes the same moment, e.g. low HP): wait for it rather than talk over it. */
+const ixTalking = (): boolean => document.querySelector('.m2-ixcomms:not(.is-leaving)') !== null
 
 export function EnemyTaunt({ combat, C, lang, settings }: Props) {
   const [bubble, setBubble] = useState<Bubble | null>(null)
@@ -86,18 +95,25 @@ export function EnemyTaunt({ combat, C, lang, settings }: Props) {
       setBubble((b) => (b && b.key === key && !b.leaving ? { ...b, text } : b))
       swapComms(logId, { text, ai: true, report })
     })
-    // Let the hit that caused it land first.
-    later(() => {
+    // Let the hit that caused it land first, and never speak over IX (wait up to ~8 s, then drop the line).
+    const show = (waited: number) => {
+      if (ctrl.signal.aborted) return
+      if (ixTalking() && waited < 8000) return later(() => show(waited + 300), 300)
+      if (ixTalking()) {
+        busy.current = false
+        return
+      }
       shown = true
       const at = spot(hit.unit.uid)
       setBubble({ key, text: pending ?? authored, name, ...at, leaving: false })
       logId = logComms({ speaker: 'enemy', text: pending ?? authored, ai: pending !== null, where: name, report: pending !== null ? report : undefined })
-    }, 650)
-    later(() => setBubble((b) => (b && b.key === key ? { ...b, leaving: true } : b)), 650 + SHOW_MS - FADE_MS)
-    later(() => {
-      setBubble((b) => (b && b.key === key ? null : b))
-      busy.current = false
-    }, 650 + SHOW_MS)
+      later(() => setBubble((b) => (b && b.key === key ? { ...b, leaving: true } : b)), SHOW_MS - FADE_MS)
+      later(() => {
+        setBubble((b) => (b && b.key === key ? null : b))
+        busy.current = false
+      }, SHOW_MS)
+    }
+    later(() => show(0), 650)
     // Detection runs once per new combat state.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combat])
@@ -113,7 +129,7 @@ export function EnemyTaunt({ combat, C, lang, settings }: Props) {
   if (!bubble) return null
   return (
     <div
-      className={`m2-taunt${bubble.leaving ? ' is-leaving' : ''}${settings.fastAnim ? ' is-fast' : ''}`}
+      className={`m2-taunt${bubble.below ? ' is-below' : ''}${bubble.leaving ? ' is-leaving' : ''}${settings.fastAnim ? ' is-fast' : ''}`}
       style={{ left: bubble.left, top: bubble.top }}
       role="status"
       aria-live="polite"

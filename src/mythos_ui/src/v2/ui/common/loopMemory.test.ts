@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { CONTENT as C } from '../../content/index.ts'
 import { newProfile } from '../../engine/meta.ts'
 import type { MetaProfile, RunRecord } from '../../engine/types.ts'
-import { MEMORY_FACTS, loopMemory, timesWord } from './loopMemory.ts'
+import { MEMORY_FACTS, loopMemory, loopsWith, timesWord } from './loopMemory.ts'
 
 const rec = (over: Partial<RunRecord>): RunRecord => ({
   id: 'r',
@@ -46,4 +46,10 @@ test('a boss that already ended loops comes first, counted in words; facts are c
   // An encounter that never ended a loop adds no first fact.
   assert.ok(!loopMemory(p, C, 'ko', 'a2_boss_unknown')[0]?.startsWith('지난 루프들에서 이 '))
   assert.equal(timesWord(12, 'ko'), '여러 번')
+})
+
+test('loopsWith counts earlier normal loops a companion was recruited in', () => {
+  const history = [rec({ party: ['se_rin', 'han'] }), rec({ party: ['han'], daily: '2026-10-16' }), rec({ party: ['tae_o'] }), rec({ party: ['han'] })]
+  assert.equal(loopsWith({ history }, 'han'), 2, 'daily runs do not count')
+  assert.equal(loopsWith({ history }, 'kai'), 0)
 })

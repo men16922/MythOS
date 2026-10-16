@@ -156,6 +156,18 @@ class PromptTest(unittest.TestCase):
         self.assertIn("접속자: <<오늘 어땠어?>>", user)
         self.assertTrue(user.rstrip().endswith("(1~3문장, 대사만):"))
 
+    def test_companion_feels_a_faint_deja_vu_but_remembers_no_loop(self) -> None:
+        plain, _ = talk.companion_messages("han", "ko", HAN_CONTEXT, [], "오늘 어땠어?")
+        self.assertNotIn("기시감", plain)
+        again, _ = talk.companion_messages(
+            "han", "ko", {**HAN_CONTEXT, "loopsTogether": 3}, [], "오늘 어땠어?"
+        )
+        self.assertIn("희미한 기시감", again)
+        self.assertIn("기억하지 못한다", again)
+        self.assertNotIn("3", again.split("희미한 기시감")[1].split("규칙")[0])  # no count leaks in
+        en, _ = talk.companion_messages("kai", "en", {"bond": 1, "loopsTogether": 1}, [], "Hi")
+        self.assertIn("faint déjà vu", en)
+
     def test_ix_prompt_carries_loop_memory_only_when_sent(self) -> None:
         memory = [
             "지난 루프들에서 이 해태에게 세 번 쓰러졌다",

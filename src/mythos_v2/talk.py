@@ -816,6 +816,9 @@ def _companion_system(
     log = _ctx_list(ctx, "log", 5)
     place = _place(ctx, lang)
     archetype = _ctx_str(ctx, "archetype")
+    # Companions do not remember loops (only IX does); having walked with the connector before leaves a faint
+    # déjà vu, never a memory, a count or the word "loop".
+    deja_vu = (_ctx_int(ctx, "loopsTogether") or 0) > 0
     if lang == "ko":
         being = "폐기 판정을 받은 안드로이드" if persona.android else "이 도시의 사람"
         parts = [
@@ -838,6 +841,12 @@ def _companion_system(
             parts.append(f"접속자의 유형: {archetype}.")
         if log:
             parts.append("최근에 함께 겪은 일: " + "; ".join(log) + ".")
+        if deja_vu:
+            parts.append(
+                "희미한 기시감: 너는 지난 루프를 기억하지 못한다. 다만 접속자와 있으면 처음 같지 않은 느낌이 "
+                "가끔 스친다(말버릇이 익숙하다, 이 대화를 한 적이 있는 것 같다). 꼭 필요할 때만 한 번, 아주 "
+                "가볍게 묻어나게 하고 '루프', '지난 회차', 횟수, 구체적인 지난 사건은 말하지 않는다."
+            )
         parts.append(
             "규칙:\n"
             "- 오직 이 인물로서 대사만 1~3문장으로 짧게 말한다. 이름표, 따옴표, 괄호 지문, 해설 없이.\n"
@@ -877,6 +886,12 @@ def _companion_system(
         parts.append(f"The connector's type: {archetype}.")
     if log:
         parts.append("What you just went through together: " + "; ".join(log) + ".")
+    if deja_vu:
+        parts.append(
+            "A faint déjà vu: you do not remember any loop. But with the connector, now and then, something "
+            "feels not-quite-new (a turn of phrase you know, a talk you seem to have had before). Let it show at "
+            "most once and lightly, only when it fits; never say 'loop', 'last time', a count or a specific past event."
+        )
     parts.append(
         "Rules:\n"
         f"- Speak only as {name}: 1-3 short sentences of dialogue. No name label, no quotes, no "

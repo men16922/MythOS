@@ -32,9 +32,11 @@ interface Props {
   companionId: string
   /** The authored bond line that opens the conversation (already localised). */
   opening: string
+  /** Earlier loops this companion was with the connector: a faint déjà vu in their replies (they do not remember). */
+  loopsTogether?: number
 }
 
-export function CompanionChat({ run, C, lang, settings, companionId, opening }: Props) {
+export function CompanionChat({ run, C, lang, settings, companionId, opening, loopsTogether = 0 }: Props) {
   const ko = lang === 'ko'
   const def = C.companions[companionId]
   const member = rx.roster(run).find((m) => m.id === companionId)
@@ -98,6 +100,7 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening }: 
             .filter(Boolean),
           archetype: tr(C.archetypes[run.archetype]?.name, lang),
           party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)).filter(Boolean),
+          loopsTogether,
         },
       },
       abort.signal,

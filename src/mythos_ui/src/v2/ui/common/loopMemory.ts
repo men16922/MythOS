@@ -5,6 +5,12 @@
 import type { ContentRegistry, Lang, MetaProfile, RunRecord, Text } from '../../engine/types.ts'
 import { hasBatchim, tr, withRo } from './lang.ts'
 
+/** Earlier normal loops this companion was recruited in (their faint déjà vu in the safehouse chat; they do not
+ *  remember the loops, only feel them). */
+export function loopsWith(profile: Pick<MetaProfile, 'history'>, companion: string): number {
+  return profile.history.filter((r) => !r.daily && r.party.includes(companion)).length
+}
+
 /** Facts sent at most (the server bounds lists anyway). */
 export const MEMORY_FACTS = 4
 

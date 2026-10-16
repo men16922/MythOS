@@ -14,7 +14,7 @@ import './rest.css'
 
 type Choice = { kind: 'heal' | 'upgrade' | 'scrub' } | { kind: 'bond'; id: string }
 
-export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsceneSeen }: ScreenProps) {
+export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsceneSeen, loopsWith }: ScreenProps) {
   const [chosen, setChosen] = useState<Choice | null>(null)
   const [closedScene, setClosedScene] = useState('')
   const [bondPick, setBondPick] = useState(false)
@@ -144,7 +144,7 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
         {done && (
           <div className="m2-rest__done">
             {bonded && bondDef && bondLine ? (
-              <CompanionChat run={run} C={C} lang={lang} settings={settings} companionId={bonded.id} opening={tr(bondLine, lang)} />
+              <CompanionChat run={run} C={C} lang={lang} settings={settings} companionId={bonded.id} opening={tr(bondLine, lang)} loopsTogether={loopsWith?.(bonded.id) ?? 0} />
             ) : (
               <p className="m2-rest__note">
                 {chosen?.kind === 'heal'

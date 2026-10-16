@@ -2,7 +2,11 @@
 
 Last updated: 2026-10-17
 
-## 2026-10-17 — Preview revision 00125 deployed and verified (not promoted)
+## 2026-10-17 — Promoted 00125; companions' faint déjà vu (owner: "지금 승격", "희미한 데자뷰", contact email left unset)
+
+- Owner promoted via this session: `update-traffic --to-revisions mythos-api-00125-goj=100`; production `/api/v2/health` ok, `gm: gemini:gemini-3.8-flash`, title `World:Connect — MythOS` (rollback: `00123`). Lore call: only IX remembers loops; a companion recruited in earlier loops gets a faint déjà vu in the safehouse chat (`loopsTogether` from `loopMemory.loopsWith` → `talk._companion_system`; never a memory, a count or the word loop). Gemini sample: "나도 너 볼 때마다 묘하게 구면인 것 같단 말이지, 기분 탓인가." New eval case `companion_han_dejavu_ko`.
+
+## 2026-10-17 — Preview revision 00125 deployed and verified
 
 - `make deploy-preview` → `mythos-api-00125-goj` at 0 % (tag `v2-preview`); `make verify-preview` 5/5 PASS (git-sha 102edfd = HEAD, health, postgres store, GM `gemini:gemini-3.8-flash` via the new `.env` MODEL pass-through, google auth, served bundle = committed). `/privacy`, `/account-deletion`, `/admin`, `/` → 200, tab title `World:Connect — MythOS`. `MYTHOS_CONTACT_EMAIL` is still unset (the pages fall back to the store-listing contact). Promotion is the owner's: `gcloud run services update-traffic mythos-api --to-revisions mythos-api-00125-goj=100 --region us-central1 --project <PROJECT_ID>`. Not verified: a signed-in session on the preview (GM lines, account deletion, report flags).
 

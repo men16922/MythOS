@@ -233,6 +233,13 @@ def cases() -> list[Case]:
             },
         ),
         _companion("companion_han_ko", "han", "ko", HAN, "오늘 어땠어?"),
+        _companion(
+            "companion_han_dejavu_ko",
+            "han",
+            "ko",
+            {**HAN, "loopsTogether": 3},
+            "우리 전에 본 적 있나?",
+        ),
         _companion("companion_serin_en", "se_rin", "en", SERIN_EN, "You okay?"),
         _ix(
             "ix_boss_start_memory_ko",

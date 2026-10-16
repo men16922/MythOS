@@ -23,7 +23,7 @@ import { PartyModal } from '../components/PartyModal.tsx'
 import { setCommsRun } from '../common/commsLog.ts'
 import { setAiEnabled } from './gm.ts'
 import { EnemyTaunt } from './EnemyTaunt.tsx'
-import { loopMemory } from '../common/loopMemory.ts'
+import { loopMemory, loopsWith } from '../common/loopMemory.ts'
 import { ErrorBoundary } from '../components/ErrorBoundary.tsx'
 import { SCREEN_LABEL, TRACE_EFFECT, TRACE_LABEL, savedAgo, traceTier, type TraceTier } from '../components/format.ts'
 import { Modal } from '../components/Modal.tsx'
@@ -358,6 +358,7 @@ export function GameShell() {
       act,
       seenCutscenes: profile.cutscenes ?? [],
       eventsSeen: profile.eventsSeen ?? {},
+      loopsWith: (companion: string) => loopsWith(profile, companion),
       onCutsceneSeen: (id) => setProfile((p) => markCutsceneSeen(p, id)),
     }
     const s = run.screen

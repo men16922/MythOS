@@ -4,7 +4,7 @@ Last updated: 2026-10-17
 
 ## 2026-10-17 — Promoted 00125; companions' faint déjà vu (owner: "지금 승격", "희미한 데자뷰", contact email left unset)
 
-- Owner promoted via this session: `update-traffic --to-revisions mythos-api-00125-goj=100`; production `/api/v2/health` ok, `gm: gemini:gemini-3.8-flash`, title `World:Connect — MythOS` (rollback: `00123`). Lore call: only IX remembers loops; a companion recruited in earlier loops gets a faint déjà vu in the safehouse chat (`loopsTogether` from `loopMemory.loopsWith` → `talk._companion_system`; never a memory, a count or the word loop). Gemini sample: "나도 너 볼 때마다 묘하게 구면인 것 같단 말이지, 기분 탓인가." New eval case `companion_han_dejavu_ko`.
+- Owner promoted via this session: `update-traffic --to-revisions mythos-api-00125-goj=100`; production `/api/v2/health` ok, `gm: gemini:gemini-3.8-flash`, title `World:Connect — MythOS` (rollback: `00123`). Lore call: only IX remembers loops; a companion recruited in earlier loops gets a faint déjà vu in the safehouse chat (`loopsTogether` from `loopMemory.loopsWith` → `talk._companion_system`; never a memory, a count or the word loop). Gemini sample: "나도 너 볼 때마다 묘하게 구면인 것 같단 말이지, 기분 탓인가." New eval case `companion_han_dejavu_ko`. Then deploy-preview → `00127-kah` (verify-preview 5/5, git-sha c100b6a) → promoted to 100 %; production health ok, `/`, `/privacy`, `/account-deletion` 200. Headless check: the chat request carries `loopsTogether` from history. Not verified: a signed-in session on production.
 
 ## 2026-10-17 — Preview revision 00125 deployed and verified
 

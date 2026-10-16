@@ -13,7 +13,7 @@ Last updated: 2026-10-17
 - **Android** `src/mythos_ui/android` — Capacitor app with Firebase: Crashlytics, App Distribution, native Google sign-in, FCM daily-seed push (see `docs/android.md`).
 - **Online UI** — account chip/settings, `DailyBoard` leaderboard (auto-submit at daily run end), anonymous play stays fully offline.
 - **Play policy pieces** (2026-10-14, not deployed yet) — in-app account deletion (`DELETE /api/v2/account`: saves, history, daily rows + the Firebase sign-in record), AI-line reporting (inline flags + Settings list → `v2_gm_reports`, shown on `/admin`), `/privacy` + `/account-deletion` pages; submission sheet + store graphics in `docs/play-store.md`.
-- **Enemy taunts, déjà-vu openings, `make gm-eval`, Gemini thinking headroom** (2026-10-17, not deployed yet).
+- **Enemy taunts, déjà-vu openings, `make gm-eval`, Gemini thinking headroom** (2026-10-17). Everything from 10-14 and 10-17 is on preview revision `00125` (0 % traffic, verify-preview 5/5); production is still `00123` until promoted.
 - **Party bench, random run seeds, AI toggle, IX loop memory** (2026-10-17, not deployed yet) — unlimited recruits, two deployed, swap on the map (party screen); every normal run has a random seed; Settings 'AI 대사 사용'; IX recalls earlier loops; the chronicle uses typed Improvise actions; tutorial no longer repeats.
 - **Comms log + GM model switch** (2026-10-17, not deployed yet) — per-run log of every GM / IX / boss / companion line (HUD + pause menu, AI lines flaggable); Vertex GM `gemini-3.8-flash` (3.5-flash failed 9/40 calls with 504s in an A/B, 3.8 0/40); `make deploy*` passes `.env` `MODEL`.
 

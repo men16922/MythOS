@@ -6,6 +6,7 @@ import { tr } from '../common/lang.ts'
 import { sound } from '../components/sound.ts'
 import { GmCard } from './GmCard.tsx'
 import { narrate } from './gm.ts'
+import { logComms } from '../common/commsLog.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 import './actintro.css'
@@ -35,7 +36,9 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
       party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
       archetype: tr(C.archetypes[run.archetype]?.name, lang),
     }).then((text) => {
-      if (alive && text) setGmLine(text)
+      if (!alive || !text) return
+      setGmLine(text)
+      logComms({ speaker: 'gm', text, ai: true, act: run.act, where: tr(actDef?.name, lang), report: { route: 'narrate', kind: 'act_intro' } })
     })
     return () => {
       alive = false

@@ -13,6 +13,7 @@ import { ixMirror } from '../../content/ixMirror.ts'
 import { statVoiceLine } from '../../content/statVoices.ts'
 import { GmCard } from './GmCard.tsx'
 import { improvise, narrate } from './gm.ts'
+import { logComms } from '../common/commsLog.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 import './event.css'
@@ -118,6 +119,8 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
   const [gmWait, setGmWait] = useState<string | null>(null)
   const [action, setAction] = useState('')
   const [pending, setPending] = useState<Improvisation | null>(null)
+  /** The model wrote `pending`'s outcome texts (for the comms log). */
+  const [pendingAi, setPendingAi] = useState(false)
   const [judging, setJudging] = useState(false)
   const [typedKey, setTypedKey] = useState('')
   const [introDone, setIntroDone] = useState('') // event id whose body text has finished typing
@@ -144,7 +147,9 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
       window.clearTimeout(waitTimer)
       if (!alive) return
       setGmWait(null)
-      if (text) setGmLine({ id: ev.id, text })
+      if (!text) return
+      setGmLine({ id: ev.id, text })
+      logComms({ speaker: 'gm', text, ai: true, act: run.act, where: tr(ev.title, lang), report: { route: 'narrate', kind: 'event' } })
     })
     return () => {
       alive = false
@@ -173,7 +178,9 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
       outcome: res ? tr(res.text, lang) : imp ? tr(imp.rolled?.success ? imp.successText : imp.failureText, lang) : undefined,
       success: checked ? (res ? res.success : !!imp?.rolled?.success) : undefined,
     }).then((text) => {
-      if (alive && text) setGmLine({ id: ev.id, text })
+      if (!alive || !text) return
+      setGmLine({ id: ev.id, text })
+      logComms({ speaker: 'gm', text, ai: true, act: run.act, where: tr(ev.title, lang), report: { route: 'narrate', kind: 'event' } })
     })
     return () => {
       alive = false
@@ -230,7 +237,7 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
     if (!text || judging) return
     setJudging(true)
     sound('ui_click')
-    const imp = await improvise({
+    const { imp, ai } = await improvise({
       lang,
       event: { title: tr(ev.title, lang), text: tr(ev.text, lang), options: views.map((v) => tr(v.option.label, lang)) },
       action: text,
@@ -239,6 +246,7 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
     })
     setJudging(false)
     setPending(imp)
+    setPendingAi(ai)
   }
 
   const roll = () => {
@@ -248,6 +256,11 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
     const chance = rx.chance(run, pending)
     setPending(null)
     setAction('')
+    if (r) {
+      const where = tr(ev.title, lang)
+      logComms({ speaker: 'player', text: pending.action, ai: false, act: run.act, where })
+      logComms({ speaker: 'gm', text: tr(r.success ? pending.successText : pending.failureText, lang), ai: pendingAi, act: run.act, where, report: { route: 'improvise', kind: 'event' } })
+    }
     if (r) setRolling({ chance, success: r.success, land: Math.max(1, Math.min(99, r.roll)), next, label: `${statLabel(pending.stat, lang)} ${run.stats[pending.stat]}` })
     else act(next)
   }

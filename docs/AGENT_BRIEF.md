@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-10-14
+Last updated: 2026-10-17
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **All agent-side work is done; what is left is owner-only** (`docs/NEXT_PLAN.md`): Play release per `docs/play-store.md` "Owner steps" (account, `MYTHOS_CONTACT_EMAIL` + deploy-preview → verify → promote, `firebaseauth.admin` for `mythos-run@`, upload key → `VERSION_CODE=1 make android-aab`, paste listing/Data safety/rating, upload `outputs/play-store/`); listen to the 4 flagged SFX groups (`outputs/sfx-review/index.html`) and judge the 3 trailer spots (`docs/test/sfx_trailer_prereview.md`); pin voice-over voices (`pin.py`). After the owner's call: recut the trailer (`make cinematic`), Play upload + SHA-1 (`make firebase-sha`), voice batch. Held-out bank is v2 (2.0 tree), model pins kept. **`main` is Mythos 2.0 only; 1.x is on branch `1.0`.** Production = Cloud Run rev `00123`. Deploy = `make deploy-preview` → `make verify-preview` → promote command. **Test muted (`?mute=1`), one browser tab at most.**
+> ▶ NEXT SESSION: **Pending deploy batch** (Play policy pieces + comms log + GM `MODEL=gemini-3.8-flash`): `make deploy-preview` → `make verify-preview` → promote. **AI expansion candidates** await the owner's pick (`docs/NEXT_PLAN.md`). Other owner-only items (`docs/NEXT_PLAN.md`): Play release per `docs/play-store.md` "Owner steps" (account, `MYTHOS_CONTACT_EMAIL` + deploy-preview → verify → promote, `firebaseauth.admin` for `mythos-run@`, upload key → `VERSION_CODE=1 make android-aab`, paste listing/Data safety/rating, upload `outputs/play-store/`); listen to the 4 flagged SFX groups (`outputs/sfx-review/index.html`) and judge the 3 trailer spots (`docs/test/sfx_trailer_prereview.md`); pin voice-over voices (`pin.py`). After the owner's call: recut the trailer (`make cinematic`), Play upload + SHA-1 (`make firebase-sha`), voice batch. Held-out bank is v2 (2.0 tree), model pins kept. **`main` is Mythos 2.0 only; 1.x is on branch `1.0`.** Production = Cloud Run rev `00123`. Deploy = `make deploy-preview` → `make verify-preview` → promote command. **Test muted (`?mute=1`), one browser tab at most.**
 
 ## Snapshot
 

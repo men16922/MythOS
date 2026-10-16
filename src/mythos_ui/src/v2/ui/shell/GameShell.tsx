@@ -17,7 +17,9 @@ import { configureAudio, playBgm, unlockAudio, type Bgm } from '../common/audio.
 import { tr } from '../common/lang.ts'
 import { onNative, pushControl } from '../common/nativeBridge.ts'
 import { DailyBoard } from '../components/DailyBoard.tsx'
+import { CommsLogModal } from '../components/CommsLogModal.tsx'
 import { DeckModal } from '../components/DeckModal.tsx'
+import { setCommsRun } from '../common/commsLog.ts'
 import { ErrorBoundary } from '../components/ErrorBoundary.tsx'
 import { SCREEN_LABEL, TRACE_EFFECT, TRACE_LABEL, savedAgo, traceTier, type TraceTier } from '../components/format.ts'
 import { Modal } from '../components/Modal.tsx'
@@ -132,6 +134,7 @@ export function GameShell() {
   const [viewState, setView] = useState<View>(bootView)
   const view: View = viewState === 'run' && !run ? 'title' : viewState
   const [deckOpen, setDeckOpen] = useState(false)
+  const [commsOpen, setCommsOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   // 'newloop' / 'daily': a run is live and the player asked for a new one (abandon first, then go on).
   const [confirm, setConfirm] = useState<null | 'abandon' | 'newloop' | 'daily'>(null)
@@ -190,6 +193,7 @@ export function GameShell() {
           setMenuOpen(false)
           setSettingsOpen(false)
           setDeckOpen(false)
+          setCommsOpen(false)
           setView('title')
           setFlagDaily(true)
           setBoard({ date: dateKeyAt(Date.now()) })
@@ -238,8 +242,13 @@ export function GameShell() {
     if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__m2 = { run, profile, setRun, setProfile, setView, C }
   }, [run, profile, setRun, setProfile, C])
 
+  // The comms log follows the live run (a new run id starts its own log; Continue reloads it).
+  useEffect(() => {
+    setCommsRun(run?.id ?? null)
+  }, [run?.id])
+
   const openMenu = useCallback(() => setMenuOpen(true), [])
-  const modalOpen = deckOpen || settingsOpen || menuOpen || board !== null || confirm !== null || discardIdx !== null
+  const modalOpen = deckOpen || commsOpen || settingsOpen || menuOpen || board !== null || confirm !== null || discardIdx !== null
   useEffect(() => {
     duckMusic(modalOpen)
   }, [modalOpen])
@@ -437,6 +446,7 @@ export function GameShell() {
             C={C}
             lang={lang}
             onDeck={() => setDeckOpen(true)}
+            onComms={() => setCommsOpen(true)}
             onSettings={() => setSettingsOpen(true)}
             onMenu={() => setMenuOpen(true)}
             savedAt={game.savedAt}
@@ -485,6 +495,7 @@ export function GameShell() {
             onClose={() => setDeckOpen(false)}
           />
         )}
+        {commsOpen && run && <CommsLogModal C={C} lang={lang} onClose={() => setCommsOpen(false)} />}
         {discardIdx !== null && run && run.consumables[discardIdx] && (
           <Modal
             onClose={() => setDiscardIdx(null)}
@@ -519,6 +530,9 @@ export function GameShell() {
               <>
                 <button className="m2-btn m2-btn--danger" onClick={() => (setMenuOpen(false), setConfirm('abandon'))}>
                   {lang === 'ko' ? '루프 포기' : 'Abandon loop'}
+                </button>
+                <button className="m2-btn m2-btn--ghost" onClick={() => (setMenuOpen(false), setCommsOpen(true))}>
+                  {lang === 'ko' ? '통신 기록' : 'Comms log'}
                 </button>
                 <button className="m2-btn m2-btn--ghost" onClick={() => (setMenuOpen(false), setSettingsOpen(true))}>
                   {lang === 'ko' ? '설정' : 'Settings'}

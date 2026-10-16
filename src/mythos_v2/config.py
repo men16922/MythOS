@@ -62,7 +62,7 @@ class GeminiConfig:
 
     model: str = field(
         default_factory=lambda: (
-            env("GEMINI_MODEL", "MODEL", default="gemini-3.5-flash") or "gemini-3.5-flash"
+            env("GEMINI_MODEL", "MODEL", default="gemini-3.8-flash") or "gemini-3.8-flash"
         )
     )
     use_vertex: bool = field(

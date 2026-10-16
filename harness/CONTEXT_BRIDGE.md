@@ -13,7 +13,7 @@ The root handoff harness for passing work context between agents. The source of 
 
 1. **Owner calls pending**: SFX listen-test, deploy of 2.0 to Cloud Run (then smoke `/api/v2` + Vertex GM there), Play Console account + upload key for the Android app, `git push`.
 2. **Testing rule**: always muted (`?mute=1`), at most one browser tab, prefer headless Playwright.
-3. **AI GM**: local Ollama `gemma4:8b-64k` (the `.env` default `gemma4:latest` is not installed); cloud = Vertex `gemini-3.5-flash`. Authored pools exist on both sides (`talk.py` ↔ `ui/shell/talkLines.ts`, kept in sync by a test).
+3. **AI GM**: local Ollama `gemma4:8b-64k` (the `.env` default `gemma4:latest` is not installed); cloud = Vertex `gemini-3.8-flash` (`.env` `MODEL`, passed by `make deploy*`). Authored pools exist on both sides (`talk.py` ↔ `ui/shell/talkLines.ts`, kept in sync by a test).
 
 ## Open Risks
 

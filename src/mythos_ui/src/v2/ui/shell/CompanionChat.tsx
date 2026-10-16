@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/types.ts'
 import { TALK_LIMITS, type TalkTurn } from '../../net/api.ts'
 import { portrait } from '../common/assets.ts'
+import { logComms } from '../common/commsLog.ts'
 import { tr } from '../common/lang.ts'
 import { ReportLine } from '../components/ReportLine.tsx'
 import { sound } from '../components/sound.ts'
@@ -48,6 +49,12 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening }: 
   const latestId = msgs[msgs.length - 1]?.id
 
   useEffect(() => () => ctrl.current?.abort(), [])
+  // The authored bond line opens the conversation in the comms log too.
+  useEffect(() => {
+    logComms({ speaker: 'companion', companion: companionId, text: opening, ai: false, act: run.act })
+    // Once per conversation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companionId])
   useEffect(() => {
     const el = logRef.current
     if (el) el.scrollTop = el.scrollHeight
@@ -63,6 +70,7 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening }: 
     const history: TalkTurn[] = msgs.map((m) => ({ role: m.role, text: m.text }))
     const nextId = msgs.length
     setMsgs((prev) => [...prev, { id: nextId, role: 'player', text }])
+    logComms({ speaker: 'player', companion: companionId, text, ai: false, act: run.act })
     setDraft('')
     setWaiting(true)
     ctrl.current?.abort()
@@ -96,6 +104,8 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening }: 
     if (abort.signal.aborted) return
     setWaiting(false)
     setMsgs((prev) => [...prev, { id: nextId + 1, role: 'companion', text: reply.text, llm: reply.source === 'llm' }])
+    const ai = reply.source === 'llm'
+    logComms({ speaker: 'companion', companion: companionId, text: reply.text, ai, act: run.act, report: ai ? { route: 'talk', kind: `companion:${companionId}` } : undefined })
     window.setTimeout(() => inputRef.current?.focus(), 0)
   }
 

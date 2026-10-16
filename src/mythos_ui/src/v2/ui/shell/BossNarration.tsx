@@ -7,6 +7,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { CombatState, ContentRegistry, Lang, MetaProfile } from '../../engine/types.ts'
+import { logComms, swapComms } from '../common/commsLog.ts'
 import { tr } from '../common/lang.ts'
 import { GmCard } from './GmCard.tsx'
 import { narrate, type Ctx } from './gm.ts'
@@ -52,7 +53,12 @@ export function BossNarration({ combat, C, lang, settings }: Props) {
     const key = ++seq.current
     let up = false
     let pending: string | null = null
-    const swapIn = (text: string) => setShown((s) => (s && s.key === key && !s.leaving ? { ...s, text } : s))
+    let logId: number | null = null
+    const report = { route: 'narrate', kind: 'boss' } as const
+    const swapIn = (text: string) => {
+      setShown((s) => (s && s.key === key && !s.leaving ? { ...s, text } : s))
+      swapComms(logId, { text, ai: true, report })
+    }
     void narrate('boss', lang, context, LLM_WAIT_MS + delay).then((text) => {
       if (!text || ctrl.signal.aborted) return
       if (up) swapIn(text)
@@ -61,6 +67,14 @@ export function BossNarration({ combat, C, lang, settings }: Props) {
     later(() => {
       up = true
       setShown({ key, text: pending ?? authored, leaving: false })
+      logId = logComms({
+        speaker: 'boss',
+        text: pending ?? authored,
+        ai: pending !== null,
+        act: typeof context.act === 'number' ? context.act : undefined,
+        where: typeof context.boss === 'string' ? context.boss : undefined,
+        report: pending !== null ? report : undefined,
+      })
     }, delay)
     later(() => setShown((s) => (s && s.key === key ? { ...s, leaving: true } : s)), delay + SHOW_MS - 400)
     later(() => setShown((s) => (s && s.key === key ? null : s)), delay + SHOW_MS)

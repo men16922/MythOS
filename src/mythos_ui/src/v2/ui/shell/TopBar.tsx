@@ -1,6 +1,6 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
 import { art } from '../components/art.ts'
-import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, Settings, Shuffle } from 'lucide-react'
+import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, MessagesSquare, Settings, Shuffle } from 'lucide-react'
 import { useEffect } from 'react'
 import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
@@ -23,6 +23,8 @@ export interface TopBarProps {
   C: ContentRegistry
   lang: Lang
   onDeck: () => void
+  /** The run's comms log (every GM / IX / companion line seen this run). */
+  onComms: () => void
   onSettings: () => void
   /** Pause menu: save & quit / settings / abandon. */
   onMenu: () => void
@@ -32,7 +34,7 @@ export interface TopBarProps {
   onDiscard?: (index: number) => void
 }
 
-export function TopBar({ run, C, lang, onDeck, onSettings, onMenu, savedAt, onDiscard }: TopBarProps) {
+export function TopBar({ run, C, lang, onDeck, onComms, onSettings, onMenu, savedAt, onDiscard }: TopBarProps) {
   // Mark implants as seen after their pulse has played.
   const implantKey = run.implants.join('|')
   useEffect(() => {
@@ -202,6 +204,9 @@ export function TopBar({ run, C, lang, onDeck, onSettings, onMenu, savedAt, onDi
         <button className="m2-deckbtn" onClick={onDeck} title={lang === 'ko' ? '덱 보기' : 'View deck'}>
           <Layers size={16} />
           <span className="m2-mono">{run.deck.length}</span>
+        </button>
+        <button className="m2-iconbtn" onClick={onComms} title={lang === 'ko' ? '통신 기록' : 'Comms log'} aria-label={lang === 'ko' ? '통신 기록' : 'Comms log'}>
+          <MessagesSquare size={16} />
         </button>
         <button className="m2-iconbtn" onClick={onSettings} title={lang === 'ko' ? '설정' : 'Settings'}>
           <Settings size={16} />

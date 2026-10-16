@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { CombatState, ContentRegistry, Lang, MetaProfile } from '../../engine/types.ts'
 import { isHardMuted } from '../common/audio.ts'
 import { asset } from '../common/assets.ts'
+import { logComms, swapComms } from '../common/commsLog.ts'
 import { sound } from '../components/sound.ts'
 import { ixLine } from './gm.ts'
 import { detectMoment, newMemo, turnAllows, type FightMemo, type IxMoment } from './ixMoments.ts'
@@ -116,6 +117,8 @@ export function IxComms({ combat, C, lang, settings }: Props) {
     let llmText: string | null = null
     let shown = false
     let swapped = false
+    let logId: number | null = null
+    const report = { route: 'talk', kind: `ix:${m.trigger}` } as const
 
     void ixLine(m.trigger, lang, m.context, LLM_WAIT_MS, ctrl.signal).then((text) => {
       if (!text || ctrl.signal.aborted) return
@@ -126,6 +129,7 @@ export function IxComms({ combat, C, lang, settings }: Props) {
       if (swapped) return
       swapped = true
       setLine((l) => (l && l.key === key && !l.leaving ? { ...l, text, llm: true } : l))
+      swapComms(logId, { text, ai: true, report })
       const elapsed = performance.now() - shownAt.current
       scheduleDismiss(key, Math.min(MAX_SHOW_MS - elapsed, Math.max(SHOW_MS - elapsed, SWAP_MIN_MS)))
     })
@@ -138,6 +142,7 @@ export function IxComms({ combat, C, lang, settings }: Props) {
       swapped = llmText !== null // already the LLM line: no second swap
       shownAt.current = performance.now()
       setLine({ key, text: llmText ?? authored, llm: llmText !== null, leaving: false, after: ended })
+      logId = logComms({ speaker: 'ix', text: llmText ?? authored, ai: llmText !== null, act: typeof m.context.act === 'number' ? m.context.act : undefined, report: llmText !== null ? report : undefined })
       if (!isHardMuted()) sound('ui_hover', { volume: 0.9 })
       scheduleDismiss(key, SHOW_MS)
     })

@@ -301,7 +301,8 @@ cloud-run-local:
 # Env-preserving `--source .`: the existing revision's env (GM provider, DATABASE_URL, …) is kept; sign-in is set on
 # every deploy: MYTHOS_AUTH=google, MYTHOS_FIREBASE_PROJECT and MYTHOS_FIREBASE_WEB_CONFIG (compacted from the
 # gitignored .firebase/web-config.json — `make firebase-web` — inside a subshell, never echoed). `.env`'s
-# MYTHOS_ADMIN_EMAILS (comma-separated Google accounts allowed into /admin) is passed along when set.
+# MYTHOS_ADMIN_EMAILS (comma-separated Google accounts allowed into /admin), MYTHOS_CONTACT_EMAIL, MYTHOS_DEVELOPER_NAME
+# and MODEL (the Vertex GM model, e.g. gemini-3.8-flash) are passed along when set.
 REGION ?= us-central1
 CLOUD_RUN_TIMEOUT ?= 3600
 FIREBASE_WEB_CONFIG ?= .firebase/web-config.json
@@ -317,7 +318,7 @@ deploy:
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
 	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
 	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
-	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME; do \
+	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL; do \
 		VAL=$$(grep -E "^$$KEY=" .env | cut -d= -f2- | tr -d '"'); \
 		test -z "$$VAL" || AUTH_ENV="$$AUTH_ENV@@$$KEY=$$VAL"; \
 	done; \
@@ -334,7 +335,7 @@ deploy-preview:
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
 	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
 	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
-	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME; do \
+	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL; do \
 		VAL=$$(grep -E "^$$KEY=" .env | cut -d= -f2- | tr -d '"'); \
 		test -z "$$VAL" || AUTH_ENV="$$AUTH_ENV@@$$KEY=$$VAL"; \
 	done; \

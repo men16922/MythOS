@@ -122,12 +122,13 @@ const VALID_STATS: StatKey[] = ['str', 'agi', 'int', 'cha', 'obs']
 const VALID_REWARD: Improvisation['reward'][] = ['credits', 'heal', 'card', 'trace_down', 'implant']
 const VALID_RISK: Improvisation['risk'][] = ['hp', 'trace', 'credits']
 
-/** Ask the GM to adjudicate a free action; falls back to the local keyword judge. Always resolves. */
-export async function improvise(req: ImproviseReq): Promise<Improvisation> {
+/** Ask the GM to adjudicate a free action; falls back to the local keyword judge. Always resolves.
+ *  `ai`: the model wrote the outcome texts (the comms log marks them). */
+export async function improvise(req: ImproviseReq): Promise<{ imp: Improvisation; ai: boolean }> {
   const local = localImprovise(req.action)
   try {
     const res: Partial<net.ImproviseResult> | null = await withTimeout(net.improvise(req), 16000)
-    if (!res) return local
+    if (!res) return { imp: local, ai: false }
     const stat = VALID_STATS.includes(res.stat as StatKey) ? (res.stat as StatKey) : local.stat
     const dc = Math.max(3, Math.min(9, Math.round(Number(res.dc) || local.dc)))
     let reward = VALID_REWARD.includes(res.reward as Improvisation['reward']) ? (res.reward as Improvisation['reward']) : local.reward
@@ -141,8 +142,8 @@ export async function improvise(req: ImproviseReq): Promise<Improvisation> {
       const text = `${ko ? '성공' : 'Success'}: ${pick(successText)}\n${ko ? '실패' : 'Failure'}: ${pick(failureText)}`
       noteAiLine({ route: 'improvise', kind: 'event', lang: req.lang, text })
     }
-    return { action: req.action, stat, dc, reward, risk, successText, failureText }
+    return { imp: { action: req.action, stat, dc, reward, risk, successText, failureText }, ai: res.source === 'llm' }
   } catch {
-    return local
+    return { imp: local, ai: false }
   }
 }

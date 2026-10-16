@@ -498,3 +498,50 @@
   float: right;
   margin: 2px -6px -4px 6px;
 }
+
+/* EnemyTaunt.tsx: a talking enemy's speech bubble, anchored above its unit (fixed; click-through). */
+.m2-taunt {
+  position: fixed;
+  z-index: 87;
+  max-width: min(280px, calc(100vw - 32px));
+  padding: 7px 12px 8px;
+  transform: translate(-50%, calc(-100% - 12px));
+  border: 1px solid rgba(255, 122, 138, 0.55);
+  border-radius: 10px 10px 10px 2px;
+  background: linear-gradient(180deg, rgba(36, 6, 12, 0.95), rgba(14, 6, 10, 0.93));
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  color: #ffe3e7;
+  pointer-events: none;
+  animation: m2-taunt-in 0.24s var(--m2-ease) both;
+}
+.m2-taunt.is-leaving {
+  animation: m2-taunt-out 0.32s ease-in both;
+}
+.m2-taunt.is-fast {
+  animation-duration: 0.12s;
+}
+.m2-taunt__name {
+  display: block;
+  margin-bottom: 2px;
+  color: #ff7a8a;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.m2-taunt__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+@keyframes m2-taunt-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 4px)) scale(0.96);
+  }
+}
+@keyframes m2-taunt-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 18px));
+  }
+}

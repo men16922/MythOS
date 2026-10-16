@@ -111,7 +111,7 @@ function Chips({ chips }: { chips: EffectChip[] }) {
   )
 }
 
-export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
+export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenProps) {
   const screen = run.screen.kind === 'event' ? run.screen : null
   const ev: EventDef | undefined = screen ? C.events[screen.eventId] : undefined
   const [gmLine, setGmLine] = useState<{ id: string; text: string } | null>(null)
@@ -143,6 +143,8 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
       party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
       trace: run.trace,
       hints: ev.gmHints ?? [],
+      // Lived through in earlier loops: the GM may open on déjà vu (the server phrases the count).
+      seenBefore: eventsSeen?.[ev.id] ?? 0,
     }).then((text) => {
       window.clearTimeout(waitTimer)
       if (!alive) return

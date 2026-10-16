@@ -8,7 +8,7 @@ COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
 .PHONY: setup frontend-setup clean lint python-lint frontend-lint format typecheck python-typecheck frontend-build \
-	test test-v2 test-db test-e2e-v2 trailer trailer-cut cinematic cinematic-assets playthrough playthrough-quick verify-preview check check-auto check-skills sync-skills check-doc-budget \
+	test test-v2 test-db test-e2e-v2 gm-eval trailer trailer-cut cinematic cinematic-assets playthrough playthrough-quick verify-preview check check-auto check-skills sync-skills check-doc-budget \
 	api api-stop api-cloud cloud-image cloud-run-local deploy deploy-preview \
 	android-web android-apk android-aab android-firebase android-emulator android-distribute android-icons \
 	firebase-web firebase-sha firebase-auth-domains push-schedule push-test \
@@ -348,6 +348,12 @@ playthrough:
 	$(VENV)/bin/python scripts/dev/ui_playthrough.py --runs 1 --max-minutes 45
 
 # ~3 min version for before a deploy: 5 map nodes through the real UI, then the shop/safehouse/treasure/final-choice tour.
+# GM line eval set (scripts/dev/gm_eval.py): the frozen prompts through the configured model, deterministic metrics,
+# writes outputs/gm-eval/. Local Ollama by default; Vertex (billed) with MYTHOS_NARRATIVE_PROVIDER=vertex MODEL=….
+# Compare a prompt/model change with GM_EVAL_ARGS="--baseline outputs/gm-eval/<before>.json" (exit 1 on regression).
+gm-eval:
+	MYTHOS_LOG_LEVEL=ERROR $(VENV)/bin/python scripts/dev/gm_eval.py $(GM_EVAL_ARGS)
+
 playthrough-quick:
 	$(VENV)/bin/python scripts/dev/ui_playthrough.py --runs 1 --max-minutes 8 --max-nodes 5
 

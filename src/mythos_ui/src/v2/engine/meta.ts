@@ -206,6 +206,7 @@ export function migrateProfile(raw: unknown): MetaProfile {
     daily: migrateDaily(r.daily),
     cutscenes: strList(r.cutscenes),
     companionWins: migrateCounts(r.companionWins),
+    eventsSeen: migrateCounts(r.eventsSeen),
   }
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {
@@ -429,6 +430,7 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     companionsMet: union(profile.companionsMet, [...run.party, ...(run.bench ?? [])].map((m) => m.id)),
     history: [record, ...profile.history].slice(0, HISTORY_CAP),
     companionWins: victory && !run.daily ? addWins(profile.companionWins, run.party.map((m) => m.id)) : { ...(profile.companionWins ?? {}) },
+    eventsSeen: addWins(profile.eventsSeen, [...new Set(run.seenEvents)]),
     settings: { ...profile.settings },
   }
   if (!victory && !abandoned && killedBy) next.lastDeath = { killedBy, act: run.act, loop: run.loop }

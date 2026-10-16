@@ -12,7 +12,7 @@ import { dayOf, IMPROVED, submitLine } from '../components/dailyBoard.ts'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { narrate } from './gm.ts'
-import { commsEntries } from '../common/commsLog.ts'
+import { commsEntries, improvisedRecords } from '../common/commsLog.ts'
 import type { ScreenProps } from './types.ts'
 import './ending.css'
 
@@ -118,11 +118,9 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
         // not "floors": the model read 24 as the tower's height ("24층 높이의 ARK 첨탑")
         sectorsCleared: run.tally.floors,
         highlights: run.log.slice(-14).map((l) => tr(l.note, lang)),
-        // What the player typed as free actions this loop (comms log), for the chronicle to weave one in.
-        improvised: commsEntries()
-          .filter((e) => e.speaker === 'player' && !e.companion)
-          .slice(-3)
-          .map((e) => (e.where ? `${e.where}: ${e.text}` : e.text)),
+        // What the player typed as free actions this loop (comms log) with the outcome that followed, so the
+        // chronicle can weave one in without guessing how it went.
+        improvised: improvisedRecords(commsEntries()),
       },
       15000,
       true,

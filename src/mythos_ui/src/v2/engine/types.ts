@@ -767,6 +767,8 @@ export interface MetaProfile {
   cutscenes?: string[]
   /** Normal-run victories with each companion in the party at the end (daily and abandoned runs do not count). */
   companionWins?: Record<string, number>
+  /** How many runs each event appeared in (any loop, daily included): lets the GM open a revisited scene on déjà vu. */
+  eventsSeen?: Record<string, number>
 }
 
 export type MetaUnlockKind = 'archetype' | 'companion' | 'card_pack' | 'implant_pack' | 'thread'

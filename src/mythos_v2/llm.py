@@ -164,7 +164,7 @@ class GeminiTextLLM:
         config: dict[str, Any] = {
             "system_instruction": system,
             "temperature": temperature,
-            "max_output_tokens": max_tokens,
+            "max_output_tokens": max_tokens + max(0, self.config.thinking_headroom),
             "thinking_config": {"thinking_budget": self.config.thinking_budget},
         }
         if json_schema is not None:

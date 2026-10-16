@@ -848,6 +848,14 @@ export type TalkRequest =
       /** act, actName, enemy, boss, companion, phaseText, loop. */
       context?: NarrateContext
     }
+  | {
+      mode: 'enemy'
+      lang: Lang
+      /** Talking enemy id (content/taunts.ts ↔ src/mythos_v2/taunt.py personas). */
+      enemy: string
+      moment: 'hurt' | 'winning'
+      context?: NarrateContext
+    }
 
 export type TalkResult = NarrateResult
 

@@ -3,6 +3,7 @@
 Repo-specific things a future unattended iteration should know before repeating a mistake.
 One line per lesson, dated, newest on top. Lessons about the archived 1.x runtime were removed with it (branch `1.0`).
 
+- 2026-10-17: gemini-3.8-flash still spends 100-200 tokens thinking with `thinking_budget=0`; with a tight `max_output_tokens` the answer comes back as one word (finish MAX_TOKENS) and the cleaner silently falls back. Keep the thinking headroom (`GEMINI_THINKING_HEADROOM`) and run `make gm-eval` (Vertex) after any model switch — unit tests with fake LLMs cannot see this.
 - 2026-10-17: with random run seeds a UI-bot failure is no longer reproducible by rerunning — log the run's `seed` with every failure (and screenshot at the failing step) before calling it flaky. Also: a "mark done on unmount" effect fires on React StrictMode's dev double-mount; tie such flags to a real event (fight end) instead.
 - 2026-10-12: a versioned `harness_root` pin in `.claude/harness-config.json` (a plugin cache path) silently keeps `make overnight` on the old runner after plugin upgrades (it sat on 1.4.0 while 1.7.0 was installed). Don't pin a cache path; leave the key out so the Makefile follows the newest install.
 - 2026-10-12: a UI bot that clicks like a player but decides like a naive one "can't win" — that was a bot limit, not a game fault. Planning each turn with the engine's own expert (`planGreedyTurn`) and only *executing* through real clicks took the unassisted run from losing in act 1 to a full victory.

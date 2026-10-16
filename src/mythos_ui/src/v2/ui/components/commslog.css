@@ -38,6 +38,9 @@
 .m2-comms__item.is-player {
   --who: var(--m2-cyan-2);
 }
+.m2-comms__item.is-enemy {
+  --who: #ff7a8a;
+}
 .m2-comms__item.is-boss {
   --who: var(--m2-amber);
 }

@@ -161,6 +161,10 @@ test('applyRunEnd banks a defeat with history, last death and merges', () => {
   assert.equal(p.history[0]?.chronicle, 'IX remembers.')
   assert.equal(p.history[0]?.echoes, 33)
   assert.equal(applyRunEnd(p, run, C), p, 'banking the same run twice is a no-op')
+  // Events met this run count once each toward the déjà-vu opening of later loops.
+  const seen = applyRunEnd({ ...before, eventsSeen: { ev_a: 2 } }, endedRun({ seenEvents: ['ev_a', 'ev_b', 'ev_a'] }), C)
+  assert.deepEqual(seen.eventsSeen, { ev_a: 3, ev_b: 1 })
+  assert.deepEqual(migrateProfile({ ...seen, eventsSeen: { ev_a: 3, bad: -1, junk: 'x' } }).eventsSeen, { ev_a: 3 })
   const live = endedRun({ screen: { kind: 'map' } })
   assert.equal(applyRunEnd(before, live, C), before, 'unfinished runs are not banked')
 })

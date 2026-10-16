@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { COMMS_CAP, commsEntries, logComms, resetComms, setCommsRun, subscribeComms, swapComms } from './commsLog.ts'
+import { COMMS_CAP, commsEntries, improvisedRecords, logComms, resetComms, setCommsRun, subscribeComms, swapComms } from './commsLog.ts'
 
 test('nothing is logged without a run; a new run id starts a fresh log', () => {
   resetComms()
@@ -36,6 +36,17 @@ test('oldest first, blank and back-to-back repeats ignored, capped', () => {
   assert.equal(commsEntries().length, COMMS_CAP)
   assert.equal(commsEntries()[COMMS_CAP - 1]?.text, `l${COMMS_CAP + 4}`)
   off()
+  resetComms()
+})
+
+test('improvised records pair each typed action with the outcome that followed', () => {
+  resetComms()
+  setCommsRun('run-a')
+  logComms({ speaker: 'player', text: '단말기를 해킹한다', ai: false, where: '변전함' })
+  logComms({ speaker: 'gm', text: '경보가 꺼진다.', ai: true, where: '변전함', report: { route: 'improvise', kind: 'event' } })
+  logComms({ speaker: 'player', companion: 'se_rin', text: '괜찮아?', ai: false })
+  logComms({ speaker: 'player', text: '도망친다', ai: false })
+  assert.deepEqual(improvisedRecords(commsEntries()), ['변전함: 단말기를 해킹한다 → 경보가 꺼진다.', '도망친다'])
   resetComms()
 })
 

@@ -77,6 +77,12 @@ class GeminiConfig:
     thinking_budget: int = field(
         default_factory=lambda: int(env("GEMINI_THINKING_BUDGET", default="0") or "0")
     )
+    # gemini-3.8-flash still thinks now and then despite a zero budget (measured 2026-10-17: ~110-200 thought
+    # tokens on IX lines, which cut a 200-token cap down to "해태가"). This headroom is added to every cap so a
+    # thought never truncates the answer; the cleaners still bound the line itself. Thoughts bill as output.
+    thinking_headroom: int = field(
+        default_factory=lambda: int(env("GEMINI_THINKING_HEADROOM", default="768") or "0")
+    )
 
     def __post_init__(self) -> None:
         if not self.location:

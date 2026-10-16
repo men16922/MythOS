@@ -22,6 +22,7 @@ import { DeckModal } from '../components/DeckModal.tsx'
 import { PartyModal } from '../components/PartyModal.tsx'
 import { setCommsRun } from '../common/commsLog.ts'
 import { setAiEnabled } from './gm.ts'
+import { EnemyTaunt } from './EnemyTaunt.tsx'
 import { loopMemory } from '../common/loopMemory.ts'
 import { ErrorBoundary } from '../components/ErrorBoundary.tsx'
 import { SCREEN_LABEL, TRACE_EFFECT, TRACE_LABEL, savedAgo, traceTier, type TraceTier } from '../components/format.ts'
@@ -356,6 +357,7 @@ export function GameShell() {
       settings: profile.settings,
       act,
       seenCutscenes: profile.cutscenes ?? [],
+      eventsSeen: profile.eventsSeen ?? {},
       onCutsceneSeen: (id) => setProfile((p) => markCutsceneSeen(p, id)),
     }
     const s = run.screen
@@ -503,6 +505,7 @@ export function GameShell() {
               memoryFor={(encounterId) => loopMemory(profile, C, lang, encounterId)}
             />
           )}
+          {view === 'run' && run && <EnemyTaunt combat={run.screen.kind === 'combat' ? run.screen.combat : null} C={C} lang={lang} settings={profile.settings} />}
           {view === 'run' && run && <BossNarration combat={run.screen.kind === 'combat' ? run.screen.combat : null} C={C} lang={lang} settings={profile.settings} />}
         </main>
 

@@ -42,6 +42,22 @@ class GeminiUsageTest(unittest.TestCase):
         self.assertEqual(llm.complete("s", "u", **KW), "hello")
         self.assertEqual(take_last_usage(), Usage(100, 27))
 
+    def test_cap_gets_thinking_headroom(self) -> None:
+        seen: dict[str, Any] = {}
+        response = SimpleNamespace(text="ok", usage_metadata=None)
+
+        def generate(**kw: Any) -> object:
+            seen.update(kw)
+            return response
+
+        client = SimpleNamespace(models=SimpleNamespace(generate_content=generate))
+        with mock.patch.dict("os.environ", {"GEMINI_THINKING_HEADROOM": "500"}):
+            GeminiTextLLM(client=client).complete("s", "u", **KW)
+        self.assertEqual(seen["config"]["max_output_tokens"], 50 + 500)
+        with mock.patch.dict("os.environ", {"GEMINI_THINKING_HEADROOM": "0"}):
+            GeminiTextLLM(client=client).complete("s", "u", **KW)
+        self.assertEqual(seen["config"]["max_output_tokens"], 50)
+
     def test_missing_metadata_is_zero_not_an_error(self) -> None:
         llm = GeminiTextLLM(client=self._client(None))
         self.assertEqual(llm.complete("s", "u", **KW), "hello")

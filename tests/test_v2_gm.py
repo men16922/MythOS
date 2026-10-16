@@ -8,6 +8,7 @@ import unittest
 from typing import Any, ClassVar
 
 from mythos_v2 import gm
+from mythos_v2.gm import Lang
 from mythos_v2.ratelimit import RateLimiter
 
 
@@ -55,6 +56,24 @@ class ContextTest(unittest.TestCase):
         _, other = gm.narrate_messages("event", "ko", ctx)
         self.assertNotIn("직접 적어 넣은 행동", other)
         self.assertEqual(gm.improvised_block("en", {}), "")
+
+    def test_revisited_event_opening_asks_for_deja_vu(self) -> None:
+        base = {"title": "변전함", "text": "문이 뜯긴 변전함."}
+
+        def prompt(lang: Lang, **extra: Any) -> str:
+            system, user = gm.narrate_messages(
+                "event", lang, gm.sanitize_context({**base, **extra})
+            )
+            return system + "\n" + user
+
+        self.assertNotIn("데자뷔", prompt("ko", seenBefore=0))
+        again = prompt("ko", seenBefore=2)
+        self.assertIn("이 장면을 두 번 겪었다", again)
+        self.assertIn("데자뷔", again)
+        self.assertNotIn("seenBefore", again)  # the raw count stays out of the prompt
+        self.assertIn("many times", prompt("en", seenBefore=9))
+        # Only the opening: once a choice is made the aftermath is narrated without it.
+        self.assertNotIn("데자뷔", prompt("ko", seenBefore=2, choice="지나간다"))
 
     def test_render_context(self) -> None:
         text = gm.render_context({"loop": 3, "party": ["세린", "태오"]})

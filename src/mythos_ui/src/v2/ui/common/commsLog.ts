@@ -6,7 +6,7 @@
 // localStorage so it survives a reload / Continue; a different run id starts a fresh log.
 import type { AiLineReport } from '../../net/api.ts'
 
-export type CommsSpeaker = 'gm' | 'ix' | 'boss' | 'companion' | 'player'
+export type CommsSpeaker = 'gm' | 'ix' | 'boss' | 'enemy' | 'companion' | 'player'
 
 export interface CommsEntry {
   id: number
@@ -94,6 +94,18 @@ export function swapComms(id: number | null, patch: Pick<CommsEntry, 'text' | 'a
   if (!hit) return
   persist()
   emit()
+}
+
+/** The player's typed Improvise actions (newest three) as "place: action → outcome" records for the chronicle. */
+export function improvisedRecords(list: readonly CommsEntry[], max = 3): string[] {
+  const out: string[] = []
+  list.forEach((e, i) => {
+    if (e.speaker !== 'player' || e.companion) return
+    const next = list[i + 1]
+    const outcome = next && next.report?.route === 'improvise' ? next.text.split('\n')[0]?.slice(0, 90) : ''
+    out.push(`${e.where ? `${e.where}: ` : ''}${e.text}${outcome ? ` → ${outcome}` : ''}`)
+  })
+  return out.slice(-max)
 }
 
 /** Oldest first (a stable array between changes, for useSyncExternalStore). */

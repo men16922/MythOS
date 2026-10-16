@@ -18,6 +18,8 @@ function speakerName(e: CommsEntry, C: ContentRegistry, ko: boolean): string {
       return e.where ? `GM · ${e.where}` : ko ? 'GM · 보스전' : 'GM · Boss'
     case 'ix':
       return ko ? '관리자 IX' : 'Administrator IX'
+    case 'enemy':
+      return e.where ?? (ko ? '적' : 'Enemy')
     case 'companion':
       return mate || (ko ? '동료' : 'Companion')
     case 'player':

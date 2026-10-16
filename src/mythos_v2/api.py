@@ -20,7 +20,7 @@ Routes
                                    record when signed in) → {ok, removed, sign_in_record_deleted}
   POST /gm/narrate                 {kind, lang, context} → {text, source}
   POST /gm/improvise               {lang, event, action, stats, act} → Improvisation + source
-  POST /gm/talk                    {mode: companion|ix, lang, …} → {text, source}
+  POST /gm/talk                    {mode: companion|ix|enemy, lang, …} → {text, source}
   POST /gm/report                  {route, kind, lang, text} → {ok}: flag an offensive AI line (no player id kept)
   PUT  /daily/{date}               {name, result} → {rank, total, best, improved}  (identity required)
   GET  /daily/{date}?archetype=&limit=   public board; ``me`` when the caller is identified
@@ -62,7 +62,7 @@ from starlette.concurrency import run_in_threadpool
 
 from mythos_v2.log import get_logger
 
-from . import admin, daily, gm, talk
+from . import admin, daily, gm, talk, taunt
 from .auth import (
     GOOGLE_PLAYER_PREFIX,
     AccountDeleter,
@@ -186,15 +186,17 @@ class TalkTurn(BaseModel):
 
 
 class TalkBody(BaseModel):
-    """Companion chat (``companion`` + ``message`` + ``history``) or an IX comms line (``trigger``).
-    ``context`` carries the content-side facts (see ``mythos_v2.talk``)."""
+    """Companion chat (``companion`` + ``message`` + ``history``), an IX comms line (``trigger``) or an enemy
+    taunt (``enemy`` + ``moment``). ``context`` carries the content-side facts (see ``mythos_v2.talk``)."""
 
-    mode: Literal["companion", "ix"]
+    mode: Literal["companion", "ix", "enemy"]
     lang: Literal["ko", "en"] = "ko"
     companion: str = Field(default="", max_length=32)
     message: str = Field(default="", max_length=talk.MAX_MESSAGE_CHARS)
     history: list[TalkTurn] = Field(default_factory=list, max_length=talk.MAX_HISTORY_TURNS)
     trigger: talk.IxTrigger | None = None
+    enemy: str = Field(default="", max_length=32)
+    moment: taunt.TauntTrigger | None = None
     context: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -892,6 +894,34 @@ def create_v2_router(
             return text, "llm", outcome
         return talk.fallback_ix(trigger, body.lang, context), "fallback", outcome
 
+    async def talk_enemy(
+        body: TalkBody, player_id: str, context: dict[str, Any]
+    ) -> tuple[str, str, str]:
+        """One taunt from a talking enemy. The client shows its own authored line first, so a miss returns ""."""
+        enemy = body.enemy.strip()
+        if body.moment is None or not taunt.valid_speaker(enemy):
+            raise HTTPException(status_code=422, detail="unknown enemy or taunt")
+        text: str | None = None
+        if not gm_limiter.allow(player_id):
+            outcome = "rate_limited"
+        else:
+            system, user = taunt.taunt_messages(enemy, body.moment, body.lang)
+            try:
+                raw = await runner.complete(
+                    system,
+                    user,
+                    max_tokens=taunt.TAUNT_MAX_TOKENS,
+                    temperature=0.8,
+                    timeout=cfg.ix_timeout,
+                )
+                text = taunt.clean_taunt(raw, enemy, body.lang, context)
+                outcome = "llm" if text else "rejected"
+            except Exception as exc:
+                outcome = _outcome_for(exc)
+                if outcome == "error":
+                    _logger.warning("v2 gm talk failed: %s", type(exc).__name__)
+        return (text, "llm", outcome) if text is not None else ("", "fallback", outcome)
+
     @router.post("/gm/report", dependencies=[Depends(limit_gm_body)])
     async def v2_gm_report(body: ReportBody, player_id: player_dep) -> dict[str, Any]:
         """Keep a flagged AI line for the operator (``/admin``). The player id only feeds the rate limit."""
@@ -915,6 +945,9 @@ def create_v2_router(
         if body.mode == "companion":
             text, source, outcome = await talk_companion(body, player_id, context)
             status = f"companion:{body.companion.strip()}"
+        elif body.mode == "enemy":
+            text, source, outcome = await talk_enemy(body, player_id, context)
+            status = f"enemy:{body.enemy.strip()}:{body.moment}"
         else:
             text, source, outcome = await talk_ix(body, player_id, context)
             status = f"ix:{body.trigger}"

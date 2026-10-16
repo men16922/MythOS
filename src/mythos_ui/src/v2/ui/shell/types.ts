@@ -11,4 +11,6 @@ export interface ScreenProps {
   /** Bond cutscene ids already seen (profile), and the callback that records one as seen. */
   seenCutscenes?: readonly string[]
   onCutsceneSeen?: (id: string) => void
+  /** Runs each event appeared in before (profile), for the GM's déjà-vu opening on a revisited scene. */
+  eventsSeen?: Readonly<Record<string, number>>
 }

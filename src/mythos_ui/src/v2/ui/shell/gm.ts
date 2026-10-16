@@ -106,6 +106,21 @@ export async function ixLine(trigger: net.IxTrigger, lang: Lang, context: Ctx, t
   }
 }
 
+/** A talking enemy's AI taunt, or null (AI off, timeout, no backend, no model line). The caller already shows
+ *  the authored line and swaps this in once. */
+export async function enemyTaunt(enemy: string, moment: 'hurt' | 'winning', lang: Lang, timeoutMs = 3500, signal?: AbortSignal): Promise<string | null> {
+  if (!aiEnabled) return null
+  try {
+    const res = await withTimeout(net.talk({ mode: 'enemy', lang, enemy, moment }, { signal, timeoutMs }), timeoutMs)
+    if (!res || res.source !== 'llm') return null
+    const text = cleanGmText(res.text) || null
+    if (text) noteAiLine({ route: 'talk', kind: `enemy:${enemy}:${moment}`, lang, text })
+    return text
+  } catch {
+    return null
+  }
+}
+
 const KEYWORDS: [StatKey, RegExp][] = [
   ['int', /해킹|분석|코드|프로그램|접속|단말|회로|우회|hack|analy|code|program|terminal|circuit|decrypt|bypass|override/i],
   ['cha', /설득|말|협상|부탁|속이|거짓|웃|매수|persuade|talk|negotiat|ask|lie|bluff|bribe|charm|convince/i],

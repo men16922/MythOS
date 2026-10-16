@@ -2,6 +2,10 @@
 
 Last updated: 2026-10-17
 
+## 2026-10-17 — GM cost per run re-measured on gemini-3.8-flash
+
+- Calls per run from a whole unassisted UI run (victory, 13.5 min; mount-time calls halved for React StrictMode in the dev server): event 15, IX 26, boss 7, act intro 3, enemy taunts 3, chronicle 1, loop start 1, plus estimates the bot skips (companion chat 6, improvise 1) ≈ 63. Tokens per route from Vertex (in / out incl. thinking): event 395/83, IX 496/138, boss 356/88, act intro 364/219, taunt 224/18, chronicle 621/88, loop start 571/47, companion 560/135, improvise 650/65. ≈ $0.048 per run at $0.75 / $3.75 per M, ≈ $0.096 after the January 2027 doubling (was ≈ $0.085 on 3.5-flash). The 400/day per-player cap ≈ 6 runs. Not verified: the 3.8 price itself (third-party pages; check Google's price list).
+
 ## 2026-10-17 — Promoted 00125; companions' faint déjà vu (owner: "지금 승격", "희미한 데자뷰", contact email left unset)
 
 - Owner promoted via this session: `update-traffic --to-revisions mythos-api-00125-goj=100`; production `/api/v2/health` ok, `gm: gemini:gemini-3.8-flash`, title `World:Connect — MythOS` (rollback: `00123`). Lore call: only IX remembers loops; a companion recruited in earlier loops gets a faint déjà vu in the safehouse chat (`loopsTogether` from `loopMemory.loopsWith` → `talk._companion_system`; never a memory, a count or the word loop). Gemini sample: "나도 너 볼 때마다 묘하게 구면인 것 같단 말이지, 기분 탓인가." New eval case `companion_han_dejavu_ko`. Then deploy-preview → `00127-kah` (verify-preview 5/5, git-sha c100b6a) → promoted to 100 %; production health ok, `/`, `/privacy`, `/account-deletion` 200. Headless check: the chat request carries `loopsTogether` from history. Not verified: a signed-in session on production.

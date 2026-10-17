@@ -17,6 +17,10 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 
 Done 2026-10-17: Settings "AI 대사 사용"; IX loop memory; chronicle uses typed Improvise actions + outcomes; talking-enemy taunts (5 personas, `mythos_v2/taunt.py` ↔ `content/taunts.ts`); déjà-vu event openings (`profile.eventsSeen`); GM eval set `make gm-eval` (baselines in `outputs/gm-eval/`). Owner call 2026-10-17: only IX remembers loops; companions get a faint déjà vu in the safehouse chat (`loopsTogether`). Rejected: runtime image generation, LLM-made cards/enemies or map direction (critical path, balance, daily comparability).
 
+## Tiers + narrative/RPG/AI expansion (planned 2026-10-18)
+
+Plan: `docs/plans/2026-10-18-tiers-and-ai-narrative.md`. Owner: monthly subscription Signal+, free tier makes no GM calls, all of N2–N9 in scope. Order: W0 global daily GM ceiling (before Play production) → W1 tier infrastructure (during the closed test) → W2 RPG growth/echo/autonomy → W3 companion dialogue, IX profiling, prefetch → W4 Deep Dive, thought cabinet. Open defaults: ₩3,900, self-hosted Play verification, no web checkout, tier features off on the daily.
+
 ## After the first wave of players
 
 - `[ ]` Balance from real play (numbers live in `v2/content`; measure with `simulateRun` on fixed seed blocks before/after). Watch list of possibly strong/weak cards from the 2026-10-11 audit is in `PROGRESS_LOG.md`; check the dashboard's killers and win rates first.

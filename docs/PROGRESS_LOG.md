@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-18
 
+## 2026-10-18 — Follow-ups: district art, echo AI line, Signal+ UI playthrough, emulator billing check, preview 00129
+
+- District stills generated (6 Vertex image calls; the ledger cap was raised to 320 for this batch — the owner also allows Codex image for any art); the echo's AI line (narrate kind `echo`); `ui_playthrough.py --signal-plus` routes through each act's district.
+- Verified: `make check` green; two whole Signal+ runs through the real UI (muted, one tab) ended in victory (664 s and 772 s; the second: district 11 / dialogue 44 polls). One earlier Signal+ attempt stalled 70 s in an act-2 fight (run seed 2773674373, bot on energy 2/4) — not reproduced in the two later runs; a bot limit until shown otherwise. Debug APK on the API-36 emulator: `Billing` plugin registered, Play Billing 8 answers BILLING_UNAVAILABLE (no Play Store image) → plugin errors, no crash. `make deploy-preview` → `mythos-api-00129-mad` at 0 % (tag `v2-preview`), `make verify-preview` 5/5 (git-sha f0c98f8), `/api/v2/plan` 401 without sign-in, `/privacy` carries Signal+, district art served.
+- Not verified: a real Play purchase (needs the Play account, product, license tester and a Play-Store device). Promotion of 00129 is the owner's call (command in the verify output; rollback 00127).
+
 ## 2026-10-18 — Tiers (AI $ allowance, Signal+), the CRPG layer, growth / echoes / autonomy / thoughts (owner: "Tier를 나눠야", "CRPG … 발더스 게이트", "잔여 작업 완료시까지")
 
 - Status: done, committed; not deployed. Plan + build table: `docs/plans/2026-10-18-tiers-and-ai-narrative.md` §9; rules: `docs/GAMEPLAY.md`; decision in `DECISIONS.md`.

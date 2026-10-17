@@ -21,8 +21,8 @@ Done 2026-10-17: Settings "AI 대사 사용"; IX loop memory; chronicle uses typ
 
 Built W0–W5 (`docs/plans/2026-10-18-tiers-and-ai-narrative.md` §9). Left:
 - `[ ]` `[manual]` Play: create `signal_plus_monthly`, merchant profile, service-account access (`docs/play-store.md` step 7), then one license-tester purchase on a device → `/plan` shows plus.
-- `[ ]` `[manual]` Owner calls on the open defaults: price ₩3,900, allowances $0.30 / $1.50, `MYTHOS_V2_GM_DAILY_USD` 20, set `MYTHOS_GM_PRICE_*` to Google's list price; deploy-preview → verify → promote.
-- `[ ]` After real play: district art (they reuse event stills), more districts if players finish all six, AI-named echoes.
+- `[ ]` `[manual]` Owner: promote preview `00129` (verified 5/5; rollback 00127) and confirm the open defaults (₩3,900, allowances $0.30 / $1.50, `MYTHOS_V2_GM_DAILY_USD` 20; set `MYTHOS_GM_PRICE_*` to Google's list price).
+- `[ ]` After real play: more districts if players finish all six.
 
 ## After the first wave of players
 

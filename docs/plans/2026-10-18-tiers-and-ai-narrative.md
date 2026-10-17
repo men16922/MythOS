@@ -103,8 +103,8 @@ Each wave: `make check`, `gameplay-qa` for any rule change, `make playthrough-qu
 ## 8. Owner decisions
 
 - **D1 — decided: monthly subscription** (Signal+).
-- **D2 — decided: signed-in users get AI within a $ budget; Signal+ raises the budget.** Amounts: free $0.30/month, Signal+ $1.5/month (defaults, open).
-- **D3 price**: ₩3,900/month (default) / ₩5,900 with a $2.5 budget.
+- **D2 — decided: signed-in users get AI within a $ budget; Signal+ raises the budget.** Amounts confirmed 2026-10-18: free $0.30/month, Signal+ $1.5/month, global $20/day.
+- **D3 price — decided 2026-10-18: ₩3,900/month**; allowances confirmed at free $0.30 / Signal+ $1.50 / daily ceiling $20 (the shipped defaults).
 - **D4 billing**: self-hosted Play verification (default) / RevenueCat.
 - **D5 web**: entitlement only, no web checkout at first (default).
 - **D6 — decided: all of N2–N9 in scope**; N6 folded into C4 and N9 (Deep Dive) folded into C1/C3.

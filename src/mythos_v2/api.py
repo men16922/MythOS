@@ -18,6 +18,8 @@ Routes
   POST /history, GET /history      finished-run records (RunRecord)
   DELETE /account                  erase the player's saves, history and daily rows (+ the Firebase sign-in
                                    record when signed in) → {ok, removed, sign_in_record_deleted}
+  GET  /plan                       tier (free|plus), features, AI budget meter, subscription (Signal+)
+  POST /plan/play                  {purchaseToken} → verify a Google Play Signal+ purchase → plan
   POST /gm/narrate                 {kind, lang, context} → {text, source}
   POST /gm/improvise               {lang, event, action, stats, act} → Improvisation + source
   POST /gm/talk                    {mode: companion|ix|enemy, lang, …} → {text, source}
@@ -76,6 +78,15 @@ from .auth import (
     build_verifier,
     player_id_for_uid,
 )
+from .billing import (
+    BillingConfig,
+    BillingError,
+    Entitlement,
+    GooglePlayVerifier,
+    Plans,
+    PurchaseVerifier,
+)
+from .budget import Budget, BudgetConfig, Tier
 from .llm import TextLLM, Usage, build_text_llm, take_last_usage
 from .ratelimit import RateLimiter
 from .store import (
@@ -237,6 +248,12 @@ class ReportBody(BaseModel):
     text: str = Field(min_length=1, max_length=2000)
 
 
+class PlayPurchaseBody(BaseModel):
+    purchase_token: str = Field(
+        alias="purchaseToken", min_length=10, max_length=512, pattern=r"^[A-Za-z0-9._:-]+$"
+    )
+
+
 class DailySubmitBody(BaseModel):
     name: str | None = Field(default=None, max_length=200)
     result: DailyResultBody
@@ -383,6 +400,9 @@ def create_v2_router(
     verifier: TokenVerifier | None = None,
     now: Callable[[], datetime] | None = None,
     account_deleter: AccountDeleter | None = None,
+    budget_config: BudgetConfig | None = None,
+    billing_config: BillingConfig | None = None,
+    purchase_verifier: PurchaseVerifier | None = None,
 ) -> APIRouter:
     """Build the ``/api/v2`` router. Defaults read the environment; tests inject
     ``store_factory=MemoryV2Store``, a fake ``llm_factory``, an ``AuthConfig``, a token ``verifier``
@@ -400,6 +420,14 @@ def create_v2_router(
     admin_limiter = RateLimiter(cfg.admin_per_minute)
     report_limiter = RateLimiter(cfg.reports_per_minute)
     gm_stats = admin.GMStats(clock())
+    budget = Budget(budget_config or BudgetConfig.from_env(cfg.gm_price), holder.get, now=clock)
+    bill_cfg = billing_config or BillingConfig.from_env()
+    plans = Plans(
+        bill_cfg,
+        holder.get,
+        purchase_verifier or GooglePlayVerifier(bill_cfg.package, bill_cfg.skus),
+        now=clock,
+    )
 
     @asynccontextmanager
     async def _lifespan(_app: Any) -> AsyncIterator[None]:
@@ -713,7 +741,69 @@ def create_v2_router(
             gm_reports=reports,
         )
 
+    # --- Signal+ plan and AI budget ------------------------------------------------------------------
+
+    def plan_dict(player_id: str, tier: Tier, ent: Entitlement | None) -> dict[str, Any]:
+        signed_in = player_id.startswith(GOOGLE_PLAYER_PREFIX)
+        features = (["ai"] if signed_in or auth_cfg.mode == "open" else []) + (
+            ["crpg"] if tier == "plus" else []
+        )
+        return {
+            "tier": tier,
+            "signedIn": signed_in,
+            # Play's obfuscatedAccountId for a purchase: the server only honours tokens bought for this id.
+            "accountId": player_id if signed_in else None,
+            "features": features,
+            "budget": budget.status(player_id, tier),
+            "subscription": None
+            if ent is None
+            else {
+                "sku": ent.sku,
+                "state": ent.state,
+                "expiresAt": ent.expires_at.isoformat() if ent.expires_at else None,
+            },
+            "skus": list(bill_cfg.skus),
+        }
+
+    @router.get("/plan")
+    async def v2_plan(player_id: player_dep) -> dict[str, Any]:
+        """The caller's tier, AI budget meter and subscription. Re-checks an expired subscription with Google."""
+
+        def _load() -> dict[str, Any]:
+            ent = plans.entitlement(player_id, refresh=True)
+            return plan_dict(player_id, plans.tier(player_id), ent)
+
+        return await store_call(lambda _s: _load())
+
+    @router.post("/plan/play")
+    async def v2_plan_play(body: PlayPurchaseBody, player_id: player_dep) -> dict[str, Any]:
+        """Redeem a Google Play Signal+ purchase for the signed-in caller."""
+        if not player_id.startswith(GOOGLE_PLAYER_PREFIX):
+            raise _unauthorized()
+        check_write_rate(player_id)
+
+        def _redeem() -> dict[str, Any]:
+            ent = plans.redeem(player_id, body.purchase_token)
+            return plan_dict(player_id, plans.tier(player_id), ent)
+
+        try:
+            result = await store_call(lambda _s: _redeem())
+        except BillingError as exc:
+            _logger.info("v2 plan purchase rejected", extra={"outcome": exc.reason})
+            status = 503 if exc.reason.startswith(("unreachable", "no play", "http")) else 422
+            raise HTTPException(
+                status_code=status, detail=f"purchase not verified: {exc.reason}"
+            ) from None
+        _logger.info("v2 plan purchase", extra={"player_id": player_id, "outcome": result["tier"]})
+        return result
+
     # --- AI GM -------------------------------------------------------------------
+
+    async def gm_refusal(player_id: str) -> str | None:
+        """Why this player may not make a GM call now (``rate_limited`` / ``budget`` / ``ceiling``), else None."""
+        if not gm_limiter.allow(player_id):
+            return "rate_limited"
+        return await run_in_threadpool(lambda: budget.refusal(player_id, plans.tier(player_id)))
 
     async def log_gm(
         route: str, player_id: str, outcome: str, started: float, **extra: Any
@@ -721,6 +811,13 @@ def create_v2_router(
         gm_stats.record(route, outcome)
         used = _CALL_USAGE.get()
         _CALL_USAGE.set(None)
+        if used is not None:
+            try:
+                await asyncio.wait_for(
+                    run_in_threadpool(lambda: budget.charge(player_id, used)), timeout=2.0
+                )
+            except Exception as exc:
+                _logger.warning("v2 gm spend not recorded: %s", type(exc).__name__)
         # Durable per-day counter for the operator dashboard. Best effort and bounded: a slow or failing
         # store never delays or fails the reply (the authored/LLM text is already decided).
         day = daily.today_kst(clock())
@@ -758,8 +855,8 @@ def create_v2_router(
         started = time.perf_counter()
         context = gm.sanitize_context(body.context)
         text: str | None = None
-        if not gm_limiter.allow(player_id):
-            outcome = "rate_limited"
+        if (refused := await gm_refusal(player_id)) is not None:
+            outcome = refused
         else:
             system, user = gm.narrate_messages(body.kind, body.lang, context)
             limits = gm.narrate_limits(body.kind, body.lang)
@@ -794,8 +891,8 @@ def create_v2_router(
         verdict: gm.Adjudication | None = None
         if cls.abusive:
             outcome = "rejected_input"
-        elif not gm_limiter.allow(player_id):
-            outcome = "rate_limited"
+        elif (refused := await gm_refusal(player_id)) is not None:
+            outcome = refused
         else:
             system, user = gm.improvise_messages(
                 lang=body.lang,
@@ -842,8 +939,8 @@ def create_v2_router(
             outcome = "deflected"
         elif talk.player_turns(history) >= talk.MAX_PLAYER_MESSAGES:
             outcome = "turn_cap"
-        elif not gm_limiter.allow(player_id):
-            outcome = "rate_limited"
+        elif (refused := await gm_refusal(player_id)) is not None:
+            outcome = refused
         else:
             system, user = talk.companion_messages(companion, body.lang, context, history, message)
             try:
@@ -872,8 +969,8 @@ def create_v2_router(
         if trigger is None:
             raise HTTPException(status_code=422, detail="trigger is required")
         text: str | None = None
-        if not gm_limiter.allow(player_id):
-            outcome = "rate_limited"
+        if (refused := await gm_refusal(player_id)) is not None:
+            outcome = refused
         else:
             system, user = talk.ix_messages(trigger, body.lang, context)
             try:
@@ -902,8 +999,8 @@ def create_v2_router(
         if body.moment is None or not taunt.valid_speaker(enemy):
             raise HTTPException(status_code=422, detail="unknown enemy or taunt")
         text: str | None = None
-        if not gm_limiter.allow(player_id):
-            outcome = "rate_limited"
+        if (refused := await gm_refusal(player_id)) is not None:
+            outcome = refused
         else:
             system, user = taunt.taunt_messages(enemy, body.moment, body.lang)
             try:

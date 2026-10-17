@@ -13,6 +13,9 @@
   backdrop-filter: blur(4px);
   animation: m2-fade 0.18s ease-out;
 }
+.m2-modal-back--nested {
+  z-index: 210;
+}
 .m2-modal {
   position: relative;
   width: min(480px, 100%);

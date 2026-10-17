@@ -14,6 +14,28 @@ export interface PushControl {
   syncLang(lang: Lang): Promise<void>
 }
 
+export type PurchaseOutcome = 'subscribed' | 'pending' | 'canceled' | 'sign-in' | 'unverified' | 'unavailable'
+
+/** Signal+ through Google Play Billing (native/billing.ts). */
+export interface BillingControl {
+  /** The Signal+ offer priced by Play in the player's currency, or null (offline, product not live yet). */
+  offer(): Promise<{ title: string; price: string } | null>
+  /** Buy and redeem with the server. Never throws. */
+  purchase(): Promise<PurchaseOutcome>
+  /** Re-send owned subscriptions to the server (reinstall, a redeem that failed offline). */
+  restore(): Promise<void>
+}
+
+let billing: BillingControl | null = null
+
+export function registerBilling(control: BillingControl): void {
+  billing = control
+}
+
+export function billingControl(): BillingControl | null {
+  return billing
+}
+
 type NativeEvent = { kind: 'open-daily' } | { kind: 'daily-received'; title: string; body: string }
 
 let push: PushControl | null = null

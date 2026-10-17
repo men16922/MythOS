@@ -42,6 +42,7 @@ from mythos_v2.admin import (
     run_from_fields,
     run_summary,
 )
+from mythos_v2.billing import Entitlement
 from mythos_v2.daily import DailyBoard, DailyEntry, DailyResult, DailySubmission
 from mythos_v2.log import get_logger
 
@@ -50,7 +51,7 @@ SLOTS: tuple[Slot, ...] = ("profile", "run")
 
 DEFAULT_DATABASE_URL = "postgresql://mythos:mythos@localhost:5432/mythos"
 
-#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql + 013_v2_gm_usage.sql + 014_v2_gm_usage_tokens.sql + 015_v2_gm_reports.sql (those files are
+#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql + 013_v2_gm_usage.sql + 014_v2_gm_usage_tokens.sql + 015_v2_gm_reports.sql + 016_v2_gm_spend.sql + 017_v2_entitlements.sql (those files are
 #: canonical; a test asserts they match). Every statement is idempotent.
 SCHEMA_STATEMENTS: tuple[str, ...] = (
     """CREATE TABLE IF NOT EXISTS v2_saves (
@@ -118,6 +119,20 @@ END $$""",
   text TEXT NOT NULL
 )""",
     "CREATE INDEX IF NOT EXISTS idx_v2_gm_reports_created ON v2_gm_reports(created_at DESC)",
+    """CREATE TABLE IF NOT EXISTS v2_gm_spend (
+  player_id TEXT NOT NULL,
+  month DATE NOT NULL,
+  micro_usd BIGINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (player_id, month)
+)""",
+    """CREATE TABLE IF NOT EXISTS v2_entitlements (
+  player_id TEXT PRIMARY KEY,
+  sku TEXT NOT NULL,
+  state TEXT NOT NULL,
+  expires_at TIMESTAMPTZ,
+  purchase_token TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+)""",
 )
 
 #: Per-player history kept by the in-memory store (Postgres keeps everything).
@@ -191,7 +206,8 @@ class V2Store(ABC):
     @abstractmethod
     def delete_player(self, player_id: str) -> dict[str, int]:
         """Erase everything stored for ``player_id`` (both save slots, run history, daily-board rows) in one
-        go. Returns the rows removed per table. ``v2_gm_usage`` holds no player ids, so it is untouched."""
+        go (incl. AI spend and the Signal+ row). Returns the rows removed per table. ``v2_gm_usage`` holds no player
+        ids, so it is untouched."""
         raise NotImplementedError
 
     # --- operator dashboard (read-only; see ``admin.build_overview``) -------------------------------------
@@ -234,6 +250,26 @@ class V2Store(ABC):
         """Flagged AI lines at or after ``since``, newest first."""
         raise NotImplementedError
 
+    # --- AI budget and Signal+ (``mythos_v2.budget`` / ``mythos_v2.billing``) -------------------------------
+
+    @abstractmethod
+    def gm_spend(self, player_id: str, month: date) -> int:
+        """Micro-USD this player's GM calls cost in ``month`` (its first day)."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def add_gm_spend(self, player_id: str, month: date, micro: int) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_entitlement(self, player_id: str) -> Entitlement | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def put_entitlement(self, player_id: str, entitlement: Entitlement) -> None:
+        """Replace the player's entitlement row."""
+        raise NotImplementedError
+
     def close(self) -> None:  # noqa: B027 - optional hook, default no-op
         """Release resources (pool); no-op for the memory store."""
 
@@ -247,6 +283,8 @@ class MemoryV2Store(V2Store):
         self._first_saved: dict[tuple[str, str], datetime] = {}
         self._gm_usage: dict[tuple[date, str, str], tuple[int, int, int]] = {}
         self._gm_reports: list[GMReport] = []
+        self._gm_spend: dict[tuple[str, date], int] = {}
+        self._entitlements: dict[str, Entitlement] = {}
         # record id -> (player_id, created_at, data)
         self._history: dict[tuple[str, str], tuple[datetime, dict[str, Any]]] = {}
         # (day, archetype) -> player_id -> best entry
@@ -290,7 +328,17 @@ class MemoryV2Store(V2Store):
             for board in self._daily.values():
                 if board.pop(player_id, None) is not None:
                     daily_rows += 1
-        return {"saves": len(saves), "history": len(history), "daily": daily_rows}
+            spend = [month for month in self._gm_spend if month[0] == player_id]
+            for month in spend:
+                del self._gm_spend[month]
+            plan = 1 if self._entitlements.pop(player_id, None) is not None else 0
+        return {
+            "saves": len(saves),
+            "history": len(history),
+            "daily": daily_rows,
+            "gm_spend": len(spend),
+            "entitlements": plan,
+        }
 
     def append_history(self, player_id: str, record_id: str, data: dict[str, Any]) -> None:
         with self._lock:
@@ -420,6 +468,23 @@ class MemoryV2Store(V2Store):
         rows.sort(key=lambda r: r.created_at, reverse=True)
         return rows[: max(0, limit)]
 
+    def gm_spend(self, player_id: str, month: date) -> int:
+        with self._lock:
+            return self._gm_spend.get((player_id, month), 0)
+
+    def add_gm_spend(self, player_id: str, month: date, micro: int) -> None:
+        with self._lock:
+            key = (player_id, month)
+            self._gm_spend[key] = self._gm_spend.get(key, 0) + max(0, micro)
+
+    def get_entitlement(self, player_id: str) -> Entitlement | None:
+        with self._lock:
+            return self._entitlements.get(player_id)
+
+    def put_entitlement(self, player_id: str, entitlement: Entitlement) -> None:
+        with self._lock:
+            self._entitlements[player_id] = entitlement
+
     def admin_daily(self, since: date) -> list[tuple[date, DailyEntry]]:
         with self._lock:
             return [
@@ -536,6 +601,8 @@ class PostgresV2Store(V2Store):
                     ("saves", "v2_saves"),
                     ("history", "v2_run_history"),
                     ("daily", "v2_daily_scores"),
+                    ("gm_spend", "v2_gm_spend"),
+                    ("entitlements", "v2_entitlements"),
                 )
             }
         return {name: max(0, int(count)) for name, count in counts.items()}
@@ -842,6 +909,64 @@ class PostgresV2Store(V2Store):
                 (since,),
             ).fetchall()
         return [(row["day"], self._daily_entry(str(row["archetype"]), row)) for row in rows]
+
+    def gm_spend(self, player_id: str, month: date) -> int:
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT micro_usd FROM v2_gm_spend WHERE player_id = %s AND month = %s",
+                (player_id, month),
+            ).fetchone()
+        return int(row["micro_usd"]) if row else 0
+
+    def add_gm_spend(self, player_id: str, month: date, micro: int) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO v2_gm_spend (player_id, month, micro_usd) VALUES (%s, %s, %s)
+                ON CONFLICT (player_id, month) DO UPDATE SET
+                  micro_usd = v2_gm_spend.micro_usd + EXCLUDED.micro_usd
+                """,
+                (player_id, month, max(0, micro)),
+            )
+
+    def get_entitlement(self, player_id: str) -> Entitlement | None:
+        with self._conn() as conn:
+            row = conn.execute(
+                """
+                SELECT sku, state, expires_at, purchase_token, updated_at
+                FROM v2_entitlements WHERE player_id = %s
+                """,
+                (player_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return Entitlement(
+            sku=str(row["sku"]),
+            state=row["state"],
+            expires_at=row["expires_at"],
+            purchase_token=str(row["purchase_token"]),
+            updated_at=row["updated_at"],
+        )
+
+    def put_entitlement(self, player_id: str, entitlement: Entitlement) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO v2_entitlements (player_id, sku, state, expires_at, purchase_token, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                ON CONFLICT (player_id) DO UPDATE SET
+                  sku = EXCLUDED.sku, state = EXCLUDED.state, expires_at = EXCLUDED.expires_at,
+                  purchase_token = EXCLUDED.purchase_token, updated_at = EXCLUDED.updated_at
+                """,
+                (
+                    player_id,
+                    entitlement.sku,
+                    entitlement.state,
+                    entitlement.expires_at,
+                    entitlement.purchase_token,
+                    entitlement.updated_at,
+                ),
+            )
 
 
 def build_store() -> V2Store:

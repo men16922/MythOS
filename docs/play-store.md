@@ -22,7 +22,12 @@ headless and muted) into `outputs/play-store/`, which is gitignored. Rebuild the
 5. Fill **App content** with the answers below: privacy policy, app access, ads, content rating, target audience,
    data safety, and account deletion.
 6. **Store listing**: paste the texts below (ko-KR default + en-US translation) and upload the graphics.
-7. **Internal testing** → upload `VERSION_CODE=1 make android-aab` output, register the upload-key and the Play
+7. **Signal+ subscription** (`docs/online.md` "AI budget and Signal+"): Monetize → Subscriptions → create
+   `signal_plus_monthly` (one base plan, monthly auto-renew, ₩3,900 default). Users and permissions → invite the Cloud
+   Run service account `mythos-run@<PROJECT_ID>.iam.gserviceaccount.com` with "View financial data" and "Manage orders
+   and subscriptions" for this app (the server verifies and acknowledges purchases with it). Add a license tester to
+   buy without being charged. A Play merchant (payments) profile is required before the product can be activated.
+8. **Internal testing** → upload `VERSION_CODE=1 make android-aab` output, register the upload-key and the Play
    app-signing SHA-1 in Firebase (`make firebase-sha`), then **closed testing** with the testers from step 1.
 
 ## App details
@@ -32,7 +37,7 @@ headless and muted) into `outputs/play-store/`, which is gitignored. Rebuild the
 | App name (ko, ≤ 30) | `세계:접속 — MYTHOS 시그널 런` |
 | App name (en, ≤ 30) | `MYTHOS: Signal Run` |
 | Category | Game → Strategy (tags: Roguelike, Deck-building, Turn-based tactics, Cyberpunk) |
-| Price | Free, no in-app purchases, no ads |
+| Price | Free download with an optional subscription (Signal+, in-app purchase); no ads |
 | Privacy policy URL | `https://mythos-api-k62nky5rrq-uc.a.run.app/privacy` |
 | Account deletion URL | `https://mythos-api-k62nky5rrq-uc.a.run.app/account-deletion` |
 | Website | `https://mythos-api-k62nky5rrq-uc.a.run.app/` (the web version) |
@@ -139,7 +144,7 @@ GRAC 12), but the questionnaire decides.
 | Gambling | No real-money or simulated casino gambling. One narrative event is a wager paid in in-game credits |
 | Crude humour, discrimination | No |
 | User interaction | Users do not chat with each other. A display name the player chooses is shown on the public daily leaderboard (names are cleaned and capped at 16 characters) |
-| Shares location, digital purchases | No, no |
+| Shares location, digital purchases | No; yes — an optional monthly subscription (Signal+) |
 | AI-generated content | Yes: GM narration, companion replies and IX lines. Output is constrained by system prompts, has authored fallbacks, and can be reported in-app (Settings → AI 대사 신고, plus inline flags) |
 
 **Data safety** (all "collected" items: encrypted in transit, not shared with third parties, deletion on request).
@@ -154,10 +159,11 @@ GRAC 12), but the questionnaire decides.
 | App activity → Other actions | Yes | Yes | App functionality | Game progress, run history, daily leaderboard results (cloud saves) |
 | App info and performance → Crash logs, Diagnostics | Yes | Yes (Settings toggle) | Analytics | Firebase Crashlytics: stack, device model, OS/app version |
 | Device or other IDs | Yes | Yes | Analytics, App functionality | Crashlytics installation id; the FCM push token, held by Firebase |
+| Financial info → Purchase history | Yes | Yes (only with Signal+) | App functionality | Play purchase token, product, subscription state and expiry, to grant Signal+; payment details stay with Google Play |
 
 - Is all user data encrypted in transit? **Yes** (HTTPS).
 - Can users request deletion? **Yes**: in-app (Settings → 계정 삭제) and the account-deletion URL.
-- Location, contacts, photos, files, audio, health, financial, messages, web history, installed apps: **not collected**.
+- Location, contacts, photos, files, audio, health, messages, web history, installed apps: **not collected**.
 - Server access logs (IP, user agent) live in Cloud Logging for 30 days for security. Play does not require
   declaring IP addresses unless they are used for location; state it if Console asks.
 
@@ -165,5 +171,6 @@ GRAC 12), but the questionnaire decides.
 leaderboard rows and the Firebase sign-in record. Kept: access logs (30 days), crash reports (90 days), anonymous
 AI-call counts and reported lines.
 
-**Other declarations**: not a news app, no health or COVID features, not a government app, no financial features. The
+**Other declarations**: not a news app, no health or COVID features, not a government app, no financial features
+(the only purchase is the Signal+ subscription through Google Play Billing). The
 app requests the notification permission (daily reminder) and the internet.

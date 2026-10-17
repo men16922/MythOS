@@ -917,3 +917,97 @@ if (typeof window !== 'undefined') {
     if (document.visibilityState === 'hidden') flushOnHide()
   })
 }
+
+// ---------------------------------------------------------------- Signal+ plan and AI budget (GET /plan)
+
+export type Tier = 'free' | 'plus'
+
+export interface Plan {
+  tier: Tier
+  signedIn: boolean
+  /** Signed-in player id = Play's obfuscatedAccountId for a Signal+ purchase. */
+  accountId: string | null
+  /** 'ai' = GM lines within the monthly budget; 'crpg' = the Signal+ CRPG layer (districts, d20 dialogue, …). */
+  features: string[]
+  budget: { limitUsd: number; usedUsd: number; left: number }
+  subscription: { sku: string; state: string; expiresAt: string | null } | null
+  skus: string[]
+}
+
+const PLAN_KEY = 'mythos2.plan'
+const FREE_PLAN: Plan = {
+  tier: 'free',
+  signedIn: false,
+  accountId: null,
+  features: [],
+  budget: { limitUsd: 0, usedUsd: 0, left: 0 },
+  subscription: null,
+  skus: [],
+}
+
+export function parsePlan(raw: unknown): Plan | null {
+  if (!isRecord(raw) || (raw.tier !== 'free' && raw.tier !== 'plus')) return null
+  const b = isRecord(raw.budget) ? raw.budget : {}
+  const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0)
+  const sub = isRecord(raw.subscription) ? raw.subscription : null
+  return {
+    tier: raw.tier,
+    signedIn: raw.signedIn === true,
+    accountId: typeof raw.accountId === 'string' ? raw.accountId : null,
+    features: Array.isArray(raw.features) ? raw.features.filter((f): f is string => typeof f === 'string') : [],
+    budget: { limitUsd: num(b.limitUsd), usedUsd: num(b.usedUsd), left: Math.max(0, Math.min(1, num(b.left))) },
+    subscription: sub
+      ? { sku: String(sub.sku ?? ''), state: String(sub.state ?? ''), expiresAt: typeof sub.expiresAt === 'string' ? sub.expiresAt : null }
+      : null,
+    skus: Array.isArray(raw.skus) ? raw.skus.filter((s): s is string => typeof s === 'string') : [],
+  }
+}
+
+let plan: Plan | null = null
+const planListeners = new Set<(p: Plan) => void>()
+
+function setPlan(next: Plan): Plan {
+  plan = next
+  storageSet(PLAN_KEY, JSON.stringify(next))
+  for (const listener of planListeners) listener(next)
+  return next
+}
+
+/** The last known plan (cached across launches; free when never fetched). Signal+ survives offline play. */
+export function currentPlan(): Plan {
+  if (plan) return plan
+  try {
+    plan = parsePlan(JSON.parse(storageGet(PLAN_KEY) ?? 'null'))
+  } catch {
+    plan = null
+  }
+  return plan ?? FREE_PLAN
+}
+
+export function onPlan(listener: (p: Plan) => void): () => void {
+  planListeners.add(listener)
+  return () => planListeners.delete(listener)
+}
+
+/** Refresh the plan from the server (also re-checks an expired subscription there). Offline → the cached plan. */
+export async function loadPlan(): Promise<Plan> {
+  const res = await apiSend('GET', '/plan', { timeoutMs: TIMEOUT_MS.save })
+  if (res.kind === 'skipped' || (res.kind === 'http' && res.status === 401)) return setPlan(FREE_PLAN)
+  const parsed = res.kind === 'http' && res.status === 200 ? parsePlan(res.body) : null
+  return parsed ? setPlan(parsed) : currentPlan()
+}
+
+export type RedeemResult = { kind: 'ok'; plan: Plan } | { kind: 'rejected' } | { kind: 'offline' }
+
+/** Hand a Google Play purchase token to the server (`POST /plan/play`), which verifies and acknowledges it. */
+export async function redeemPlayPurchase(purchaseToken: string): Promise<RedeemResult> {
+  const res = await apiSend('POST', '/plan/play', { body: JSON.stringify({ purchaseToken }), timeoutMs: 15_000 })
+  if (res.kind !== 'http' || res.status >= 500) return { kind: 'offline' }
+  const parsed = res.status === 200 ? parsePlan(res.body) : null
+  return parsed ? { kind: 'ok', plan: setPlan(parsed) } : { kind: 'rejected' }
+}
+
+/** True when this player has the Signal+ CRPG layer (cached plan; daily runs never use it). */
+export function hasCrpg(): boolean {
+  return currentPlan().features.includes('crpg')
+}

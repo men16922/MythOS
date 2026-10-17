@@ -27,7 +27,8 @@
   <tr><td>Google 계정 식별자, 이메일, 이름, 프로필 사진</td><td>Google 로그인 시 (선택)</td><td>로그인. Firebase Authentication이 보관합니다. 게임 서버는 로그인 토큰을 확인해 계정 식별자에서 만든 익명 ID(해시)로만 데이터를 저장하며, 이메일은 저장하거나 기록하지 않습니다.</td></tr>
   <tr><td>게임 진행 데이터: 플레이어 이름, 아카이브 해금·통계, 진행 중인 작전, 끝난 작전 기록(결과·막·층·동료·엔딩)</td><td>로그인 시</td><td>클라우드 저장과 기기 간 이어하기</td></tr>
   <tr><td>오늘의 시드 순위표 항목: 표시 이름, 결과(승패·막·층·처치 수·시간)</td><td>로그인 후 오늘의 시드 런을 마쳤을 때</td><td>순위표 표시. 표시 이름과 결과는 다른 플레이어에게 공개됩니다.</td></tr>
-  <tr><td>AI 대사 요청: 현재 장면 요약(이벤트, 전투 상황, 능력치)과 동료 채팅에 직접 입력한 문장</td><td>로그인 시 AI 대사가 생성될 때</td><td>Google Cloud Vertex AI(Gemini)로 대사를 생성합니다. 게임 서버는 대화 내용을 저장하거나 로그에 남기지 않고, 날짜별 호출 수와 토큰 수만 개인 식별자 없이 집계합니다.</td></tr>
+  <tr><td>AI 대사 요청: 현재 장면 요약(이벤트, 전투 상황, 능력치)과 동료 채팅에 직접 입력한 문장</td><td>로그인 시 AI 대사가 생성될 때</td><td>Google Cloud Vertex AI(Gemini)로 대사를 생성합니다. 게임 서버는 대화 내용을 저장하거나 로그에 남기지 않고, 날짜별 호출 수와 토큰 수만 개인 식별자 없이 집계합니다. 월별 AI 사용 한도를 위해 익명 ID별로 이번 달 AI 사용 금액만 기록합니다.</td></tr>
+  <tr><td>Signal+ 구독: 구매 토큰, 상품, 구독 상태, 만료 시각</td><td>Android 앱에서 Signal+를 구독했을 때</td><td>구독 확인과 혜택 적용. 결제는 Google Play가 처리하며, 게임 서버는 카드나 결제 정보를 받지 않습니다.</td></tr>
   <tr><td>신고한 AI 대사: 대사 본문, 나온 곳(예: 동료 대화), 언어</td><td>AI 대사 옆 깃발이나 설정의 "AI 대사 신고"를 눌렀을 때</td><td>부적절한 AI 대사를 찾아 막기. 누가 신고했는지는 저장하지 않습니다.</td></tr>
   <tr><td>접속 기록: IP 주소, 브라우저·기기 정보, 요청 주소와 시각, 익명 ID, 처리 결과</td><td>서버에 요청할 때</td><td>보안, 남용 방지(요청 횟수 제한), 장애 대응</td></tr>
   <tr><td>오류 보고: 오류 메시지와 스택, 기기 모델, OS·앱 버전, 설치 식별자</td><td>Android 앱에서 오류가 났을 때</td><td>오류 수정 (Firebase Crashlytics). 계정이나 게임 데이터는 붙이지 않으며, 설정에서 끌 수 있습니다.</td></tr>
@@ -44,7 +45,7 @@
 
 <h2>3. 보관 기간</h2>
 <ul>
-  <li>게임 진행 데이터, 작전 기록, 순위표 항목: 계정을 삭제할 때까지.</li>
+  <li>게임 진행 데이터, 작전 기록, 순위표 항목, 월별 AI 사용 금액, Signal+ 구독 기록: 계정을 삭제할 때까지.</li>
   <li>로그인 정보(Firebase Authentication): 계정을 삭제할 때까지.</li>
   <li>신고한 AI 대사: 90일 뒤 자동 삭제.</li>
   <li>접속 기록: 30일 뒤 자동 삭제.</li>
@@ -84,7 +85,8 @@
   <tr><td>Google account id, email, name, profile photo</td><td>When you sign in with Google (optional)</td><td>Sign-in. Held by Firebase Authentication. The game server checks your sign-in token and stores data only under an anonymous id (a hash) derived from the account id; it never stores or logs your email.</td></tr>
   <tr><td>Game progress: player name, Archive unlocks and stats, the run in progress, finished-run records (result, act, floors, companions, ending)</td><td>When signed in</td><td>Cloud saves and continuing on another device</td></tr>
   <tr><td>Daily Signal leaderboard entry: display name and result (win/loss, act, floors, kills, time)</td><td>When you finish a daily run while signed in</td><td>The leaderboard. Your display name and result are visible to other players.</td></tr>
-  <tr><td>AI line requests: a summary of the current scene (event, combat state, stats) and any message you type to a companion</td><td>When an AI line is generated while signed in</td><td>Lines are written by Google Cloud Vertex AI (Gemini). The game server neither stores nor logs the conversation; it only counts calls and tokens per day, without any player id.</td></tr>
+  <tr><td>AI line requests: a summary of the current scene (event, combat state, stats) and any message you type to a companion</td><td>When an AI line is generated while signed in</td><td>Lines are written by Google Cloud Vertex AI (Gemini). The game server neither stores nor logs the conversation; it only counts calls and tokens per day, without any player id. For the monthly AI allowance it keeps this month's AI spend per anonymous id.</td></tr>
+  <tr><td>Signal+ subscription: purchase token, product, subscription state, expiry time</td><td>When you subscribe to Signal+ in the Android app</td><td>Confirming the subscription and its benefits. Google Play handles the payment; the game server never receives card or payment details.</td></tr>
   <tr><td>Reported AI lines: the line itself, where it appeared (e.g. companion chat), the language</td><td>When you press the flag next to an AI line or in Settings → "Report AI lines"</td><td>Finding and stopping inappropriate AI lines. We do not store who reported it.</td></tr>
   <tr><td>Access logs: IP address, browser/device details, requested path and time, the anonymous id, the outcome</td><td>When your device calls the server</td><td>Security, abuse prevention (rate limits), troubleshooting</td></tr>
   <tr><td>Crash reports: error message and stack, device model, OS and app version, an installation id</td><td>When the Android app hits an error</td><td>Fixing bugs (Firebase Crashlytics). No account or game data is attached; you can turn this off in Settings.</td></tr>
@@ -101,7 +103,7 @@
 
 <h2>3. Retention</h2>
 <ul>
-  <li>Game progress, run records, leaderboard entries: until you delete your account.</li>
+  <li>Game progress, run records, leaderboard entries, monthly AI spend, the Signal+ subscription record: until you delete your account.</li>
   <li>Sign-in record (Firebase Authentication): until you delete your account.</li>
   <li>Reported AI lines: deleted automatically after 90 days.</li>
   <li>Access logs: deleted automatically after 30 days.</li>

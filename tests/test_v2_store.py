@@ -10,11 +10,13 @@ import unittest
 import uuid
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
+from typing import Any
 from unittest import mock
 
 from psycopg_pool import PoolTimeout
 
 from mythos_v2 import store
+from mythos_v2.billing import Entitlement
 from mythos_v2.daily import DailyResult
 from mythos_v2.store import (
     DEFAULT_DATABASE_URL,
@@ -36,8 +38,16 @@ V2_MIGRATIONS = (
     "013_v2_gm_usage.sql",
     "014_v2_gm_usage_tokens.sql",
     "015_v2_gm_reports.sql",
+    "016_v2_gm_spend.sql",
+    "017_v2_entitlements.sql",
 )
 DAY = date(2026, 10, 11)
+MONTH = date(2026, 10, 1)
+EXPIRES = datetime(2026, 11, 18, 3, 0, tzinfo=UTC)
+
+
+def _entitlement(state: Any = "active") -> Entitlement:
+    return Entitlement("signal_plus_monthly", state, EXPIRES, "tok-123456789", EXPIRES)
 
 
 def _result(archetype: str, **overrides: object) -> DailyResult:
@@ -106,8 +116,15 @@ class _StoreContract:
             self.store.put_save(who, "run", {"v": 1})
             self.store.append_history(who, f"{who}_r", {"id": f"{who}_r"})
             self.store.submit_daily(DAY, who, "n", _result(self.archetype, floors=3))
+            self.store.add_gm_spend(who, MONTH, 1200)
+            self.store.put_entitlement(who, _entitlement())
         removed = self.store.delete_player(self.player)
-        case.assertEqual(removed, {"saves": 2, "history": 1, "daily": 1})
+        case.assertEqual(
+            removed, {"saves": 2, "history": 1, "daily": 1, "gm_spend": 1, "entitlements": 1}
+        )
+        case.assertEqual(self.store.gm_spend(self.player, MONTH), 0)
+        case.assertIsNone(self.store.get_entitlement(self.player))
+        case.assertEqual(self.store.gm_spend(other, MONTH), 1200)
         case.assertIsNone(self.store.get_save(self.player, "profile"))
         case.assertIsNone(self.store.get_save(self.player, "run"))
         case.assertEqual(self.store.list_history(self.player, 10), [])
@@ -118,9 +135,35 @@ class _StoreContract:
         case.assertIsNotNone(self.store.get_save(other, "run"))
         case.assertEqual(len(self.store.list_history(other, 10)), 1)
         case.assertEqual(
-            self.store.delete_player(self.player), {"saves": 0, "history": 0, "daily": 0}
+            self.store.delete_player(self.player),
+            {"saves": 0, "history": 0, "daily": 0, "gm_spend": 0, "entitlements": 0},
         )
         self.store.delete_player(other)
+
+    def test_gm_spend_accumulates_per_player_and_month(self) -> None:
+        case = self._case()
+        case.assertEqual(self.store.gm_spend(self.player, MONTH), 0)
+        self.store.add_gm_spend(self.player, MONTH, 500)
+        self.store.add_gm_spend(self.player, MONTH, 700)
+        self.store.add_gm_spend(self.player, date(2026, 11, 1), 9)
+        case.assertEqual(self.store.gm_spend(self.player, MONTH), 1200)
+        case.assertEqual(self.store.gm_spend(self.player, date(2026, 11, 1)), 9)
+        self.store.delete_player(self.player)
+
+    def test_entitlement_round_trip_and_replace(self) -> None:
+        case = self._case()
+        case.assertIsNone(self.store.get_entitlement(self.player))
+        self.store.put_entitlement(self.player, _entitlement())
+        self.store.put_entitlement(self.player, _entitlement(state="canceled"))
+        got = self.store.get_entitlement(self.player)
+        case.assertIsNotNone(got)
+        assert got is not None
+        case.assertEqual(
+            (got.sku, got.state, got.purchase_token),
+            ("signal_plus_monthly", "canceled", "tok-123456789"),
+        )
+        case.assertEqual(got.expires_at, EXPIRES)
+        self.store.delete_player(self.player)
 
     def test_gm_reports_newest_first_since_a_moment(self) -> None:
         case = self._case()
@@ -362,7 +405,7 @@ class PostgresStoreTest(_StoreContract, unittest.TestCase):
 
 
 class SchemaParityTest(unittest.TestCase):
-    def test_embedded_ddl_matches_migrations_009_to_015(self) -> None:
+    def test_embedded_ddl_matches_migrations_009_to_017(self) -> None:
         migrations = ";".join(
             (MIGRATIONS / name).read_text(encoding="utf-8") for name in V2_MIGRATIONS
         )
@@ -385,7 +428,10 @@ class DeletePlayerCoversEveryTableTest(unittest.TestCase):
             for stmt in SCHEMA_STATEMENTS
             if (m := re.match(r"CREATE TABLE IF NOT EXISTS (\w+) \(", stmt)) and "player_id" in stmt
         }
-        self.assertEqual(tables, {"v2_saves", "v2_run_history", "v2_daily_scores"})
+        self.assertEqual(
+            tables,
+            {"v2_saves", "v2_run_history", "v2_daily_scores", "v2_gm_spend", "v2_entitlements"},
+        )
         body = source[source.index("class PostgresV2Store") :]
         body = body[body.index("def delete_player") : body.index("def append_history")]
         for table in tables:

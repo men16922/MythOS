@@ -37,7 +37,9 @@ else the gitignored `.firebase/web-config.json` from `make firebase-web`). CORS 
 | `PUT /daily/{date}` | identity (both modes) | body `{"name", "result": DailyResult}` → `{"rank", "total", "best", "improved"}` |
 | `GET /daily/{date}?archetype=&limit=` | public; `me` when identified | `{"date", "archetype", "total", "entries": [{"rank", "name", "result", "me"}], "me": {"rank", "name", "result"} \| null}` |
 | `GET /admin/overview?days=` | admin Google account | operator dashboard payload (see "Admin dashboard") |
-| `DELETE /account` | identity | erase the player's rows → `{"ok", "removed": {saves, history, daily}, "sign_in_record_deleted": true\|false\|null}` (see "Account deletion") |
+| `DELETE /account` | identity | erase the player's rows → `{"ok", "removed": {saves, history, daily, gm_spend, entitlements}, "sign_in_record_deleted": true\|false\|null}` (see "Account deletion") |
+| `GET /plan` | identity | `{tier: free\|plus, signedIn, accountId, features: ["ai"?, "crpg"?], budget: {limitUsd, usedUsd, left}, subscription \| null, skus}`; re-checks an expired subscription with Google |
+| `POST /plan/play` | signed in | body `{purchaseToken}` → verify with Google Play, check `obfuscatedAccountId` = the player, acknowledge → plan; 422 not ours/invalid, 503 Play unreachable or no access |
 | `POST /gm/report` | identity | body `{route: narrate\|improvise\|talk, kind, lang, text ≤ 2000}` → `{"ok"}`; 10/min per player (`MYTHOS_V2_REPORTS_PER_MINUTE`) |
 
 `DailyResult` = `{archetype /^[a-z_]{1,32}$/, won: bool, act 1..3, floors 0..80, echoes 0..999, kills 0..999,
@@ -46,6 +48,28 @@ Submit date: today or yesterday in KST; read date: today and the 29 days before 
 `detail`. `limit` 1..50 (default 20). Names: NFC, control/format characters dropped, whitespace collapsed, at most
 16 characters, empty → `익명` (over 200 raw characters → 422). Writes are limited per player
 (`MYTHOS_V2_DAILY_PER_MINUTE`, default 10/min) → 429.
+
+## AI budget and Signal+
+
+Plan: `docs/plans/2026-10-18-tiers-and-ai-narrative.md`. Every GM call is checked by `mythos_v2.budget` before the
+model is asked: a miss serves the authored line (dashboard outcomes `budget` = the player's monthly allowance is
+spent, `ceiling` = the global daily cap tripped). Spend = billed tokens × `MYTHOS_GM_PRICE_*` (default the measured
+gemini-3.8-flash introductory price) in micro-USD, per player per KST month in `v2_gm_spend`.
+
+| Env | Default | Meaning |
+| --- | --- | --- |
+| `MYTHOS_V2_BUDGET_FREE_USD` | 0.30 | monthly GM allowance of a signed-in free player |
+| `MYTHOS_V2_BUDGET_PLUS_USD` | 1.50 | monthly allowance with Signal+ |
+| `MYTHOS_V2_GM_DAILY_USD` | 20 | everyone's GM spend per KST day (0 = off) |
+| `MYTHOS_V2_FREE_SHARE` | 0.7 | free players stop at this share of the daily cap; Signal+ goes on to the cap |
+| `MYTHOS_PLUS_SKUS` | `signal_plus_monthly` | Play subscription ids that grant Signal+ |
+| `MYTHOS_PLUS_GRANT` | — | comma list of player ids treated as Signal+ (operator testing) |
+
+Signal+ (`mythos_v2.billing`): the app buys through the local `BillingPlugin` (Play Billing 8) with
+`obfuscatedAccountId` = the player id from `/plan`; the server verifies the token with `purchases.subscriptionsv2`,
+acknowledges it and stores one `v2_entitlements` row (erased with the account). `GET /plan` re-asks Google once the
+stored expiry passed — renewals, cancellations and refunds without an RTDN endpoint. Needs the service account in Play
+Console (`docs/play-store.md` step 7); until then purchases answer 503 and everyone stays free. The web has no checkout.
 
 ## Account deletion, AI line reports, policy pages (Play policy)
 

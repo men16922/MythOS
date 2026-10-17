@@ -1,11 +1,12 @@
-// Mythos 2.0 — settings modal (language, BGM, SFX, fast animations, the Google account; daily notification and crash
-// reports in the Android app).
+// Mythos 2.0 — settings modal (language, BGM, SFX, fast animations, the Google account, the Signal+ plan and AI
+// allowance; daily notification and crash reports in the Android app).
 import { useState } from 'react'
 import type { Lang, MetaProfile } from '../../engine/types.ts'
 import { pushControl } from '../common/nativeBridge.ts'
 import { AccountSection } from './AccountControl.tsx'
 import { AiLinesSection } from './AiLinesSection.tsx'
 import { Modal } from './Modal.tsx'
+import { PlanSection } from './SignalPlus.tsx'
 
 type Settings = MetaProfile['settings']
 
@@ -140,6 +141,7 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
           onClick={() => onChange({ ...settings, ai: !settings.ai })}
         />
         <AccountSection lang={lang} />
+        <PlanSection lang={lang} />
         <AiLinesSection lang={lang} />
         {APP_BUILD && <DailyPushToggle lang={lang} />}
         {APP_BUILD && <CrashReportsToggle ko={ko} />}

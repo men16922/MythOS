@@ -11,12 +11,14 @@ import com.getcapacitor.BridgeActivity;
 /**
  * Mythos 2.0 host activity. Game-only polish on top of Capacitor's bridge:
  * immersive fullscreen (system bars hidden, a swipe shows them briefly) and the screen kept awake while the
- * game is in the foreground. Hardware back is handled in JS (src/v2/native/backButton.ts).
+ * game is in the foreground. Hardware back is handled in JS (src/v2/native/backButton.ts). Signal+ purchases go
+ * through the local BillingPlugin.
  */
 public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(BillingPlugin.class);
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         enterImmersive();

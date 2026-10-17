@@ -302,7 +302,9 @@ cloud-run-local:
 # every deploy: MYTHOS_AUTH=google, MYTHOS_FIREBASE_PROJECT and MYTHOS_FIREBASE_WEB_CONFIG (compacted from the
 # gitignored .firebase/web-config.json — `make firebase-web` — inside a subshell, never echoed). `.env`'s
 # MYTHOS_ADMIN_EMAILS (comma-separated Google accounts allowed into /admin), MYTHOS_CONTACT_EMAIL, MYTHOS_DEVELOPER_NAME
-# and MODEL (the Vertex GM model, e.g. gemini-3.8-flash) are passed along when set.
+# and MODEL (the Vertex GM model, e.g. gemini-3.8-flash) are passed along when set, as are the AI budget / Signal+
+# keys below (mythos_v2.budget, mythos_v2.billing).
+BUDGET_ENV_KEYS := MYTHOS_GM_PRICE_IN_PER_M MYTHOS_GM_PRICE_OUT_PER_M MYTHOS_V2_BUDGET_FREE_USD MYTHOS_V2_BUDGET_PLUS_USD MYTHOS_V2_GM_DAILY_USD MYTHOS_V2_FREE_SHARE MYTHOS_PLUS_SKUS MYTHOS_PLUS_GRANT
 REGION ?= us-central1
 CLOUD_RUN_TIMEOUT ?= 3600
 FIREBASE_WEB_CONFIG ?= .firebase/web-config.json
@@ -318,7 +320,7 @@ deploy:
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
 	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
 	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
-	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL; do \
+	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL $(BUDGET_ENV_KEYS); do \
 		VAL=$$(grep -E "^$$KEY=" .env | cut -d= -f2- | tr -d '"'); \
 		test -z "$$VAL" || AUTH_ENV="$$AUTH_ENV@@$$KEY=$$VAL"; \
 	done; \
@@ -335,7 +337,7 @@ deploy-preview:
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
 	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
 	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
-	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL; do \
+	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL $(BUDGET_ENV_KEYS); do \
 		VAL=$$(grep -E "^$$KEY=" .env | cut -d= -f2- | tr -d '"'); \
 		test -z "$$VAL" || AUTH_ENV="$$AUTH_ENV@@$$KEY=$$VAL"; \
 	done; \

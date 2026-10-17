@@ -359,7 +359,13 @@ class AccountDeletionTest(unittest.TestCase):
             res.json(),
             {
                 "ok": True,
-                "removed": {"saves": 2, "history": 1, "daily": 0},
+                "removed": {
+                    "saves": 2,
+                    "history": 1,
+                    "daily": 0,
+                    "gm_spend": 0,
+                    "entitlements": 0,
+                },
                 "sign_in_record_deleted": True,
             },
         )

@@ -1,0 +1,47 @@
+/* Signal+ plan row (Settings) and offer modal (SignalPlus.tsx). */
+.m2-plan {
+  cursor: default;
+}
+.m2-plan__meter {
+  display: block;
+  height: 4px;
+  margin-top: 6px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.m2-plan__meter i {
+  display: block;
+  height: 100%;
+  background: var(--m2-cyan);
+  transition: width 0.3s;
+}
+.m2-plus {
+  display: grid;
+  gap: 12px;
+}
+.m2-plus__lead {
+  margin: 0;
+  font-size: 15px;
+}
+.m2-plus ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.m2-plus li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.m2-plus li svg {
+  flex: none;
+  color: var(--m2-cyan);
+}
+.m2-plus small {
+  color: var(--m2-mute);
+}
+.m2-plus__note {
+  margin: 0;
+  color: var(--m2-cyan);
+}

@@ -15,7 +15,7 @@ from pathlib import Path
 
 LEGAL_DIR = Path(__file__).parent / "legal"
 #: Bump when the policy text changes (shown as the effective date).
-EFFECTIVE_DATE = "2026-10-14"
+EFFECTIVE_DATE = "2026-10-18"
 DEFAULT_DEVELOPER = "Project Mythos"
 PAGES = {"privacy": "privacy.html", "account-deletion": "account-deletion.html"}
 

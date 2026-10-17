@@ -1,4 +1,7 @@
-"""Generate Mythos 2.0 images into resources/neo-seoul/v2/.
+"""Generate Mythos 2.0 images into resources/neo-seoul/v2/ with Vertex Gemini image.
+
+Owner rule (2026-10-18): NEW images are made with Codex image (no GCP bill); this script only re-renders an
+existing group, and only with the owner's OK (it bills Vertex; see ledger.json and V2_IMAGE_BUDGET).
 
 Usage (repo venv):
   .venv/bin/python scripts/v2_assets/gen_images.py static            # items 1-7

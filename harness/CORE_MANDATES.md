@@ -12,7 +12,7 @@ The top-level design and engineering standard shared by all AI agents (Gemini, C
 ## 2. Data, Media, And Infra
 
 - **Saves**: PostgreSQL `v2_saves` (JSONB blobs, self-creating DDL = `migrations/009_v2_saves.sql`) with an in-memory fallback; the browser mirror is authoritative for offline play.
-- **Art/music**: generated 2.0 assets under `resources/neo-seoul/v2/` (Vertex Gemini image, Codex sprites, Lyria loops) via `scripts/v2_assets/` with a call-budget ledger; `content/art.test.ts` requires 100 % coverage.
+- **Art/music**: generated 2.0 assets under `resources/neo-seoul/v2/` (new images: Codex image only; Vertex Gemini image only to re-render an existing group with the owner's OK; Lyria loops) via `scripts/v2_assets/` with a call-budget ledger; `content/art.test.ts` requires 100 % coverage.
 - **Generated outputs**: `outputs/`, `.docker/`, `.env`, keys/keystores and `google-services.json` are not source artifacts.
 
 ## 3. Generation And Validation

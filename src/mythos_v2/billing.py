@@ -234,15 +234,18 @@ class Plans:
         verifier: PurchaseVerifier,
         *,
         now: Callable[[], datetime],
+        granted: Callable[[str], bool] | None = None,
     ) -> None:
         self.cfg = cfg
+        #: Extra Signal+ grants decided by the caller (the API's admin accounts).
+        self._granted = granted or (lambda _pid: False)
         self._store = store
         self._verifier = verifier
         self._now = now
 
     def tier(self, player_id: str) -> Tier:
         """The stored tier; never calls Google. A store failure reads as free."""
-        if player_id in self.cfg.grants:
+        if player_id in self.cfg.grants or self._granted(player_id):
             return "plus"
         try:
             ent = self._store().get_entitlement(player_id)

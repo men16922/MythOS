@@ -65,6 +65,8 @@ gemini-3.8-flash introductory price) in micro-USD, per player per KST month in `
 | `MYTHOS_PLUS_SKUS` | `signal_plus_monthly` | Play subscription ids that grant Signal+ |
 | `MYTHOS_PLUS_GRANT` | — | comma list of player ids treated as Signal+ (operator testing) |
 
+Admin accounts (`MYTHOS_ADMIN_EMAILS`, verified Google email on the token) have no monthly allowance and Signal+ features; the global daily ceiling still applies to them. `/plan` reports `admin: true` and `budget.unlimited: true`.
+
 Signal+ (`mythos_v2.billing`): the app buys through the local `BillingPlugin` (Play Billing 8) with
 `obfuscatedAccountId` = the player id from `/plan`; the server verifies the token with `purchases.subscriptionsv2`,
 acknowledges it and stores one `v2_entitlements` row (erased with the account). `GET /plan` re-asks Google once the

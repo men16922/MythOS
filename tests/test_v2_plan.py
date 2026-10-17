@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 from test_v2_api import FakeDeleter, FakeVerifier, bearer
 
 from mythos_v2.api import V2Settings, create_v2_router
-from mythos_v2.auth import AuthConfig, player_id_for_uid
+from mythos_v2.auth import AuthConfig, Identity, player_id_for_uid
 from mythos_v2.billing import (
     BillingConfig,
     BillingError,
@@ -325,3 +325,74 @@ class PlanRoutesTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class _AdminVerifier(FakeVerifier):
+    """``good:<uid>`` tokens; uid ``boss`` signs in with the allow-listed admin email."""
+
+    def verify_identity(self, token: str) -> Identity:
+        uid = self.verify(token)
+        return Identity(uid, "owner@example.com" if uid == "boss" else f"{uid}@example.com", True)
+
+
+class AdminAccountTest(unittest.TestCase):
+    def _client(self, llm: _UsageLLM) -> TestClient:
+        app = FastAPI()
+        app.include_router(
+            create_v2_router(
+                store_factory=MemoryV2Store,
+                llm_factory=lambda: llm,
+                settings=V2Settings(),
+                auth=AuthConfig(
+                    mode="google",
+                    project_id="demo-mythos",
+                    web_config=None,
+                    admin_emails=frozenset({"owner@example.com"}),
+                ),
+                verifier=_AdminVerifier(),
+                account_deleter=FakeDeleter(),
+                now=lambda: NOW,
+                budget_config=BudgetConfig(
+                    free_usd=0.01, plus_usd=0.02, daily_usd=1.0, price=PRICE
+                ),
+                billing_config=BillingConfig(),
+                purchase_verifier=_verifier(FakePlayAPI()),
+            )
+        )
+        return TestClient(app)
+
+    def test_admin_has_no_monthly_allowance_and_gets_signal_plus(self) -> None:
+        llm = _UsageLLM(
+            "기록을 갱신했습니다.", 3_000, 500
+        )  # 5_000 µ$ a call; free allowance = 2 calls
+        client = self._client(llm)
+        sources = [
+            client.post("/api/v2/gm/talk", headers=bearer("boss"), json=IX_BODY).json()["source"]
+            for _ in range(6)
+        ]
+        self.assertEqual(sources, ["llm"] * 6)
+        plan = client.get("/api/v2/plan", headers=bearer("boss")).json()
+        self.assertTrue(plan["admin"])
+        self.assertEqual(plan["tier"], "plus")
+        self.assertIn("crpg", plan["features"])
+        self.assertTrue(plan["budget"]["unlimited"])
+        # Everyone else keeps the allowance.
+        other = [
+            client.post("/api/v2/gm/talk", headers=bearer("u9"), json=IX_BODY).json()["source"]
+            for _ in range(3)
+        ]
+        self.assertEqual(other, ["llm", "llm", "fallback"])
+        self.assertFalse(client.get("/api/v2/plan", headers=bearer("u9")).json()["admin"])
+
+    def test_the_daily_ceiling_still_stops_the_admin(self) -> None:
+        llm = _UsageLLM(
+            "기록을 갱신했습니다.", 600_000, 100_000
+        )  # $1.0 a call = the whole daily ceiling
+        client = self._client(llm)
+        first = client.post("/api/v2/gm/talk", headers=bearer("boss"), json=IX_BODY).json()[
+            "source"
+        ]
+        second = client.post("/api/v2/gm/talk", headers=bearer("boss"), json=IX_BODY).json()[
+            "source"
+        ]
+        self.assertEqual((first, second), ("llm", "fallback"))

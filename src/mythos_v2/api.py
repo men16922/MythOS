@@ -432,6 +432,7 @@ def create_v2_router(
         holder.get,
         purchase_verifier or GooglePlayVerifier(bill_cfg.package, bill_cfg.skus),
         now=clock,
+        granted=lambda pid: pid in admin_players,
     )
 
     @asynccontextmanager
@@ -447,13 +448,28 @@ def create_v2_router(
         uid = await signed_in_uid(request)
         return None if uid is None else player_id_for_uid(uid)
 
+    #: Players whose verified token carried an allow-listed admin email (``MYTHOS_ADMIN_EMAILS``): no monthly AI
+    #: allowance and Signal+ features. Learned per process from real tokens; the email itself is never kept.
+    admin_players: set[str] = set()
+
+    def note_admin(who: Identity) -> str:
+        if who.email_verified and who.email and who.email in auth_cfg.admin_emails:
+            admin_players.add(player_id_for_uid(who.uid))
+        return who.uid
+
     async def signed_in_uid(request: Request) -> str | None:
         """The Firebase uid of a verified Bearer token; None without one; 401 for a token that fails."""
         token = bearer_token(request.headers.get("authorization"))
         if token is None:
             return None
+        identify = (
+            getattr(token_verifier, "verify_identity", None) if auth_cfg.admin_emails else None
+        )
         try:
-            uid = await run_in_threadpool(token_verifier.verify, token)
+            if identify is not None:
+                uid = note_admin(await run_in_threadpool(identify, token))
+            else:
+                uid = await run_in_threadpool(token_verifier.verify, token)
         except TokenError as exc:
             _logger.info("v2 auth: token rejected", extra={"outcome": exc.reason})
             raise _unauthorized() from None
@@ -750,6 +766,7 @@ def create_v2_router(
 
     def plan_dict(player_id: str, tier: Tier, ent: Entitlement | None) -> dict[str, Any]:
         signed_in = player_id.startswith(GOOGLE_PLAYER_PREFIX)
+        admin = player_id in admin_players
         features = (["ai"] if signed_in or auth_cfg.mode == "open" else []) + (
             ["crpg"] if tier == "plus" else []
         )
@@ -759,7 +776,10 @@ def create_v2_router(
             # Play's obfuscatedAccountId for a purchase: the server only honours tokens bought for this id.
             "accountId": player_id if signed_in else None,
             "features": features,
-            "budget": budget.status(player_id, tier),
+            "budget": {**budget.status(player_id, tier), "unlimited": True}
+            if admin
+            else budget.status(player_id, tier),
+            "admin": admin,
             "subscription": None
             if ent is None
             else {
@@ -808,6 +828,8 @@ def create_v2_router(
         """Why this player may not make a GM call now (``rate_limited`` / ``budget`` / ``ceiling``), else None."""
         if not gm_limiter.allow(player_id):
             return "rate_limited"
+        if player_id in admin_players:
+            return await run_in_threadpool(lambda: budget.refusal(player_id, "plus", exempt=True))
         return await run_in_threadpool(lambda: budget.refusal(player_id, plans.tier(player_id)))
 
     async def log_gm(

@@ -929,7 +929,10 @@ export interface Plan {
   accountId: string | null
   /** 'ai' = GM lines within the monthly budget; 'crpg' = the Signal+ CRPG layer (districts, d20 dialogue, …). */
   features: string[]
-  budget: { limitUsd: number; usedUsd: number; left: number }
+  /** `unlimited`: an admin account (no monthly allowance; the global daily ceiling still applies). */
+  budget: { limitUsd: number; usedUsd: number; left: number; unlimited?: boolean }
+  /** Allow-listed admin account (MYTHOS_ADMIN_EMAILS). */
+  admin?: boolean
   subscription: { sku: string; state: string; expiresAt: string | null } | null
   skus: string[]
 }
@@ -955,7 +958,8 @@ export function parsePlan(raw: unknown): Plan | null {
     signedIn: raw.signedIn === true,
     accountId: typeof raw.accountId === 'string' ? raw.accountId : null,
     features: Array.isArray(raw.features) ? raw.features.filter((f): f is string => typeof f === 'string') : [],
-    budget: { limitUsd: num(b.limitUsd), usedUsd: num(b.usedUsd), left: Math.max(0, Math.min(1, num(b.left))) },
+    budget: { limitUsd: num(b.limitUsd), usedUsd: num(b.usedUsd), left: Math.max(0, Math.min(1, num(b.left))), unlimited: b.unlimited === true },
+    admin: raw.admin === true,
     subscription: sub
       ? { sku: String(sub.sku ?? ''), state: String(sub.state ?? ''), expiresAt: typeof sub.expiresAt === 'string' ? sub.expiresAt : null }
       : null,

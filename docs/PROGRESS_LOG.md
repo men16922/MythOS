@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-18
 
+## 2026-10-18 — Admin accounts without an AI allowance; Codex image for new art; October bill read from BigQuery
+
+- Admin accounts (verified email in `MYTHOS_ADMIN_EMAILS`) skip the monthly AI allowance and get Signal+; the $20/day ceiling still applies (`tests/test_v2_plan.py` AdminAccountTest). New images: Codex image only (CLAUDE.md, CORE_MANDATES, `gen_images.py` header) — owner: "그림은 Codex Image 사용하도록 명시해".
+- October bill (BigQuery `billing_export`): the ₩47.8k left after credits is 91 % Veo 3 (₩73.9k used, ₩30.3k covered, ₩43.6k net). The six Google Developer Program monthly credits (≈₩14–15k each, any service) are all spent; the ₩1.50M "Trial credit for GenAI App Builder" only covers Vertex AI Search / Agent Builder, so it never touched Gemini, Veo or image calls; the Free Trial lapsed 2026-09-06 with ₩331k unused. Another project (`claude-study-501117`, `agent-chief` minScale 1) bills ≈₩4.3k/month gross — not touched.
+
 ## 2026-10-18 — Follow-ups: district art, echo AI line, Signal+ UI playthrough, emulator billing check, preview 00129
 
 - District stills generated (6 Vertex image calls; the ledger cap was raised to 320 for this batch — the owner also allows Codex image for any art); the echo's AI line (narrate kind `echo`); `ui_playthrough.py --signal-plus` routes through each act's district.

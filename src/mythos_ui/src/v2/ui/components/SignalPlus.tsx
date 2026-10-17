@@ -135,9 +135,13 @@ export function PlanSection({ lang }: { lang: Lang }) {
   return (
     <div className="m2-toggle m2-plan">
       <span className="m2-toggle__text">
-        <b>{plus ? 'Signal+' : ko ? '무료 접속' : 'Free'}</b>
+        <b>{plan.admin ? (ko ? '관리자 · Signal+' : 'Admin · Signal+') : plus ? 'Signal+' : ko ? '무료 접속' : 'Free'}</b>
         <small>
-          {!plan.signedIn
+          {plan.budget.unlimited
+            ? ko
+              ? '관리자 계정: 월 AI 한도 없음.'
+              : 'Admin account: no monthly AI allowance.'
+            : !plan.signedIn
             ? ko
               ? '로그인하면 매달 일정량의 AI 대사가 제공된다.'
               : 'Sign in for a monthly allowance of AI-written lines.'
@@ -145,7 +149,7 @@ export function PlanSection({ lang }: { lang: Lang }) {
               ? `이번 달 AI 대사 남은 양 ${pct}% — 다 쓰면 미리 쓰인 대사로 이어진다.`
               : `AI lines left this month: ${pct}% — then the authored lines carry on.`}
         </small>
-        {plan.signedIn && (
+        {plan.signedIn && !plan.budget.unlimited && (
           <span className="m2-plan__meter" aria-hidden="true">
             <i style={{ width: `${pct}%` }} />
           </span>

@@ -158,15 +158,16 @@ class Budget:
 
     # --- decisions ---------------------------------------------------------------------------------
 
-    def refusal(self, player_id: str, tier: Tier) -> str | None:
+    def refusal(self, player_id: str, tier: Tier, *, exempt: bool = False) -> str | None:
         """None when this player may make a GM call now, else the outcome to log (``budget``/``ceiling``).
+        ``exempt`` (admin accounts) skips the monthly allowance; the global daily ceiling still applies.
         A store failure never blocks the AI (the per-player rate limit still applies)."""
         try:
             if self.cfg.daily_usd > 0:
                 share = 1.0 if tier == "plus" else self.cfg.free_share
                 if self.day_spent() >= round(self.cfg.daily_usd * share * MICRO):
                     return "ceiling"
-            if self.spent(player_id) >= self.cfg.limit_micro(tier):
+            if not exempt and self.spent(player_id) >= self.cfg.limit_micro(tier):
                 return "budget"
         except Exception as exc:
             _logger.warning("v2 budget check skipped: %s", type(exc).__name__)

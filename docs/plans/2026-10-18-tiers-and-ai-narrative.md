@@ -1,101 +1,113 @@
-# Player tiers (free / paid) + narrative, RPG and AI expansion
+# Player tiers + CRPG layer + narrative, RPG and AI expansion
 
-Date: 2026-10-18 · Status: **planned — D1/D2/D6 decided 2026-10-18; D3/D4/D5/D7 on the recommended default until the owner says otherwise** · Requested by the owner ("사용자 Tier를 나눠야할거같아. 유료/무료 구분", "LLM 관련 내러티브 요소 강화 … v1에서 더 가져오거나, RPG 요소 등 그리고 AI 관련된 것들을 강화. 계획 세워보자").
+Date: 2026-10-18 · Status: **planned — D1/D2/D6 decided; D3–D5, D7–D9 on the defaults below until the owner says otherwise** · Requested by the owner ("사용자 Tier를 나눠야할거같아. 유료/무료 구분", "LLM 관련 내러티브 요소 강화 … v1에서 더 가져오거나, RPG 요소 등 그리고 AI 관련된 것들을 강화", "전투 요소 위주라서 CRPG 관련 요소도 … 유료 버전을 위한 혜택 … 발더스 게이트", "로그인 유저는 금액 한도로 AI, 유료 월 구독은 금액 한도를 늘려주는거지").
 
 ## 0. Why now
 
 - The game is listed as **Free, no IAP, no ads** (`docs/play-store.md`), so every GM call is pure cost: ≈ $0.05/run today, ≈ $0.10/run after the Jan 2027 price doubling (`PROGRESS_LOG` 2026-10-17; the 3.8 price itself is from third-party pages, unverified).
-- Guards today: per-player 20/min + 400/day, concurrency 4 × maxScale 3. **No global ceiling** — multi-account abuse or a traffic spike is bounded only by Cloud Run throughput (rough upper bound: hundreds of USD/day, not measured).
-- More AI (this plan's second half) raises the per-run cost further, so tiers and budgets come first.
+- Guards today: per-player 20/min + 400/day, concurrency 4 × maxScale 3. **No money cap** per user or overall — multi-account abuse or a spike is bounded only by Cloud Run throughput (rough upper bound: hundreds of USD/day, not measured).
+- The game is combat-first; the owner wants a CRPG layer (Baldur's Gate 3 as the reference) as the paid benefit. That layer and the other AI features raise the per-run cost, so budgets come first.
 - The Play closed test (12 testers × 14 days) is a fixed wait before production; tier infrastructure can be built inside that window.
 
-## 1. Principles (carried from 2.0, unchanged)
+## 1. Principles
 
-1. AI stays **off the critical path**: authored text first, AI swaps in, every call has a fallback. The free tier is simply "the fallback path", so it is already a complete game.
-2. **Paid buys richness, not power.** No paid feature changes combat numbers, card/implant odds or win rate beyond what the free tier can also reach. Anything that touches run state has a free-tier authored equivalent with the same clamp.
-3. **Daily seed stays comparable**: tier-only features that touch state are off on the daily.
+1. AI stays **off the critical path**: authored text/options first, AI swaps in, every call has a fallback. Budget exhausted = the authored path, never a broken screen.
+2. **Signal+ buys content and richness.** The CRPG layer is paid content (like an expansion), so it may carry its own rewards in normal runs, but each district replaces one event node and stays inside an event node's reward budget (no run gets longer or much stronger). Combat numbers, card/implant odds and enemy stats are tier-independent.
+3. **Daily seed stays identical for everyone**: no districts, no tier-only state effects on the daily.
 4. Lore rule (owner, 2026-10-17): only IX remembers loops; companions get faint déjà vu at most. Within-run memory is fine.
-5. Still rejected: runtime image generation, LLM-made cards/enemies, LLM map direction (critical path, balance, daily comparability).
+5. Still rejected: runtime image generation, LLM-made cards/enemies, LLM map direction.
 
-## 2. Tier design
+## 2. Tiers and AI budgets
 
-| | Free | Signal+ (paid) |
-|---|---|---|
-| Game | whole game, offline, no sign-in needed | same |
-| Authored narrative, RPG systems (§4) | all | all |
-| AI lines (event/IX/boss/act intro/taunt/chronicle) | **none** — authored only (owner D2) | yes, within the monthly fair-use budget |
-| Improvise | local keyword judge (exists) | GM judge |
-| Companion chat | authored dialogue choices (§4 N6) | free text + within-run memory |
-| Paid AI features (§5) | — | yes |
-| Budget exhausted | — | silently degrades to authored + a quiet notice |
+| | Guest (no sign-in) | Signed-in (free) | Signal+ (monthly subscription) |
+|---|---|---|---|
+| Base game, authored narrative, RPG systems (§5) | all, offline | all | all |
+| AI lines (event/IX/boss/act intro/taunt/chronicle), GM Improvise, companion free chat | — | yes, **within a small monthly $ budget** | yes, **within a larger monthly $ budget** |
+| CRPG layer (§4: districts, dialogue with d20 checks, AI NPC talk, backgrounds, approval, quests, banter) | — | — | yes |
+| Budget exhausted | — | authored path + quiet notice + Signal+ offer | authored path + quiet notice |
 
-Free tier makes **no GM calls at all**, so its marginal AI cost is zero; the global ceiling only protects the paid budget.
+**Budgets (defaults, D2/D3).** Signed-in free: **$0.30/month** of GM cost (≈ 3–6 runs of base AI). Signal+: **$1.5/month** at ₩3,900 (net ≈ $2.4 after the 15 % Play fee; ≈ 6–10 CRPG-heavy runs at an estimated $0.15–0.25/run). At ₩5,900 the Signal+ budget could be $2.5. Budgets are counted from the token counts `v2_gm_usage` already stores × the configured price, reset on the 1st (KST).
 
-**Cost envelope (estimate).** ₩3,900/month subscription − 15 % Play fee ≈ ₩3,300 ≈ $2.4. At $0.10–0.15/run (2027 price, with the §5 features) that covers 16–24 runs/month of full AI. Proposed fair-use budget: **$1.5/user/month of GM cost** (≈ 10–15 runs), tracked from the token counts `v2_gm_usage` already stores.
+**Exposure.** Worst case free spend = free budget × signed-in MAU (10k MAU × $0.30 = $3k/month), so a **global daily ceiling** stays on as the fuse; when it trips, free users go authored first, Signal+ last. Optional lever: serve free users a cheaper model (measure with `make gm-eval` first).
 
-**Engineering (W1, ≈ 4–6 days, M–L):**
-- `v2_entitlements` (player_id, sku, state, expires_at, purchase-token hash); Alembic-free self-creating DDL like `store.py` + `migrations/010_v2_entitlements.sql`.
-- Purchase verification on the server via the Google Play Developer API (`purchases.subscriptionsv2.get`) with the existing service account (needs Play Console API access — owner step); RTDN over Pub/Sub for renew/cancel/refund. Alternative: RevenueCat (faster, but a third-party processor → Data safety + privacy page change). See D4.
-- `auth.py` resolves `tier` per request; `ratelimit.py` gains a per-user monthly budget and a **global daily ceiling** (free and total); `/api/v2/config` returns `tier`, `features`, `budgetLeft` for the client.
-- Client: Capacitor billing plugin, `Signal+` screen (what it adds, price, restore purchases), Settings status, feature gating from `/config`. Web: no purchase flow at first; a web session signed into the same Google account gets the entitlement (D5).
-- Play: listing → "Contains in-app purchases", Data safety (purchase history), privacy/terms pages, refund wording. Tests: entitlement states, budget exhaustion → fallback, RTDN handler, expired subscription.
+**Engineering (W1, ≈ 4–6 days):**
+- `v2_entitlements` (player_id, sku, state, expires_at, purchase-token hash), self-creating DDL like `store.py` + `migrations/010_v2_entitlements.sql`; `v2_gm_budget` view or monthly rollup over `v2_gm_usage`.
+- Purchase verification on the server via the Google Play Developer API (`purchases.subscriptionsv2.get`) with the existing service account (owner: grant Play Console API access); RTDN over Pub/Sub for renew/cancel/refund. Alternative: RevenueCat (D4).
+- `auth.py` resolves `tier`; `ratelimit.py` gains the per-user monthly $ budget and the global daily ceiling (`MYTHOS_V2_GM_DAILY_USD`, `MYTHOS_V2_BUDGET_FREE_USD`, `MYTHOS_V2_BUDGET_PLUS_USD`); `/api/v2/config` returns `tier`, `features`, `budgetLeft`.
+- Client: Capacitor billing plugin, `Signal+` screen (what it adds incl. recorded CRPG/AI samples, price, restore purchases), budget meter in Settings, feature gating from `/config`. Web: no checkout at first; the same Google account on the web gets the entitlement (D5).
+- Play: listing → "Contains in-app purchases", Data safety (purchase history), privacy/terms, refund wording. Tests: entitlement states, budget exhaustion → fallback, RTDN handler, expiry.
 
-**W0 — before Play production regardless of D1 (S, ½ day):** global daily GM ceiling (`MYTHOS_V2_GM_DAILY_USD`) + an owner-set GCP billing budget alert. Converts unbounded risk into a fixed number even if tiers slip.
+**W0 — now, before Play production (S, ½–1 day):** per-user monthly budget for signed-in users + global daily ceiling, everyone treated as "signed-in free" until W1. Plus an owner-set GCP billing budget alert.
 
 ## 3. What is left in 1.x (branch `1.0`)
 
-The 2026-10-11 port (`2026-10-11-port-from-1x.md`) already took everything that fit an AI-off-critical-path game. What remains is either (a) mechanics that were judged "overlapping" before RPG depth was a goal, or (b) the LLM-authoritative loop that 2.0 rejected. Re-judged for this plan:
+The 2026-10-11 port (`2026-10-11-port-from-1x.md`) took everything that fit an AI-off-critical-path game. Re-judged for this plan:
 
 | 1.x piece | Path on `1.0` | Verdict now |
 |---|---|---|
-| Echo inscription (각인) — inscribe one carried memory at loop start → themed run modifier | `src/mythos_runtime/echoes.py` | **port** as N2 (authored effect table, AI-written echo text) |
-| Autonomy level gated by clues collected | `progression.py: determine_autonomy_level` | **port** as N5 |
-| Codex skill tree, insight points, epiphanies | `progression.py` (`INSIGHT_PER_*`, `epiphanies_seen`, `skill_ranks`) | **adapt** into N3/N4 (2.0 has cards, not skills) |
-| Scene-granted items (`world_delta.grant_items`, whitelisted, ≤ 2/scene) | `session._filter_grant_items` | already covered by Improvise's clamped rewards |
-| Free-form GM scenes (the 1.x core loop) | `mythos_narrative` director | **revive only as an optional side mode** (N9), never on the map path |
-| Session synopsis / beats | `session_memory.py` | feeds N7 (within-run companion memory) |
-| Stability/Tension, ending resolver, NoveltyController, route DAG | — | still not ported (2.0 has its own pressure/endings) |
+| Free-form GM scenes, NPC agendas, free action (the 1.x TRPG/CRPG core) | `mythos_narrative` director, `scenario.json` `npc_agendas` | **revived inside CRPG districts** (§4 C1/C3): authored scene graph as the spine, AI as the NPC voice and intent reader |
+| Echo inscription (각인) | `src/mythos_runtime/echoes.py` | **port** as N2 |
+| Autonomy level gated by clues | `progression.py: determine_autonomy_level` | **port** as N5 |
+| Skill tree, insight points, epiphanies | `progression.py` | **adapt** into backgrounds (C6) and growth (N4) |
+| Scene-granted items (whitelisted, ≤ 2/scene) | `session._filter_grant_items` | reused as the district reward clamp |
+| Session synopsis / beats | `session_memory.py` | feeds N7 and NPC memory inside a run |
+| Stability/Tension, ending resolver, NoveltyController, route DAG | — | still not ported |
 
-## 4. RPG and narrative depth — authored, both tiers
+## 4. CRPG layer — Signal+ (Baldur's Gate 3 as the reference)
 
-| # | Feature | What it is | Effort | Risk / check |
+| # | Feature | BG3 analogue → Signal Run | Effort |
+|---|---|---|---|
+| C1 | **Districts (구역 탐색)** | Explorable locations → new `NodeKind 'district'`. In Signal+ normal runs one event node per act becomes a district: 3–5 points of interest (scene stills), 2–3 NPCs, interactables, a limited action count (≈ 4–6; patrol/Trace rises after) so a district takes 3–5 minutes. | L |
+| C2 | **Dialogue with d20 checks** | Dialogue trees + visible d20 roll, DC, modifiers, advantage, inspiration reroll. Authored graphs in `content/dialogues/`; options gated by stat/background/companion/flag; the roll uses the existing `checkChance` math, shown as d20 + modifier. The d20 presentation can also reskin ordinary event checks for everyone (cheap). | M–L |
+| C3 | **AI NPC talk** | Talk to anyone, any way → in a dialogue node Signal+ can type freely; the GM maps the line to one of the node's authored intents (persuade / deceive / intimidate / insight / offer / attack / leave) and voices the NPC reply; the engine rolls. Option buttons stay visible as the fallback. NPC personas server-side, like `taunt.py`. | M |
+| C4 | **Companion approval + camp** | "Se-rin approves" → options carry authored value tags per companion; approval feeds bond progress (clamped per node). Safehouse becomes a camp night: a companion with high approval starts a scene (authored + AI free talk). Absorbs N6. | M |
+| C5 | **Quests and reactivity** | Journal + consequences across acts → district quests accepted in Act 1/2 pay off later (an ally disables a boss turret, a spared NPC reappears, a betrayed faction ambushes). Flags only; quest log screen. | M–L |
+| C6 | **Backgrounds (origin)** | Origins / backgrounds → pick one at run start (e.g. 전직 단속관, 브로커, 의사, 러너): two proficient stats, unique dialogue options, an inspiration trigger. Archetypes keep owning combat. | M |
+| C7 | **Party banter** | Camp/travel banter → the two deployed companions trade 2–3 lines on map travel about recent events (authored pool + AI variants). | S–M |
+| C8 | **Talk your way in or out** | Dialogue that avoids or reshapes fights → a clamped set of combat modifiers: skip the fight, surprise (enemies lose their first telegraph), a temporary ally unit, one enemy weakened. Sim-tested via `gameplay-qa`. | M |
+
+Content for a first release: 3 acts × 2 district variants = **6 districts**, ≈ 3 NPCs and ≈ 40 dialogue nodes each, 2–3 stills each (image calls on the ledger), Korean first, owner tone review. Validators extend `narrative.test.ts` (every dialogue node reachable, every flag read has a setter, every option has an authored fallback line).
+
+## 5. RPG and narrative depth — authored, all tiers
+
+| # | Feature | What it is | Effort | Check |
 |---|---|---|---|---|
-| N2 | **Echo inscription** | At loop start, choose 1 of up to 3 echoes from the last run's highlights (killer, best fight, companion, ending). Each maps deterministically to one of ~8 authored effects built from existing passives/stats. AI names and describes the echo from the chronicle (paid); authored name otherwise. Off on the daily. | M | balance via `simulateRun` on identical seed blocks (`LESSONS.md`) |
-| N4 | **Connector growth** | +1 stat point per act clear and per elite (choose STR/AGI/INT/CHA/OBS). Stats drive event checks only (`run.ts` `checkChance`), so combat balance is untouched; makes builds feel like RPG characters. | S–M | event success-rate shift; stat cap stays `STAT_MAX` |
-| N5 | **Autonomy (자율도)** | Meta level from lore/clues collected across loops. Each level widens the Improvise bounds (one more Improvise per act, a higher reward tier) and unlocks extra lines in the final IX choice. Fits the fiction: the Connector learns to bend the grid. | M | Archive overlap with `unlocks.ts`; reward tier needs clamping review |
-| N3 | **Thought cabinet (내면화)** | Stat voices (`content/statVoices.ts`) offer "thoughts" after notable checks/lore; slot up to 2, they internalise over N nodes and grant a small passive + a final authored line. ~15 thoughts. Paid: the voice comments live on the current situation. | L | content volume; passive balance |
-| N6 | **Companion dialogue that matters** | Safehouse chat gets one "meaningful exchange" per visit: free tier picks from 3 authored replies, paid types freely and the GM classifies tone. Either way the effect is the same clamp: +bond progress once per safehouse. | M | exploit = capped once per visit; same for both tiers |
+| N4 | **Connector growth** | +1 stat point per act clear and per elite; stats drive event/dialogue checks only, so combat balance is untouched. | S–M | check success-rate shift; `STAT_MAX` stays |
+| N2 | **Echo inscription** | At loop start, choose 1 of up to 3 echoes from the last run's highlights; each maps to one of ~8 authored effects built from existing passives/stats. AI names the echo from the chronicle when budget allows. Off on the daily. | M | `simulateRun` on identical seed blocks |
+| N5 | **Autonomy (자율도)** | Meta level from lore/clues across loops; widens Improvise bounds and unlocks extra lines in the final IX choice. | M | reward clamp review |
+| N3 | **Thought cabinet (내면화)** | Stat voices offer "thoughts" after notable checks/lore; slot up to 2, they internalise over N nodes for a small passive + a closing line. ~15 thoughts. | L | passive balance |
 
-## 5. AI features — Signal+
+## 6. AI features — any signed-in user, within budget
 
-| # | Feature | What it is | Calls/run (est.) | Effort |
-|---|---|---|---|---|
-| N1 | **Prefetch pipeline** | Generate the next node's lines during combat/map so longer AI text shows with no wait. Infrastructure for N8/N9 and for richer event narration. | ± (some wasted prefetches) | M |
-| N7 | **Within-run companion memory** | Companions remember what you told them earlier this run (bounded synopsis like 1.x `session_memory`). No cross-loop memory (lore rule). | +0 (bigger prompts) | S |
-| N8 | **IX profiles you** | IX comms reference your cross-loop play data: most-played card, what killed you, Improvise habits, favourite companion. IX already remembers loops; this makes it personal. | +0–3 | S |
-| N9 | **Deep Dive (심층 접속)** | Archive-hub side mode: a 3–5 exchange free-text scene with the GM inside an authored frame (lore-locked prompt, naming guard). Rewards are lore fragments / Memories-tab entries only — no power. Revives the 1.x feeling without touching the run. | +5–10 per dive | L |
-| — | Live TTS for IX lines | Paid-only voiced AI lines. After the static voice pins. | cost TBD | later |
+| # | Feature | What it is | Effort |
+|---|---|---|---|
+| N1 | **Prefetch pipeline** | Generate the next node's lines (and district NPC openers) during combat/map so longer AI text shows with no wait. | M |
+| N7 | **Within-run memory** | Companions and district NPCs remember what you said earlier this run (bounded synopsis like 1.x `session_memory`). | S |
+| N8 | **IX profiles you** | IX comms reference cross-loop play data: most-played card, what killed you, Improvise habits, favourite companion, district choices. | S |
 
-`make gm-eval` gets cases for every new route before it ships; `/admin` shows cost per tier.
+`make gm-eval` gets cases for every new route (NPC talk, banter, camp, intent mapping) before it ships; `/admin` shows cost per tier and budget exhaustion rate.
 
-## 6. Waves
+## 7. Waves
 
 | Wave | Content | When |
 |---|---|---|
-| **W0** | global daily ceiling + billing alert | now, before Play production |
-| **W1** | tier infrastructure (§2), tier = free for everyone until the SKU exists | during the 14-day closed test |
-| **W2** | N4 growth · N2 echo · N5 autonomy (authored RPG, both tiers) | after W1 or in parallel (disjoint files) |
-| **W3** | N7 · N8 · N6 · N1 (first Signal+ value) | with the first paid release |
-| **W4** | N9 Deep Dive · N3 thought cabinet | after first-player data |
+| **W0** | per-user monthly budget + global daily ceiling + billing alert | now, before Play production |
+| **W1** | tier infrastructure (§2) | during the 14-day closed test |
+| **W2** | CRPG spine: C2 dialogue + d20, C6 backgrounds, C4 approval/camp | after W1 (parallel with W1 on disjoint files) |
+| **W3** | C1 districts + C5 quests + C3 AI NPC talk + C8 combat hooks, first 6 districts — the Signal+ launch headline | first paid release |
+| **W4** | N4 growth · N2 echo · N5 autonomy · C7 banter · N7 · N8 · N1 | next update |
+| **W5** | N3 thought cabinet, more districts | after first-player data |
 
 Each wave: `make check`, `gameplay-qa` for any rule change, `make playthrough-quick`, `make gm-eval` for prompt changes, deploy-preview → verify → owner promote.
 
-## 7. Owner decisions
+## 8. Owner decisions
 
-- **D1 model — decided 2026-10-18: monthly subscription** (Signal+).
-- **D2 free-tier AI — decided 2026-10-18: none.** Free = authored only; Improvise uses the local keyword judge; companion chat is the authored-choice form of N6.
-- **D3 price**: ₩3,900/month (default, open).
-- **D4 billing**: self-hosted Play verification (default, open) / RevenueCat.
-- **D5 web**: entitlement only, no web checkout at first (default, open).
-- **D6 scope — decided 2026-10-18: all of N2–N9** (RPG growth + echo + autonomy, companion dialogue, IX profiling, Deep Dive + thought cabinet), in the wave order of §6.
-- **D7 daily**: tier-only features off on the daily seed (default, open).
+- **D1 — decided: monthly subscription** (Signal+).
+- **D2 — decided: signed-in users get AI within a $ budget; Signal+ raises the budget.** Amounts: free $0.30/month, Signal+ $1.5/month (defaults, open).
+- **D3 price**: ₩3,900/month (default) / ₩5,900 with a $2.5 budget.
+- **D4 billing**: self-hosted Play verification (default) / RevenueCat.
+- **D5 web**: entitlement only, no web checkout at first (default).
+- **D6 — decided: all of N2–N9 in scope**; N6 folded into C4 and N9 (Deep Dive) folded into C1/C3.
+- **D7 daily**: no districts or tier-only state effects on the daily (default).
+- **D8 CRPG access**: Signal+ only (default) / Act 1 district free as a taste.
+- **D9 district placement**: replaces one event node per act in Signal+ normal runs (default) / added on top.

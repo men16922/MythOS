@@ -496,3 +496,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+.m2-echo__line {
+  margin: 10px 0 0;
+  color: var(--m2-ink);
+  font-style: italic;
+  animation: m2-rise 0.4s var(--m2-ease) both;
+}

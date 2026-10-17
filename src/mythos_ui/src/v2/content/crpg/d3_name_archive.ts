@@ -16,7 +16,7 @@ export const D3_NAME_ARCHIVE: DistrictDef = {
   id: 'd3_name_archive',
   act: 3,
   name: t('이름 보관소', 'The Name Archive'),
-  image: 'v2/events/a3_name_archive.webp',
+  image: 'v2/districts/d3_name_archive.webp',
   intro: t(
     '첨탑 41층, 기록 말소층. 엘리베이터 문이 열리자 입김이 하얗게 번진다. 끝이 안 보이는 서가, 칸마다 손톱만 한 기록 칩. 천장 스피커에서 차분한 목소리가 이름을 하나 읽는다. 잠시 뒤 어딘가에서 칩 하나의 불이 꺼진다. 그리고 다음 이름.\n교대 점검까지, 둘러볼 수 있는 곳은 세 군데쯤.',
     'Spire, floor 41: the records floor. When the lift doors open your breath turns white. Shelves with no visible end, a fingernail-sized record chip in every slot. From the ceiling speakers a calm voice reads one name. A moment later, somewhere, one chip’s light goes out. Then the next name.\nBefore the shift inspection, you have time for about three stops.',

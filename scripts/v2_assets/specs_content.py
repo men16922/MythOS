@@ -156,6 +156,32 @@ def cutscenes_jobs() -> list[ImageJob]:
     return jobs
 
 
+# ------------------------------------------------------------------------------------------- districts
+
+#: Signal+ CRPG districts (content/crpg/d*.ts): an explorable place with people in it, no main character in frame.
+DISTRICT_SCENES: dict[str, str] = {
+    "d1_substation": "A small electrical substation in a blacked-out city block at night, the only lit building for blocks; warm yellow light leaking through a battered iron gate; a kid lookout perched on the gate with a flashlight; makeshift cables strung along the walls to shacks where people huddle; red patrol searchlights sweeping far down the street; rain.",
+    "d1_lamp_market": "A curfew-hour night market under a collapsed concrete overpass; rows of tarp stalls each lit by a small hand-crank lamp, vendors turning the cranks; a glowing pastel welfare kiosk among the stalls; stacked fish crates; dim, crowded, quietly tense; drizzle.",
+    "d2_subway_hub": "An abandoned underground subway transfer platform, three levels deep; six old train cars stopped at the platform turned into homes, laundry hanging in the windows, rice cookers steaming inside; a stopped wall clock; a toll gate made of welded ticket barriers; flooded track glinting in the background.",
+    "d2_memory_auction": "A night auction house built on three barges chained together on a dark canal; a white sheet above a small stage plays a flickering projected memory; bidders raise paddles in lantern light; glass display boxes of glowing memory chips; a cold storage room door in the back.",
+    "d3_glass_atrium": "A vast pristine white atrium at the top of a gleaming megatower, glass from floor to ceiling, the dark neon city far below; citizens in pale clothes stand in a perfectly straight queue that leads nowhere, all smiling at the same angle; a curator's white desk; a window cleaner on a rope outside the glass.",
+    "d3_name_archive": "A cold records floor inside a white megatower, endless shelves of tiny glowing record chips fading into mist, breath visible in the air; an archivist android at a reading desk under a single lamp; a maintenance cart in the aisle; cold blue light, ceiling speakers.",
+}
+
+
+def districts_jobs() -> list[ImageJob]:
+    return [
+        ImageJob(
+            f"districts/{did}.webp",
+            f"Explorable location establishing shot, wide cinematic environment illustration, no main character in frame. {scene} The bottom of the scene falls naturally into shadow (no overlay, band or letterbox).",
+            "16:9",
+            (1600, 900),
+            image_size="2K",
+        )
+        for did, scene in DISTRICT_SCENES.items()
+    ]
+
+
 # ------------------------------------------------------------------------------------------- cards
 
 C = CONNECTOR

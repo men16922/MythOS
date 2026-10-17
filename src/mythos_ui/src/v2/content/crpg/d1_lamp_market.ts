@@ -14,7 +14,7 @@ export const D1_LAMP_MARKET: DistrictDef = {
   id: 'd1_lamp_market',
   act: 1,
   name: t('손전등 시장', 'The Hand-Crank Market'),
-  image: 'v2/events/a1_hand_crank_lamp.webp',
+  image: 'v2/districts/d1_lamp_market.webp',
   intro: t(
     '통금 사이렌이 끝나야 열리는 시장. 무너진 고가도로 밑에 천막이 줄지어 서고, 천막마다 손발전기 등이 끼익끼익 돈다. 크랭크를 멈추는 순간 그 가게는 문을 닫는다.\n단속 드론이 한 바퀴 돌아오기 전까지, 들를 수 있는 곳은 세 군데쯤.',
     'A market that only opens once the curfew siren stops. Tents line up under a collapsed overpass, and in every tent a hand-crank lamp squeaks round and round. The moment the crank stops, that stall is closed.\nBefore the patrol drone comes back around, you have time for about three stops.',

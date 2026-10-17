@@ -14,7 +14,7 @@ export const D3_GLASS_ATRIUM: DistrictDef = {
   id: 'd3_glass_atrium',
   act: 3,
   name: t('유리 아트리움', 'The Glass Atrium'),
-  image: 'v2/events/a3_glass_atrium.webp',
+  image: 'v2/districts/d3_glass_atrium.webp',
   intro: t(
     '첨탑 120층. 바닥부터 천장까지 유리. 흰 바닥 위로 시민들이 줄을 서 있다. 줄은 어디에도 닿지 않는다. 모두 웃고 있다. 같은 각도로.\n경비 드론이 순회를 한 바퀴 마치기 전까지, 둘러볼 수 있는 곳은 세 군데쯤.',
     'Floor 120 of the Spire. Glass from floor to ceiling. On the white floor, citizens stand in line. The line leads nowhere. Everyone is smiling, at the same angle.\nBefore the warden drones finish one sweep, you have time for about three stops.',

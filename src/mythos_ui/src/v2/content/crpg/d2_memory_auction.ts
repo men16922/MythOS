@@ -14,7 +14,7 @@ export const D2_MEMORY_AUCTION: DistrictDef = {
   id: 'd2_memory_auction',
   act: 2,
   name: t('기억 경매장', 'The Memory Auction'),
-  image: 'v2/events/a2_memory_stall.webp',
+  image: 'v2/districts/d2_memory_auction.webp',
   intro: t(
     '바지선 세 척을 쇠사슬로 묶은 경매장. 무대 위 흰 천에 누군가의 기억이 3초씩 비친다. 객석에서 번호판이 올라갈 때마다 망치 소리가 강물 위로 번진다.\n마지막 물건이 낙찰되기 전까지, 둘러볼 수 있는 곳은 세 군데쯤.',
     'Three barges chained together make the auction house. On a white sheet above the stage, someone’s memory plays for three seconds at a time. Each time a paddle goes up, the crack of the hammer spreads out over the river.\nBefore the last lot falls, you have time for about three stops.',

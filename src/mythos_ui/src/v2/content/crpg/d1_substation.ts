@@ -12,7 +12,7 @@ export const D1_SUBSTATION: DistrictDef = {
   id: 'd1_substation',
   act: 1,
   name: t('변전소 17', 'Substation 17'),
-  image: 'v2/events/a1_dead_substation.webp',
+  image: 'v2/districts/d1_substation.webp',
   intro: t(
     '정전 구역 한가운데, 변전소 하나만 불이 켜져 있다. 철문 틈으로 새어 나오는 노란 빛. 그 빛을 따라 사람들이 모여 산다.\n순찰대가 오기 전까지, 둘러볼 수 있는 곳은 세 군데쯤.',
     'In the middle of the blackout zone, one substation still has its lights on. Yellow light leaks through the iron gate, and people live clustered along it.\nBefore the patrol arrives, you have time for about three stops.',

@@ -7,7 +7,7 @@ import * as net from '../../net/api.ts'
 import { noteAiLine } from '../common/aiLines.ts'
 import { pickCompanionReply } from './talkLines.ts'
 
-type NarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro'
+type NarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro' | 'echo'
 export type Ctx = Record<string, string | number | boolean | string[] | null | undefined>
 interface ImproviseReq {
   lang: Lang

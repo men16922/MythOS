@@ -231,6 +231,7 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
                 <Tooltip content={tipFor(n)}>
                   <button
                     className={cls}
+                    data-node={n.id}
                     onClick={() => enter(n)}
                     onMouseEnter={() =>
                       isReach && sound(n.kind === 'elite' || n.kind === 'boss' ? 'telegraph' : 'ui_hover', n.kind === 'elite' || n.kind === 'boss' ? { volume: 0.5 } : undefined)

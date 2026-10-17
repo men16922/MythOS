@@ -138,6 +138,7 @@ class FallbackNarrationTest(unittest.TestCase):
     CONTEXTS: ClassVar[dict[str, dict[str, object]]] = {
         "event": {"title": "잠긴 자판기", "success": True},
         "ix_loop_start": {"loop": 3, "killedBy": "HAETAE"},
+        "echo": {"echoName": "The Scar", "echoText": "Where you fell last time still aches."},
         "chronicle": {
             "loop": 2,
             "result": "defeat",
@@ -398,3 +399,21 @@ class EventOpeningPromptTest(unittest.TestCase):
         )
         self.assertIn("여운", after)
         self.assertNotIn("첫인상", ask2)
+
+
+class EchoNarrationTest(unittest.TestCase):
+    def test_echo_kind_has_a_prompt_tight_limits_and_the_authored_text_as_fallback(self) -> None:
+        ctx = gm.sanitize_context(
+            {
+                "echoName": "남은 흉터",
+                "echoText": "지난번에 쓰러진 자리가 아직 욱신거린다.",
+                "lastResult": "defeat",
+            }
+        )
+        system, _ = gm.narrate_messages("echo", "ko", ctx)
+        self.assertIn("잔향", system)
+        self.assertEqual(gm.narrate_limits("echo", "ko").max_sentences, 2)
+        self.assertEqual(
+            gm.fallback_narration("echo", "ko", ctx), "지난번에 쓰러진 자리가 아직 욱신거린다."
+        )
+        self.assertTrue(gm.fallback_narration("echo", "en", {}))

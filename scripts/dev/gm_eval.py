@@ -290,6 +290,19 @@ def cases() -> list[Case]:
         _enemy("enemy_echo_winning_en", "echo_eater", "winning", "en"),
         _improvise("improvise_hack_ko", "ko", "단말기를 해킹해 경보를 끈다"),
         _improvise("improvise_bluff_en", "en", "Bluff the guards that I'm an inspector"),
+        _narrate(
+            "echo_scar_ko",
+            "echo",
+            "ko",
+            {
+                "echoName": "남은 흉터",
+                "echoText": "지난번에 쓰러진 자리가 아직 욱신거린다.",
+                "chronicle": "정세린과 함께 C-17로 들어갔다. 변전함 경보를 껐다. 해태 앞에서 쓰러졌다.",
+                "lastResult": "defeat",
+                "lastAct": 1,
+                "party": ["정세린"],
+            },
+        ),
         _companion(
             "companion_han_earlier_ko",
             "han",

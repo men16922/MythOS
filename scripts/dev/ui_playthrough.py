@@ -1,6 +1,9 @@
 """Play a whole run through the REAL UI with a bot, and fail on a stuck screen or any console error.
 
-  .venv/bin/python scripts/dev/ui_playthrough.py [--runs 2] [--max-minutes 12] [--seed-daily]
+  .venv/bin/python scripts/dev/ui_playthrough.py [--runs 2] [--max-minutes 12] [--seed-daily] [--signal-plus]
+
+`--signal-plus` plays as a Signal+ player (the server grants the bot's player id): background pick, districts first on
+the map, every conversation, camp nights, thoughts and growth points.
 
 `make test-e2e-v2` stops at the first fight; this goes on until the run ends (map → events → fights → rewards → shop →
 safehouse → treasure → final choice → ending), so it exercises the screens as they follow each other — the stat voices,
@@ -30,6 +33,8 @@ from playwright.sync_api import Page, sync_playwright
 ROOT = Path(__file__).resolve().parents[2]
 UI = ROOT / "src" / "mythos_ui"
 STUCK_SECONDS = 70
+#: Player id the server treats as Signal+ in `--signal-plus` runs (MYTHOS_PLUS_GRANT).
+PLUS_PLAYER = "uiplaythrough_plus01"
 
 
 def free_port() -> int:
@@ -55,7 +60,8 @@ def snapshot(page: Page) -> dict:
         """() => { const r = window.__m2 && window.__m2.run; if (!r) return { kind: 'none' };
           const s = r.screen; return { kind: s.kind, act: r.act, hp: r.hp, node: r.nodeId, visited: r.visited.length,
             combatTurn: s.kind === 'combat' ? s.combat.turn : null, foes: s.kind === 'combat' ? s.combat.units.filter((u) => u.side === 'enemy').map((u) => u.hp).join(',') : null, me: s.kind === 'combat' ? (s.combat.units.find((u) => u.defId === 'connector') || {}).hp : null, hand: s.kind === 'combat' ? s.combat.hand.length : null, energy: s.kind === 'combat' ? s.combat.energy : null, phase: s.kind === 'combat' ? s.combat.phase : null,
-            resolved: s.kind === 'event' ? !!(s.resolved || (s.improvised && s.improvised.rolled)) : null, rng: r.rng, seed: r.seed } }"""
+            resolved: s.kind === 'event' ? !!(s.resolved || (s.improvised && s.improvised.rolled)) : null, rng: r.rng, seed: r.seed,
+            crpg: !!r.crpg, districts: Object.values(r.map.nodes).filter((n) => n.kind === 'district').map((n) => n.id).join(',') } }"""
     )
 
 
@@ -222,8 +228,17 @@ def act_once(page: Page, state: dict) -> bool:
             return True
         return False
     if kind == "map":
-        # Like a careful player: safehouse, shop, chest and street events before plain fights, elites last (unless hurt-free).
-        for k in ("rest", "shop", "treasure", "event", "combat", "elite", "boss"):
+        # Thoughts on offer and growth points first (both sit in the map's side panel), then a node.
+        if click_first(page, ".m2-thought .m2-btn--primary:not([disabled])", timeout=300):
+            return True
+        if click_first(page, ".m2-growth__stats button:not([disabled])", timeout=300):
+            return True
+        # A Signal+ player plans the route through the act's district (like aiming for a StS elite).
+        toward = page.evaluate(TOWARD_DISTRICT_JS)
+        if toward and click_first(page, f'.m2-node[data-node="{toward}"].is-reach', timeout=500):
+            return True
+        # Like a careful player: districts, safehouse, shop, chest and street events before plain fights, elites last.
+        for k in ("district", "rest", "shop", "treasure", "event", "combat", "elite", "boss"):
             if click_first(page, f".m2-node--{k}.is-reach"):
                 return True
         return click_first(page, ".m2-node.is-reach")
@@ -264,7 +279,25 @@ def act_once(page: Page, state: dict) -> bool:
         return click_first(
             page, ".m2-shop__leave, button:has-text('떠난다'), button:has-text('Leave')"
         )
+    if kind == "district":
+        if click_first(page, ".m2-poi:not([disabled])"):
+            return True
+        return click_first(page, ".m2-district__panel > .m2-btn")
+    if kind == "dialogue":
+        if click_first(
+            page, ".m2-dialogue__panel > .m2-btn--primary", timeout=300
+        ):  # the conversation ended
+            return True
+        if page.locator(".m2-pending").count():
+            page.wait_for_timeout(500)  # the d20 lands
+            return click_first(
+                page,
+                ".m2-pending__actions .m2-btn:has-text('영감'), .m2-pending__actions .m2-btn--primary",
+            )
+        return click_first(page, ".m2-dialogue .m2-option:not(.is-locked):not([disabled])")
     if kind == "rest":
+        if click_first(page, ".m2-camp", timeout=300):
+            return True
         if click_first(page, ".m2-restopt--heal") or click_first(page, ".m2-restopt"):
             return True
         return click_first(page, ".m2-rest__done .m2-btn--primary")
@@ -284,6 +317,14 @@ def act_once(page: Page, state: dict) -> bool:
         return click_first(page, ".m2-final button:not([disabled])")
     return False
 
+
+#: The reachable node that leads to an unvisited district (null when none does).
+TOWARD_DISTRICT_JS = """() => { const r = window.__m2 && window.__m2.run; if (!r || !r.crpg) return null;
+  const nodes = r.map.nodes; const target = Object.values(nodes).find((n) => n.kind === 'district' && !r.visited.includes(n.id));
+  if (!target) return null;
+  const leads = (id) => id === target.id || (nodes[id] ? nodes[id].next.some(leads) : false);
+  const from = r.nodeId === null ? r.map.startIds : (nodes[r.nodeId] ? nodes[r.nodeId].next : []);
+  return from.find(leads) || null }"""
 
 SET_SCREEN_JS = """(screen) => { const r = window.__m2.run; window.__m2.setRun({ ...r, screen: typeof screen === 'function' ? screen(r) : screen }) }"""
 
@@ -361,13 +402,21 @@ def tour_screens(page: Page) -> list[str]:
 
 
 def play_one(
-    page: Page, base: str, max_seconds: float, daily: bool, god: bool, max_nodes: int = 0
+    page: Page,
+    base: str,
+    max_seconds: float,
+    daily: bool,
+    god: bool,
+    max_nodes: int = 0,
+    plus: bool = False,
 ) -> tuple[bool, str, Counter]:
     seen: Counter = Counter()
     page.goto(f"{base}/?mute=1")
     page.evaluate(
         "() => { for (const k of Object.keys(localStorage)) if (k.startsWith('mythos2')) localStorage.removeItem(k); localStorage.setItem('mythos2.mute','1') }"
     )
+    if plus:
+        page.evaluate(f"() => localStorage.setItem('mythos2.playerId', '{PLUS_PLAYER}')")
     page.reload()
     page.wait_for_function("() => !!window.__m2", timeout=15000)
     # Fast animations keep the whole run short; everything else is the shipped game.
@@ -380,6 +429,9 @@ def play_one(
         page.locator(
             ".m2-menu-item", has_text=re.compile("새 루프|New loop", re.IGNORECASE)
         ).first.click()
+    if plus:
+        page.locator(".m2-bgs button").first.wait_for(timeout=15000)  # the Signal+ background pick
+        page.locator(".m2-bgs button").last.click()
     page.get_by_role("button", name=re.compile(r"^\s*(접속|Connect)\s*$")).first.click()
     page.wait_for_timeout(600)
     page.keyboard.press("Escape")  # skip the prologue
@@ -461,6 +513,11 @@ def main() -> int:
         "--no-god", action="store_true", help="do not top up HP: the bot usually dies in act 1-2"
     )
     ap.add_argument(
+        "--signal-plus",
+        action="store_true",
+        help="play as a Signal+ player (districts, dialogue, camp nights)",
+    )
+    ap.add_argument(
         "--max-nodes",
         type=int,
         default=0,
@@ -476,6 +533,7 @@ def main() -> int:
         "MYTHOS_AUTH": "open",
         "MYTHOS_FIREBASE_WEB_CONFIG": "{}",
         "MYTHOS_V2_GM": "off",
+        "MYTHOS_PLUS_GRANT": PLUS_PLAYER,
         "PYTHONPATH": str(ROOT / "src"),
     }
     api = subprocess.Popen(
@@ -529,6 +587,7 @@ def main() -> int:
                     args.daily,
                     not args.no_god,
                     args.max_nodes,
+                    args.signal_plus,
                 )
                 if ok and kind_of(page) != "ended":
                     try:

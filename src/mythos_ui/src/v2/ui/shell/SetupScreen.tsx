@@ -1,7 +1,7 @@
 // Mythos 2.0 — loop setup: archetype, starting companion, Paradox level.
 // Daily mode ("오늘의 시드"): archetype only; companion and Paradox are fixed for everyone.
 import { CalendarDays, ChevronLeft, Heart, Lock, Play } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
 import { AUTONOMY_STEPS, autonomyLevel, echoOffers, nextAutonomyStep } from '../../engine/legacy.ts'
 import { MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
@@ -16,6 +16,7 @@ import { sound } from '../components/sound.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
 import { loadPlan } from '../../net/api.ts'
 import { usePlan } from '../components/plan.ts'
+import { narrate } from './gm.ts'
 import { SignalPlusModal } from '../components/SignalPlus.tsx'
 import { rx } from './rx.ts'
 import './setup.css'
@@ -65,9 +66,30 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
   const backgrounds = Object.values(C.crpg?.backgrounds ?? {})
   const [bgId, setBgId] = useState<string | null>(() => backgrounds[0]?.id ?? null)
   const [offer, setOffer] = useState(false)
-  const echoes = daily ? [] : echoOffers(profile, C)
+  const echoes = useMemo(() => (daily ? [] : echoOffers(profile, C)), [daily, profile, C])
   const [echoId, setEchoId] = useState<string | null>(null)
   const autonomy = autonomyLevel(profile)
+  // Signal+ with AI on: the GM says which moment of the last loop the chosen echo remembers (once per echo).
+  const [echoLines, setEchoLines] = useState<Record<string, string>>({})
+  useEffect(() => {
+    const echo = echoes.find((e) => e.id === echoId)
+    const last = profile.history.find((r) => !r.daily)
+    if (!echo || !last || echoLines[echo.id] || !crpg || !profile.settings.ai) return
+    let alive = true
+    void narrate('echo', lang, {
+      echoName: tr(echo.name, lang),
+      echoText: tr(echo.text, lang),
+      chronicle: last.chronicle ?? '',
+      lastResult: last.result,
+      lastAct: last.act,
+      party: last.party.map((id) => tr(C.companions[id]?.name, lang)),
+    }).then((line) => {
+      if (alive && line) setEchoLines((m) => ({ ...m, [echo.id]: line }))
+    })
+    return () => {
+      alive = false
+    }
+  }, [echoId, crpg, lang, profile, C, echoes, echoLines])
   const nextStep = nextAutonomyStep(profile)
   const arch = C.archetypes[archId]
   const companion = firstLoop || daily ? 'se_rin' : compId
@@ -309,6 +331,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                   </button>
                 ))}
               </div>
+              {echoId && echoLines[echoId] && <p className="m2-echo__line">“{echoLines[echoId]}”</p>}
               <p className="m2-bgs__text">
                 {ko ? '하나만 새길 수 있다. 고르지 않아도 된다.' : 'You can inscribe one. Or none.'}
                 {' · '}

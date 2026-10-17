@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 Lang = Literal["ko", "en"]
-NarrateKind = Literal["event", "ix_loop_start", "chronicle", "boss", "bond", "act_intro"]
+NarrateKind = Literal["event", "ix_loop_start", "chronicle", "boss", "bond", "act_intro", "echo"]
 NARRATE_KINDS: tuple[NarrateKind, ...] = (
     "event",
     "ix_loop_start",
@@ -35,6 +35,7 @@ NARRATE_KINDS: tuple[NarrateKind, ...] = (
     "boss",
     "bond",
     "act_intro",
+    "echo",
 )
 
 STATS: tuple[str, ...] = ("str", "agi", "int", "cha", "obs")
@@ -323,6 +324,15 @@ _KIND_SYSTEM: dict[NarrateKind, dict[Lang, str]] = {
         "en": "Open the new act's location in 1-3 sentences: air, light, sound. Hint that the "
         "connector must keep climbing.",
     },
+    "echo": {
+        "ko": "접속자가 지난 회차에서 들고 나온 잔향 하나를 이번 접속에 새긴다. 그 잔향이 어떤 순간의 "
+        "기억인지 1~2문장, 80자 안쪽, 2인칭('당신')으로 쓴다. 지난 회차 기록(연대기, 끝난 방식, 동료)에 "
+        "있는 사실 하나만 골라 감각적으로 붙든다. 기록에 없는 사건·장소·인물은 지어내지 않는다.",
+        "en": "The connector carries one echo out of the last loop into this connection. In 1-2 sentences "
+        "(under 30 words), second person, say which moment this echo remembers: pick ONE fact from the last "
+        "loop's record (chronicle, how it ended, companions) and hold it through the senses. Never invent "
+        "events, places or people that are not in the record.",
+    },
 }
 
 _KIND_ASK: dict[NarrateKind, dict[Lang, str]] = {
@@ -335,6 +345,7 @@ _KIND_ASK: dict[NarrateKind, dict[Lang, str]] = {
     "boss": {"ko": "보스 등장 장면", "en": "the boss moment"},
     "bond": {"ko": "동료와의 장면", "en": "the companion moment"},
     "act_intro": {"ko": "막 도입부", "en": "the act opening"},
+    "echo": {"ko": "잔향의 기억 한 줄", "en": "the echo's one-line memory"},
 }
 
 
@@ -346,6 +357,8 @@ class NarrateLimits:
 
 
 def narrate_limits(kind: NarrateKind, lang: Lang) -> NarrateLimits:
+    if kind == "echo":
+        return NarrateLimits(2, 120 if lang == "ko" else 220, 400)
     if kind == "chronicle":
         return NarrateLimits(6, 600 if lang == "ko" else 900, 900)
     return NarrateLimits(3, 260 if lang == "ko" else 420, 512)
@@ -795,6 +808,16 @@ def fallback_narration(kind: NarrateKind, lang: Lang, context: Mapping[str, Any]
         return _fallback_boss(context, lang, seed)
     if kind == "bond":
         return _fallback_bond(context, lang, seed)
+    if kind == "echo":
+        # The client shows the authored echo text already; the authored fallback is that same text.
+        authored = _ctx_str(context, "echoText")
+        if authored and language_ok(authored, lang):
+            return authored
+        return (
+            "지난 접속의 무언가가 손끝에 남아 있다."
+            if lang == "ko"
+            else "Something from the last connection lingers in your hands."
+        )
     return _fallback_act_intro(context, lang)
 
 

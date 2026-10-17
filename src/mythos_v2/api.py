@@ -173,7 +173,7 @@ class V2Settings:
 
 
 class NarrateBody(BaseModel):
-    kind: Literal["event", "ix_loop_start", "chronicle", "boss", "bond", "act_intro"]
+    kind: Literal["event", "ix_loop_start", "chronicle", "boss", "bond", "act_intro", "echo"]
     lang: Literal["ko", "en"] = "ko"
     context: dict[str, Any] = Field(default_factory=dict)
 

@@ -16,7 +16,7 @@ export const D2_SUBWAY_HUB: DistrictDef = {
   id: 'd2_subway_hub',
   act: 2,
   name: t('환승역 지하 3층', 'Transfer Station B3'),
-  image: 'v2/events/a2_subway_hub.webp',
+  image: 'v2/districts/d2_subway_hub.webp',
   intro: t(
     '환승 계단을 세 층 더 내려가면 시장 소리가 끊긴다. 승강장에 멈춘 전동차 여섯 량. 창문마다 빨래가 걸려 있고, 객차 안에서 사람들이 밥을 짓는다. 벽시계는 23시 58분에서 멈췄다.\n선로 쪽에서 물 떨어지는 소리. 둘러볼 수 있는 곳은 세 군데쯤.',
     'Three more flights down the transfer stairs and the market noise cuts out. Six train cars stopped at the platform. Laundry hangs in every window; people cook rice inside the carriages. The wall clock stopped at 23:58.\nWater drips somewhere down on the tracks. You have time for about three stops.',

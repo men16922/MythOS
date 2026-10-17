@@ -8,7 +8,7 @@ Usage (repo venv):
   .venv/bin/python scripts/v2_assets/gen_images.py all --dry-run
   .venv/bin/python scripts/v2_assets/gen_images.py static --only act1 --repost   # re-crop cached raw, no API
 
-Groups: static, events, cards, implants, consumables, all. Existing outputs are skipped unless forced
+Groups: static, events, cutscenes, districts, cards, implants, consumables, all. Existing outputs are skipped unless forced
 (--force takes output stems such as 'title' or 'packet_shot', output keys, or 'all').
 """
 
@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from common import ImageJob, repost_image_job, run_image_jobs
 
-GROUPS = ("static", "events", "cutscenes", "cards", "implants", "consumables")
+GROUPS = ("static", "events", "cutscenes", "districts", "cards", "implants", "consumables")
 
 
 def jobs_for(group: str) -> list[ImageJob]:

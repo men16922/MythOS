@@ -123,4 +123,6 @@ Each wave: `make check`, `gameplay-qa` for any rule change, `make playthrough-qu
 | W4 | growth points, echo inscription, autonomy, party banter, within-run companion memory, IX habit profiling, opening-line prefetch | `engine/legacy.ts`, `content/echoes.ts`, `content/banter.ts`, `ui/shell/eventOpening.ts`, `talk.py` |
 | W5 | thought cabinet (15 thoughts) | `engine/thoughts.ts`, `content/thoughts.ts`, `ThoughtCabinet.tsx` |
 
-Not done / owner: create the `signal_plus_monthly` product and grant the service account Play Console access (`docs/play-store.md` step 7); a real purchase was never made (verification is unit-tested against a fake Play API only); dedicated district art (districts reuse event stills); AI-named echoes (echo names are authored).
+Follow-ups done the same day: dedicated district art (`scripts/v2_assets/gen_images.py districts`, 6 Vertex image calls), the echo's AI line (narrate kind `echo`, Signal+ with AI on, in the setup screen), `ui_playthrough.py --signal-plus` (a whole Signal+ run through the real UI, routing through each act's district), and the billing plugin run on the emulator (plugin registered; Play Billing 8 answers BILLING_UNAVAILABLE on a Play-less image, handled without a crash).
+
+Not done / owner: create the `signal_plus_monthly` product and grant the service account Play Console access (`docs/play-store.md` step 7); a real purchase (needs the Play account, a license tester and a Play-Store device).

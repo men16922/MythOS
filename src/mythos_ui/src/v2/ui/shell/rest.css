@@ -185,3 +185,36 @@
     padding: 18px 12px 16px;
   }
 }
+
+/* Signal+ camp night (engine/crpg.ts campScene). */
+.m2-camp {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(640px, 100%);
+  margin: 0 auto 18px;
+  padding: 12px 16px;
+  border: 1px solid #6fe3c8;
+  background: linear-gradient(90deg, rgba(255, 160, 60, 0.12), rgba(10, 25, 30, 0.85));
+  color: var(--m2-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.m2-camp svg {
+  color: #ffb45c;
+  flex: none;
+}
+.m2-camp img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 50%;
+  flex: none;
+}
+.m2-camp b {
+  display: block;
+  font-family: var(--m2-display);
+}
+.m2-camp small {
+  color: var(--m2-mute);
+}

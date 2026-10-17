@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { CONTENT as C } from '../../content/index.ts'
 import { newProfile } from '../../engine/meta.ts'
 import type { MetaProfile, RunRecord } from '../../engine/types.ts'
-import { MEMORY_FACTS, loopMemory, loopsWith, timesWord } from './loopMemory.ts'
+import { MEMORY_FACTS, habitFact, loopMemory, loopsWith, timesWord } from './loopMemory.ts'
 
 const rec = (over: Partial<RunRecord>): RunRecord => ({
   id: 'r',
@@ -52,4 +52,14 @@ test('loopsWith counts earlier normal loops a companion was recruited in', () =>
   const history = [rec({ party: ['se_rin', 'han'] }), rec({ party: ['han'], daily: '2026-10-16' }), rec({ party: ['tae_o'] }), rec({ party: ['han'] })]
   assert.equal(loopsWith({ history }, 'han'), 2, 'daily runs do not count')
   assert.equal(loopsWith({ history }, 'kai'), 0)
+})
+
+test('IX profiles habits: the companion brought almost every time, else the usual shape; nothing under three loops', () => {
+  const p = (history: RunRecord[]): MetaProfile => ({ ...newProfile('T'), history })
+  const withKai = [rec({ party: ['kai'] }), rec({ party: ['kai', 'han'] }), rec({ party: ['se_rin'] })]
+  assert.equal(habitFact(withKai, C, 'ko'), '접속자는 거의 매번 카이를 데려온다')
+  assert.ok(loopMemory(p(withKai), C, 'ko').includes('접속자는 거의 매번 카이를 데려온다'))
+  const ghosts = [rec({ party: [] }), rec({ party: ['han'] }), rec({ party: ['kai'] })]
+  assert.equal(habitFact(ghosts, C, 'en'), `The connector nearly always connects as ${C.archetypes.ghost?.name.en}`)
+  assert.equal(habitFact(withKai.slice(0, 2), C, 'ko'), null)
 })

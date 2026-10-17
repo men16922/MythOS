@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/types.ts'
 import { TALK_LIMITS, type TalkTurn } from '../../net/api.ts'
 import { portrait } from '../common/assets.ts'
-import { logComms } from '../common/commsLog.ts'
+import { earlierChat, logComms } from '../common/commsLog.ts'
 import { tr } from '../common/lang.ts'
 import { ReportLine } from '../components/ReportLine.tsx'
 import { sound } from '../components/sound.ts'
@@ -101,6 +101,10 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening, lo
           archetype: tr(C.archetypes[run.archetype]?.name, lang),
           party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)).filter(Boolean),
           loopsTogether,
+          // This run only: what the player told this companion at earlier safehouses (the comms log), and how the
+          // player's Signal+ choices have landed with them.
+          earlier: earlierChat(companionId, history.filter((t) => t.role === 'player').length + 1),
+          ...(run.crpg ? { approval: run.crpg.approval[companionId] ?? 0 } : {}),
         },
       },
       abort.signal,

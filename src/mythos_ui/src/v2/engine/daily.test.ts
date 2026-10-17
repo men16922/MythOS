@@ -101,6 +101,9 @@ function step(run: RunState): RunState {
       const open = eventOptions(run, C).find((o) => o.available)
       return open ? chooseEventOption(run, open.index, C) : applyImprovisation(run, IMPROV, C)
     }
+    case 'district':
+    case 'dialogue':
+      throw new Error('CRPG screens never appear without run.crpg')
     case 'shop':
       return leaveShop(shopBuyCard(run, 0, C), C)
     case 'rest':

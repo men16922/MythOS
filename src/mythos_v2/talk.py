@@ -819,6 +819,10 @@ def _companion_system(
     # Companions do not remember loops (only IX does); having walked with the connector before leaves a faint
     # déjà vu, never a memory, a count or the word "loop".
     deja_vu = (_ctx_int(ctx, "loopsTogether") or 0) > 0
+    # Within this run only: what the connector said to this companion at earlier safehouses, and (Signal+) how
+    # the connector's choices have been landing with them.
+    earlier = _ctx_list(ctx, "earlier", 3)
+    approval = _ctx_int(ctx, "approval")
     if lang == "ko":
         being = "폐기 판정을 받은 안드로이드" if persona.android else "이 도시의 사람"
         parts = [
@@ -841,6 +845,20 @@ def _companion_system(
             parts.append(f"접속자의 유형: {archetype}.")
         if log:
             parts.append("최근에 함께 겪은 일: " + "; ".join(log) + ".")
+        if earlier:
+            parts.append(
+                "이번 작전에서 접속자가 전에 너에게 한 말(기억하고 있다, 필요할 때만 자연스럽게 짚는다): "
+                + " / ".join(f'"{x}"' for x in earlier)
+            )
+        if approval is not None and approval != 0:
+            parts.append(
+                "접속자가 이번 작전에서 내린 선택들이 "
+                + (
+                    "마음에 든다. 조금 더 편하게 대한다."
+                    if approval > 0
+                    else "마음에 걸린다. 말에 가시가 조금 섞인다."
+                )
+            )
         if deja_vu:
             parts.append(
                 "희미한 기시감: 너는 지난 루프를 기억하지 못한다. 다만 접속자와 있으면 처음 같지 않은 느낌이 "
@@ -886,6 +904,20 @@ def _companion_system(
         parts.append(f"The connector's type: {archetype}.")
     if log:
         parts.append("What you just went through together: " + "; ".join(log) + ".")
+    if earlier:
+        parts.append(
+            "What the connector said to you earlier on this run (you remember; bring it up only when it fits): "
+            + " / ".join(f'"{x}"' for x in earlier)
+        )
+    if approval is not None and approval != 0:
+        parts.append(
+            "The connector's choices on this run "
+            + (
+                "sit well with you; you are a little warmer."
+                if approval > 0
+                else "bother you; a little edge creeps in."
+            )
+        )
     if deja_vu:
         parts.append(
             "A faint déjà vu: you do not remember any loop. But with the connector, now and then, something "

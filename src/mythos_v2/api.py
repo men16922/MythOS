@@ -22,7 +22,7 @@ Routes
   POST /plan/play                  {purchaseToken} → verify a Google Play Signal+ purchase → plan
   POST /gm/narrate                 {kind, lang, context} → {text, source}
   POST /gm/improvise               {lang, event, action, stats, act} → Improvisation + source
-  POST /gm/talk                    {mode: companion|ix|enemy, lang, …} → {text, source}
+  POST /gm/talk                    {mode: companion|ix|enemy|npc, lang, …} → {text, source} (+ intent for npc)
   POST /gm/report                  {route, kind, lang, text} → {ok}: flag an offensive AI line (no player id kept)
   PUT  /daily/{date}               {name, result} → {rank, total, best, improved}  (identity required)
   GET  /daily/{date}?archetype=&limit=   public board; ``me`` when the caller is identified
@@ -64,7 +64,7 @@ from starlette.concurrency import run_in_threadpool
 
 from mythos_v2.log import get_logger
 
-from . import admin, daily, gm, talk, taunt
+from . import admin, daily, gm, npc, talk, taunt
 from .auth import (
     GOOGLE_PLAYER_PREFIX,
     AccountDeleter,
@@ -88,6 +88,7 @@ from .billing import (
 )
 from .budget import Budget, BudgetConfig, Tier
 from .llm import TextLLM, Usage, build_text_llm, take_last_usage
+from .npc import MAX_OPTIONS as NPC_MAX_OPTIONS
 from .ratelimit import RateLimiter
 from .store import (
     Slot,
@@ -197,10 +198,11 @@ class TalkTurn(BaseModel):
 
 
 class TalkBody(BaseModel):
-    """Companion chat (``companion`` + ``message`` + ``history``), an IX comms line (``trigger``) or an enemy
-    taunt (``enemy`` + ``moment``). ``context`` carries the content-side facts (see ``mythos_v2.talk``)."""
+    """Companion chat (``companion`` + ``message`` + ``history``), an IX comms line (``trigger``), an enemy
+    taunt (``enemy`` + ``moment``) or a Signal+ NPC line (``npc`` + ``message`` + ``history`` + ``options``).
+    ``context`` carries the content-side facts (see ``mythos_v2.talk`` / ``mythos_v2.npc``)."""
 
-    mode: Literal["companion", "ix", "enemy"]
+    mode: Literal["companion", "ix", "enemy", "npc"]
     lang: Literal["ko", "en"] = "ko"
     companion: str = Field(default="", max_length=32)
     message: str = Field(default="", max_length=talk.MAX_MESSAGE_CHARS)
@@ -208,6 +210,9 @@ class TalkBody(BaseModel):
     trigger: talk.IxTrigger | None = None
     enemy: str = Field(default="", max_length=32)
     moment: taunt.TauntTrigger | None = None
+    npc: str = Field(default="", max_length=32)
+    #: The intents open at the NPC's current node: [{intent, label}] (``mythos_v2.npc.open_intents``).
+    options: list[dict[str, Any]] = Field(default_factory=list, max_length=NPC_MAX_OPTIONS)
     context: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -1019,6 +1024,50 @@ def create_v2_router(
                     _logger.warning("v2 gm talk failed: %s", type(exc).__name__)
         return (text, "llm", outcome) if text is not None else ("", "fallback", outcome)
 
+    async def talk_npc(
+        body: TalkBody, player_id: str, context: dict[str, Any]
+    ) -> tuple[str, str, str, str | None]:
+        """A district NPC answers and names the intent the player's line attempts. A miss returns no line and a
+        keyword guess at the intent (the client keeps its option buttons either way)."""
+        who = body.npc.strip()
+        if not npc.valid_npc(who):
+            raise HTTPException(status_code=422, detail="unknown npc")
+        message = talk.normalize_message(body.message)
+        if not message:
+            raise HTTPException(status_code=422, detail="message is required")
+        intents = npc.open_intents(body.options)
+        history = talk.normalize_history([(turn.role, turn.text) for turn in body.history])
+        text: str | None = None
+        intent: str | None = None
+        if talk.screen_message(message) != "ok":
+            outcome = "deflected"
+        elif talk.player_turns(history) >= talk.MAX_PLAYER_MESSAGES:
+            outcome = "turn_cap"
+        elif (refused := await gm_refusal(player_id)) is not None:
+            outcome = refused
+        else:
+            system, user = npc.npc_messages(who, body.lang, context, history, message, intents)
+            try:
+                raw = await runner.complete(
+                    system,
+                    user,
+                    max_tokens=npc.NPC_MAX_TOKENS,
+                    temperature=0.7,
+                    timeout=cfg.talk_timeout,
+                    json_schema=npc.NPC_JSON_SCHEMA,
+                )
+                text, intent = npc.clean_npc_reply(raw, who, body.lang, context, intents)
+                # The model answered but named no open intent: a clear keyword match still counts.
+                intent = intent or npc.fallback_intent(message, intents)
+                outcome = "llm" if text else "rejected"
+            except Exception as exc:
+                outcome = _outcome_for(exc)
+                if outcome == "error":
+                    _logger.warning("v2 gm talk failed: %s", type(exc).__name__)
+        if text is None:
+            return "", "fallback", outcome, npc.fallback_intent(message, intents)
+        return text, "llm", outcome, intent
+
     @router.post("/gm/report", dependencies=[Depends(limit_gm_body)])
     async def v2_gm_report(body: ReportBody, player_id: player_dep) -> dict[str, Any]:
         """Keep a flagged AI line for the operator (``/admin``). The player id only feeds the rate limit."""
@@ -1039,6 +1088,10 @@ def create_v2_router(
             raise HTTPException(status_code=413, detail="context too large")
         started = time.perf_counter()
         context = gm.sanitize_context(body.context)
+        if body.mode == "npc":
+            text, source, outcome, intent = await talk_npc(body, player_id, context)
+            await log_gm("talk", player_id, outcome, started, status=f"npc:{body.npc.strip()}")
+            return {"text": text, "source": source, "intent": intent}
         if body.mode == "companion":
             text, source, outcome = await talk_companion(body, player_id, context)
             status = f"companion:{body.companion.strip()}"

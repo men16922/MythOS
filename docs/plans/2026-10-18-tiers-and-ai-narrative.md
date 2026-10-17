@@ -1,6 +1,6 @@
 # Player tiers + CRPG layer + narrative, RPG and AI expansion
 
-Date: 2026-10-18 · Status: **planned — D1/D2/D6 decided; D3–D5, D7–D9 on the defaults below until the owner says otherwise** · Requested by the owner ("사용자 Tier를 나눠야할거같아. 유료/무료 구분", "LLM 관련 내러티브 요소 강화 … v1에서 더 가져오거나, RPG 요소 등 그리고 AI 관련된 것들을 강화", "전투 요소 위주라서 CRPG 관련 요소도 … 유료 버전을 위한 혜택 … 발더스 게이트", "로그인 유저는 금액 한도로 AI, 유료 월 구독은 금액 한도를 늘려주는거지").
+Date: 2026-10-18 · Status: **built 2026-10-18 (W0–W5, see §9); D3–D5, D7–D9 on the defaults below until the owner says otherwise; Play billing unverified until the Play account exists** · Requested by the owner ("사용자 Tier를 나눠야할거같아. 유료/무료 구분", "LLM 관련 내러티브 요소 강화 … v1에서 더 가져오거나, RPG 요소 등 그리고 AI 관련된 것들을 강화", "전투 요소 위주라서 CRPG 관련 요소도 … 유료 버전을 위한 혜택 … 발더스 게이트", "로그인 유저는 금액 한도로 AI, 유료 월 구독은 금액 한도를 늘려주는거지").
 
 ## 0. Why now
 
@@ -111,3 +111,16 @@ Each wave: `make check`, `gameplay-qa` for any rule change, `make playthrough-qu
 - **D7 daily**: no districts or tier-only state effects on the daily (default).
 - **D8 CRPG access**: Signal+ only (default) / Act 1 district free as a taste.
 - **D9 district placement**: replaces one event node per act in Signal+ normal runs (default) / added on top.
+
+## 9. Built (2026-10-18)
+
+| Wave | What landed | Where |
+|---|---|---|
+| W0 | per-player monthly $ budget + global daily ceiling (free stops at 70 %), outcomes `budget` / `ceiling` | `mythos_v2/budget.py`, `v2_gm_spend` (migration 016) |
+| W1 | Signal+ entitlements, Play subscriptionsv2 verification + acknowledge, lazy re-check on `GET /plan`, `POST /plan/play`, operator grant, Settings plan row + meter + offer modal, local Play Billing 8 plugin | `mythos_v2/billing.py`, `v2_entitlements` (017), `native/billing.ts`, `BillingPlugin.java`, `ui/components/SignalPlus.tsx` |
+| W2 | d20 dialogue (advantage, inspiration reroll), backgrounds, approval → bond, camp nights | `engine/crpg.ts`, `content/crpg/*`, `DialogueScreen.tsx` |
+| W3 | 6 districts (2 per act; 24 conversations, 18 NPCs), 6 quests with boss payoffs, combat twists, AI NPC talk (`/gm/talk` mode `npc`, intent from free text, keyword fallback) | `content/crpg/d*.ts`, `mythos_v2/npc.py`, `mythos_v2/npcs/*`, `DistrictScreen.tsx` |
+| W4 | growth points, echo inscription, autonomy, party banter, within-run companion memory, IX habit profiling, opening-line prefetch | `engine/legacy.ts`, `content/echoes.ts`, `content/banter.ts`, `ui/shell/eventOpening.ts`, `talk.py` |
+| W5 | thought cabinet (15 thoughts) | `engine/thoughts.ts`, `content/thoughts.ts`, `ThoughtCabinet.tsx` |
+
+Not done / owner: create the `signal_plus_monthly` product and grant the service account Play Console access (`docs/play-store.md` step 7); a real purchase was never made (verification is unit-tested against a fake Play API only); dedicated district art (districts reuse event stills); AI-named echoes (echo names are authored).

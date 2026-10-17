@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-18 — Player tiers: AI within a monthly $ allowance, Signal+ subscription adds a CRPG layer
+
+- **Context**: owner — "사용자 Tier를 나눠야할거같아", "로그인 유저는 금액 한도로 AI를 넣고, 별도로 유료 월 구독을 넣어서 그 사람들은 금액 한도를 늘려주는거지", "전투 요소 위주라서 CRPG 관련 요소도 … 유료 버전을 위한 혜택 … 발더스 게이트". The game was free with no IAP, so every GM call was pure cost with no ceiling.
+- **Decision**: guests get no AI; signed-in players get AI lines within a monthly money budget (default $0.30), Signal+ (monthly subscription, Google Play only) raises it (default $1.50) and unlocks the CRPG layer (districts, d20 dialogue, backgrounds, approval, quests, AI NPC talk, camp nights, banter). A global daily ceiling stops free players first. Paid content never touches the daily seed. Growth points, echo inscription, autonomy and the thought cabinet are authored and for everyone. Plan: `docs/plans/2026-10-18-tiers-and-ai-narrative.md`.
+- **Trade-off**: the CRPG layer is content-heavy (6 districts at launch); purchases are verified server-side without RTDN (expiry re-check on `GET /plan`), so a refund can take until the stored expiry to land. Open defaults (₩3,900, budgets, no web checkout) stay until the owner changes them.
+
 ## 2026-10-13 — Overnight harness: held-out bank v2 for the 2.0 tree; model pins kept
 
 - **Context**: bank v1 (`scripts/overnight/heldout-bank.md`, frozen 2026-07-27) targeted 1.x code now on branch `1.0`; plugin 1.8.0 defaults actor and critic to Opus 5.5 while the `Makefile` pins actor `claude-sonnet-5` / critic `claude-fable-5-1`.

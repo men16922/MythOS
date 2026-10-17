@@ -12,6 +12,7 @@ import { Typewriter } from '../components/Typewriter.tsx'
 import { ixMirror } from '../../content/ixMirror.ts'
 import { statVoiceLine } from '../../content/statVoices.ts'
 import { GmCard } from './GmCard.tsx'
+import { openingLine } from './eventOpening.ts'
 import { improvise, narrate } from './gm.ts'
 import { logComms } from '../common/commsLog.ts'
 import { rx } from './rx.ts'
@@ -134,18 +135,7 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
     if (!ev) return
     let alive = true
     const waitTimer = window.setTimeout(() => alive && setGmWait(ev.id), 700)
-    void narrate('event', lang, {
-      eventId: ev.id,
-      title: tr(ev.title, lang),
-      text: tr(ev.text, lang),
-      act: run.act,
-      loop: run.loop,
-      party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
-      trace: run.trace,
-      hints: ev.gmHints ?? [],
-      // Lived through in earlier loops: the GM may open on déjà vu (the server phrases the count).
-      seenBefore: eventsSeen?.[ev.id] ?? 0,
-    }).then((text) => {
+    void openingLine(run, ev, C, lang, eventsSeen).then((text) => {
       window.clearTimeout(waitTimer)
       if (!alive) return
       setGmWait(null)
@@ -255,7 +245,7 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
     if (!pending || rolling) return
     const next = rx.improvise(run, pending, C)
     const r = next.screen.kind === 'event' ? next.screen.improvised?.rolled : undefined
-    const chance = rx.chance(run, pending)
+    const chance = rx.improviseChance(run, pending)
     setPending(null)
     setAction('')
     if (r) {
@@ -389,7 +379,7 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
         )}
 
         {pending && !done && !rolling && (
-          <Adjudication imp={pending} lang={lang} statValue={run.stats[pending.stat]} chance={rx.chance(run, pending)} onRoll={roll} onCancel={() => setPending(null)} />
+          <Adjudication imp={pending} lang={lang} statValue={run.stats[pending.stat]} chance={rx.improviseChance(run, pending)} onRoll={roll} onCancel={() => setPending(null)} />
         )}
 
         {resolved && (

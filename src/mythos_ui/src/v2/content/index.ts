@@ -16,6 +16,9 @@ import { IX_LINES } from './ix.ts'
 import { ACTS } from './acts.ts'
 import { UNLOCKS } from './unlocks.ts'
 import { PARADOX } from './paradox.ts'
+import { CRPG } from './crpg/index.ts'
+import { ECHOES } from './echoes.ts'
+import { THOUGHTS } from './thoughts.ts'
 
 function byId<T extends { id: string }>(xs: readonly T[]): Record<string, T> {
   const out: Record<string, T> = {}
@@ -38,6 +41,9 @@ export const CONTENT: ContentRegistry = {
   paradox: PARADOX,
   lore: byId(LORE),
   ixLines: IX_LINES,
+  crpg: CRPG,
+  echoes: ECHOES,
+  thoughts: THOUGHTS,
 }
 
 export { CARDS, CONSUMABLES, ENEMIES, ENCOUNTERS, IMPLANTS, COMPANIONS, ARCHETYPES }

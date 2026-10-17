@@ -8,6 +8,8 @@
 // so 'greedy' vs 'basic' isolates combat skill — out-of-combat play is identical.
 
 import { autoPlay } from './combatSim.ts'
+import { acceptThought, declineThought } from './thoughts.ts'
+import { acceptRoll, campScene, chooseDialogue, closeDialogue, dialogueOptions, districtPois, leaveDistrict, rerollDialogue, startCamp, visitPoi } from './crpg.ts'
 import { computeEchoes, newProfile, runKilledBy } from './meta.ts'
 import {
   applyImprovisation,
@@ -18,6 +20,7 @@ import {
   enterNode,
   eventOptions,
   grantImplant,
+  spendGrowth,
   leaveReward,
   leaveRest,
   leaveShop,
@@ -45,7 +48,7 @@ import {
   updateCombat,
   MAX_CONSUMABLES,
 } from './run.ts'
-import type { CardInstance, ContentRegistry, MapNode, MetaProfile, Outcome, RunEffect, RunScreen, RunState } from './types.ts'
+import type { CardInstance, ContentRegistry, DialogueOutcome, MapNode, MetaProfile, Outcome, RunEffect, RunScreen, RunState } from './types.ts'
 
 export type SimPolicy = 'greedy' | 'basic' | 'mixed'
 
@@ -90,6 +93,8 @@ export interface RunSimOptions {
   companion?: string
   /** Implants to hold from the start (balance experiments, e.g. a full set). */
   startImplants?: string[]
+  /** Play with the Signal+ CRPG layer (districts, dialogue, camp) and this background. */
+  crpg?: { background: string | null }
 }
 
 const SIM_EPOCH = '2026-01-01T00:00:00.000Z'
@@ -195,6 +200,7 @@ function nodeScore(run: RunState, node: MapNode | undefined): number {
     case 'elite':
       return hp >= 0.75 ? 6 : hp >= 0.55 ? 2 : -5
     case 'event':
+    case 'district':
       return hp < 0.4 ? 6 : 4
     case 'combat':
       return hp >= 0.5 ? 5 : 3
@@ -217,6 +223,16 @@ function firstAccepted(run: RunState, tries: ((r: RunState) => RunState)[]): Run
 }
 
 function decideMap(run: RunState, C: ContentRegistry): RunState {
+  if (run.thoughts?.offer) {
+    const carried = acceptThought(run)
+    return carried !== run ? carried : declineThought(run)
+  }
+  if ((run.growth ?? 0) > 0) {
+    // Specialise: the highest stat that can still grow.
+    const stat = (['str', 'agi', 'int', 'cha', 'obs'] as const).filter((k) => (run.stats[k] ?? 0) < 10).sort((a, b) => (run.stats[b] ?? 0) - (run.stats[a] ?? 0))[0]
+    const grown = stat ? spendGrowth(run, stat) : run
+    if (grown !== run) return grown
+  }
   const options = reachableNodes(run)
   const look = (id: string): number => {
     const node = run.map.nodes[id]
@@ -269,6 +285,7 @@ function decideShop(run: RunState, s: ScreenOf<'shop'>, C: ContentRegistry): Run
 }
 
 function decideRest(run: RunState, s: ScreenOf<'rest'>, C: ContentRegistry): RunState {
+  if (campScene(run, C)) return startCamp(run, C)
   if (s.done) return leaveRest(run, C)
   const tries: ((r: RunState) => RunState)[] = []
   if (hpPct(run) < 0.6) tries.push((r) => restHeal(r, C))
@@ -331,6 +348,39 @@ function decideCombat(
   return updateCombat(run, end, C)
 }
 
+/** Visit points of interest in order while actions last, then leave. */
+function decideDistrict(run: RunState, C: ContentRegistry): RunState {
+  const open = districtPois(run, C).find((v) => v.available)
+  return open ? visitPoi(run, open.poi.id, C) : leaveDistrict(run, C)
+}
+
+/** Reroll a failed check when inspired; otherwise the option with the best expected value (no check = sure). */
+function decideDialogue(run: RunState, s: ScreenOf<'dialogue'>, C: ContentRegistry): RunState {
+  const d = s.dialogue
+  if (d.ended) return closeDialogue(run, C)
+  if (d.pending) {
+    if (!d.pending.roll.success) {
+      const again = rerollDialogue(run)
+      if (again !== run) return again
+    }
+    return acceptRoll(run, C)
+  }
+  const value = (o: DialogueOutcome | undefined): number => {
+    const effects = o?.effects ?? []
+    const plain = effects.filter((e): e is RunEffect => e.kind !== 'quest' && e.kind !== 'combat_mod' && e.kind !== 'inspiration')
+    return outcomeValue(run, { text: o?.text ?? { ko: '', en: '' }, effects: plain }, C) + (effects.length - plain.length)
+  }
+  const scored = dialogueOptions(run, C)
+    .filter((v) => v.available)
+    .map((v) => {
+      const p = (v.chance ?? 100) / 100
+      return { v, score: p * (value(v.option.success) + 1) + (1 - p) * value(v.option.failure) }
+    })
+    .sort((a, b) => b.score - a.score)
+  const best = scored[0]
+  return best ? chooseDialogue(run, best.v.index, C) : run
+}
+
 function decide(
   run: RunState,
   C: ContentRegistry,
@@ -366,6 +416,10 @@ function decide(
         .sort((a, b) => b.ending.echoBonus - a.ending.echoBonus)[0]
       return open ? chooseEnding(run, open.ending.id, C) : run
     }
+    case 'district':
+      return decideDistrict(run, C)
+    case 'dialogue':
+      return decideDialogue(run, s, C)
     case 'ended':
       return run
   }
@@ -383,7 +437,7 @@ export function simulateRun(
 ): RunSimResult {
   const profile = opts.profile ?? newProfile('sim')
   const maxTurns = opts.maxTurns ?? 30
-  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily, companion: opts.companion }, C)
+  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily, companion: opts.companion, crpg: opts.crpg }, C)
   for (const id of opts.startImplants ?? []) run = grantImplant(run, id, C)
   for (let step = 0; run.screen.kind !== 'ended'; step++) {
     if (step >= MAX_STEPS) throw new Error(`runSim: step limit on ${run.screen.kind} (seed ${seed})`)

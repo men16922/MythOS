@@ -1,6 +1,14 @@
 # Progress Log
 
-Last updated: 2026-10-17
+Last updated: 2026-10-18
+
+## 2026-10-18 — Tiers (AI $ allowance, Signal+), the CRPG layer, growth / echoes / autonomy / thoughts (owner: "Tier를 나눠야", "CRPG … 발더스 게이트", "잔여 작업 완료시까지")
+
+- Status: done, committed; not deployed. Plan + build table: `docs/plans/2026-10-18-tiers-and-ai-narrative.md` §9; rules: `docs/GAMEPLAY.md`; decision in `DECISIONS.md`.
+- **Server**: `budget.py` (monthly micro-USD per player in `v2_gm_spend`, global daily ceiling, free stops at 70 %), `billing.py` (Play `subscriptionsv2` verify + acknowledge, `obfuscatedAccountId` check, lazy re-check on `GET /plan`; `POST /plan/play`; `MYTHOS_PLUS_GRANT`), `npc.py` + `npcs/*` (18 NPC personas, `/gm/talk` mode `npc` → reply + intent, keyword fallback), companion prompt gets this run's earlier lines + approval. Migrations 016/017; account deletion erases both tables; privacy / deletion pages and the Play sheet updated (Data safety: purchase history).
+- **Client**: Settings plan row + allowance meter + Signal+ offer; local Play Billing 8 `BillingPlugin` (compiles; never run against Play). CRPG: `engine/crpg.ts` (district placement by own hash, points of interest, d20 with advantage + inspiration reroll, backgrounds, approval → bond, quests → boss twists, combat mods, camp nights), 6 districts / 24 conversations / 6 camp scenes (three writers in parallel, reviewed), DistrictScreen / DialogueScreen (free text to NPCs) / QuestLog, banter on the map. Everyone: growth points, echo inscription + autonomy (`engine/legacy.ts`), thought cabinet (`engine/thoughts.ts`, 15 thoughts, in the map's side panel), IX habit fact, event-opening prefetch on node click (same call, earlier).
+- Verified: `make check` green (node 325+, Python 318 + 11 skipped), `make test-db` (Postgres 31 incl. the new tables), `make test-e2e-v2`, `make playthrough-quick` (111 s; the first try failed because the floating thought card covered the shop's leave button — thoughts now live in the map's side panel); headless muted UI at 1280 and 390 px: setup background → district → d20 roll / reroll → free text (keyword intent) → journal → camp night → thought + growth; balance (mixed P0, 3 × 120 identical seeds): HEAD 41.7 % · now 41.4 % · now + CRPG 41.7 %. `make gm-eval`: local gemma 98 % usable (new npc / companion-memory cases 100 % after the "a question is ask" fix); Vertex 3.8-flash: every answered call usable incl. the new cases; transient Vertex ServerErrors at 27 s on old and new cases alike (7/42, then 2/42 on a rerun → 95 %).
+- Not verified: a real Play purchase (no Play account / product yet), Android build with the plugin on a device, production budgets (prices are the unverified 3.8 introductory list), a whole Signal+ run through the real UI (sim covers it).
 
 ## 2026-10-17 — GM cost per run re-measured on gemini-3.8-flash
 

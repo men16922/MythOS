@@ -1011,3 +1011,49 @@ export async function redeemPlayPurchase(purchaseToken: string): Promise<RedeemR
 export function hasCrpg(): boolean {
   return currentPlan().features.includes('crpg')
 }
+
+// ---------------------------------------------------------------- Signal+ NPC talk (POST /gm/talk mode npc)
+
+export interface NpcTalkRequest {
+  lang: Lang
+  /** NPC id (content/crpg ↔ src/mythos_v2/npcs personas). */
+  npc: string
+  message: string
+  /** Earlier free-text turns at this NPC, oldest first ('companion' = the NPC's lines). */
+  history?: TalkTurn[]
+  /** The intents open at the current node, with their authored labels. */
+  options: { intent: string; label: string }[]
+  /** district, node (the node's text), act. */
+  context?: NarrateContext
+}
+
+export interface NpcTalkResult {
+  /** The NPC's line ('' when no model answered). */
+  text: string
+  source: 'llm' | 'fallback'
+  /** Which open intent the player's line attempts (null = none of them). */
+  intent: string | null
+}
+
+/** An NPC's answer to free text and the intent it reads in it; null when the server cannot be reached. */
+export async function talkNpc(req: NpcTalkRequest, opts: { signal?: AbortSignal } = {}): Promise<NpcTalkResult | null> {
+  const body = {
+    mode: 'npc',
+    lang: req.lang,
+    npc: req.npc,
+    message: req.message.trim().slice(0, TALK_LIMITS.message),
+    history: (req.history ?? [])
+      .map((t) => ({ role: t.role, text: t.text.trim().slice(0, TALK_LIMITS.turnChars) }))
+      .filter((t) => t.text)
+      .slice(-TALK_LIMITS.historyTurns),
+    options: req.options.slice(0, 8),
+    context: req.context ?? {},
+  }
+  const res = await request<unknown>('POST', '/gm/talk', { body: JSON.stringify(body), timeoutMs: TIMEOUT_MS.talk, signal: opts.signal })
+  if (!isRecord(res) || typeof res.text !== 'string') return null
+  return {
+    text: res.text.trim(),
+    source: res.source === 'llm' ? 'llm' : 'fallback',
+    intent: typeof res.intent === 'string' ? res.intent : null,
+  }
+}

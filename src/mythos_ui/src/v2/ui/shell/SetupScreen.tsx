@@ -1,8 +1,9 @@
 // Mythos 2.0 — loop setup: archetype, starting companion, Paradox level.
 // Daily mode ("오늘의 시드"): archetype only; companion and Paradox are fixed for everyone.
 import { CalendarDays, ChevronLeft, Heart, Lock, Play } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
+import { AUTONOMY_STEPS, autonomyLevel, echoOffers, nextAutonomyStep } from '../../engine/legacy.ts'
 import { MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
 import { mutatorForDate } from '../../engine/mutators.ts'
 import { MutatorCard } from '../components/MutatorCard.tsx'
@@ -13,6 +14,9 @@ import { CardView } from '../components/CardView.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { sound } from '../components/sound.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
+import { loadPlan } from '../../net/api.ts'
+import { usePlan } from '../components/plan.ts'
+import { SignalPlusModal } from '../components/SignalPlus.tsx'
 import { rx } from './rx.ts'
 import './setup.css'
 
@@ -21,7 +25,7 @@ const STATS: StatKey[] = ['str', 'agi', 'int', 'cha', 'obs']
 export interface SetupScreenProps {
   profile: MetaProfile
   C: ContentRegistry
-  onStart: (o: { archetype: string; companion: string | null; paradox: number; daily?: string }) => void
+  onStart: (o: { archetype: string; companion: string | null; paradox: number; daily?: string; crpg?: { background: string | null }; echo?: string }) => void
   onBack: () => void
   /** KST date key: set up today's daily-seed run instead of a normal loop. */
   daily?: string
@@ -53,6 +57,18 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
   const [archId, setArchId] = useState<string>(() => archs.find((a) => a.unlocked)?.def.id ?? '')
   const [compId, setCompId] = useState<string | null>(() => comps.find((c) => c.unlocked)?.def.id ?? null)
   const [paradox, setParadox] = useState(0)
+  const plan = usePlan()
+  useEffect(() => {
+    void loadPlan()
+  }, [])
+  const crpg = !daily && plan.features.includes('crpg') && !!C.crpg
+  const backgrounds = Object.values(C.crpg?.backgrounds ?? {})
+  const [bgId, setBgId] = useState<string | null>(() => backgrounds[0]?.id ?? null)
+  const [offer, setOffer] = useState(false)
+  const echoes = daily ? [] : echoOffers(profile, C)
+  const [echoId, setEchoId] = useState<string | null>(null)
+  const autonomy = autonomyLevel(profile)
+  const nextStep = nextAutonomyStep(profile)
   const arch = C.archetypes[archId]
   const companion = firstLoop || daily ? 'se_rin' : compId
   const record = daily ? profile.daily?.[daily] : undefined
@@ -273,8 +289,70 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
               )}
             </div>
           </section>
+          {echoes.length > 0 && (
+            <section className="m2-setup__bg-pick">
+              <div className="m2-setup__label">{ko ? '각인 — 지난 루프가 남긴 것' : 'Inscribe — what the last loop left'}</div>
+              <div className="m2-bgs" role="radiogroup">
+                {echoes.map((e) => (
+                  <button
+                    key={e.id}
+                    role="radio"
+                    aria-checked={echoId === e.id}
+                    className={echoId === e.id ? 'is-on' : ''}
+                    onClick={() => {
+                      sound('ui_click')
+                      setEchoId(echoId === e.id ? null : e.id)
+                    }}
+                  >
+                    <b>{tr(e.name, lang)}</b>
+                    <small>{tr(e.text, lang)}</small>
+                  </button>
+                ))}
+              </div>
+              <p className="m2-bgs__text">
+                {ko ? '하나만 새길 수 있다. 고르지 않아도 된다.' : 'You can inscribe one. Or none.'}
+                {' · '}
+                {ko ? `자율도 ${autonomy}/${AUTONOMY_STEPS.length}` : `Autonomy ${autonomy}/${AUTONOMY_STEPS.length}`}
+                {nextStep !== null && (ko ? ` (기록 ${profile.codex.length}/${nextStep})` : ` (lore ${profile.codex.length}/${nextStep})`)}
+              </p>
+            </section>
+          )}
+          {!daily && backgrounds.length > 0 && (
+            <section className="m2-setup__bg-pick">
+              <div className="m2-setup__label">{ko ? '출신' : 'Background'} <span className="m2-plus-tag">Signal+</span></div>
+              {crpg ? (
+                <>
+                  <div className="m2-bgs" role="radiogroup">
+                    {backgrounds.map((b) => (
+                      <button
+                        key={b.id}
+                        role="radio"
+                        aria-checked={bgId === b.id}
+                        className={bgId === b.id ? 'is-on' : ''}
+                        onClick={() => {
+                          sound('ui_click')
+                          setBgId(b.id)
+                        }}
+                      >
+                        <b>{tr(b.name, lang)}</b>
+                        <small>{b.proficient.map((st) => tr(STAT_LABEL[st], lang)).join(' · ')} +2</small>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="m2-bgs__text">{tr(backgrounds.find((b) => b.id === bgId)?.text, lang)}</p>
+                </>
+              ) : (
+                <button className="m2-bgs__teaser" onClick={() => setOffer(true)}>
+                  {ko
+                    ? '출신을 고르고, 구역을 돌아다니며 사람들과 말하고, d20을 굴린다. Signal+에서 열린다.'
+                    : 'Pick a background, explore districts, talk to people, roll the d20. Opens with Signal+.'}
+                </button>
+              )}
+            </section>
+          )}
         </div>
       )}
+      {offer && <SignalPlusModal lang={lang} onClose={() => setOffer(false)} />}
 
       <footer className="m2-setup__foot">
         <button
@@ -283,7 +361,11 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
           onMouseEnter={() => sound('ui_hover')}
           onClick={() => {
             sound('transition', { intensity: 1.3 })
-            onStart(daily ? { archetype: archId, companion: null, paradox: 0, daily } : { archetype: archId, companion: companion ?? null, paradox })
+            onStart(
+              daily
+                ? { archetype: archId, companion: null, paradox: 0, daily }
+                : { archetype: archId, companion: companion ?? null, paradox, ...(crpg ? { crpg: { background: bgId } } : {}), ...(echoId ? { echo: echoId } : {}) },
+            )
           }}
         >
           <Play size={18} /> {ko ? '접속' : 'Connect'}

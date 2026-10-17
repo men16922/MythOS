@@ -34,6 +34,7 @@ import {
   shopHeal,
   shopRemove,
   shopScrub,
+  spendGrowth,
   startAct,
   takeRewardCard,
   takeRewardConsumable,
@@ -206,6 +207,20 @@ test('map navigation: reachability, trace, floors, echo per cleared node', () =>
   assert.equal(computeEchoes(run, C).nodes, 1)
 })
 
+test('growth points: spent on the map for +1 to a stat, never past the cap, never off the map', () => {
+  let run: RunState = { ...atMap(), growth: 2 }
+  const cha = run.stats.cha
+  run = spendGrowth(run, 'cha')
+  assert.equal(run.stats.cha, cha + 1)
+  assert.equal(run.growth, 1)
+  const capped = { ...run, stats: { ...run.stats, str: 10 } }
+  assert.equal(spendGrowth(capped, 'str'), capped)
+  const none = { ...run, growth: 0 }
+  assert.equal(spendGrowth(none, 'agi'), none)
+  const offMap = { ...run, screen: { kind: 'rest' as const, done: false } }
+  assert.equal(spendGrowth(offMap, 'agi'), offMap)
+})
+
 test('bonus objective, elite and boss rewards, act transition and recruit event', () => {
   // Bonus objective achieved → extra card group.
   let run = enter(atMap(), 'combat', { encounterId: 'n1_2' })
@@ -223,6 +238,7 @@ test('bonus objective, elite and boss rewards, act transition and recruit event'
   assert.equal(r.implantChoices.length, 1)
   assert.equal(run.echoes, 4)
   assert.equal(run.tally.elites, 1)
+  assert.equal(run.growth, 1, 'an elite win earns a growth point')
   const imp = r.implantChoices[0] as string
   assert.equal(takeRewardImplant(run, 'imp_b1', C), run, 'only offered implants')
   run = takeRewardImplant(run, imp, C)
@@ -251,6 +267,7 @@ test('bonus objective, elite and boss rewards, act transition and recruit event'
   const echoesBefore = run.echoes
   run = leaveReward(run, C)
   assert.equal(run.act, 2)
+  assert.equal(run.growth, 1, 'clearing an act earns a growth point')
   assert.equal(run.map.act, 2)
   assert.equal(run.nodeId, null)
   assert.equal(run.hp, 10 + 12, 'heals half the missing HP')
@@ -672,6 +689,9 @@ function autoStep(run: RunState): RunState {
       const open = eventOptions(run, C).find((o) => o.available)
       return open ? chooseEventOption(run, open.index, C) : applyImprovisation(run, { action: 'x', stat: 'agi', dc: 5, reward: 'heal', risk: 'trace', successText: tx('a'), failureText: tx('b') }, C)
     }
+    case 'district':
+    case 'dialogue':
+      throw new Error('CRPG screens never appear without run.crpg')
     case 'shop':
       return leaveShop(shopBuyCard(run, 0, C), C)
     case 'rest':

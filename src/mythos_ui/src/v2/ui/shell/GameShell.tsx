@@ -9,6 +9,7 @@ import '../components/settings.css'
 import { Suspense, lazy, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from 'react'
 import { CONTENT } from '../../content/index.ts'
 import { dateKeyAt } from '../../engine/daily.ts'
+import { loadPlan } from '../../net/api.ts'
 import { getAuth } from '../../net/auth.ts'
 import { flushDailyQueue } from '../../net/daily.ts'
 import { markCutsceneSeen } from '../../engine/meta.ts'
@@ -37,6 +38,8 @@ import { ArchiveScreen } from './ArchiveScreen.tsx'
 import { CardPickScreen } from './CardPickScreen.tsx'
 import { EndingScreen } from './EndingScreen.tsx'
 import { EventScreen } from './EventScreen.tsx'
+import { DialogueScreen } from './DialogueScreen.tsx'
+import { DistrictScreen } from './DistrictScreen.tsx'
 import { FinalChoice } from './FinalChoice.tsx'
 import { MapScreen } from './MapScreen.tsx'
 import { RestScreen } from './RestScreen.tsx'
@@ -116,6 +119,8 @@ function bgmFor(view: View, run: RunState | null): Bgm | undefined {
     case 'combat':
       return undefined // the combat UI owns combat music
     case 'event':
+    case 'district':
+    case 'dialogue':
       return 'event'
     case 'shop':
       return 'shop'
@@ -175,11 +180,16 @@ export function GameShell() {
   useEffect(() => {
     const auth = getAuth()
     const retry = () => void flushDailyQueue(dateKeyAt(Date.now())).catch(() => undefined)
-    void auth.ready().then(retry)
+    // The Signal+ plan and AI allowance (GET /plan) follow the identity: at boot, and on sign-in / sign-out.
+    void auth.ready().then(() => {
+      retry()
+      void loadPlan()
+    })
     let wasIn = auth.signedIn()
     const unsub = auth.subscribe(() => {
       const isIn = auth.signedIn()
       if (isIn && !wasIn) retry()
+      if (isIn !== wasIn) void loadPlan()
       wasIn = isIn
     })
     window.addEventListener('online', retry)
@@ -279,7 +289,7 @@ export function GameShell() {
 
   const setSettings = (s: MetaProfile['settings']) => setProfile((p) => ({ ...p, settings: s }))
 
-  const startRun = (o: { archetype: string; companion: string | null; paradox: number; daily?: string }) => {
+  const startRun = (o: { archetype: string; companion: string | null; paradox: number; daily?: string; crpg?: { background: string | null }; echo?: string }) => {
     if (game.hasRun) {
       // Never overwrite a live run silently: ask first (abandoning banks it).
       setConfirm(o.daily ? 'daily' : 'newloop')
@@ -362,7 +372,7 @@ export function GameShell() {
       onCutsceneSeen: (id) => setProfile((p) => markCutsceneSeen(p, id)),
     }
     const s = run.screen
-    screenKey = `run:${s.kind}:${run.act}:${s.kind === 'event' ? s.eventId : (run.nodeId ?? '')}`
+    screenKey = `run:${s.kind}:${run.act}:${s.kind === 'event' ? s.eventId : s.kind === 'dialogue' ? s.dialogue.id : (run.nodeId ?? '')}`
     switch (s.kind) {
       case 'act_intro':
         screen =
@@ -387,6 +397,12 @@ export function GameShell() {
         break
       case 'shop':
         screen = <ShopScreen {...props} />
+        break
+      case 'district':
+        screen = <DistrictScreen {...props} />
+        break
+      case 'dialogue':
+        screen = <DialogueScreen {...props} />
         break
       case 'rest':
         screen = <RestScreen {...props} />

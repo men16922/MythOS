@@ -1,7 +1,7 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
 import { art } from '../components/art.ts'
-import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, MessagesSquare, Settings, Shuffle, Users } from 'lucide-react'
-import { useEffect } from 'react'
+import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, MessagesSquare, ScrollText, Settings, Shuffle, Users } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
@@ -12,6 +12,7 @@ import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { mutatorById } from '../../engine/mutators.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
 import { TraceMeter } from '../components/TraceMeter.tsx'
+import { QuestLog } from './QuestLog.tsx'
 import '../components/mutator.css'
 import './topbar.css'
 
@@ -37,6 +38,7 @@ export interface TopBarProps {
 }
 
 export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onMenu, savedAt, onDiscard }: TopBarProps) {
+  const [journal, setJournal] = useState(false)
   // Mark implants as seen after their pulse has played.
   const implantKey = run.implants.join('|')
   useEffect(() => {
@@ -219,6 +221,11 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onM
           <Layers size={16} />
           <span className="m2-mono">{run.deck.length}</span>
         </button>
+        {run.crpg && (
+          <button className="m2-iconbtn" onClick={() => setJournal(true)} title={lang === 'ko' ? '임무 일지' : 'Journal'} aria-label={lang === 'ko' ? '임무 일지' : 'Journal'}>
+            <ScrollText size={16} />
+          </button>
+        )}
         <button className="m2-iconbtn" onClick={onComms} title={lang === 'ko' ? '통신 기록' : 'Comms log'} aria-label={lang === 'ko' ? '통신 기록' : 'Comms log'}>
           <MessagesSquare size={16} />
         </button>
@@ -236,6 +243,7 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onM
           <Menu size={16} />
         </button>
       </div>
+      {journal && <QuestLog run={run} C={C} lang={lang} onClose={() => setJournal(false)} />}
     </header>
   )
 }

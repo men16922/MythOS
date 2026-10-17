@@ -80,6 +80,27 @@ export function loopMemory(profile: MetaProfile, C: ContentRegistry, lang: Lang,
       ? `기록된 접속 ${timesWord(runs.length, lang)} 중 끝까지 간 것은 ${wins ? timesWord(wins, lang) : '아직 없다'}`
       : `Recorded connections: ${countWord(runs.length)}; reached the end: ${wins ? countWord(wins) : 'none yet'}`,
   )
+  const habit = habitFact(runs, C, lang)
+  if (habit) facts.push(habit)
   for (const r of runs.slice(0, MEMORY_FACTS)) facts.push(`${ko ? '지난 접속' : 'A past connection'}: ${runFact(r, C, lang)}`)
   return facts.slice(0, MEMORY_FACTS)
+}
+
+/** IX profiles the player: the companion they keep bringing, or the shape they keep connecting as (no digits). */
+export function habitFact(runs: readonly RunRecord[], C: ContentRegistry, lang: Lang): string | null {
+  if (runs.length < 3) return null
+  const ko = lang === 'ko'
+  const tally = (keys: string[]): [string, number] | undefined =>
+    [...keys.reduce((m, k) => m.set(k, (m.get(k) ?? 0) + 1), new Map<string, number>())].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]
+  const mate = tally(runs.flatMap((r) => r.party))
+  if (mate && mate[1] >= Math.ceil(runs.length * 0.6)) {
+    const name = tr(C.companions[mate[0]]?.name, lang)
+    if (name) return ko ? `접속자는 거의 매번 ${name}${hasBatchim(name) ? '을' : '를'} 데려온다` : `The connector brings ${name} almost every time`
+  }
+  const arch = tally(runs.map((r) => r.archetype))
+  if (arch && arch[1] >= Math.ceil(runs.length * 0.7)) {
+    const name = tr(C.archetypes[arch[0]]?.name, lang)
+    if (name) return ko ? `접속자는 늘 ${withRo(name)} 접속한다` : `The connector nearly always connects as ${name}`
+  }
+  return null
 }

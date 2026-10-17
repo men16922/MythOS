@@ -75,7 +75,7 @@ headless and muted) into `outputs/play-store/`, which is gitignored. Rebuild the
 > ■ 막지 않는 AI GM
 > Google로 로그인하면 클라우드 저장, 오늘의 시드 순위표와 함께 AI가 쓰는 GM 내레이션, 동료 대화, IX 통신이 켜집니다. 작성된 대사가 항상 먼저 뜨고 AI 대사는 그 위에 얹힐 뿐이라 게임을 기다리게 하지 않습니다. 불쾌한 AI 대사는 게임 안에서 바로 신고할 수 있습니다.
 >
-> 로그인하지 않아도 처음부터 끝까지 오프라인으로 플레이할 수 있습니다. 광고와 인앱 결제가 없습니다. 한국어와 영어를 지원합니다.
+> 로그인하지 않아도 처음부터 끝까지 오프라인으로 플레이할 수 있습니다. 광고는 없습니다. 선택 구독 Signal+는 구역 탐색·d20 대화·NPC와의 자유 대화 같은 CRPG 층과 더 많은 AI 대사를 엽니다(오늘의 시드는 모두에게 같습니다). 한국어와 영어를 지원합니다.
 
 ### en-US
 
@@ -107,7 +107,7 @@ headless and muted) into `outputs/play-store/`, which is gitignored. Rebuild the
 > ■ An AI GM that never makes you wait
 > Sign in with Google for cloud saves, the daily leaderboard and AI-written GM narration, companion chat and IX comms. Authored lines always appear first and AI lines only add to them. You can report any AI line from inside the game.
 >
-> Play the whole game offline without signing in. No ads, no in-app purchases. Korean and English.
+> Play the whole game offline without signing in. No ads. The optional Signal+ subscription opens a CRPG layer — districts, d20 dialogue, free talk with NPCs — and more AI-written lines (the Daily Signal is the same for everyone). Korean and English.
 
 ## Graphics (`outputs/play-store/`)
 

@@ -16,6 +16,9 @@
 // Victory/ending bonuses are added only when banking (see meta.computeEchoes).
 
 import { startCombat } from './combat.ts'
+import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, takeCombatMods } from './crpg.ts'
+import { AUTONOMY_ACT_SCRUB, autonomyDc, autonomyLevel, echoEffects, echoOffers } from './legacy.ts'
+import { advanceThoughts, offerThought } from './thoughts.ts'
 import { dailySeed, isDateKey } from './daily.ts'
 import { actEventPool, generateActMap, mapEncounters } from './map.ts'
 import {
@@ -143,7 +146,7 @@ function onScreen<K extends RunScreen['kind']>(
   return fn(next, next.screen as ScreenOf<K>) === false ? run : next
 }
 
-function log(run: RunState, kind: RunLogEntry['kind'], note: Text): void {
+export function log(run: RunState, kind: RunLogEntry['kind'], note: Text): void {
   const row = run.nodeId ? (run.map.nodes[run.nodeId]?.row ?? -1) : -1
   run.log.push({ act: run.act, row, kind, note })
 }
@@ -262,7 +265,7 @@ function joinCompanion(run: RunState, id: string, C: ContentRegistry): boolean {
 }
 
 /** Raise a companion's bond; level 2 adds their bond card, level 3 upgrades their signature card. */
-function raiseBond(run: RunState, id: string, amount: number, C: ContentRegistry): boolean {
+export function raiseBond(run: RunState, id: string, amount: number, C: ContentRegistry): boolean {
   const m = roster(run).find((p) => p.id === id)
   const def = C.companions[id]
   if (!m || !def) return false
@@ -391,6 +394,7 @@ export function conditionMet(run: RunState, cond: Condition | undefined, C: Cont
     const n = C.implants[cond.hasImplant]?.name ?? t(cond.hasImplant, cond.hasImplant)
     return fail(`${n.ko} 필요`, `Requires ${n.en}`)
   }
+  if (cond.background || cond.quest || cond.approval) return crpgConditionMet(run, cond, C)
   return { ok: true }
 }
 
@@ -410,6 +414,10 @@ export interface NewRunOptions {
    * Archive threads do not apply and Se-rin always starts with you (`companion` is ignored).
    */
   daily?: string
+  /** Signal+ CRPG layer (engine/crpg.ts) with this background (null = none). Ignored on a daily. */
+  crpg?: { background: string | null }
+  /** Echo to inscribe (engine/legacy.ts echoOffers of this profile). Ignored on a daily or when not offered. */
+  echo?: string
 }
 
 /** Stand-in profile for a daily run's content: nothing unlocked, no threads. */
@@ -508,7 +516,23 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     if (id) gainConsumable(run, id, C)
   }
 
+  if (opts.crpg && !daily && C.crpg) {
+    const bg = opts.crpg.background
+    run.crpg = newCrpgState(bg && C.crpg.backgrounds[bg] ? bg : null)
+  }
+  // What the last loop left behind: an inscribed echo and the autonomy of the lore found so far (never on a daily).
+  if (!daily) {
+    const echo = opts.echo ? echoOffers(profile, C).find((e) => e.id === opts.echo) : undefined
+    if (echo) {
+      applyImmediate(run, echoEffects(echo, profile), C)
+      run.echo = echo.id
+    }
+    const autonomy = autonomyLevel(profile)
+    if (autonomy > 0) run.autonomy = autonomy
+    if (autonomy >= 3) run.growth = (run.growth ?? 0) + 1
+  }
   run.map = generateActMap(1, run, C, { paradox })
+  placeDistrict(run, run.map, C)
   log(run, 'start', daily ? t(`오늘의 시드 ${daily} 시작`, `Daily Signal ${daily} begins`) : t(`루프 ${loop} 시작`, `Loop ${loop} begins`))
   if (thread.startRemove && run.deck.length > 0) {
     run.screen = { kind: 'card_pick', purpose: 'remove', count: 1, returnTo: { kind: 'act_intro' } }
@@ -558,7 +582,11 @@ function fallbackEncounter(run: RunState, kind: 'normal' | 'elite' | 'boss', C: 
 
 function beginCombat(run: RunState, encounterId: string, C: ContentRegistry): CombatState {
   rand(run) // advance so every fight gets a fresh slice of the run's random stream
-  return startCombat(run, encounterId, C)
+  const combat = startCombat(run, encounterId, C)
+  // Signal+ CRPG: twists a conversation set up (and quest payoffs on a boss) apply to the fight as it starts.
+  const mods = takeCombatMods(run, C.encounters[encounterId]?.kind === 'boss', C)
+  if (mods.length > 0) applyCombatMods(combat, mods)
+  return combat
 }
 
 /** Pre-rolled event if still valid, else a fresh act event (unseen + requirements met first). */
@@ -585,6 +613,21 @@ const KIND_NOTE: Record<NodeKind, Text> = {
   shop: t('암시장', 'Shop'),
   rest: t('은신처', 'Safehouse'),
   treasure: t('보급품', 'Cache'),
+  district: t('구역', 'District'),
+}
+
+function enterAsEvent(next: RunState, node: MapNode, C: ContentRegistry): void {
+  const eventId = resolveEventId(next, node, C)
+  if (eventId === null) {
+    // No playable event left: the street throws a fight at you instead.
+    const enc = fallbackEncounter(next, 'normal', C)
+    log(next, 'combat', C.encounters[enc]?.name ?? KIND_NOTE.combat)
+    next.screen = { kind: 'combat', combat: beginCombat(next, enc, C), nodeKind: 'combat' }
+    return
+  }
+  next.seenEvents.push(eventId)
+  log(next, 'event', C.events[eventId]?.title ?? KIND_NOTE.event)
+  next.screen = { kind: 'event', eventId, resolved: null, improvised: null }
 }
 
 export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): RunState {
@@ -597,6 +640,7 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
   next.visited.push(nodeId)
   next.tally.floors += 1
   gainTrace(next, mutatorMods(next).traceStep ?? (next.paradox >= 3 ? NODE_TRACE_PARADOX : NODE_TRACE), C)
+  if (next.thoughts) applyImmediate(next, advanceThoughts(next, C.thoughts ?? []), C)
 
   switch (node.kind) {
     case 'combat':
@@ -610,20 +654,13 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
       next.screen = { kind: 'combat', combat: beginCombat(next, enc, C), nodeKind: node.kind }
       break
     }
-    case 'event': {
-      const eventId = resolveEventId(next, node, C)
-      if (eventId === null) {
-        // No playable event left: the street throws a fight at you instead.
-        const enc = fallbackEncounter(next, 'normal', C)
-        log(next, 'combat', C.encounters[enc]?.name ?? KIND_NOTE.combat)
-        next.screen = { kind: 'combat', combat: beginCombat(next, enc, C), nodeKind: 'combat' }
-        break
-      }
-      next.seenEvents.push(eventId)
-      log(next, 'event', C.events[eventId]?.title ?? KIND_NOTE.event)
-      next.screen = { kind: 'event', eventId, resolved: null, improvised: null }
+    case 'event':
+      enterAsEvent(next, node, C)
       break
-    }
+    case 'district':
+      // A district this content does not know (an old save, a run without the layer): play it as an event node.
+      if (!node.districtId || !enterDistrict(next, node.districtId, C)) enterAsEvent(next, node, C)
+      break
     case 'shop':
       log(next, 'shop', KIND_NOTE.shop)
       next.screen = { kind: 'shop', stock: generateShop(next, C) }
@@ -732,6 +769,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   gainTrace(next, combat.trace, C)
   if (nodeKind === 'elite') {
     next.tally.elites += 1
+    next.growth = (next.growth ?? 0) + 1
     next.echoes += ELITE_ECHOES
   } else if (nodeKind === 'boss') {
     next.tally.bosses += 1
@@ -788,8 +826,11 @@ export function takeRewardConsumable(run: RunState, C: ContentRegistry): RunStat
 }
 
 function advanceAct(run: RunState, C: ContentRegistry): void {
+  run.growth = (run.growth ?? 0) + 1
+  if ((run.autonomy ?? 0) >= 2) gainTrace(run, -AUTONOMY_ACT_SCRUB, C)
   run.act = (run.act + 1) as 2 | 3
   run.map = generateActMap(run.act, run, C, { paradox: run.paradox, exclude: run.seenEvents })
+  placeDistrict(run, run.map, C)
   run.nodeId = null
   run.hp = clamp(1, run.maxHp, run.hp + Math.ceil((run.maxHp - run.hp) / 2))
   for (const m of roster(run)) m.hp = clamp(1, m.maxHp, m.hp + Math.ceil((m.maxHp - m.hp) / 2))
@@ -879,7 +920,7 @@ function rollCheck(run: RunState, chance: number): { success: boolean; roll: num
 const NOTHING_HAPPENS: Outcome = { text: t('아무 일도 일어나지 않았다.', 'Nothing comes of it.'), effects: [] }
 
 /** Apply the non-interactive part of an outcome now (interactive effects wait for continueEvent). */
-function applyImmediate(run: RunState, effects: readonly RunEffect[], C: ContentRegistry): void {
+export function applyImmediate(run: RunState, effects: readonly RunEffect[], C: ContentRegistry): void {
   for (const e of effects) {
     switch (e.kind) {
       case 'hp':
@@ -979,6 +1020,7 @@ export function chooseEventOption(run: RunState, index: number, C: ContentRegist
   const success = check ? rollCheck(next, checkChance(next, check.stat, check.dc)).success : true
   const outcome = success ? view.option.success : (view.option.failure ?? NOTHING_HAPPENS)
   applyImmediate(next, outcome.effects, C)
+  if (check) offerThought(next, check.stat, success, C.thoughts ?? [])
   next.screen = { kind: 'event', eventId, resolved: { optionIndex: index, success, text: outcome.text }, improvised: null }
   log(next, 'event', view.option.label)
   return next
@@ -1012,7 +1054,7 @@ export function applyImprovisation(run: RunState, imp: Improvisation, C: Content
   if (C.events[eventId]?.improvise === false) return run
   const next = clone(run)
   const b = boundImprovisation(imp)
-  const rolled = rollCheck(next, checkChance(next, b.stat, b.dc))
+  const rolled = rollCheck(next, checkChance(next, b.stat, Math.max(3, b.dc - autonomyDc(next))))
   if (rolled.success) {
     switch (b.reward) {
       case 'credits':
@@ -1036,6 +1078,7 @@ export function applyImprovisation(run: RunState, imp: Improvisation, C: Content
   } else if (b.risk === 'hp') next.hp = clamp(1, next.maxHp, next.hp - (b.dc + 1))
   else if (b.risk === 'trace') gainTrace(next, 2 * b.dc, C)
   else next.credits = Math.max(0, next.credits - 4 * b.dc)
+  offerThought(next, b.stat, rolled.success, C.thoughts ?? [])
 
   next.screen = {
     kind: 'event',
@@ -1078,25 +1121,35 @@ function showScreen(run: RunState, screen: RunScreen, C: ContentRegistry): void 
   run.screen = s.kind === 'combat' ? { kind: 'combat', combat: beginCombat(run, s.combat.encounterId, C), nodeKind: s.nodeKind } : s
 }
 
-/** After an event outcome: open its card rewards / pickers in order, then a fight, then the map. */
-export function continueEvent(run: RunState, C: ContentRegistry): RunState {
-  if (run.screen.kind !== 'event' || !run.screen.resolved) return run
-  const deferred = eventDeferred(run.screen, C)
-  const next = clone(run)
+/** Open `deferred` follow-ups in order (card rewards, pickers), then a fight if one is queued, then `tail`. */
+function queueDeferred(next: RunState, deferred: Deferred[], tail: RunScreen, C: ContentRegistry): void {
   const fight = deferred.find((d): d is Extract<Deferred, { kind: 'combat' }> => d.kind === 'combat' && !!C.encounters[d.encounterId])
-  let tail: RunScreen = { kind: 'map' }
+  let end: RunScreen = tail
   if (fight) {
     // Placeholder: showScreen restarts it with the deck as it is when the fight is reached.
-    tail = { kind: 'combat', combat: startCombat(next, fight.encounterId, C), nodeKind: 'combat' }
+    end = { kind: 'combat', combat: startCombat(next, fight.encounterId, C), nodeKind: 'combat' }
     log(next, 'combat', C.encounters[fight.encounterId]?.name ?? KIND_NOTE.combat)
   }
   const steps = deferred.filter((d) => d.kind !== 'combat')
   for (let i = steps.length - 1; i >= 0; i--) {
     const d = steps[i] as Deferred
-    if (d.kind === 'cards') tail = { kind: 'card_reward', choices: rollCards(next, C, d.count, d.weights), returnTo: tail }
-    else if (d.kind === 'pick') tail = { kind: 'card_pick', purpose: d.purpose, count: d.count, returnTo: tail }
+    if (d.kind === 'cards') end = { kind: 'card_reward', choices: rollCards(next, C, d.count, d.weights), returnTo: end }
+    else if (d.kind === 'pick') end = { kind: 'card_pick', purpose: d.purpose, count: d.count, returnTo: end }
   }
-  showScreen(next, tail, C)
+  showScreen(next, end, C)
+}
+
+/** Interactive effects (card rewards, removal/upgrade pickers, a fight) opened in order before `tail`. */
+export function openFollowUps(next: RunState, effects: readonly RunEffect[], tail: RunScreen, C: ContentRegistry): void {
+  queueDeferred(next, deferredOf(effects), tail, C)
+}
+
+/** After an event outcome: open its card rewards / pickers in order, then a fight, then the map. */
+export function continueEvent(run: RunState, C: ContentRegistry): RunState {
+  if (run.screen.kind !== 'event' || !run.screen.resolved) return run
+  const deferred = eventDeferred(run.screen, C)
+  const next = clone(run)
+  queueDeferred(next, deferred, { kind: 'map' }, C)
   return next
 }
 
@@ -1271,6 +1324,18 @@ export function setDeployment(run: RunState, ids: readonly string[]): RunState {
     if (same) return false
     next.party = ids.map((id) => crew.find((m) => m.id === id) as PartyMember)
     next.bench = crew.filter((m) => !ids.includes(m.id))
+  })
+}
+
+// ---------------------------------------------------------------- growth
+
+/** Spend one growth point (earned per elite won and per act cleared) on +1 to a stat. Map only. */
+export function spendGrowth(run: RunState, stat: StatKey): RunState {
+  if ((run.growth ?? 0) <= 0 || (run.stats[stat] ?? 0) >= STAT_MAX) return run
+  return onScreen(run, 'map', (next) => {
+    next.growth = (next.growth ?? 0) - 1
+    addStat(next.stats, stat, 1)
+    log(next, 'start', t(`성장: ${STAT_LABEL[stat]} +1`, `Growth: ${STAT_LABEL[stat]} +1`))
   })
 }
 

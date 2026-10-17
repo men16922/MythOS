@@ -29,7 +29,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
-from mythos_v2 import gm, talk, taunt  # noqa: E402
+from mythos_v2 import gm, npc, talk, taunt  # noqa: E402
 from mythos_v2.gm import Lang  # noqa: E402
 
 USABLE_DROP = 0.25
@@ -130,6 +130,43 @@ def _improvise(case_id: str, lang: Lang, action: str) -> Case:
 
     return Case(case_id, "improvise", lang, system, user, 600, 0.4, clean, gm.IMPROVISE_JSON_SCHEMA)
 
+
+def _npc(
+    case_id: str,
+    who: str,
+    lang: Lang,
+    node: str,
+    options: list[dict[str, str]],
+    message: str,
+    want: str,
+) -> Case:
+    """Signal+ NPC talk: usable when the NPC answers in voice AND reads the intended open intent."""
+    ctx = gm.sanitize_context(
+        {"district": "변전소 17" if lang == "ko" else "Substation 17", "node": node}
+    )
+    intents = npc.open_intents(options)
+    system, user = npc.npc_messages(who, lang, ctx, [], message, intents)
+
+    def clean(raw: str) -> str | None:
+        reply, intent = npc.clean_npc_reply(raw, who, lang, ctx, intents)
+        intent = intent or npc.fallback_intent(message, intents)  # as the route does
+        return f"[{intent}] {reply}" if reply and intent == want else None
+
+    return Case(
+        case_id, "talk:npc", lang, system, user, npc.NPC_MAX_TOKENS, 0.7, clean, npc.NPC_JSON_SCHEMA
+    )
+
+
+YUN_OPTIONS = [
+    {"intent": "deceive", "label": "“전력공사 검침원입니다.”"},
+    {"intent": "sneak", "label": "바리케이드를 피해 돌아간다"},
+    {"intent": "leave", "label": "돌아선다"},
+]
+OH_OPTIONS_EN = [
+    {"intent": "ask", "label": "“Where’s the power coming from?”"},
+    {"intent": "insight", "label": "Read the switchboard wiring"},
+    {"intent": "leave", "label": "Back off"},
+]
 
 MEMORY = [
     "지난 루프들에서 이 해태에게 세 번 쓰러졌다",
@@ -253,6 +290,31 @@ def cases() -> list[Case]:
         _enemy("enemy_echo_winning_en", "echo_eater", "winning", "en"),
         _improvise("improvise_hack_ko", "ko", "단말기를 해킹해 경보를 끈다"),
         _improvise("improvise_bluff_en", "en", "Bluff the guards that I'm an inspector"),
+        _companion(
+            "companion_han_earlier_ko",
+            "han",
+            "ko",
+            {**HAN, "earlier": ["IX 얘기는 하지 말자"], "approval": 3},
+            "아까 내가 한 말 기억나?",
+        ),
+        _npc(
+            "npc_yun_deceive_ko",
+            "sgt_yun",
+            "ko",
+            "단속관 넷. 가운데 남자가 장갑 낀 손을 든다. “정지. 이 구역은 전력 감사 중입니다.”",
+            YUN_OPTIONS,
+            "저 전기 검침하러 왔는데요. 계량기만 보고 갈게요.",
+            "deceive",
+        ),
+        _npc(
+            "npc_oh_ask_en",
+            "oh_gisa",
+            "en",
+            "The old man at the switchboard speaks without turning around. “Who sent you.”",
+            OH_OPTIONS_EN,
+            "Nobody sent me. How are you keeping these lights on?",
+            "ask",
+        ),
     ]
 
 

@@ -525,6 +525,12 @@ export interface Condition {
   maxTrace?: number
   stat?: { stat: StatKey; min: number }
   hasImplant?: string
+  /** CRPG (Signal+): the run's background must be this. */
+  background?: string
+  /** CRPG: quest `id` must have reached `stage` (or later). */
+  quest?: { id: string; stage: number }
+  /** CRPG: this deployed companion's approval must be at least `min`. */
+  approval?: { id: string; min: number }
 }
 
 export type RunEffect =
@@ -584,7 +590,8 @@ export interface EventDef {
 
 // ---------------------------------------------------------------- map & run
 
-export type NodeKind = 'combat' | 'elite' | 'event' | 'shop' | 'rest' | 'treasure' | 'boss'
+/** 'district' exists only in Signal+ normal runs (one event node per act becomes one, see engine/crpg.ts). */
+export type NodeKind = 'combat' | 'elite' | 'event' | 'shop' | 'rest' | 'treasure' | 'boss' | 'district'
 
 export interface MapNode {
   id: string // `a${act}r${row}c${col}`
@@ -594,6 +601,7 @@ export interface MapNode {
   next: string[] // ids in row+1
   encounterId?: string // pre-rolled for combat/elite/boss
   eventId?: string // pre-rolled for event
+  districtId?: string // pre-rolled for district
 }
 
 export interface ActMap {
@@ -643,6 +651,8 @@ export type RunScreen =
   | { kind: 'card_reward'; choices: string[]; returnTo: RunScreen }
   | { kind: 'final_choice' }
   | { kind: 'ended'; result: 'victory' | 'defeat'; endingId: string }
+  | { kind: 'district'; district: DistrictVisit }
+  | { kind: 'dialogue'; dialogue: DialogueState; returnTo: RunScreen }
 
 /** AI-GM adjudicated free action (bounded: the engine applies only whitelisted, clamped outcomes). */
 export interface Improvisation {
@@ -705,6 +715,222 @@ export interface RunState {
   mutator?: string
   /** Companion mastery tier (0–2) per companion id, frozen at newRun from the profile (never on a daily). */
   mastery?: Record<string, number>
+  /** Signal+ CRPG layer state (engine/crpg.ts); present only when the run was started with it (never a daily). */
+  crpg?: CrpgRunState
+  /** Unspent growth points: +1 per elite won and per act cleared, each spent on +1 to a stat (run.spendGrowth). */
+  growth?: number
+  /** The echo inscribed at loop start (engine/legacy.ts), if any. */
+  echo?: string
+  /** Autonomy level 0–3 frozen at newRun from the lore found across loops (engine/legacy.ts; never on a daily). */
+  autonomy?: number
+  /** Thought cabinet (engine/thoughts.ts). */
+  thoughts?: ThoughtState
+}
+
+// ---------------------------------------------------------------- CRPG layer (Signal+, engine/crpg.ts)
+
+/** What a dialogue line tries to do — the AI NPC talk maps free text onto one of a node's intents. */
+export type Intent = 'ask' | 'persuade' | 'deceive' | 'intimidate' | 'insight' | 'offer' | 'sneak' | 'fight' | 'leave'
+
+/** Bounded combat twists a conversation can set up (applied when the fight starts). */
+export type CombatModId = 'weaken' | 'marked' | 'intel' | 'cover'
+
+export type CrpgEffect =
+  | { kind: 'quest'; id: string; stage: number }
+  | { kind: 'combat_mod'; mod: CombatModId } // the next fight
+  | { kind: 'inspiration'; amount: number }
+
+export interface DialogueOutcome {
+  text: Text
+  effects?: (RunEffect | CrpgEffect)[]
+  /** Next node id; omitted = the conversation ends. */
+  goto?: string
+}
+
+export interface DialogueOption {
+  label: Text
+  intent: Intent
+  requires?: Condition
+  /** d20 check: success when d20 + modifier ≥ dc (natural 20 always, natural 1 never). */
+  check?: { stat: StatKey; dc: number }
+  /** A deployed companion who knows this ground: rolls with advantage while they are in the party. */
+  assist?: string
+  /** How deployed companions feel about this choice (approval delta). */
+  approval?: Record<string, number>
+  success: DialogueOutcome
+  failure?: DialogueOutcome
+}
+
+export interface DialogueNode {
+  /** npc id (content NPCS), companion id, or omitted for narration. */
+  speaker?: string
+  text: Text
+  options: DialogueOption[]
+}
+
+export interface DialogueDef {
+  id: string
+  /** The NPC the player talks to (AI talk persona id); omitted for scenes without one. */
+  npc?: string
+  start: string
+  nodes: Record<string, DialogueNode>
+}
+
+export interface NpcDef {
+  id: string
+  name: Text
+  /** One line for the UI (and the prompt's public description; the persona itself lives server-side). */
+  role: Text
+  portrait?: string
+}
+
+export interface PoiDef {
+  id: string
+  name: Text
+  blurb: Text
+  dialogue: string
+  requires?: Condition
+}
+
+export interface DistrictDef {
+  id: string
+  act: 1 | 2 | 3
+  name: Text
+  image: string
+  intro: Text
+  /** Points of interest the player can visit before patrols close the district. */
+  actions: number
+  pois: PoiDef[]
+  outro: Text
+}
+
+export interface BackgroundDef {
+  id: string
+  name: Text
+  text: Text
+  /** +2 on d20 checks with these stats. */
+  proficient: StatKey[]
+  /** Choosing an option with one of these intents earns inspiration (max 2). */
+  inspires: Intent[]
+}
+
+export interface QuestDef {
+  id: string
+  title: Text
+  /** Journal line per stage: `stages[i]` is stage i + 1 (stage 0 = not started). */
+  stages: Text[]
+  /** Reaching `stage` sets up the act boss fight with `bossMod`. */
+  payoff?: { stage: number; bossMod: CombatModId; text: Text }
+}
+
+/** Camp night (safehouse): a deployed companion with enough approval opens this conversation once per run. */
+export interface CampSceneDef {
+  companion: string
+  minApproval: number
+  dialogue: string
+}
+
+export interface CrpgContent {
+  districts: Record<string, DistrictDef>
+  dialogues: Record<string, DialogueDef>
+  npcs: Record<string, NpcDef>
+  backgrounds: Record<string, BackgroundDef>
+  quests: Record<string, QuestDef>
+  camps: CampSceneDef[]
+}
+
+export interface CrpgRunState {
+  background: string | null
+  inspiration: number
+  approval: Record<string, number>
+  /** Approval thresholds already paid out as bond (per companion: how many). */
+  approvalBonds: Record<string, number>
+  quests: Record<string, number>
+  districts: string[]
+  camps: string[]
+  /** Set by a conversation, applied when the next fight starts. */
+  nextCombat: CombatModId[]
+  /** Quest payoffs already spent on a boss fight. */
+  payoffsUsed: string[]
+}
+
+export interface DistrictVisit {
+  id: string
+  actionsLeft: number
+  visited: string[]
+}
+
+export interface D20Roll {
+  die: number
+  /** The other die when rolled with advantage. */
+  other?: number
+  modifier: number
+  dc: number
+  total: number
+  success: boolean
+  advantage: boolean
+  rerolled?: boolean
+}
+
+export interface DialogueState {
+  id: string
+  node: string
+  /** A rolled check waiting for the player: reroll with inspiration, or accept (then the outcome applies). */
+  pending: { optionIndex: number; roll: D20Roll } | null
+  /** The last resolved choice, shown above the next node (or as the closing line). */
+  last: {
+    label: Text
+    text: Text
+    roll?: D20Roll
+    approvals: { id: string; delta: number }[]
+    inspired: boolean
+    effects?: (RunEffect | CrpgEffect)[]
+  } | null
+  ended: boolean
+  /** Interactive outcome effects (card rewards, removal, a fight) opened when the conversation closes. */
+  queued: RunEffect[]
+}
+
+// ---------------------------------------------------------------- legacy: echo inscription + autonomy (engine/legacy.ts)
+
+/** What about the last normal loop makes an echo available. */
+export type EchoSource = 'fell' | 'won' | 'abandoned' | 'companion' | 'deep' | 'any'
+
+/** A memory carried from the last loop, inscribed at loop start for a small run-start effect (never on a daily). */
+export interface EchoDef {
+  id: string
+  source: EchoSource
+  name: Text
+  text: Text
+  effects: RunEffect[]
+}
+
+// ---------------------------------------------------------------- thought cabinet (engine/thoughts.ts)
+
+export interface ThoughtDef {
+  id: string
+  stat: StatKey
+  /** Offered after a check with this stat that ended this way. */
+  on: 'success' | 'failure'
+  name: Text
+  /** The voice offering it. */
+  offer: Text
+  /** The voice when it settles. */
+  settled: Text
+  /** What internalising it gives (shown on the offer). */
+  gain: Text
+  /** Small and never interactive (no pickers, no fights). */
+  effects: RunEffect[]
+}
+
+export interface ThoughtState {
+  /** A thought on offer (carry it or let it go). */
+  offer: string | null
+  slots: { id: string; progress: number }[]
+  done: string[]
+  declined: string[]
+  /** Settled on the last node entered (the UI shows its closing line once). */
+  settled: string | null
 }
 
 // ---------------------------------------------------------------- meta profile
@@ -837,4 +1063,10 @@ export interface ContentRegistry {
   lore: Record<string, LoreEntry>
   /** IX's loop-start lines; keyed by situation. */
   ixLines: { first: Text[]; afterDeath: Text[]; afterWin: Text[]; generic: Text[] }
+  /** Signal+ CRPG content (absent in test doubles that do not exercise it). */
+  crpg?: CrpgContent
+  /** Echoes a loop can inscribe at its start (engine/legacy.ts; absent in test doubles). */
+  echoes?: EchoDef[]
+  /** Thoughts the stat voices offer after checks (engine/thoughts.ts; absent in test doubles). */
+  thoughts?: ThoughtDef[]
 }

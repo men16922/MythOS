@@ -33,6 +33,7 @@ export const NODE_LABEL: Record<NodeKind, Text> = {
   rest: L('은신처', 'Safehouse'),
   treasure: L('보급 상자', 'Supply cache'),
   boss: L('보스', 'Boss'),
+  district: L('구역 탐색', 'District'),
 }
 
 export const NODE_HINT: Record<NodeKind, Text> = {
@@ -43,6 +44,7 @@ export const NODE_HINT: Record<NodeKind, Text> = {
   rest: L('회복, 카드 강화, 추적도 낮추기, 또는 동료와 유대.', 'Heal, upgrade a card, scrub Trace, or bond with a companion.'),
   treasure: L('잠긴 보급 상자. 임플란트 하나가 들어 있다.', 'A locked cache with an implant inside.'),
   boss: L('이 구역의 지배자.', 'The ruler of this sector.'),
+  district: L('사람과 장소가 있는 지역. 둘러보고, 말을 걸고, 판정을 굴린다. (Signal+)', 'A place with people in it. Explore, talk, roll the dice. (Signal+)'),
 }
 
 export function statLabel(stat: StatKey, lang: Lang): string {
@@ -180,4 +182,6 @@ export const SCREEN_LABEL: Record<RunScreen['kind'], Text> = {
   treasure: { ko: '보급 상자', en: 'Supply cache' },
   final_choice: { ko: '마지막 선택', en: 'Final choice' },
   ended: { ko: '종료', en: 'Ended' },
+  district: { ko: '구역 탐색', en: 'In a district' },
+  dialogue: { ko: '대화 중', en: 'In a conversation' },
 }

@@ -129,3 +129,12 @@ export function resetComms(): void {
     /* no storage */
   }
 }
+
+/**
+ * What the player said to `companion` earlier this run (oldest first, at most `max`), skipping the `skipLast` most
+ * recent lines (the chat in progress). The companion "remembers" these within the run — never across loops.
+ */
+export function earlierChat(companion: string, skipLast: number, max = 3): string[] {
+  const said = entries.filter((e) => e.speaker === 'player' && e.companion === companion).map((e) => e.text)
+  return said.slice(0, Math.max(0, said.length - skipLast)).slice(-max)
+}

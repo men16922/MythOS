@@ -436,3 +436,63 @@
   display: block;
   opacity: 0.7;
 }
+
+/* Signal+ background pick (engine/crpg.ts BackgroundDef). */
+.m2-setup__bg-pick {
+  padding: 14px 18px;
+  border: 1px solid var(--m2-line);
+  background: rgba(6, 18, 22, 0.75);
+  grid-column: 1 / -1;
+}
+.m2-plus-tag {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid #6fe3c8;
+  color: #6fe3c8;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.m2-bgs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.m2-bgs button {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  text-align: left;
+  border: 1px solid var(--m2-line-2);
+  background: rgba(10, 25, 30, 0.8);
+  color: var(--m2-ink-2);
+  cursor: pointer;
+}
+.m2-bgs button small {
+  color: var(--m2-mute);
+  font-family: var(--m2-mono);
+  font-size: 11px;
+}
+.m2-bgs button.is-on {
+  border-color: #6fe3c8;
+  color: var(--m2-ink);
+  box-shadow: inset 0 0 0 1px #6fe3c8;
+}
+.m2-bgs__text {
+  margin: 8px 0 0;
+  color: var(--m2-mute);
+  font-size: 13px;
+}
+.m2-bgs__teaser {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px dashed var(--m2-line-2);
+  background: transparent;
+  color: var(--m2-mute);
+  text-align: left;
+  cursor: pointer;
+}
+@media (max-width: 720px) {
+  .m2-bgs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

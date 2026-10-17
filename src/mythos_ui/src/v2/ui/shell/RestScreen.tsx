@@ -1,5 +1,5 @@
 // Mythos 2.0 — safehouse: one action — heal, upgrade, scrub Trace, or bond with a companion.
-import { Eraser, HeartHandshake, HeartPulse, Wrench } from 'lucide-react'
+import { Eraser, Flame, HeartHandshake, HeartPulse, Wrench } from 'lucide-react'
 import { useState } from 'react'
 import { asset, portrait } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
@@ -27,6 +27,9 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
   // The whole crew rests here, benched companions included.
   const crew = rx.roster(run)
   const canBond = crew.some((m) => m.bond < 3)
+  // Signal+ camp night: a companion whose approval is high enough talks (free; it does not use the rest action).
+  const camp = rx.campScene(run, C)
+  const campDef = camp ? C.companions[camp.companion] : undefined
 
   const pick = (c: Choice) => {
     if (done) return
@@ -71,6 +74,24 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
         <div className="m2-rest__kicker">{ko ? '은신처' : 'Safehouse'}</div>
         <h1 className="m2-rest__title">{ko ? '잠시 숨을 고른다' : 'A moment to breathe'}</h1>
         <p className="m2-rest__sub">{ko ? '여기서는 한 가지만 할 수 있다.' : 'There is time for one thing here.'}</p>
+        {camp && campDef && (
+          <button
+            className="m2-camp"
+            onClick={() => {
+              sound('ui_click')
+              act(rx.startCamp(run, C))
+            }}
+          >
+            <Flame size={22} />
+            <img src={portrait(campDef.sprite)} alt="" />
+            <span>
+              <b>{ko ? '캠프의 밤' : 'Camp night'}</b>
+              <small>
+                {ko ? `${tr(campDef.name, lang)}이(가) 불가에 앉아 당신을 본다. 할 말이 있는 얼굴이다.` : `${tr(campDef.name, lang)} sits by the fire and looks at you. There is something they want to say.`}
+              </small>
+            </span>
+          </button>
+        )}
 
         {!done && !bondPick && (
           <div className="m2-rest__opts">

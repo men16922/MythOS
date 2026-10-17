@@ -1,13 +1,16 @@
 // Mythos 2.0 — act map (Slay-the-Spire style, boss at the top).
 import { art } from '../components/art.ts'
-import { CircleQuestionMark, Package, Skull, Store, Swords, Tent } from 'lucide-react'
+import { CircleQuestionMark, Landmark, Package, Skull, Store, Swords, Tent, TrendingUp } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { MapNode, NodeKind } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
-import { tr } from '../common/lang.ts'
+import { STAT_LABEL, tr } from '../common/lang.ts'
 import { NODE_HINT, NODE_LABEL, TRACE_EFFECT, TRACE_LABEL, traceTier } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
+import { prefetchOpening } from './eventOpening.ts'
+import { MapBanter } from './MapBanter.tsx'
+import { ThoughtCabinet } from './ThoughtCabinet.tsx'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 import './map.css'
@@ -24,6 +27,7 @@ const ICON: Record<Exclude<NodeKind, 'boss'>, typeof Swords> = {
   shop: Store,
   rest: Tent,
   treasure: Package,
+  district: Landmark,
 }
 
 function hash(s: string): number {
@@ -32,7 +36,7 @@ function hash(s: string): number {
   return (h >>> 0) / 4294967295
 }
 
-export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
+export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenProps) {
   const [entering, setEntering] = useState<string | null>(null)
   const map = run.map
   const bossRow = Math.max(...Object.values(map.nodes).map((n) => n.row))
@@ -79,7 +83,10 @@ export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
     }
     sound('map_step')
     setEntering(n.id)
-    window.setTimeout(() => act(rx.enterNode(run, n.id, C)), settings.fastAnim ? 160 : 420)
+    // Pure: compute the next state now so an event's GM opening starts during the enter animation.
+    const next = rx.enterNode(run, n.id, C)
+    prefetchOpening(next, C, lang, eventsSeen)
+    window.setTimeout(() => act(next), settings.fastAnim ? 160 : 420)
   }
   const enterPos = entering ? pos[entering] : undefined
 
@@ -105,11 +112,39 @@ export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
 
   return (
     <div className="m2-map">
+      <MapBanter run={run} C={C} lang={lang} fast={settings.fastAnim} />
       <div className={`m2-map__bg${art.map(run.act) ? ' is-map-art' : ''}`} style={{ backgroundImage: `url(${art.map(run.act) || art.act(run.act, actDef?.image)})` }} />
       <aside className="m2-map__side">
         <div className="m2-map__actnum">{lang === 'ko' ? `${run.act}막 / 3` : `Act ${run.act} of 3`}</div>
         <h1 className="m2-map__title">{actDef ? tr(actDef.name, lang) : ''}</h1>
         <p className="m2-map__sub">{actDef ? tr(actDef.subtitle, lang) : ''}</p>
+
+        {/* Thoughts live in the map's side panel: never over another screen's buttons. */}
+        <ThoughtCabinet run={run} C={C} lang={lang} act={act} />
+
+        {(run.growth ?? 0) > 0 && (
+          <div className="m2-growth" data-testid="growth">
+            <div className="m2-growth__head">
+              <TrendingUp size={14} /> {lang === 'ko' ? `성장 포인트 ${run.growth}` : `${run.growth} growth point${(run.growth ?? 0) > 1 ? 's' : ''}`}
+              <small>{lang === 'ko' ? '사건 판정에 쓰이는 능력치 +1' : '+1 to a stat used in event checks'}</small>
+            </div>
+            <div className="m2-growth__stats">
+              {(['str', 'agi', 'int', 'cha', 'obs'] as const).map((k) => (
+                <button
+                  key={k}
+                  disabled={(run.stats[k] ?? 0) >= 10}
+                  onClick={() => {
+                    sound('reward')
+                    act(rx.spendGrowth(run, k))
+                  }}
+                >
+                  <b>{tr(STAT_LABEL[k], lang)}</b>
+                  <span className="m2-mono">{run.stats[k]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className={`m2-map__trace m2-map__trace--${tier}`}>
           <div className="m2-map__trace-row">
@@ -125,7 +160,7 @@ export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
         </div>
 
         <ul className="m2-legend">
-          {(['combat', 'elite', 'event', 'shop', 'rest', 'treasure'] as const).map((k) => {
+          {(['combat', 'elite', 'event', 'shop', 'rest', 'treasure', ...(run.crpg ? (['district'] as const) : [])] as const).map((k) => {
             const Icon = ICON[k]
             return (
               <li key={k} className={`m2-legend__item m2-node--${k}`}>

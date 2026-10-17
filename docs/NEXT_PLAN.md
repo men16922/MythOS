@@ -17,9 +17,12 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 
 Done 2026-10-17: Settings "AI 대사 사용"; IX loop memory; chronicle uses typed Improvise actions + outcomes; talking-enemy taunts (5 personas, `mythos_v2/taunt.py` ↔ `content/taunts.ts`); déjà-vu event openings (`profile.eventsSeen`); GM eval set `make gm-eval` (baselines in `outputs/gm-eval/`). Owner call 2026-10-17: only IX remembers loops; companions get a faint déjà vu in the safehouse chat (`loopsTogether`). Rejected: runtime image generation, LLM-made cards/enemies or map direction (critical path, balance, daily comparability).
 
-## Tiers + CRPG layer + narrative/RPG/AI expansion (planned 2026-10-18)
+## Tiers + CRPG layer (built 2026-10-18)
 
-Plan: `docs/plans/2026-10-18-tiers-and-ai-narrative.md`. Owner: signed-in users get AI within a monthly $ budget, monthly subscription Signal+ raises the budget and adds a Baldur's Gate-style CRPG layer (districts, d20 dialogue, AI NPC talk, backgrounds, approval, quests); all of N2–N9 in scope. Order: W0 per-user budget + global daily ceiling (before Play production) → W1 tier infrastructure (during the closed test) → W2 CRPG spine → W3 districts + quests + NPC talk (Signal+ launch) → W4 RPG growth/echo/autonomy, banter, IX profiling → W5 thought cabinet. Open defaults: free $0.30 / Signal+ $1.5 per month, ₩3,900, self-hosted Play verification, no web checkout, nothing tier-only on the daily, CRPG Signal+ only, a district replaces one event node per act.
+Built W0–W5 (`docs/plans/2026-10-18-tiers-and-ai-narrative.md` §9). Left:
+- `[ ]` `[manual]` Play: create `signal_plus_monthly`, merchant profile, service-account access (`docs/play-store.md` step 7), then one license-tester purchase on a device → `/plan` shows plus.
+- `[ ]` `[manual]` Owner calls on the open defaults: price ₩3,900, allowances $0.30 / $1.50, `MYTHOS_V2_GM_DAILY_USD` 20, set `MYTHOS_GM_PRICE_*` to Google's list price; deploy-preview → verify → promote.
+- `[ ]` After real play: district art (they reuse event stills), more districts if players finish all six, AI-named echoes.
 
 ## After the first wave of players
 

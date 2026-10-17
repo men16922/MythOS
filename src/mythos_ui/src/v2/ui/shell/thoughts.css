@@ -1,0 +1,67 @@
+/* Thought cabinet (ThoughtCabinet.tsx): inside the map's side panel. */
+.m2-thoughts {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.m2-thoughts:empty {
+  display: none;
+}
+.m2-thought {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--m2-violet);
+  background: rgba(14, 8, 24, 0.85);
+  animation: m2-rise 0.4s var(--m2-ease) both;
+}
+.m2-thought.is-settled {
+  border-color: var(--m2-gold);
+  cursor: pointer;
+}
+.m2-thought__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--m2-violet);
+  font-size: 12.5px;
+}
+.m2-thought.is-settled .m2-thought__head {
+  color: var(--m2-gold);
+}
+.m2-thought p {
+  margin: 8px 0 6px;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+.m2-thought small {
+  color: var(--m2-mute);
+}
+.m2-thought__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.m2-thoughts__slots {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.m2-thoughts__slots li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 4px 3px 8px;
+  border: 1px solid var(--m2-line-2);
+  background: rgba(4, 12, 14, 0.9);
+  font-size: 12px;
+}
+.m2-thoughts__slots button {
+  border: 0;
+  background: transparent;
+  color: var(--m2-mute);
+  cursor: pointer;
+  padding: 2px;
+}

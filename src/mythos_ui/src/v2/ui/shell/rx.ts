@@ -2,6 +2,9 @@
 // Screens call only these names; this file adapts them to the engine's signatures.
 
 import { buyUnlock, canBuyUnlock, unlockedArchetypes, unlockedCompanions } from '../../engine/meta.ts'
+import * as Crpg from '../../engine/crpg.ts'
+import { autonomyDc } from '../../engine/legacy.ts'
+import * as Thoughts from '../../engine/thoughts.ts'
 import * as Run from '../../engine/run.ts'
 import { freshRunSeed } from '../common/runSeed.ts'
 import type {
@@ -32,13 +35,30 @@ interface Gate {
 const REST_SCRUB = 30
 
 export const rx = {
+  // ---------------------------------------------------------- Signal+ CRPG (engine/crpg.ts)
+  districtPois: (r: R, C: C): Crpg.PoiView[] => Crpg.districtPois(r, C),
+  visitPoi: (r: R, poiId: string, C: C): R => Crpg.visitPoi(r, poiId, C),
+  leaveDistrict: (r: R, C: C): R => Crpg.leaveDistrict(r, C),
+  dialogueOptions: (r: R, C: C): Crpg.DialogueOptionView[] => Crpg.dialogueOptions(r, C),
+  chooseDialogue: (r: R, index: number, C: C): R => Crpg.chooseDialogue(r, index, C),
+  rerollDialogue: (r: R): R => Crpg.rerollDialogue(r),
+  acceptRoll: (r: R, C: C): R => Crpg.acceptRoll(r, C),
+  closeDialogue: (r: R, C: C): R => Crpg.closeDialogue(r, C),
+  campScene: (r: R, C: C) => Crpg.campScene(r, C),
+  startCamp: (r: R, C: C): R => Crpg.startCamp(r, C),
+  questLog: (r: R, C: C) => Crpg.questLog(r, C),
+  acceptThought: (r: R): R => Thoughts.acceptThought(r),
+  declineThought: (r: R): R => Thoughts.declineThought(r),
+  forgetThought: (r: R, id: string): R => Thoughts.forgetThought(r, id),
+
   // ---------------------------------------------------------- loop start / map
   /** `daily` = KST date key for a daily-seed run (same run for everyone that day; see engine/daily.ts). */
   /** A normal run gets a fresh random seed (different map every time); a daily keeps the date seed. */
-  newRun: (p: MetaProfile, o: { archetype: string; companion?: string | null; paradox: number; daily?: string; seed?: number }, C: C): R =>
+  newRun: (p: MetaProfile, o: { archetype: string; companion?: string | null; paradox: number; daily?: string; seed?: number; crpg?: { background: string | null }; echo?: string }, C: C): R =>
     Run.newRun(p, { ...o, seed: o.daily ? undefined : (o.seed ?? freshRunSeed()) }, C),
   continueActIntro: (r: R, C: C): R => Run.startAct(r, C),
   enterNode: (r: R, id: string, C: C): R => Run.enterNode(r, id, C),
+  spendGrowth: (r: R, stat: StatKey): R => Run.spendGrowth(r, stat),
   reachable: (r: R): string[] => (r.screen.kind === 'map' ? Run.reachableNodes(r) : []),
   updateCombat: (r: R, c: CombatState, C: C): R => Run.updateCombat(r, c, C),
   abandon: (r: R): R => Run.abandonRun(r),
@@ -63,6 +83,8 @@ export const rx = {
   leaveEvent: (r: R, C: C): R => Run.continueEvent(r, C),
   optionGate: (r: R, cond: Condition | undefined, C: C): Gate => Run.conditionMet(r, cond, C),
   chance: (r: R, check: { stat: StatKey; dc: number }): number => Run.checkChance(r, check.stat, check.dc),
+  /** An improvised action's odds (autonomy lowers its DC; engine/legacy.ts). */
+  improviseChance: (r: R, imp: { stat: StatKey; dc: number }): number => Run.checkChance(r, imp.stat, Math.max(3, Math.min(9, Math.round(imp.dc)) - autonomyDc(r))),
 
   // ---------------------------------------------------------- shop
   buyCard: (r: R, index: number, C: C): R => Run.shopBuyCard(r, index, C),

@@ -25,6 +25,7 @@ Agents do not read all of `docs/`; follow the order below.
 | `android.md` | Android app (Capacitor + Firebase) build/release |
 | `online.md` | Google sign-in, daily leaderboard, daily push, account deletion, AI line reports, policy pages |
 | `play-store.md` | Google Play submission sheet: listing text, graphics, content rating, Data safety, owner steps |
+| `OWNER_TODO.md` | Owner-only checklist (Korean): Play account, Signal+ product, listen/watch reviews, voice pins, push |
 | `COMPLETED_SUMMARY.md` | Compressed record of completed milestones |
 | `DECISIONS.md` | Hard-to-reverse decisions |
 | `LESSONS.md` | Repo-specific traps for future (unattended) iterations |

@@ -2,6 +2,10 @@
 
 Last updated: 2026-10-18
 
+## 2026-10-18 — Vertex spend cap ₩30,000/month (owner: "월 3만원 넘으면 Vertex 자동 차단 걸어줘", from November)
+
+- Budget (after credits) → Pub/Sub `billing-vertex-cap` → function `vertex-cap` disables `aiplatform.googleapis.com`; a new month under the cap enables it again (`docs/online.md` "Vertex spend cap", `make vertex-cap-deploy`). Verified live with test messages (October ignored; November over-budget disabled in ~10 s; December enabled again; production health ok afterwards). The billing-support request for a one-time credit on the Veo charge was declined by Google ("정책상 조정 지원 대상 아님").
+
 ## 2026-10-18 — Admin accounts without an AI allowance; Codex image for new art; October bill read from BigQuery
 
 - Admin accounts (verified email in `MYTHOS_ADMIN_EMAILS`) skip the monthly AI allowance and get Signal+; the $20/day ceiling still applies (`tests/test_v2_plan.py` AdminAccountTest). New images: Codex image only (CLAUDE.md, CORE_MANDATES, `gen_images.py` header) — owner: "그림은 Codex Image 사용하도록 명시해".

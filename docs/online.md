@@ -73,6 +73,18 @@ acknowledges it and stores one `v2_entitlements` row (erased with the account). 
 stored expiry passed — renewals, cancellations and refunds without an RTDN endpoint. Needs the service account in Play
 Console (`docs/play-store.md` step 7); until then purchases answer 503 and everyone stays free. The web has no checkout.
 
+## Vertex spend cap (owner, 2026-10-18: "월 3만원 넘으면 Vertex 자동 차단")
+
+Budget `mythos-vertex-cap-30000 (auto-disable Vertex)` on billing account 010556-A2B7AE-292490: ₩30,000/month for the
+MythOS project, cost after all credits, thresholds 50/90/100 %, notifications to Pub/Sub `billing-vertex-cap`. The
+function `vertex-cap` (`scripts/ops/vertex_cap`, Cloud Run functions gen2, SA `vertex-cap@` with Service Usage Admin)
+disables `aiplatform.googleapis.com` when the month's cost reaches the budget and enables it again once a new month's
+cost is under it; months before `CAP_START=2026-11` are ignored. With Vertex off the game keeps running and the GM serves
+authored lines. Billing data lags by hours, so a burst can overshoot the cap before it trips. Re-enable by hand:
+`gcloud services enable aiplatform.googleapis.com` (the function turns it off again only on the next over-budget
+notification). Redeploy: `make vertex-cap-deploy`. Verified 2026-10-18 with test messages: October ignored, an
+over-budget November message disabled the API in ~10 s, a new-month message enabled it again.
+
 ## Account deletion, AI line reports, policy pages (Play policy)
 
 - **Account deletion** (Play: in-app + web): Settings → 계정 삭제 → inline confirmation → `DELETE /api/v2/account`. Pending

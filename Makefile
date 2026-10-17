@@ -7,7 +7,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup clean lint python-lint frontend-lint format typecheck python-typecheck frontend-build \
+.PHONY: vertex-cap-deploy setup frontend-setup clean lint python-lint frontend-lint format typecheck python-typecheck frontend-build \
 	test test-v2 test-db test-e2e-v2 gm-eval trailer trailer-cut cinematic cinematic-assets playthrough playthrough-quick verify-preview check check-auto check-skills sync-skills check-doc-budget \
 	api api-stop api-cloud cloud-image cloud-run-local deploy deploy-preview \
 	android-web android-apk android-aab android-firebase android-emulator android-distribute android-icons \
@@ -355,6 +355,11 @@ playthrough:
 # Compare a prompt/model change with GM_EVAL_ARGS="--baseline outputs/gm-eval/<before>.json" (exit 1 on regression).
 gm-eval:
 	MYTHOS_LOG_LEVEL=ERROR $(VENV)/bin/python scripts/dev/gm_eval.py $(GM_EVAL_ARGS)
+
+# Vertex spend cap (scripts/ops/vertex_cap): redeploy the function that disables aiplatform.googleapis.com when the
+# "mythos-vertex-cap-30000" budget (₩30,000/month after credits, from 2026-11) is reached, and re-enables it next month.
+vertex-cap-deploy:
+	@P=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); cd scripts/ops/vertex_cap && gcloud functions deploy vertex-cap --gen2 --runtime python312 --region $(REGION) --project "$$P" --source . --entry-point on_budget --trigger-topic billing-vertex-cap --service-account "vertex-cap@$$P.iam.gserviceaccount.com" --trigger-service-account "vertex-cap@$$P.iam.gserviceaccount.com" --set-env-vars "PROJECT_ID=$$P,CAP_START=2026-11" --memory 256Mi --max-instances 1 --quiet
 
 playthrough-quick:
 	$(VENV)/bin/python scripts/dev/ui_playthrough.py --runs 1 --max-minutes 8 --max-nodes 5

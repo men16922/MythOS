@@ -1,6 +1,12 @@
 # Progress Log
 
-Last updated: 2026-10-18
+Last updated: 2026-10-19
+
+## 2026-10-18/19 — Contest demo codes; replay-verified daily board (`32e14bd`, `c917c51`)
+
+- **Demo codes** (off by default): `MYTHOS_DEMO_CODES` + `?demo=<code>` give a signed-out device AI lines on the free allowance, GM routes and `/plan` only (`docs/online.md`). Verified: 3 server tests, 1 client test, end-to-end against a google-mode server (no code → no AI calls; code → `/plan` 200 + "데모 접속" on the title).
+- **Replay verification**: client logs committed daily actions (`ui/replay/`), server replays them with the bundled engine (`mythos_v2/replay.py`, `replay_verify.mjs`), `verified` column (migration 018), shield badge; ranking unchanged. Verified: a full real-UI daily victory (533 steps, act 3) replays to an identical final state; replay/daily/store tests incl. Postgres (33); e2e "replay of N steps verified" + badge; local Docker image build runs the verifier (node 20 → True). The e2e caught `submitDaily`/`queueAdd` dropping the new field (fixed, lesson added).
+- `make check` green (node 344, Python 329 + 12 skipped), `make playthrough-quick` OK. Not deployed (Dockerfile now installs `nodejs`).
 
 ## 2026-10-18 — Experience audit pass 1: GM fallback lines, IX overlay, phone top bar, NPC portraits, cache art (owner goal: commercial-grade polish)
 

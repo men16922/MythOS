@@ -430,7 +430,9 @@ def play_one(
         "() => window.__m2.setProfile((p) => ({ ...p, settings: { ...p.settings, fastAnim: true } }))"
     )
     if os.environ.get("PLAYTHROUGH_LANG") == "en":  # English pass (text review)
-        page.evaluate("() => window.__m2.setProfile((p) => ({ ...p, settings: { ...p.settings, lang: 'en' } }))")
+        page.evaluate(
+            "() => window.__m2.setProfile((p) => ({ ...p, settings: { ...p.settings, lang: 'en' } }))"
+        )
     if daily:
         page.locator(".m2-menu-item--daily").click()
     else:

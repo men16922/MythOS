@@ -117,7 +117,7 @@ test('reward rolls lean toward a held set (elite reward, 600 rolls each way)', (
     for (let n = 1; n <= 600; n++) {
       const run = structuredClone(fresh())
       run.implants = [...held]
-      run.rng = n * 7919
+      run.seed = n * 7919
       run.screen = { kind: 'map' }
       const first = reachableNodes(run)[0] as string
       Object.assign(run.map.nodes[first] as object, { kind: 'elite', encounterId: 'a1_elite_overseer' })

@@ -8,7 +8,7 @@
 // and returns it. An action that is not legal in the current state (wrong screen,
 // unaffordable, already taken, unknown id) returns the SAME `run` object unchanged, so
 // callers can detect a no-op with `===` and the UI can never corrupt a save by
-// double-clicking. All randomness uses the run's own RNG (`run.rng`). A run never
+// double-clicking. All randomness uses the run's named streams (`engine/streams.ts`; legacy saves: `run.rng`). A run never
 // reads the profile after `newRun`: unlock-filtered pools are frozen into `run.pools`.
 //
 // Echo accounting: a node is "cleared" (+1 ◈) when the player moves on from it
@@ -40,6 +40,8 @@ import {
 import { SET_PULL, implantSetOf, newlyReached, setCounts, setPassives } from './implantSets.ts'
 import { mutatorForDate, mutatorMods } from './mutators.ts'
 import { hashSeed, pick, pickWeighted, rand, randInt, sample, shuffle } from './rng.ts'
+import type { RngHolder } from './rng.ts'
+import { mapRng, resetNodeStreams, runStream } from './streams.ts'
 import type {
   CardDef,
   CardInstance,
@@ -301,25 +303,26 @@ function cardWeight(run: RunState, C: ContentRegistry, id: string): number {
   return def.archetype === run.archetype ? ARCHETYPE_CARD_WEIGHT : 1
 }
 
-function rollCards(run: RunState, C: ContentRegistry, count: number, weights: RarityWeights): string[] {
+function rollCards(h: RngHolder, run: RunState, C: ContentRegistry, count: number, weights: RarityWeights): string[] {
   const pool = run.pools.cards.filter((id) => offerable(run, C, id))
   const out: string[] = []
   const rarities: PoolRarity[] = ['common', 'uncommon', 'rare']
   for (let i = 0; i < count; i++) {
     const left = pool.filter((id) => !out.includes(id))
     if (left.length === 0) break
-    const rarity = pickWeighted(run, rarities, (r) => weights[r] ?? 0)
+    const rarity = pickWeighted(h, rarities, (r) => weights[r] ?? 0)
     const exact = left.filter((id) => C.cards[id]?.rarity === rarity)
     // Fallback prefers the rarest tier still available so boss rewards stay strong.
     const fallback = ['rare', 'uncommon', 'common']
       .map((r) => left.filter((id) => C.cards[id]?.rarity === r))
       .find((l) => l.length > 0)
-    out.push(pickWeighted(run, exact.length > 0 ? exact : (fallback ?? left), (id) => cardWeight(run, C, id)))
+    out.push(pickWeighted(h, exact.length > 0 ? exact : (fallback ?? left), (id) => cardWeight(run, C, id)))
   }
   return out
 }
 
 function rollImplant(
+  h: RngHolder,
   run: RunState,
   C: ContentRegistry,
   weights: Partial<Record<ImplantRarity, number>>,
@@ -332,22 +335,22 @@ function rollImplant(
   const held = setCounts(run.implants)
   const lean = (ids: string[]): string => {
     const set = (id: string): number => ((held[implantSetOf(id)?.id ?? ''] ?? 0) > 0 ? SET_PULL : 1)
-    return pickWeighted(run, ids, set)
+    return pickWeighted(h, ids, set)
   }
-  if (tiers.length > 0) return lean(of(pickWeighted(run, tiers, (r) => weights[r] ?? 0)))
+  if (tiers.length > 0) return lean(of(pickWeighted(h, tiers, (r) => weights[r] ?? 0)))
   const regular = pool.filter((id) => {
     const r = C.implants[id]?.rarity
     return r === 'common' || r === 'uncommon' || r === 'rare'
   })
-  return regular.length > 0 ? pick(run, regular) : null
+  return regular.length > 0 ? pick(h, regular) : null
 }
 
 const CONSUMABLE_WEIGHT: Partial<Record<string, number>> = { common: 3, uncommon: 2, rare: 1 }
 
-function rollConsumable(run: RunState, C: ContentRegistry): string | null {
+function rollConsumable(h: RngHolder, C: ContentRegistry): string | null {
   const list = Object.values(C.consumables).filter((c) => c.rarity !== 'special' && c.rarity !== 'starter')
   if (list.length === 0) return null
-  return pickWeighted(run, list, (c) => CONSUMABLE_WEIGHT[c.rarity] ?? 1).id
+  return pickWeighted(h, list, (c) => CONSUMABLE_WEIGHT[c.rarity] ?? 1).id
 }
 
 // ---------------------------------------------------------------- conditions & checks
@@ -447,6 +450,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     id: `run-${loop}-${seed.toString(36)}`,
     seed,
     rng: seed,
+    streams: {},
     loop,
     paradox,
     archetype: arch.id,
@@ -513,7 +517,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     if (junk) addCard(run, junk, C)
   }
   for (let i = 0; i < (mut.startConsumable ?? 0); i++) {
-    const id = rollConsumable(run, C)
+    const id = rollConsumable(runStream(run, 'reward'), C)
     if (id) gainConsumable(run, id, C)
   }
 
@@ -532,7 +536,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     if (autonomy > 0) run.autonomy = autonomy
     if (autonomy >= 3) run.growth = (run.growth ?? 0) + 1
   }
-  run.map = generateActMap(1, run, C, { paradox })
+  run.map = generateActMap(1, mapRng(run, 1), C, { paradox })
   placeDistrict(run, run.map, C)
   log(run, 'start', daily ? t(`오늘의 시드 ${daily} 시작`, `Daily Signal ${daily} begins`) : t(`루프 ${loop} 시작`, `Loop ${loop} begins`))
   if (thread.startRemove && run.deck.length > 0) {
@@ -578,11 +582,11 @@ function fallbackEncounter(run: RunState, kind: 'normal' | 'elite' | 'boss', C: 
   const list = mapEncounters(run.act, kind, C)
   const any = list.length > 0 ? list : Object.values(C.encounters).filter((e) => e.kind === kind)
   if (any.length === 0) throw new Error(`run: no ${kind} encounter for act ${run.act}`)
-  return pick(run, any).id
+  return pick(runStream(run, 'encounter'), any).id
 }
 
 function beginCombat(run: RunState, encounterId: string, C: ContentRegistry): CombatState {
-  rand(run) // advance so every fight gets a fresh slice of the run's random stream
+  if (!run.streams) rand(run) // legacy shared stream: advance so every fight gets a fresh slice of it
   const combat = startCombat(run, encounterId, C)
   // Signal+ CRPG: twists a conversation set up (and quest payoffs on a boss) apply to the fight as it starts.
   const mods = takeCombatMods(run, C.encounters[encounterId]?.kind === 'boss', C)
@@ -603,7 +607,7 @@ function resolveEventId(run: RunState, node: MapNode, C: ContentRegistry): strin
     pool,
   ]
   const options = tiers.find((tier) => tier.length > 0)
-  return options ? pickWeighted(run, options, (e) => e.weight ?? 1).id : null
+  return options ? pickWeighted(runStream(run, 'event'), options, (e) => e.weight ?? 1).id : null
 }
 
 const KIND_NOTE: Record<NodeKind, Text> = {
@@ -637,6 +641,7 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
   if (!node) return run
   const next = clone(run)
   clearCurrentNode(next)
+  resetNodeStreams(next)
   next.nodeId = nodeId
   next.visited.push(nodeId)
   next.tally.floors += 1
@@ -671,9 +676,10 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
       next.screen = { kind: 'rest', done: false }
       break
     case 'treasure': {
-      const implantId = rollImplant(next, C, { common: 60, uncommon: 40 }) ?? ''
+      const cache = runStream(next, 'treasure')
+      const implantId = rollImplant(cache, next, C, { common: 60, uncommon: 40 }) ?? ''
       log(next, 'treasure', KIND_NOTE.treasure)
-      next.screen = { kind: 'treasure', implantId, credits: randInt(next, 25, 45), opened: false }
+      next.screen = { kind: 'treasure', implantId, credits: randInt(cache, 25, 45), opened: false }
       break
     }
   }
@@ -697,31 +703,32 @@ function bonusAchieved(c: CombatState): boolean {
 
 function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: ContentRegistry): RewardState {
   const tier = nodeKind === 'boss' ? 'boss' : nodeKind === 'elite' ? 'elite' : 'normal'
-  const base = tier === 'boss' ? 60 : tier === 'elite' ? randInt(run, 30, 40) : randInt(run, 12, 20)
+  const h = runStream(run, 'reward')
+  const base = tier === 'boss' ? 60 : tier === 'elite' ? randInt(h, 30, 40) : randInt(h, 12, 20)
   const creditScale = Math.max(0, 1 + runPassive(run, C, 'creditMult')) * (1 + (mutatorMods(run).rewardCreditsPct ?? 0) / 100)
   let credits = Math.round(base * creditScale) + Math.max(0, combat.credits)
   const choiceCount = 3 + Math.max(0, Math.round(runPassive(run, C, 'rewardChoices')))
   const cardChoices: string[][] = []
-  const first = rollCards(run, C, choiceCount, CARD_WEIGHTS[tier])
+  const first = rollCards(h, run, C, choiceCount, CARD_WEIGHTS[tier])
   if (first.length > 0) cardChoices.push(first)
 
   let implantChoices: string[] = []
   if (tier === 'elite') {
-    const id = rollImplant(run, C, IMPLANT_WEIGHTS)
+    const id = rollImplant(h, run, C, IMPLANT_WEIGHTS)
     if (id) implantChoices = [id]
   } else if (tier === 'boss') {
     for (let i = 0; i < 3; i++) {
       const id =
-        rollImplant(run, C, { boss: 1 }, implantChoices) ?? rollImplant(run, C, { rare: 1 }, implantChoices)
+        rollImplant(h, run, C, { boss: 1 }, implantChoices) ?? rollImplant(h, run, C, { rare: 1 }, implantChoices)
       if (id) implantChoices.push(id)
     }
   }
 
   const consumableChance = tier === 'normal' ? 0.25 : tier === 'elite' ? 0.5 : 0
-  const consumable = consumableChance > 0 && rand(run) < consumableChance ? rollConsumable(run, C) : null
+  const consumable = consumableChance > 0 && rand(h) < consumableChance ? rollConsumable(h, C) : null
 
   if (bonusAchieved(combat)) {
-    const extra = rollCards(run, C, choiceCount, tier === 'boss' ? CARD_WEIGHTS.boss : CARD_WEIGHTS.bonus)
+    const extra = rollCards(h, run, C, choiceCount, tier === 'boss' ? CARD_WEIGHTS.boss : CARD_WEIGHTS.bonus)
     if (cardChoices.length > 0 && extra.length > 0) cardChoices.push(extra)
     else credits += BONUS_CREDITS
   }
@@ -831,9 +838,10 @@ function advanceAct(run: RunState, C: ContentRegistry): void {
   run.growth = (run.growth ?? 0) + 1
   if ((run.autonomy ?? 0) >= 2) gainTrace(run, -AUTONOMY_ACT_SCRUB, C)
   run.act = (run.act + 1) as 2 | 3
-  run.map = generateActMap(run.act, run, C, { paradox: run.paradox, exclude: run.seenEvents })
+  run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents })
   placeDistrict(run, run.map, C)
   run.nodeId = null
+  resetNodeStreams(run)
   run.hp = clamp(1, run.maxHp, run.hp + Math.ceil((run.maxHp - run.hp) / 2))
   for (const m of roster(run)) m.hp = clamp(1, m.maxHp, m.hp + Math.ceil((m.maxHp - m.hp) / 2))
   log(run, 'start', C.acts[run.act]?.name ?? t(`${run.act}막`, `Act ${run.act}`))
@@ -915,7 +923,7 @@ export function eventOptions(run: RunState, C: ContentRegistry): EventOptionView
 
 /** d100 roll: success when roll ≤ chance. */
 function rollCheck(run: RunState, chance: number): { success: boolean; roll: number } {
-  const roll = Math.floor(rand(run) * 100) + 1
+  const roll = Math.floor(rand(runStream(run, 'event')) * 100) + 1
   return { success: roll <= chance, roll }
 }
 
@@ -947,19 +955,19 @@ export function applyImmediate(run: RunState, effects: readonly RunEffect[], C: 
       case 'upgrade_card':
         if (e.random) {
           const eligible = shuffle(
-            run,
+            runStream(run, 'event'),
             run.deck.filter((c) => !c.upgraded && canUpgrade(C.cards[c.defId])),
           )
           for (const c of eligible.slice(0, e.count)) c.upgraded = true
         }
         break
       case 'implant': {
-        const id = e.implantId ?? rollImplant(run, C, e.rarity ? { [e.rarity]: 1 } : IMPLANT_WEIGHTS)
+        const id = e.implantId ?? rollImplant(runStream(run, 'event'), run, C, e.rarity ? { [e.rarity]: 1 } : IMPLANT_WEIGHTS)
         if (id) gainImplant(run, id, C)
         break
       }
       case 'consumable': {
-        const id = e.id ?? rollConsumable(run, C)
+        const id = e.id ?? rollConsumable(runStream(run, 'event'), C)
         if (id) gainConsumable(run, id, C)
         break
       }
@@ -1069,7 +1077,7 @@ export function applyImprovisation(run: RunState, imp: Improvisation, C: Content
         gainTrace(next, -(5 + 2 * b.dc), C)
         break
       case 'implant': {
-        const id = rollImplant(next, C, IMPLANT_WEIGHTS)
+        const id = rollImplant(runStream(next, 'event'), next, C, IMPLANT_WEIGHTS)
         if (id) gainImplant(next, id, C)
         else b.reward = 'card'
         break
@@ -1135,7 +1143,7 @@ function queueDeferred(next: RunState, deferred: Deferred[], tail: RunScreen, C:
   const steps = deferred.filter((d) => d.kind !== 'combat')
   for (let i = steps.length - 1; i >= 0; i--) {
     const d = steps[i] as Deferred
-    if (d.kind === 'cards') end = { kind: 'card_reward', choices: rollCards(next, C, d.count, d.weights), returnTo: end }
+    if (d.kind === 'cards') end = { kind: 'card_reward', choices: rollCards(runStream(next, 'event'), next, C, d.count, d.weights), returnTo: end }
     else if (d.kind === 'pick') end = { kind: 'card_pick', purpose: d.purpose, count: d.count, returnTo: end }
   }
   showScreen(next, end, C)
@@ -1162,10 +1170,11 @@ function priceBase(base: number, discount: number): number {
 }
 
 export function generateShop(run: RunState, C: ContentRegistry): ShopStock {
+  const h = runStream(run, 'shop')
   const discount = runPassive(run, C, 'shopDiscount')
   const mult = 1 + (mutatorMods(run).shopPct ?? 0) / 100
   const price = (base: number, off: number): number => priceBase(base * mult, off)
-  const jitter = (base: number): number => price(base * (1 + (randInt(run, -10, 10) / 100)), discount)
+  const jitter = (base: number): number => price(base * (1 + (randInt(h, -10, 10) / 100)), discount)
   const cards: ShopStock['cards'] = []
   const plan: PoolRarity[] = ['common', 'common', 'uncommon', 'uncommon', 'rare']
   const picked = new Set<string>()
@@ -1173,7 +1182,7 @@ export function generateShop(run: RunState, C: ContentRegistry): ShopStock {
     const left = run.pools.cards.filter((id) => offerable(run, C, id) && !picked.has(id))
     const exact = left.filter((id) => C.cards[id]?.rarity === r)
     if (left.length === 0) break
-    const id = pickWeighted(run, exact.length > 0 ? exact : left, (cid) => cardWeight(run, C, cid))
+    const id = pickWeighted(h, exact.length > 0 ? exact : left, (cid) => cardWeight(run, C, cid))
     picked.add(id)
     const rarity = C.cards[id]?.rarity
     cards.push({ cardId: id, price: jitter(CARD_PRICE[rarity === 'uncommon' || rarity === 'rare' ? rarity : 'common']), sold: false })
@@ -1181,21 +1190,21 @@ export function generateShop(run: RunState, C: ContentRegistry): ShopStock {
 
   const implantIds: string[] = []
   for (let i = 0; i < 2; i++) {
-    const id = rollImplant(run, C, IMPLANT_WEIGHTS, implantIds)
+    const id = rollImplant(h, run, C, IMPLANT_WEIGHTS, implantIds)
     if (id) implantIds.push(id)
   }
-  const shopOnly = rollImplant(run, C, { shop: 1 }, implantIds) ?? rollImplant(run, C, IMPLANT_WEIGHTS, implantIds)
+  const shopOnly = rollImplant(h, run, C, { shop: 1 }, implantIds) ?? rollImplant(h, run, C, IMPLANT_WEIGHTS, implantIds)
   if (shopOnly) implantIds.push(shopOnly)
   const implants = implantIds.map((id) => {
     const [lo, hi] = IMPLANT_PRICE[C.implants[id]?.rarity ?? 'common']
-    return { implantId: id, price: price(randInt(run, lo, hi), discount), sold: false }
+    return { implantId: id, price: price(randInt(h, lo, hi), discount), sold: false }
   })
 
   const consumables = sample(
-    run,
+    h,
     Object.values(C.consumables).filter((c) => c.rarity !== 'special' && c.rarity !== 'starter'),
     3,
-  ).map((c) => ({ id: c.id, price: jitter(c.price > 0 ? c.price : randInt(run, 35, 70)), sold: false }))
+  ).map((c) => ({ id: c.id, price: jitter(c.price > 0 ? c.price : randInt(h, 35, 70)), sold: false }))
 
   return {
     cards,

@@ -4,7 +4,7 @@ Last updated: 2026-10-18
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Production = rev `00113-w55` (`git-sha=3f2bf81`, 100% `LATEST`, promoted 2026-10-18; rollback `00133-pab`): Roguelite replayability (`jujak_core` & `arachne_queen` multi-boss pool, 5-choice `a1_opening` gambit, Chapter Tactical Directives `engine/directives.ts` + combat node previews), Act 1 GM/companion immersion (`localNarrate` fallback, `CompanionWhisper`, `SOLO_BANTER`, Background/Camp Night web access), dynamic Act 1 BGM, isometric magma-crater Area Burn FX (`FireTopOverlay`), Veo API hard-block (`docs/test/veo_gemini_owner_guide.md`), and Strategy execution (`docs/plans/2026-10-18-strategy-and-market-analysis.md`).** Remaining owner-only items (`docs/OWNER_TODO.md` / `docs/NEXT_PLAN.md`): Play release per `docs/play-store.md` "Owner steps" (account, `MYTHOS_CONTACT_EMAIL`, `firebaseauth.admin` for `mythos-run@`, upload key → `VERSION_CODE=1 make android-aab`, `signal_plus_monthly` subscription). **Never call Vertex Veo API (blocked in `gen_veo.py`); test muted (`?mute=1`), one browser tab at most.**
+> ▶ NEXT SESSION: **Owner goal (2026-10-18): commercial-grade fun/polish + distinctive AI features, contest-ready; paid Play release and Signal+ are ON HOLD (`docs/DECISIONS.md`) — do not push business registration or store steps.** Done today: named RNG streams (`engine/streams.ts` — dailies are one run for everyone, shuffle ≠ enemy AI, order-free reshuffle, legacy saves untouched; never rename a stream). Next in `docs/NEXT_PLAN.md` P0: replay-verified daily board → fun/experience audit fixes → contest kit. Production is still rev `00113-w55` (`3f2bf81`); the streams change is committed, not deployed. **Never call Vertex Veo API; test muted (`?mute=1`), one browser tab at most.**
 
 ## Snapshot
 
@@ -26,7 +26,7 @@ Layout:
 - Full gate: `make check`; browser smoke: `make frontend-build && make test-e2e-v2`.
 - Local play: `make api` (busy → `MYTHOS_API_PORT=8010 make api`); dev UI `cd src/mythos_ui && npx vite`; sandbox `/?sandbox=combat&mute=1&enc=<id>`.
 - Local GM model: `gemma4:8b-64k` (`.env`'s `gemma4:latest` is not installed) — `OLLAMA_MODEL_STORY=gemma4:8b-64k make api`.
-- Balance: `simulateRun(seed, archetype, CONTENT, policy, { paradox, onFight })` (P0: greedy 100 % · mixed ≈ 35 % · basic 0 %).
+- Balance: `simulateRun(seed, archetype, CONTENT, policy, { paradox, onFight })` (P0: greedy ≈ 97 % · mixed ≈ 43 % · basic 0 %; vary `run.seed`, not `run.rng`, to vary rolls).
 
 ## Guardrails
 

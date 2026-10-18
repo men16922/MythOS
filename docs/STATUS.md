@@ -19,7 +19,7 @@ Last updated: 2026-10-18
 - **Party bench, random run seeds, AI toggle, IX loop memory** (2026-10-17, live in `00125`) — unlimited recruits, two deployed, swap on the map (party screen); every normal run has a random seed; Settings 'AI 대사 사용'; IX recalls earlier loops; the chronicle uses typed Improvise actions; tutorial no longer repeats.
 - **Comms log + GM model switch** (2026-10-17, live in `00125`) — per-run log of every GM / IX / boss / companion line (HUD + pause menu, AI lines flaggable); Vertex GM `gemini-3.8-flash` (3.5-flash failed 9/40 calls with 504s in an A/B, 3.8 0/40); `make deploy*` passes `.env` `MODEL`.
 
-Latest verified baseline (2026-10-18): `make check` green (`node --test src/v2` 328 + Python unittest 323 + 11 DB tests skipped without Postgres), `make test-e2e-v2` (headless, muted, incl. sign-in note + leaderboard submit), headless muted Area Burn & EndingScreen QA at 1280×800 and 390×844 (0 console errors). Sim P0 over 360 runs: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5: 78 / 3.
+Latest verified baseline (2026-10-18, named RNG streams): `make check` green (`node --test src/v2` 334 + Python unittest 323 + 11 DB tests skipped without Postgres), `make test-e2e-v2` green (headless, muted), `make playthrough-quick` OK (5 nodes + shop/safehouse/treasure/final-choice tour, 223 s). Sim P0 (3 × 360 mixed, identical seeds before/after): greedy ≈ 97 % · mixed ≈ 43 % (36–53 % by 120-run block) · basic 0 %.
 
 Production (2026-10-18): Cloud Run `mythos-api` serves 2.0 — revision `00113-w55` at 100 % `LATEST` (`git-sha=3f2bf81`; rollback `00133-pab`; `/admin` dashboard, `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.8-flash`); 1.x lives only as code on branch `1.0`. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
 
@@ -27,14 +27,14 @@ Production (2026-10-18): Cloud Run `mythos-api` serves 2.0 — revision `00113-w
 
 Authority plan: `docs/NEXT_PLAN.md` · strategy & market analysis: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
-1. **Owner calls** — Play release per `docs/play-store.md` (account, contact email + deploy, `firebaseauth.admin` grant for `mythos-run@`, upload key, 12 closed-test testers), optional manual listen/watch check on the updated SFX/trailer/voice pins.
+1. **Commercial-grade polish + contest readiness** (owner goal 2026-10-18; paid Play release and Signal+ on hold, `DECISIONS.md`) — named RNG streams done; next: replay-verified daily board, a fun/experience audit with fixes, the contest kit (`NEXT_PLAN.md` P0).
 2. **Watch production** — first real players on 2.0: Cloud Run logs (`v2 gm` outcomes, 401/429 rates), the 19:00 KST push job status, Crashlytics. Checked 2026-10-13: only owner/QA traffic so far (no real players → no balance data yet), 0 × 429, 0 × 5xx, the 10-11 405s were Android-emulator CORS preflights from before the origin fix (preflight now 200 for all three Capacitor origins), push jobs ran 10-13 19:00 KST with OK status.
 
 ## Open Risks
 
-- **Signal+ is unproven end to end**: purchase verification is tested against a fake Play API only; the product, the merchant profile and the service account's Play Console access do not exist yet. Refunds land at the stored expiry (no RTDN). Budget defaults rest on the unverified 3.8 price.
+- **Signal+ is dormant and unproven end to end** (paid release on hold 2026-10-18): purchase verification is tested against a fake Play API only; the product, the merchant profile and the service account's Play Console access do not exist yet. Refunds land at the stored expiry (no RTDN). Budget defaults rest on the unverified 3.8 price.
 
-- **Client-trusted results**: saves are JSON blobs and leaderboard results are client-reported (plausibility checks only) — fine for a single-player daily board, not for prizes.
+- **Client-trusted results**: saves are JSON blobs and leaderboard results are client-reported (plausibility checks only) — fine for a single-player daily board, not for prizes. Runs are now replayable per stream (`engine/streams.ts`); server-side replay of top daily entries is the open fix.
 - **Balance noise**: mixed-bot win rate swings ±6 % by seed block — A/B on identical blocks (`docs/LESSONS.md`).
 - **GM quality**: local `gemma4:8b-64k` lines are serviceable; Vertex `gemini-3.8-flash` is sharper (3.8's introductory price reportedly doubles in Jan 2027). All lines are cleaned and have authored fallbacks.
 - **Generated assets** were spot-checked, not hand-curated; regenerate single files with `scripts/v2_assets/` (call-budget ledger).

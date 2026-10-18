@@ -159,7 +159,7 @@ test('approval moves only for deployed companions and pays bond at 3 and 6', () 
   const lie = dialogueOptions(run, C).findIndex((o) => o.option.intent === 'deceive')
   // Force success regardless of the die by retrying seeds is overkill: resolve until the roll succeeds.
   for (let i = 0; i < 50; i++) {
-    const tried = acceptRoll(chooseDialogue({ ...run, rng: run.rng + i }, lie, C), C)
+    const tried = acceptRoll(chooseDialogue({ ...run, seed: run.seed + i }, lie, C), C)
     if (tried.screen.kind !== 'dialogue' || !tried.screen.dialogue.last?.roll?.success) continue
     assert.equal(tried.crpg?.approval.se_rin, 4)
     assert.deepEqual(tried.screen.dialogue.last.approvals, [{ id: 'se_rin', delta: 2 }])

@@ -2,6 +2,18 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-18 — Named RNG streams: a daily is one run for everyone; stream names are frozen
+
+- **Context**: one shared `run.rng` fed every roll, so on the same daily seed a player who merely opened a shop got a different Act 2/3 map and different fights (reproduced: same encounter, different opening hand). It also made balance A/B noisy (changing one card re-rolled every later map) and blocked any replay-based leaderboard check. The design follows the clean-room spec in the owner's StS2 RNG study (`~/Desktop/AI/sts2-rea-lab/REPORT.md`, `impl/INTEGRATION.md`; its `work/` decompile is MegaCrit's and is never copied here).
+- **Decision**: `engine/streams.ts` — act maps `map@a<act>`, node streams `<reward|shop|treasure|event|crpg|encounter>@a<act>:<node>` (stored in `run.streams`, reset on entering a node), fights `combat@a<act>:<node>:<enc>` with separate `shuffle` and `ai` streams; a reshuffle sorts the discard (def id, upgrade, uid) first. Saves without `run.streams` keep the legacy single stream. **Stream names are part of their seeds: never rename one.** We keep mulberry32 (one uint32 of state is already an exact save); xoshiro256**/counter saves and StS2 bit compatibility bring nothing here.
+- **Trade-off**: every seed now plays differently from before (dailies from 2026-10-19 on; past daily records stay). In Act 2/3 a node whose pre-rolled event the player already saw still swaps to another event. Mixed-bot win rate unchanged within noise (42.4 % → 43.3 % over 1,080 runs on identical seeds).
+
+## 2026-10-18 — Paid Play release and Signal+ on hold; contests first
+
+- **Context**: owner, same day as the tier decision: selling IAP in Korea needs 사업자등록 + 통신판매업 신고, a public record that could conflict with an employer's no-side-business clause; unit economics are weak (≈ $0.87/month net per Signal+ subscriber at full allowance, and the ₩30,000/month Vertex cap would cut AI for payers too).
+- **Decision**: no business registration, merchant profile or `signal_plus_monthly` work until the owner reopens it. Direction: contests / hackathons / showcases (`docs/plans/2026-10-18-strategy-and-market-analysis.md` §5) — judge-accessible web demo, English write-up, demo video; check each contest's "existing project" rule. Quality bar (owner goal): commercial-grade fun and polish plus distinctive AI features.
+- **Trade-off**: the Signal+ code stays shipped but dormant (no product → nobody can buy); the tier entry below still describes it.
+
 ## 2026-10-18 — Player tiers: AI within a monthly $ allowance, Signal+ subscription adds a CRPG layer
 
 - **Context**: owner — "사용자 Tier를 나눠야할거같아", "로그인 유저는 금액 한도로 AI를 넣고, 별도로 유료 월 구독을 넣어서 그 사람들은 금액 한도를 늘려주는거지", "전투 요소 위주라서 CRPG 관련 요소도 … 유료 버전을 위한 혜택 … 발더스 게이트". The game was free with no IAP, so every GM call was pure cost with no ceiling.

@@ -19,6 +19,7 @@ import type {
 } from './types.ts'
 import { DIRS, add, areaTiles, dirToward, inBounds, manhattan, posKey, rayTiles, samePos } from './grid.ts'
 import { rand } from './rng.ts'
+import { combatStream } from './streams.ts'
 import {
   applyEffects,
   byUid,
@@ -504,6 +505,7 @@ export function planIntent(c: CombatState, C: ContentRegistry, u: UnitState, can
   // Moves on cooldown (or locked behind a later boss phase) are out; with none left the enemy only repositions.
   const usable = def.moves.filter((m) => (m.minPhase ?? 0) <= phase && (m.weight ?? 1) > 0 && (u.cooldowns?.[m.id] ?? 0) <= 0)
   const targets = opponentsOf(c, 'enemy')
+  const ai = combatStream(c, 'ai')
   const ctx: AiContext = {
     targets,
     threat: telegraphThreat(c, C, u),
@@ -520,7 +522,7 @@ export function planIntent(c: CombatState, C: ContentRegistry, u: UnitState, can
   for (const spot of spots) {
     u.pos = spot.pos
     const ps = positionScore(c, u, def, spot.pos, ctx) + (spot.path.length === 0 ? 0.1 : 0)
-    if (usable.length === 0) consider(ps + rand(c) * AI_TUNING.noise, spot)
+    if (usable.length === 0) consider(ps + rand(ai) * AI_TUNING.noise, spot)
     for (const move of usable) {
       const f = flavour(def.ai, move.pattern) * Math.sqrt(move.weight ?? 1)
       for (const o of orientations(c, u, move, ctx)) {
@@ -528,7 +530,7 @@ export function planIntent(c: CombatState, C: ContentRegistry, u: UnitState, can
         if (move.pattern === 'buff') val = buffValue(c, u, move)
         else if (move.pattern === 'summon') val = livingEnemies(c).length < SUMMON_CAP ? 3.5 * (move.summon?.count ?? 1) : -5
         else val = attackValue(c, u, move, intentGeometry(c, u, move, o), ctx)
-        consider(ps + val * f + rand(c) * AI_TUNING.noise, spot, move, o)
+        consider(ps + val * f + rand(ai) * AI_TUNING.noise, spot, move, o)
       }
     }
   }

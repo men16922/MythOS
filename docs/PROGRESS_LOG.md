@@ -2,6 +2,13 @@
 
 Last updated: 2026-10-18
 
+## 2026-10-18 — Named RNG streams (daily fairness, AI ≠ shuffle, order-free reshuffle) + docs: contests first
+
+- **Why**: on one daily seed, a player who only opened a shop got a different Act 2 map and a different opening hand in the same fight (reproduced with an engine script) — every roll shared `run.rng`. Spec taken from the owner's StS2 RNG study (`~/Desktop/AI/sts2-rea-lab`, clean-room report only).
+- **What**: `engine/streams.ts` (`runStream`, `mapRng`, `combatSeeds`, `combatStream`, `resetNodeStreams`); `run.ts` rewards/shop/cache/events/encounter fallback, `crpg.ts` d20, `combat.ts` seeds + opening shuffle, `effects.ts` reshuffle (canonical sort) and random inserts, `intents.ts` AI noise on its own stream. `RunState.streams` / `CombatState.streams` optional: saves without them keep the old single stream. 6 tests in `engine/streams.test.ts`; 5 older tests now vary `run.seed`.
+- **Verified**: `make test-v2` 334/334, `make check` green, `make test-e2e-v2` green, `make playthrough-quick` OK. Sim before/after on identical seeds (3 × 360 mixed): 42.4 % → 43.3 %, greedy 97.5 % → 96.7 %, basic 0 → 0. Not deployed.
+- **Docs**: `DECISIONS.md` (streams; paid release + Signal+ on hold, contests first), `NEXT_PLAN.md` P0 rewritten around polish + contest kit, `GAMEPLAY.md` daily wording made exact, `qa-routes.md` baseline refreshed (the 10-11 "mixed ≈ 35 %" predated later content).
+
 ## 2026-10-18 — Roguelite replayability (multi-bosses, directives, 5-choice gambit), Act 1 GM/companion immersion, dynamic BGM, Magma Area Burn FX, and Veo hard-block (`3f2bf81` → `00113-w55`)
 
 - **Persistent Area Burn & Combat FX (`tiles.tsx`/`tiles.css`, `units.tsx`/`units.css`, `BoardFx.tsx`)**: Replaced vertical-bar (`||||`) fire overlays with an isometric volcanic magma crater (`FireTopOverlay` `.m2-tile-fire-crater`, `.m2-tile-fire-magma`, `.m2-tile-fire-core`), single-tip rim flame wisps (`FlameTongueSvg`), high-voltage hazard frame (`HazardTopOverlay` + `GroundHazard`), and staggered unit `BurnFlames` / `ShockSparks` / rotating mark reticles.

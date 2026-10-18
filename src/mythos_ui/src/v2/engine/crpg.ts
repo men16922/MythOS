@@ -5,13 +5,14 @@
 //   rest → camp night (a companion with enough approval talks once per run) → rest
 //
 // The layer exists only when `run.crpg` is set (a Signal+ normal run; never a daily). Same rules as run.ts: pure
-// reducers (clone → mutate → return), an illegal action returns the same object, randomness only from `run.rng`.
+// reducers (clone → mutate → return), an illegal action returns the same object, randomness only from the run's `crpg` stream (engine/streams.ts).
 // District placement uses its own hash so the rest of the run's random stream is identical with or without it.
 // Outcome rewards stay inside an event node's budget: a district replaces one event node per act.
 
 import { COVER_HP, tileAt, unitAt } from './effects.ts'
 import { applyImmediate, conditionMet, log, openFollowUps, raiseBond, roster } from './run.ts'
 import { hashSeed, rand } from './rng.ts'
+import { runStream } from './streams.ts'
 import { offerThought } from './thoughts.ts'
 import type {
   ActMap,
@@ -96,8 +97,9 @@ export function d20Chance(modifier: number, dc: number, advantage: boolean): num
 }
 
 function rollD20(run: RunState, modifier: number, dc: number, advantage: boolean): D20Roll {
-  const a = 1 + Math.floor(rand(run) * 20)
-  const b = advantage ? 1 + Math.floor(rand(run) * 20) : undefined
+  const dice = runStream(run, 'crpg')
+  const a = 1 + Math.floor(rand(dice) * 20)
+  const b = advantage ? 1 + Math.floor(rand(dice) * 20) : undefined
   const die = b !== undefined ? Math.max(a, b) : a
   const roll: D20Roll = { die, modifier, dc, total: die + modifier, success: die === 20 || (die !== 1 && die + modifier >= dc), advantage }
   if (b !== undefined) roll.other = Math.min(a, b)

@@ -75,7 +75,7 @@ test('start dials: max HP, credits, static card, extra consumable', () => {
 test('shop prices follow shopPct (boom −30 %, scrap +25 %)', () => {
   const total = (id: string): number => {
     const run = dailyRun(id)
-    run.rng = 12345 // same jitter for every comparison
+    run.seed = 12345 // same jitter for every comparison (the shop stream derives from the seed)
     const s = generateShop(run, C)
     return s.cards.reduce((n, c) => n + c.price, 0) + s.implants.reduce((n, c) => n + c.price, 0) + s.removePrice + s.healPrice + s.scrubPrice
   }
@@ -129,7 +129,10 @@ test('fight credits follow rewardCreditsPct (patrol surge +35 %, market boom −
     run.screen = { kind: 'map' }
     const first = reachableNodes(run)[0] as string
     Object.assign(run.map.nodes[first] as object, { kind: 'combat', encounterId: 'a1_n1_cover' })
-    run.rng = 987654 // identical reward rolls for every comparison
+    // Identical reward rolls for every comparison: the maps (and so the node, i.e. the stream scope) differ
+    // per daily, so use the legacy shared stream pinned to one value.
+    delete run.streams
+    run.rng = 987654
     const fight = enterNode(run, first, C)
     assert.equal(fight.screen.kind, 'combat')
     const combat = structuredClone((fight.screen as Extract<typeof fight.screen, { kind: 'combat' }>).combat)

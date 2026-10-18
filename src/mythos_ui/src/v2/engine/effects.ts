@@ -28,6 +28,7 @@ import type {
 } from './types.ts'
 import { DIRS, add, areaTiles, dirToward, inBounds, opposite, posKey, samePos } from './grid.ts'
 import { pick, randInt } from './rng.ts'
+import { combatStream } from './streams.ts'
 
 export type DamageSource = 'party' | 'enemy' | 'environment'
 
@@ -530,10 +531,19 @@ export function drawCards(c: CombatState, n: number): number {
   return drawn
 }
 
+/** Total order for a reshuffle: what the discard holds decides the new draw pile, not the order it was played in. */
+function canonicalCardOrder(a: CardInstance, b: CardInstance): number {
+  if (a.defId !== b.defId) return a.defId < b.defId ? -1 : 1
+  if (!!a.upgraded !== !!b.upgraded) return a.upgraded ? 1 : -1
+  return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0
+}
+
 function shuffleInPlace(c: CombatState, cards: CardInstance[]): CardInstance[] {
-  const out = cards.slice()
+  // Stream fights sort first (legacy fights shuffle in discard order, as their saves were made).
+  const out = c.streams ? cards.slice().sort(canonicalCardOrder) : cards.slice()
+  const h = combatStream(c, 'shuffle')
   for (let i = out.length - 1; i > 0; i--) {
-    const j = randInt(c, 0, i)
+    const j = randInt(h, 0, i)
     const tmp = out[i] as CardInstance
     out[i] = out[j] as CardInstance
     out[j] = tmp
@@ -546,7 +556,7 @@ function addCards(c: CombatState, cardId: string, pile: 'hand' | 'draw' | 'disca
     c.uidCounter += 1
     const card: CardInstance = { uid: `x${c.uidCounter}`, defId: cardId, upgraded: false }
     if (pile === 'hand' && c.hand.length < HAND_MAX) c.hand.push(card)
-    else if (pile === 'draw') c.draw.splice(randInt(c, 0, c.draw.length), 0, card)
+    else if (pile === 'draw') c.draw.splice(randInt(combatStream(c, 'shuffle'), 0, c.draw.length), 0, card)
     else c.discard.push(card)
   }
 }

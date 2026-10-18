@@ -8,7 +8,8 @@
 
 ## Run simulator (balance)
 - `simulateRun(seed, archetype, CONTENT, policy, { paradox, onFight })` in `engine/runSim.ts`; policies `greedy` (1-ply exhaustive), `mixed` (greedy ~75 % of turns), `basic` (ignores telegraphs).
-- Baseline 2026-10-11, P0 over 360 runs: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5: 78 / 3.
+- Baseline 2026-10-18 (named RNG streams, `engine/streams.ts`), P0 over 3 × 360 mixed / 120 greedy / 60 basic runs (seeds `OFF + 100000·block + i`, archetypes round-robin): greedy ≈ 97 % · mixed ≈ 43 % (36–53 % by 120-run block) · basic 0 %. Older 2026-10-11 figure (mixed ≈ 35 %) predates the 10-17/18 content.
+- Randomness is per stream: a run's rolls come from `runStream(run, name)` scoped to the current node, act maps from `mapRng`, fights from `combatSeeds` (+ `shuffle` / `ai` inside). To vary rolls in a test, vary `run.seed` (setting `run.rng` only changes legacy saves without `run.streams`).
 - A/B a change on identical seed blocks; report per-act turns and HP lost from `onFight` telemetry.
 - Daily-seed determinism: `engine/daily.test.ts`.
 - Card value (standalone): `node --experimental-strip-types src/mythos_ui/src/v2/engine/card-value.report.ts [cardId …]` (env `ACT=2|3`, `POLICY=greedy|mixed`, `SEEDS`, `OFF`). Adds two copies of each card to a starter deck and compares HP lost / turns / losses on the same seeds. Use `POLICY=mixed` (the `greedy` bot rarely takes damage, so defence looks worthless), run two `OFF` values, and treat it as a watch list: setup/engine/synergy cards score low by construction.

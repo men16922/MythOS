@@ -393,6 +393,8 @@ export interface CombatState {
   maxEnergy: number
   handSize: number
   rng: number
+  /** Independent draw-pile and enemy-AI streams (engine/streams.ts). Absent in older saves: everything uses `rng`. */
+  streams?: { shuffle: number; ai: number }
   /** Monotonic event log; the UI animates events after the index it last saw. */
   events: CombatEvent[]
   /** Reinforcements arriving at the next enemy phase (shown as warning markers on the board). */
@@ -679,7 +681,10 @@ export interface RunState {
   version: 2
   id: string
   seed: number
+  /** Legacy shared stream; with `streams` it only ticks once per roll (UI change key). */
   rng: number
+  /** Node-scoped named streams (engine/streams.ts). Absent in saves from before streams: one shared `rng`. */
+  streams?: Record<string, number>
   loop: number
   paradox: number
   archetype: string

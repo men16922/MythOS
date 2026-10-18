@@ -415,7 +415,7 @@ test('events: requirements, checks and immediate effects', () => {
   const outcomes = new Set<boolean>()
   for (let s = 0; s < 40 && outcomes.size < 2; s++) {
     const r0 = structuredClone(run)
-    r0.rng = s * 101 + 7
+    r0.seed = s * 101 + 7
     const r1 = chooseEventOption(r0, 0, C)
     const res = screen(r1, 'event').resolved
     assert.ok(res)
@@ -506,7 +506,7 @@ test('improvisation: bounded rewards and risks', () => {
   const roll = (over: Partial<Improvisation>, want: boolean): RunState => {
     for (let s = 0; s < 200; s++) {
       const r0 = structuredClone(base)
-      r0.rng = s * 7919 + 1
+      r0.seed = s * 7919 + 1
       const r1 = applyImprovisation(r0, imp(over), C)
       if (screen(r1, 'event').improvised?.rolled?.success === want) return r1
     }

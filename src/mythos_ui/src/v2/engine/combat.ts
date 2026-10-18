@@ -31,7 +31,8 @@ import type {
 } from './types.ts'
 import { GRID_H, GRID_W } from './types.ts'
 import { DIRS, add, allTiles, dirToward, inBounds, manhattan, posKey, rayTiles, samePos } from './grid.ts'
-import { hashSeed, pick, shuffle } from './rng.ts'
+import { pick, shuffle } from './rng.ts'
+import { combatSeeds, combatStream } from './streams.ts'
 import {
   BLOCKED_ARRIVAL_DAMAGE,
   COVER_HP,
@@ -207,7 +208,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     energy: 0,
     maxEnergy: 3,
     handSize: 5,
-    rng: hashSeed(`${run.rng}|${encounterId}`),
+    ...combatSeeds(run, encounterId),
     events: [],
     incoming: [],
     undo: null,
@@ -262,7 +263,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
 
   // A benched companion's cards stay in the deck but sit this fight out (their owner is not on the board).
   const benched = new Set((run.bench ?? []).map((m) => m.id))
-  c.draw = shuffle(c, run.deck.filter((card) => !benched.has(C.cards[card.defId]?.owner ?? '')).map((card) => ({ ...card })))
+  c.draw = shuffle(combatStream(c, 'shuffle'), run.deck.filter((card) => !benched.has(C.cards[card.defId]?.owner ?? '')).map((card) => ({ ...card })))
   // ITB opening: enemies advance and telegraph before the first player turn.
   enemiesTelegraph(c, C, true)
   announceIncoming(c, enc)

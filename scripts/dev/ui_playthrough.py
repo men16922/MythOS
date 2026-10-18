@@ -11,7 +11,8 @@ bond cutscenes, IX's mirror, implant set cards, mutator chip — not one at a ti
 win: it reads which screen it is on from the dev hook (`window.__m2.run.screen.kind`, needs `npx vite`, started here
 on private ports) and then acts only by clicking real buttons / pressing real keys, like a player.
 
-`PLAYTHROUGH_TOUR=<dir>` saves two screenshots of every screen kind it meets (UX review).
+`PLAYTHROUGH_TOUR=<dir>` saves two screenshots of every screen kind it meets plus each toured screen (UX review);
+`PLAYTHROUGH_LANG=en` plays in English.
 
 Always muted (`?mute=1`), one tab, never the owner's dev ports. Exit code 0 = every run reached an ending screen
 without a stuck state or a console error; 1 otherwise (the screen kind it was stuck on and the last state are printed).
@@ -345,6 +346,9 @@ def tour_screens(page: Page) -> list[str]:
             f"() => {{ const r = window.__m2.run; const next = ({build_js})(r); window.__m2.setRun({{ ...r, ...next }}) }}"
         )
         page.wait_for_timeout(700)
+        tour = os.environ.get("PLAYTHROUGH_TOUR")
+        if tour:
+            page.screenshot(path=f"{tour}/tour_{kind_of(page)}.png")
 
     def expect(label: str, ok: bool, detail: str = "") -> None:
         if not ok:
@@ -425,6 +429,8 @@ def play_one(
     page.evaluate(
         "() => window.__m2.setProfile((p) => ({ ...p, settings: { ...p.settings, fastAnim: true } }))"
     )
+    if os.environ.get("PLAYTHROUGH_LANG") == "en":  # English pass (text review)
+        page.evaluate("() => window.__m2.setProfile((p) => ({ ...p, settings: { ...p.settings, lang: 'en' } }))")
     if daily:
         page.locator(".m2-menu-item--daily").click()
     else:

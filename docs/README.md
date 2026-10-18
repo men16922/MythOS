@@ -1,6 +1,6 @@
 # Mythos 2.0 Docs
 
-Last updated: 2026-10-11
+Last updated: 2026-10-18
 
 Current docs only; 1.x history (design, CBT ops, cloud, scenarios, reports) lives on branch `1.0`.
 Agents do not read all of `docs/`; follow the order below.
@@ -25,6 +25,7 @@ Agents do not read all of `docs/`; follow the order below.
 | `android.md` | Android app (Capacitor + Firebase) build/release |
 | `online.md` | Google sign-in, daily leaderboard, daily push, account deletion, AI line reports, policy pages |
 | `play-store.md` | Google Play submission sheet: listing text, graphics, content rating, Data safety, owner steps |
+| `contest/pitch-en.md` | Judge-facing English write-up (what it is, where the AI is and is not, evidence) |
 | `OWNER_TODO.md` | Owner-only checklist (Korean): Play account, Signal+ product, listen/watch reviews, voice pins, push |
 | `COMPLETED_SUMMARY.md` | Compressed record of completed milestones |
 | `DECISIONS.md` | Hard-to-reverse decisions |

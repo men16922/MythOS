@@ -11,6 +11,8 @@
 .m2c-sb-bar {
   flex: none;
   height: 34px;
+  max-width: 100vw;
+  overflow-x: auto;
   display: flex;
   align-items: center;
   gap: 10px;

@@ -1,19 +1,19 @@
-"""Generate the cinematic trailer's AI shots with Vertex AI Veo (image-to-video, native ambience audio).
+"""Cinematic trailer shot specifications and prompt guide (Vertex AI Veo API calls are DISABLED by default).
 
-  .venv/bin/python scripts/trailer/gen_veo.py --shot all          # every missing shot
-  .venv/bin/python scripts/trailer/gen_veo.py --shot ix --force   # regenerate one
+  .venv/bin/python scripts/trailer/gen_veo.py --print-prompts                 # print prompts + reference image paths
+  .venv/bin/python scripts/trailer/gen_veo.py --print-prompts --style photo   # photorealistic style prompts
 
-Each shot animates one piece of the game's own key art (resources/neo-seoul/v2), so the cinematic matches the
-game's look. Ported from the 1.x teaser pipeline (branch ``1.0``: scripts/cbt/generate_teaser_videos.py).
-Auth mirrors scripts/v2_assets: google-genai with ``vertexai=True`` + ``PROJECT_ID`` from ``.env`` (ADC).
-Every call is billed and counted in scripts/v2_assets/ledger.json (``veo_calls`` / ``veo_failed``).
-Output: ``outputs/trailer/cinematic/veo/<shot>.mp4`` (gitignored).
+NOTE (Owner directive 2026-10-18): Direct Vertex AI Veo API calls are forbidden because 17 clips cost ₩73,916
+(91% of the October GCP bill). Instead, generate or replace any clip manually in the Gemini web app using
+``docs/test/veo_gemini_owner_guide.md`` and drop the downloaded MP4 into ``outputs/trailer/cinematic/veo/<shot>.mp4``
+(or ``veo_photo/<shot>.mp4``).
 """
 
 from __future__ import annotations
 
 import argparse
 import io
+import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -171,9 +171,26 @@ def generate(client, types, name: str, duration: int, resolution: str) -> tuple[
     return name, f"FAILED {last}"
 
 
+def print_prompts(names: list[str], style: str) -> None:
+    suffix = PHOTO_STYLE if style == "photo" else STYLE
+    out_dir = OUT.with_name("veo_photo") if style == "photo" else OUT
+    print(f"=== Gemini Web Manual Video Generation Guide (style={style}) ===")
+    print("Full Korean guide: docs/test/veo_gemini_owner_guide.md\n")
+    for name in names:
+        shot = SHOTS[name]
+        source = STILLS / f"{name}.png" if style == "photo" else ART / shot["image"]
+        dest = out_dir / f"{name}.mp4"
+        status = "EXISTS" if dest.exists() else "MISSING"
+        print(f"[{name}] ({status})")
+        print(f"  Reference image : {source.relative_to(ROOT)}")
+        print(f"  Save output to  : {dest.relative_to(ROOT)}")
+        print(f"  Prompt          : {shot['prompt']}{suffix}{AUDIO}")
+        print()
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--shot", required=True, help="shot id or 'all'", choices=[*SHOTS, "all"])
+    ap.add_argument("--shot", default="all", help="shot id or 'all'", choices=[*SHOTS, "all"])
     ap.add_argument("--duration", type=int, default=8)
     ap.add_argument("--resolution", default="1080p", choices=["720p", "1080p"])
     ap.add_argument("--force", action="store_true", help="regenerate shots that already exist")
@@ -184,7 +201,33 @@ def main() -> int:
         choices=["art", "photo"],
         help="photo = animate gen_stills.py output",
     )
+    ap.add_argument(
+        "--print-prompts",
+        action="store_true",
+        help="print prompts and reference paths for manual generation in the Gemini web app (free)",
+    )
+    ap.add_argument(
+        "--allow-billed-veo",
+        action="store_true",
+        help="emergency override (also requires MYTHOS_ALLOW_BILLED_VEO=1 in env)",
+    )
     args = ap.parse_args()
+    names = list(SHOTS) if args.shot == "all" else [args.shot]
+
+    if args.print_prompts:
+        print_prompts(names, args.style)
+        return 0
+
+    if not (args.allow_billed_veo and os.environ.get("MYTHOS_ALLOW_BILLED_VEO") == "1"):
+        print(
+            "BLOCKED: Vertex AI Veo API calls are disabled by owner policy (2026-10-18) due to high per-clip billing.\n"
+            "Use the Gemini web app (https://gemini.google.com) to generate clips manually at zero API cost.\n"
+            "  • Guide : docs/test/veo_gemini_owner_guide.md\n"
+            "  • Print prompts : .venv/bin/python scripts/trailer/gen_veo.py --print-prompts [--style photo]",
+            file=sys.stderr,
+        )
+        return 2
+
     global OUT, STYLE
     if args.style == "photo":
         OUT, STYLE = OUT.with_name("veo_photo"), PHOTO_STYLE
@@ -195,7 +238,6 @@ def main() -> int:
     project = load_env()
     client = genai.Client(vertexai=True, project=project, location="us-central1")
     OUT.mkdir(parents=True, exist_ok=True)
-    names = list(SHOTS) if args.shot == "all" else [args.shot]
     names = [n for n in names if args.force or not (OUT / f"{n}.mp4").exists()]
     if not names:
         print("nothing to generate (use --force)")

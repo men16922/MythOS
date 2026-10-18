@@ -442,7 +442,7 @@ class TalkEndpointTest(unittest.TestCase):
             out,
             {"text": "정세린의 신호가 끊겼습니다. 다음은 접속자님 차례입니다.", "source": "llm"},
         )
-        self.assertEqual(llm.calls[0]["timeout"], 4.0)
+        self.assertEqual(llm.calls[0]["timeout"], 5.5)
         self.assertIn("정세린", llm.calls[0]["user"])
 
     def test_ix_warm_or_casual_line_falls_back(self) -> None:

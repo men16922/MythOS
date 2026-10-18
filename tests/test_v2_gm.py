@@ -116,6 +116,13 @@ class CleanLineTest(unittest.TestCase):
         self.assertLessEqual(len(out), 50)
         self.assertTrue(out.endswith("…"))
 
+    def test_closes_quote_split_by_sentence_cap(self) -> None:
+        raw = '어둠 속에서 해태가 모습을 드러낸다. 사방이 고요해진다. "미등록 개체 식별. 광역 소거를 시작한다."'
+        self.assertEqual(
+            gm.clean_line(raw, max_sentences=3, max_chars=260),
+            '어둠 속에서 해태가 모습을 드러낸다. 사방이 고요해진다. "미등록 개체 식별."',
+        )
+
     def test_clean_narration_rejects_wrong_language_or_empty(self) -> None:
         self.assertIsNone(gm.clean_narration("Hello there, connector.", "event", "ko"))
         self.assertIsNone(gm.clean_narration("안녕하세요, 접속자님.", "event", "en"))
@@ -132,6 +139,8 @@ class NarrateMessagesTest(unittest.TestCase):
         system, user = gm.narrate_messages("bond", "ko", {"companion": "세린"})
         self.assertIn("한국어로만", system)
         self.assertIn("companion: 세린", user)
+        _, act2_user = gm.narrate_messages("event", "ko", {"act": 2, "title": "야시장"})
+        self.assertIn("공간 질감(2막 야시장 하층)", act2_user)
 
 
 class FallbackNarrationTest(unittest.TestCase):

@@ -339,3 +339,19 @@
   padding: 0 14px;
   font-size: 13.5px;
 }
+
+.m2-ending__actions {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: stretch;
+}
+.m2-ending__share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+

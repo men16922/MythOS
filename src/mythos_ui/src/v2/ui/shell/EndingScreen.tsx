@@ -1,6 +1,6 @@
 // Mythos 2.0 — ending + run summary: ending art, text, Echo tally count-up, stats, chronicle.
 import { art } from '../components/art.ts'
-import { Sparkles, Trophy } from 'lucide-react'
+import { Check, Copy, Sparkles, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { computeEchoes } from '../../engine/meta.ts'
 import type { Lang, RunState } from '../../engine/types.ts'
@@ -15,6 +15,42 @@ import { narrate } from './gm.ts'
 import { commsEntries, improvisedRecords } from '../common/commsLog.ts'
 import type { ScreenProps } from './types.ts'
 import './ending.css'
+
+function buildShareSummary(
+  run: RunState,
+  lang: Lang,
+  C: ScreenProps['C'],
+  echoTotal: number,
+  dailyOutcome?: SubmitOutcome | null,
+): string {
+  const ko = lang === 'ko'
+  const arch = C.archetypes[run.archetype]
+  const who = tr(arch?.name, lang) || (ko ? '접속자' : 'Connector')
+  const ended = run.screen.kind === 'ended' ? run.screen : null
+  const victory = ended?.result === 'victory'
+  const ending = ended ? C.endings[ended.endingId] : undefined
+  const endingTitle = tr(ending?.title, lang) || (ko ? '강제 삭제' : 'Forced Erasure')
+  const header = isDateKey(run.daily)
+    ? ko
+      ? `⚡ 세계:접속 — 오늘의 시드 ${run.daily}`
+      : `⚡ Mythos: Signal Run — Daily Signal ${run.daily}`
+    : ko
+      ? `⚡ 세계:접속 — 루프 #${run.loop}`
+      : `⚡ Mythos: Signal Run — Loop #${run.loop}`
+  const statusLine = ko
+    ? `${who} · ${victory ? '루프 완료' : '접속 종료'} (${endingTitle}) · ${run.act}막 / ${run.tally.floors}구역`
+    : `${who} · ${victory ? 'Loop Complete' : 'Connection Lost'} (${endingTitle}) · Act ${run.act} / ${run.tally.floors} sectors`
+  const rankBit =
+    dailyOutcome && dailyOutcome.kind === 'ranked'
+      ? ko
+        ? ` · 순위 #${dailyOutcome.rank}/${dailyOutcome.total}`
+        : ` · Rank #${dailyOutcome.rank}/${dailyOutcome.total}`
+      : ''
+  const statsLine = ko
+    ? `처치 ${run.tally.kills} (환경 ${run.tally.environmentKills}) · ◈ ${echoTotal}${rankBit}`
+    : `Kills ${run.tally.kills} (Terrain ${run.tally.environmentKills}) · ◈ ${echoTotal}${rankBit}`
+  return [header, statusLine, statsLine].join('\n')
+}
 
 function authoredChronicle(run: RunState, lang: Lang, C: ScreenProps['C']): string {
   const ko = lang === 'ko'
@@ -89,6 +125,7 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
   /** Which chronicle is on screen. Locked once chosen: the GM line used to replace the authored one mid-read. */
   const [chronSource, setChronSource] = useState<'gm' | 'auth' | null>(null)
   const [stage, setStage] = useState(0)
+  const [copied, setCopied] = useState(false)
   const ko = lang === 'ko'
 
   useEffect(() => {
@@ -151,6 +188,21 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
     [ko ? '승리' : 'Victory', breakdown.victory],
     [ko ? '결말 보너스' : 'Ending bonus', breakdown.ending],
   ]
+
+  const onCopySummary = () => {
+    const text = buildShareSummary(run, lang, C, breakdown.total, daily?.outcome)
+    sound('ui_click')
+    void navigator.clipboard?.writeText(text).then(
+      () => {
+        setCopied(true)
+        window.setTimeout(() => setCopied(false), 2000)
+      },
+      () => {
+        setCopied(true)
+        window.setTimeout(() => setCopied(false), 2000)
+      },
+    )
+  }
 
   return (
     <div className={`m2-ending${victory ? ' is-victory' : ' is-defeat'}`}>
@@ -219,15 +271,21 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
             </div>
           </div>
           {daily && isDateKey(run.daily) && <DailyRank date={run.daily} daily={daily} lang={lang} />}
-          <button
-            className="m2-btn m2-btn--primary m2-btn--lg"
-            onClick={() => {
-              sound('transition')
-              onDone()
-            }}
-          >
-            {ko ? '아카이브로' : 'Back to the Archive'}
-          </button>
+          <div className="m2-ending__actions">
+            <button className="m2-btn m2-btn--ghost m2-ending__share" onClick={onCopySummary}>
+              {copied ? <Check size={15} /> : <Copy size={15} />}
+              <span>{copied ? (ko ? '복사됨' : 'Copied') : ko ? '기록 복사' : 'Copy Summary'}</span>
+            </button>
+            <button
+              className="m2-btn m2-btn--primary m2-btn--lg"
+              onClick={() => {
+                sound('transition')
+                onDone()
+              }}
+            >
+              {ko ? '아카이브로' : 'Back to the Archive'}
+            </button>
+          </div>
         </aside>
       </div>
     </div>

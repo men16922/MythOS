@@ -139,7 +139,7 @@ class V2Settings:
     narrate_timeout: float = 10.0
     improvise_timeout: float = 12.0
     talk_timeout: float = 10.0
-    ix_timeout: float = 4.0
+    ix_timeout: float = 5.5
     gm_per_minute: int = 20
     gm_per_day: int = 400
     writes_per_minute: int = 120
@@ -157,7 +157,7 @@ class V2Settings:
             narrate_timeout=_env_float("MYTHOS_V2_NARRATE_TIMEOUT", 10.0),
             improvise_timeout=_env_float("MYTHOS_V2_IMPROVISE_TIMEOUT", 12.0),
             talk_timeout=_env_float("MYTHOS_V2_TALK_TIMEOUT", 10.0),
-            ix_timeout=_env_float("MYTHOS_V2_IX_TIMEOUT", 4.0),
+            ix_timeout=_env_float("MYTHOS_V2_IX_TIMEOUT", 5.5),
             gm_per_minute=_env_int("MYTHOS_V2_GM_PER_MINUTE", 20),
             gm_per_day=_env_int("MYTHOS_V2_GM_PER_DAY", 400),
             writes_per_minute=_env_int("MYTHOS_V2_WRITES_PER_MINUTE", 120),
@@ -268,9 +268,12 @@ class DailySubmitBody(BaseModel):
 
 
 #: Billed tokens of the LLM call made by the current request (set by ``_GMRunner.complete`` in the handler's own
-#: task, read and cleared by ``log_gm``). Unset when no model answered (fallback paths) or the call timed out.
+#: task, read and cleared by ``log_gm``). Late completions after a timeout charge directly via ``on_late_usage``.
 _CALL_USAGE: contextvars.ContextVar[Usage | None] = contextvars.ContextVar(
     "mythos_v2_gm_call_usage", default=None
+)
+_CALL_PLAYER: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "mythos_v2_gm_call_player", default=None
 )
 
 
@@ -285,12 +288,18 @@ class _BusyError(RuntimeError):
 class _GMRunner:
     """Lazily-built LLM + global concurrency cap + hard wall-clock timeout."""
 
-    def __init__(self, factory: Callable[[], TextLLM | None], concurrency: int) -> None:
+    def __init__(
+        self,
+        factory: Callable[[], TextLLM | None],
+        concurrency: int,
+        on_late_usage: Callable[[str, Usage], None] | None = None,
+    ) -> None:
         self._factory = factory
         self._llm: TextLLM | None = None
         self._built = False
         self._lock = threading.Lock()
         self._slots = threading.BoundedSemaphore(concurrency)
+        self._on_late_usage = on_late_usage
         # Own pool (not the loop's default executor): a hung provider call never
         # occupies shared threads, and loop shutdown never waits on it.
         self._executor = concurrent.futures.ThreadPoolExecutor(
@@ -328,7 +337,13 @@ class _GMRunner:
         if llm is None:
             raise _NoLLMError
 
-        def _run() -> tuple[str, Usage | None]:
+        player_id = _CALL_PLAYER.get()
+        state_lock = threading.Lock()
+        captured_usage: Usage | None = None
+        timed_out = False
+
+        def _run() -> str:
+            nonlocal captured_usage
             if not self._slots.acquire(timeout=1.0):
                 raise _BusyError
             try:
@@ -341,16 +356,33 @@ class _GMRunner:
                     timeout=timeout,
                     json_schema=json_schema,
                 )
-                return text, take_last_usage()
+                usage = take_last_usage()
+                with state_lock:
+                    if timed_out:
+                        late = True
+                    else:
+                        captured_usage = usage
+                        late = False
+                if late and usage is not None and player_id and self._on_late_usage is not None:
+                    try:
+                        self._on_late_usage(player_id, usage)
+                    except Exception:
+                        _logger.debug("v2 gm late spend not recorded", exc_info=True)
+                return text
             finally:
                 self._slots.release()
 
         loop = asyncio.get_running_loop()
-        text, usage = await asyncio.wait_for(
-            loop.run_in_executor(self._executor, _run), timeout=timeout
-        )
-        _CALL_USAGE.set(usage)
-        return text
+        try:
+            return await asyncio.wait_for(
+                loop.run_in_executor(self._executor, _run), timeout=timeout
+            )
+        finally:
+            with state_lock:
+                if captured_usage is not None:
+                    _CALL_USAGE.set(captured_usage)
+                else:
+                    timed_out = True
 
     def close(self) -> None:
         self._executor.shutdown(wait=False, cancel_futures=True)
@@ -418,14 +450,16 @@ def create_v2_router(
     deleter = account_deleter or build_account_deleter(auth_cfg.project_id)
     clock = now or (lambda: datetime.now(UTC))
     holder = StoreHolder(store_factory)
-    runner = _GMRunner(llm_factory or build_text_llm, cfg.gm_concurrency)
+    budget = Budget(budget_config or BudgetConfig.from_env(cfg.gm_price), holder.get, now=clock)
+    runner = _GMRunner(
+        llm_factory or build_text_llm, cfg.gm_concurrency, on_late_usage=budget.charge
+    )
     gm_limiter = RateLimiter(cfg.gm_per_minute, cfg.gm_per_day)
     write_limiter = RateLimiter(cfg.writes_per_minute)
     daily_limiter = RateLimiter(cfg.daily_per_minute)
     admin_limiter = RateLimiter(cfg.admin_per_minute)
     report_limiter = RateLimiter(cfg.reports_per_minute)
     gm_stats = admin.GMStats(clock())
-    budget = Budget(budget_config or BudgetConfig.from_env(cfg.gm_price), holder.get, now=clock)
     bill_cfg = billing_config or BillingConfig.from_env()
     plans = Plans(
         bill_cfg,
@@ -826,6 +860,7 @@ def create_v2_router(
 
     async def gm_refusal(player_id: str) -> str | None:
         """Why this player may not make a GM call now (``rate_limited`` / ``budget`` / ``ceiling``), else None."""
+        _CALL_PLAYER.set(player_id)
         if not gm_limiter.allow(player_id):
             return "rate_limited"
         if player_id in admin_players:
@@ -836,6 +871,7 @@ def create_v2_router(
         route: str, player_id: str, outcome: str, started: float, **extra: Any
     ) -> None:
         gm_stats.record(route, outcome)
+        _CALL_PLAYER.set(None)
         used = _CALL_USAGE.get()
         _CALL_USAGE.set(None)
         if used is not None:

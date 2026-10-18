@@ -580,13 +580,24 @@
     opacity: 0;
   }
 }
+.m2c-scorch-rim {
+  stroke: rgba(255, 130, 35, 0.45);
+  stroke-width: 1.4;
+}
 .m2c-scorch-crack {
   fill: none;
   stroke: rgba(8, 4, 2, 0.85);
   stroke-width: 1.6;
 }
+.m2c-scorch-crack.is-fire {
+  stroke: rgba(255, 165, 55, 0.88);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px #ff5a0a);
+}
 .m2c-scorch-ember {
-  fill: #ff9a3c;
+  fill: #ffbe55;
+  filter: drop-shadow(0 0 3px #ff6a14);
   animation: m2c-emberblink 0.9s ease-in-out infinite;
 }
 @keyframes m2c-emberblink {
@@ -633,8 +644,56 @@
     opacity: 0;
   }
 }
+.m2c-firering {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2.5px solid #ffd87a;
+  box-shadow:
+    0 0 12px #ff6a14,
+    inset 0 0 10px rgba(255, 150, 40, 0.7);
+  animation: m2c-firering ease-out both;
+}
+@keyframes m2c-firering {
+  0% {
+    transform: translate(-50%, -50%) scale(0.28);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.32);
+    opacity: 0;
+  }
+}
+.m2c-firepillar {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  transform-origin: 50% 100%;
+  border-radius: 46% 46% 32% 32% / 72% 72% 28% 28%;
+  background: linear-gradient(180deg, rgba(255, 90, 10, 0) 0%, rgba(255, 130, 25, 0.75) 38%, #ffd86b 74%, #ffffff 100%);
+  filter: drop-shadow(0 0 10px rgba(255, 120, 20, 0.85));
+  animation: m2c-firepillar cubic-bezier(0.18, 0.85, 0.32, 1) both;
+}
+@keyframes m2c-firepillar {
+  0% {
+    transform: translate(-50%, -100%) scale(0.45, 0.12);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, -100%) scale(1.06, 1.15);
+    opacity: 0.96;
+  }
+  100% {
+    transform: translate(-50%, -125%) scale(0.55, 0.35);
+    opacity: 0;
+  }
+}
 .m2c-ft {
   animation: m2c-ft ease-out both;
+}
+.m2c-ft.is-core {
+  z-index: 1;
+  background: radial-gradient(ellipse 48% 64% at 50% 82%, #ffffff 0%, #fff7b8 40%, rgba(255, 210, 74, 0.78) 70%, rgba(255, 140, 20, 0) 94%);
+  filter: drop-shadow(0 0 6px rgba(255, 230, 120, 0.9));
 }
 @keyframes m2c-ft {
   0% {

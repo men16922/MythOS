@@ -44,7 +44,7 @@ const t = (ko: string, en: string): Text => ({ ko, en })
 const clone = <T>(x: T): T => structuredClone(x)
 const clamp = (min: number, max: number, v: number): number => Math.min(max, Math.max(min, v))
 
-export function newCrpgState(background: string | null): CrpgRunState {
+export function newCrpgState(background: string | null, trial?: boolean): CrpgRunState {
   return {
     background,
     inspiration: 1,
@@ -55,6 +55,7 @@ export function newCrpgState(background: string | null): CrpgRunState {
     camps: [],
     nextCombat: [],
     payoffsUsed: [],
+    ...(trial ? { trial: true } : {}),
   }
 }
 
@@ -109,9 +110,10 @@ function hasAdvantage(run: RunState, option: DialogueOption): boolean {
 
 // ---------------------------------------------------------------- district placement
 
-/** Signal+ normal runs: one event node of this act's map becomes a district (deterministic, own hash). */
+/** Signal+ normal runs (or Act 1 free trial): one event node of this act's map becomes a district (deterministic, own hash). */
 export function placeDistrict(run: RunState, map: ActMap, C: ContentRegistry): void {
   if (!run.crpg || run.daily || !C.crpg) return
+  if (run.crpg.trial && map.act > 1) return
   const seen = new Set(run.crpg.districts)
   const pool = Object.values(C.crpg.districts)
     .filter((d) => d.act === map.act && !seen.has(d.id))
@@ -361,7 +363,7 @@ export function closeDialogue(run: RunState, C: ContentRegistry): RunState {
 
 export function campScene(run: RunState, C: ContentRegistry): CampSceneDef | null {
   const s = run.crpg
-  if (!s || run.screen.kind !== 'rest' || !C.crpg) return null
+  if (!s || s.trial || run.screen.kind !== 'rest' || !C.crpg) return null
   for (const scene of C.crpg.camps) {
     if (s.camps.includes(scene.companion)) continue
     if (!run.party.some((m) => m.id === scene.companion && m.hp > 0)) continue
@@ -403,6 +405,7 @@ export function takeCombatMods(next: RunState, boss: boolean, C: ContentRegistry
 
 /** Apply combat twists to a freshly started fight (before the first player input). */
 export function applyCombatMods(c: CombatState, mods: readonly CombatModId[]): void {
+  if (mods.length > 0) c.mods = [...mods]
   const enemies = c.units.filter((u) => u.side === 'enemy' && u.hp > 0)
   for (const mod of mods) {
     switch (mod) {

@@ -11,9 +11,10 @@ The root handoff harness for passing work context between agents. The source of 
 
 ## Current Handover
 
-1. **Owner calls pending**: SFX listen-test, deploy of 2.0 to Cloud Run (then smoke `/api/v2` + Vertex GM there), Play Console account + upload key for the Android app, `git push`.
-2. **Testing rule**: always muted (`?mute=1`), at most one browser tab, prefer headless Playwright.
-3. **AI GM**: local Ollama `gemma4:8b-64k` (the `.env` default `gemma4:latest` is not installed); cloud = Vertex `gemini-3.8-flash` (`.env` `MODEL`, passed by `make deploy*`). Authored pools exist on both sides (`talk.py` ↔ `ui/shell/talkLines.ts`, kept in sync by a test).
+1. **Completed in local `mythos-2.0` (2026-10-18)**: Combat & Area Burn FX overhaul (`docs/plans/2026-10-18-combat-fx-enhancement.md`), Veo API hard-block + owner Gemini Web prompt guide (`docs/test/veo_gemini_owner_guide.md`), and Strategy execution (`docs/plans/2026-10-18-strategy-and-market-analysis.md`: CRPG Act 1 free district trial `trial: true`, combat-twist HUD badge `.m2c-mod-badge`, EndingScreen one-click share button, SFX differentiation, `_balance_quotes` + `_ACT_SENSORY` in `gm.py`, late-usage budget charging on timed-out GM calls in `api.py`, `ix_timeout=5.5s`, 8×2 voice pins in `voices.json`, trailer recut).
+2. **Owner calls pending**: Play Console account + `signal_plus_monthly` setup + upload key (`docs/OWNER_TODO.md`), and deploy of latest `mythos-2.0` (`make deploy-preview` → `make verify-preview` → promote).
+3. **Testing & Cost rules**: always muted (`?mute=1`), at most one browser tab, prefer headless Playwright. **Never call Vertex Veo API** (blocked in `scripts/trailer/gen_veo.py`); new images use Codex image only.
+4. **AI GM**: local Ollama `gemma4:8b-64k` (`.env` default `gemma4:latest` is not installed); cloud = Vertex `gemini-3.8-flash` (`.env` `MODEL`, passed by `make deploy*`). Authored pools exist on both sides (`talk.py` ↔ `ui/shell/talkLines.ts`, kept in sync by a test).
 
 ## Open Risks
 

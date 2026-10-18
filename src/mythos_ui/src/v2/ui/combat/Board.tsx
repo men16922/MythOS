@@ -125,6 +125,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
           intent={intentByUid[u.uid] ?? null}
           intentDim={!!props.focusEnemy && props.focusEnemy !== u.uid}
           bobSeed={hash(u.uid)}
+          inFire={(vc.tiles[u.pos.y]?.[u.pos.x]?.fire ?? 0) > 0 && !u.flying}
           registerFigure={props.registerFigure}
           onEnter={props.onTileEnter}
           onClick={props.onTileClick}
@@ -194,9 +195,11 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         <div className="m2c-ground">
           {ground
             .filter((t) => t.fire > 0)
-            .map((t) => (
-              <GroundFire key={posKey(t.p)} g={g} p={t.p} turns={t.fire} />
-            ))}
+            .map((t) => {
+              const hasF = (tx: number, ty: number) => (vc.tiles[ty]?.[tx]?.fire ?? 0) > 0
+              const cluster = hasF(t.p.x, t.p.y - 1) || hasF(t.p.x + 1, t.p.y) || hasF(t.p.x, t.p.y + 1) || hasF(t.p.x - 1, t.p.y)
+              return <GroundFire key={posKey(t.p)} g={g} p={t.p} turns={t.fire} cluster={cluster} />
+            })}
         </div>
       )}
 

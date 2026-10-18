@@ -93,7 +93,7 @@ export async function companionReply(req: CompanionReplyReq, signal?: AbortSigna
 
 /** IX's LLM comms line for a combat moment, or null (timeout, no backend, server fallback). The caller is
  *  already showing an authored line and swaps this in once. */
-export async function ixLine(trigger: net.IxTrigger, lang: Lang, context: Ctx, timeoutMs = 4000, signal?: AbortSignal): Promise<string | null> {
+export async function ixLine(trigger: net.IxTrigger, lang: Lang, context: Ctx, timeoutMs = 5500, signal?: AbortSignal): Promise<string | null> {
   if (!aiEnabled) return null
   try {
     const res = await withTimeout(net.talk({ mode: 'ix', lang, trigger, context }, { signal, timeoutMs }), timeoutMs)

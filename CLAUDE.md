@@ -64,7 +64,7 @@ Browser testing is **always silent** (`?mute=1` / localStorage `mythos2.mute=1`)
 
 - Config via `.env`: `OLLAMA_BASE_URL`, `OLLAMA_MODEL_STORY` (local GM; `gemma4:8b-64k` is the locally installed model), `MYTHOS_NARRATIVE_PROVIDER=vertex` + `PROJECT_ID` (cloud GM via ADC), `DATABASE_URL`, `MYTHOS_AUTH` (`open` locally; `google` on Cloud Run = Firebase Google sign-in required for cloud saves/GM/leaderboard, see `docs/online.md`), `MYTHOS_CORS_ORIGINS`. Never print or commit `.env` values.
 - `MYTHOS_LOG_LEVEL` controls server log verbosity (tests use `ERROR`). `MYTHOS_RUN_DB_TESTS=1` opts into Postgres tests. `outputs/` is gitignored.
-- Asset generation: **all new images use Codex image** (`codex exec … generate one image`; scenes, cards, sprites — owner 2026-10-18; it does not bill GCP). Vertex Gemini image (`scripts/v2_assets/gen_images.py`) is only for re-rendering an existing group and needs the owner's OK (it bills Vertex; the ledger cap is `V2_IMAGE_BUDGET`). Music: Vertex Lyria loops (`gen_music.py`). Check `docs/` cost notes before any Veo call — Veo is the one big GCP bill.
+- Asset generation: **all new images use Codex image** (`codex exec … generate one image`; scenes, cards, sprites — owner 2026-10-18; it does not bill GCP). Vertex Gemini image (`scripts/v2_assets/gen_images.py`) is only for re-rendering an existing group and needs the owner's OK (it bills Vertex; the ledger cap is `V2_IMAGE_BUDGET`). Music: Vertex Lyria loops (`gen_music.py`). **Vertex Veo API calls are strictly banned** (owner 2026-10-18; 17 clips cost ₩73,916). Any video clip generation is done manually by the owner in the Gemini web app using `docs/test/veo_gemini_owner_guide.md` (`make cinematic-prompts`).
 
 ## Definition of done
 

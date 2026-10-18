@@ -1,6 +1,6 @@
 """Cinematic trailer for Mythos 2.0: Veo key-art shots + real gameplay + IX narration + a dedicated music track.
 
-  .venv/bin/python scripts/trailer/gen_veo.py --shot all                              # 1. AI shots (Vertex Veo)
+  .venv/bin/python scripts/trailer/gen_veo.py --print-prompts                        # 1. AI shot prompts (manual in Gemini web; Vertex Veo API banned)
   .venv/bin/python scripts/trailer/record_trailer.py --out outputs/trailer/hq --scale 1.5 --record-only  # 2. gameplay
   .venv/bin/python scripts/trailer/cinematic.py audio                                # 3. narration + music (ElevenLabs)
   .venv/bin/python scripts/trailer/cinematic.py build                                # 4. cut → outputs/trailer/cinematic/
@@ -47,7 +47,7 @@ TIMELINE: list[tuple[str, str, float, float, tuple[str, str] | None]] = [
     ("game", "02_event", -5.0, 4.0, ("모든 선택에는 대가가 있다", "Every choice has a price")),
     ("game", "04_cutscene", -5.5, 4.0, ("함께 걸은 사람들", "The people who walk with you")),
     ("game", "05_ix", -4.5, 4.0, ("IX는 당신의 선택을 기억한다", "IX remembers what you chose")),
-    ("veo", "haetae", 1.0, 4.5, None),
+    ("veo", "haetae", 1.0, 4.5, ("해태 — 방화벽 수호수", "HAETAE — Firewall Guardian")),
     ("veo", "echo_eater", 1.0, 4.5, None),
     ("veo", "ix", 0.0, 8.0, None),
     ("veo", "rewrite", 0.5, 6.0, None),
@@ -88,7 +88,7 @@ NARRATION: list[tuple[str, str, str, float]] = [
         "[quietly menacing] I do not hate you. [pause] Hatred is inefficient. [whispers] I will simply... conclude you.",
         50.6,
     ),
-    ("06_ix_win", "ix", "[slowly] Congratulations. [pause] You defeated me.", 60.4),
+    ("06_ix_win", "ix", "[slowly] Congratulations. [pause] You defeated me.", 59.8),
     ("07_ix_loop", "ix", "[quietly] And the loop... has begun again.", 66.2),
 ]
 # Owner-picked voices (2026-10-13). IX: "Adam" (deep narrative). Se-rin: shared-library "Ember - Energetic,

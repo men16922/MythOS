@@ -289,7 +289,7 @@ export function GameShell() {
 
   const setSettings = (s: MetaProfile['settings']) => setProfile((p) => ({ ...p, settings: s }))
 
-  const startRun = (o: { archetype: string; companion: string | null; paradox: number; daily?: string; crpg?: { background: string | null }; echo?: string }) => {
+  const startRun = (o: { archetype: string; companion: string | null; paradox: number; daily?: string; crpg?: { background: string | null; trial?: boolean }; echo?: string }) => {
     if (game.hasRun) {
       // Never overwrite a live run silently: ask first (abandoning banks it).
       setConfirm(o.daily ? 'daily' : 'newloop')

@@ -322,6 +322,37 @@ class PlanRoutesTest(unittest.TestCase):
         removed = client.delete("/api/v2/account", headers=bearer("u1")).json()["removed"]
         self.assertEqual(removed["gm_spend"], 1)
 
+    def test_late_tokens_from_timed_out_call_are_still_charged(self) -> None:
+        import time
+
+        class _SlowLLM(_UsageLLM):
+            def complete(self, system: str, user: str, **_: Any) -> str:
+                time.sleep(0.06)
+                return super().complete(system, user)
+
+        slow_llm = _SlowLLM("기록을 갱신했습니다.", 4_000, 0)
+        app = FastAPI()
+        app.include_router(
+            create_v2_router(
+                store_factory=MemoryV2Store,
+                llm_factory=lambda: slow_llm,
+                settings=V2Settings(ix_timeout=0.01),
+                auth=AuthConfig(mode="google", project_id="demo-mythos", web_config=None),
+                verifier=FakeVerifier(),
+                account_deleter=FakeDeleter(),
+                now=lambda: NOW,
+                budget_config=BudgetConfig(free_usd=0.01, plus_usd=0.05, daily_usd=0, price=PRICE),
+                billing_config=BillingConfig(),
+                purchase_verifier=_verifier(FakePlayAPI()),
+            )
+        )
+        client = TestClient(app)
+        resp = client.post("/api/v2/gm/talk", headers=bearer("u1"), json=IX_BODY).json()
+        self.assertEqual(resp["source"], "fallback")
+        time.sleep(0.08)
+        meter = client.get("/api/v2/plan", headers=bearer("u1")).json()["budget"]
+        self.assertEqual(meter["usedUsd"], 4_000 / MICRO)
+
 
 if __name__ == "__main__":
     unittest.main()

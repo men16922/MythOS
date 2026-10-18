@@ -26,7 +26,14 @@ const STATS: StatKey[] = ['str', 'agi', 'int', 'cha', 'obs']
 export interface SetupScreenProps {
   profile: MetaProfile
   C: ContentRegistry
-  onStart: (o: { archetype: string; companion: string | null; paradox: number; daily?: string; crpg?: { background: string | null }; echo?: string }) => void
+  onStart: (o: {
+    archetype: string
+    companion: string | null
+    paradox: number
+    daily?: string
+    crpg?: { background: string | null; trial?: boolean }
+    echo?: string
+  }) => void
   onBack: () => void
   /** KST date key: set up today's daily-seed run instead of a normal loop. */
   daily?: string
@@ -367,8 +374,8 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
               ) : (
                 <button className="m2-bgs__teaser" onClick={() => setOffer(true)}>
                   {ko
-                    ? '출신을 고르고, 구역을 돌아다니며 사람들과 말하고, d20을 굴린다. Signal+에서 열린다.'
-                    : 'Pick a background, explore districts, talk to people, roll the d20. Opens with Signal+.'}
+                    ? '1막 구역 탐색과 d20 대화는 무료 체험으로 열려 있다. 출신 선택·2~3막 구역·야영 대화는 Signal+에서 열린다.'
+                    : 'Act 1 districts and d20 dialogue are open as a free taste. Backgrounds, Act 2–3 districts and camp nights unlock with Signal+.'}
                 </button>
               )}
             </section>
@@ -387,7 +394,13 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
             onStart(
               daily
                 ? { archetype: archId, companion: null, paradox: 0, daily }
-                : { archetype: archId, companion: companion ?? null, paradox, ...(crpg ? { crpg: { background: bgId } } : {}), ...(echoId ? { echo: echoId } : {}) },
+                : {
+                    archetype: archId,
+                    companion: companion ?? null,
+                    paradox,
+                    ...(crpg ? { crpg: { background: bgId } } : C.crpg ? { crpg: { background: null, trial: true } } : {}),
+                    ...(echoId ? { echo: echoId } : {}),
+                  },
             )
           }}
         >

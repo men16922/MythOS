@@ -35,6 +35,8 @@ interface UnitProps {
   intent: IntentInfo | null
   intentDim: boolean
   bobSeed: number
+  /** Unit is standing on a burning ground tile (and not flying). */
+  inFire?: boolean
   registerFigure: (uid: string, el: HTMLElement | null) => void
   onEnter: (p: Pos) => void
   onClick: (p: Pos) => void
@@ -74,7 +76,11 @@ export const UnitSprite = memo(function UnitSprite(p: UnitProps) {
     zIndex: 100 + u.pos.y * 10 + u.pos.x,
     transition: moveMs > 0 ? `transform ${moveMs}ms ${ease}` : 'none',
   }
-  const burning = (u.statuses.burn ?? 0) > 0 && u.hp > 0 && !fx?.dying
+  const alive = u.hp > 0 && !fx?.dying
+  const burnStacks = alive ? (u.statuses.burn ?? 0) : 0
+  const burning = burnStacks > 0 || (!!p.inFire && alive)
+  const shocked = alive && (u.statuses.shock ?? 0) > 0
+  const marked = alive && (u.statuses.mark ?? 0) > 0
   const box = spriteBox(u.sprite, tw)
   const figW = box.w
   const figH = box.h
@@ -97,6 +103,9 @@ export const UnitSprite = memo(function UnitSprite(p: UnitProps) {
     down ? 'is-down' : '',
     u.moved && u.side === 'party' ? 'is-moved' : '',
     burning ? 'is-burning' : '',
+    p.inFire && alive ? 'is-in-fire' : '',
+    shocked ? 'is-shocked' : '',
+    marked ? 'is-marked' : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -108,14 +117,16 @@ export const UnitSprite = memo(function UnitSprite(p: UnitProps) {
           <div className="m2c-u-shadow" style={{ width: tw * 0.7, height: tw * 0.2, left: -tw * 0.35, top: -tw * 0.1 }} />
           <div className="m2c-u-ring" style={{ width: tw * 0.78, height: tw * 0.36, left: -tw * 0.39, top: -tw * 0.18 }}>
             {u.side === 'enemy' && <i className={`m2c-u-facing to-${u.facing}`} />}
+            {marked && <i className="m2c-u-mark-reticle" />}
           </div>
-          {burning && <div className="m2c-u-burnglow" style={{ width: tw * 0.95, height: tw * 0.4, left: -tw * 0.475, top: -tw * 0.2 }} />}
+          {burning && <div className="m2c-u-burnglow" style={{ width: tw * 0.98, height: tw * 0.42, left: -tw * 0.49, top: -tw * 0.21 }} />}
           <div className="m2c-fig" ref={(el) => p.registerFigure(u.uid, el)} style={{ width: figW, height: figH, left: -figW / 2, top: -figH * box.feet }}>
-            {burning && <BurnFlames feet={box.feet} seed={p.bobSeed} tw={tw} w={figW} layer="back" />}
+            {burning && <BurnFlames feet={box.feet} seed={p.bobSeed} tw={tw} w={figW} stacks={Math.max(1, burnStacks)} layer="back" />}
             <div className="m2c-bob" style={{ animationDelay: `${-p.bobSeed * 3}s`, animationDuration: `${2.6 + p.bobSeed}s` }}>
               <img src={sprite(u.sprite, pose)} alt="" draggable={false} className={flip ? 'is-flip' : undefined} />
             </div>
-            {burning && <BurnFlames feet={box.feet} seed={p.bobSeed} tw={tw} w={figW} layer="front" />}
+            {burning && <BurnFlames feet={box.feet} seed={p.bobSeed} tw={tw} w={figW} stacks={Math.max(1, burnStacks)} layer="front" />}
+            {shocked && <ShockSparks feet={box.feet} seed={p.bobSeed} tw={tw} w={figW} />}
           </div>
         </div>
       )}
@@ -191,26 +202,67 @@ export const UnitSprite = memo(function UnitSprite(p: UnitProps) {
   )
 })
 
-/** Small flames licking up around a burning unit (inside the figure box, so they follow every lunge). Most sit
- *  behind the sprite so the unit stays readable for the turns the status lasts; one tiny tongue licks in front. */
-function BurnFlames({ feet, seed, tw, w, layer }: { feet: number; seed: number; tw: number; w: number; layer: 'back' | 'front' }) {
-  const spots = layer === 'back' ? [-0.22, 0.2, -0.02] : [0.08]
+/** Small flames licking up around a burning unit (inside the figure box, so they follow every lunge). Scales with burn stacks. */
+function BurnFlames({
+  feet,
+  seed,
+  tw,
+  w,
+  stacks,
+  layer,
+}: {
+  feet: number
+  seed: number
+  tw: number
+  w: number
+  stacks: number
+  layer: 'back' | 'front'
+}) {
+  const intense = stacks >= 2
+  const scale = 1 + Math.min(3, stacks - 1) * 0.14
+  const spots = layer === 'back' ? (intense ? [-0.24, 0.22, -0.04, 0.1] : [-0.22, 0.2, -0.02]) : intense ? [0.08, -0.1] : [0.08]
   return (
     <div className={`m2c-u-burn is-${layer}`} style={{ top: `${feet * 100}%` }}>
       {spots.map((dx, i) => {
-        const h = tw * (layer === 'back' ? 0.34 : 0.2) * (0.8 + hash(`${seed}:${layer}:${i}`) * 0.4)
+        const h = tw * (layer === 'back' ? 0.36 : 0.22) * scale * (0.8 + hash(`${seed}:${layer}:${i}`) * 0.4)
+        const isCore = intense && i === spots.length - 1
         return (
           <i
             key={i}
-            className="m2c-flame"
-            style={{ left: w / 2 + dx * tw, top: -tw * (layer === 'back' ? 0.06 : 0), width: h * 0.55, height: h, animationDelay: `${-(seed * 3 + i * 0.29)}s` }}
+            className={isCore ? 'm2c-flame is-core' : 'm2c-flame'}
+            style={{ left: w / 2 + dx * tw, top: -tw * (layer === 'back' ? 0.06 : 0), width: h * (isCore ? 0.48 : 0.56), height: h, animationDelay: `${-(seed * 3 + i * 0.29)}s` }}
           />
         )
       })}
       {layer === 'back' &&
-        [0, 1].map((i) => (
-          <i key={`e${i}`} className="m2c-fire-ember" style={{ left: w / 2 + (i - 0.5) * tw * 0.3, top: -tw * 0.3, animationDelay: `${-(seed * 2 + i * 0.8)}s` }} />
+        Array.from({ length: intense ? 3 : 2 }, (_, i) => (
+          <i key={`e${i}`} className="m2c-fire-ember" style={{ left: w / 2 + (i - 0.8) * tw * 0.26, top: -tw * 0.32, animationDelay: `${-(seed * 2 + i * 0.65)}s` }} />
         ))}
+    </div>
+  )
+}
+
+/** Crackling electric arcs jumping around a shocked unit. */
+function ShockSparks({ feet, seed, tw, w }: { feet: number; seed: number; tw: number; w: number }) {
+  return (
+    <div className="m2c-u-shock" style={{ top: `${feet * 100}%` }}>
+      {[0, 1, 2].map((i) => {
+        const dx = (i - 1) * 0.22
+        const dy = 0.22 + i * 0.22
+        return (
+          <i
+            key={i}
+            className="m2c-u-spark"
+            style={{
+              left: w / 2 + dx * tw,
+              top: -tw * dy,
+              width: tw * 0.26,
+              transform: `translate(-50%, -50%) rotate(${-35 + i * 52}deg)`,
+              animationDelay: `${-(seed * 2 + i * 0.37)}s`,
+            }}
+          />
+        )
+      })}
     </div>
   )
 }

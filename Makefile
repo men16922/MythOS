@@ -8,7 +8,7 @@ COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
 .PHONY: vertex-cap-deploy setup frontend-setup clean lint python-lint frontend-lint format typecheck python-typecheck frontend-build \
-	test test-v2 test-db test-e2e-v2 gm-eval trailer trailer-cut cinematic cinematic-assets playthrough playthrough-quick verify-preview check check-auto check-skills sync-skills check-doc-budget \
+	test test-v2 test-db test-e2e-v2 gm-eval trailer trailer-cut cinematic cinematic-assets cinematic-prompts playthrough playthrough-quick verify-preview check check-auto check-skills sync-skills check-doc-budget \
 	api api-stop api-cloud cloud-image cloud-run-local deploy deploy-preview \
 	android-web android-apk android-aab android-firebase android-emulator android-distribute android-icons \
 	firebase-web firebase-sha firebase-auth-domains push-schedule push-test \
@@ -378,13 +378,15 @@ trailer-cut:
 	$(VENV)/bin/python scripts/trailer/record_trailer.py --cut-only --keep-raw
 
 # Cinematic trailer (scripts/trailer/cinematic.py) → outputs/trailer/cinematic/:
-#   mythos2_cinematic_photo.mp4 (YouTube/SNS: photoreal Veo shots) and mythos2_cinematic_store.mp4 (Play Store: painted
-#   hook + expert-bot gameplay). `cinematic-assets` makes the billed pieces once (Codex stills, Vertex Veo, ElevenLabs);
-#   `cinematic` only re-cuts them.
+#   mythos2_cinematic_photo.mp4 (YouTube/SNS: photoreal shots) and mythos2_cinematic_store.mp4 (Play Store: painted
+#   hook + expert-bot gameplay). Vertex Veo API calls are disabled (Owner directive 2026-10-18); use `make cinematic-prompts`
+#   and `docs/test/veo_gemini_owner_guide.md` to generate clips manually in the Gemini web app.
+cinematic-prompts:
+	$(VENV)/bin/python scripts/trailer/gen_veo.py --print-prompts
+	$(VENV)/bin/python scripts/trailer/gen_veo.py --print-prompts --style photo
+
 cinematic-assets:
-	$(VENV)/bin/python scripts/trailer/gen_veo.py --shot all
 	$(VENV)/bin/python scripts/trailer/gen_stills.py --shot all --engine codex
-	$(VENV)/bin/python scripts/trailer/gen_veo.py --shot all --style photo
 	$(VENV)/bin/python scripts/trailer/record_trailer.py --out outputs/trailer/hq --scale 1.5 --record-only
 	$(VENV)/bin/python scripts/trailer/record_trailer.py --out outputs/trailer/hq --scale 1.5 --record-only --scenes store
 	$(VENV)/bin/python scripts/trailer/cinematic.py audio

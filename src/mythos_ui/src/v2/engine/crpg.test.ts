@@ -221,7 +221,16 @@ test('applyCombatMods: marked and intel', () => {
   const energy = c.energy
   applyCombatMods(c, ['marked', 'intel'])
   assert.equal(c.energy, energy + 1)
+  assert.deepEqual(c.mods, ['marked', 'intel'])
   assert.ok(c.units.filter((u) => u.side === 'enemy').every((u) => (u.statuses.mark ?? 0) >= 1))
+})
+
+test('a free-tier CRPG trial places the Act 1 district as a taste, but skips Act 2–3 districts and camp nights', () => {
+  const trial = newRun(profile, { archetype: 'ghost', paradox: 0, seed: 7, now: '2026-01-01T00:00:00.000Z', crpg: { background: null, trial: true } }, C)
+  assert.equal(trial.crpg?.trial, true)
+  assert.equal(Object.values(trial.map.nodes).filter((n) => n.kind === 'district').length, 1)
+  const restRun: RunState = { ...trial, screen: { kind: 'rest', done: false }, crpg: trial.crpg ? { ...trial.crpg, approval: { se_rin: 5 } } : undefined }
+  assert.equal(campScene(restRun, C), null)
 })
 
 test('a failed lie at the checkpoint queues a fight that ends the district visit', () => {
@@ -258,3 +267,4 @@ test('whole simulated runs with the layer on never get stuck', () => {
     assert.ok(res.floors > 0)
   }
 })
+

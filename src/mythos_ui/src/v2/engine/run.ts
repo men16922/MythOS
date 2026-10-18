@@ -414,8 +414,8 @@ export interface NewRunOptions {
    * Archive threads do not apply and Se-rin always starts with you (`companion` is ignored).
    */
   daily?: string
-  /** Signal+ CRPG layer (engine/crpg.ts) with this background (null = none). Ignored on a daily. */
-  crpg?: { background: string | null }
+  /** Signal+ CRPG layer (engine/crpg.ts) with this background (null = none). `trial: true` places only the Act 1 district. Ignored on a daily. */
+  crpg?: { background: string | null; trial?: boolean }
   /** Echo to inscribe (engine/legacy.ts echoOffers of this profile). Ignored on a daily or when not offered. */
   echo?: string
 }
@@ -474,7 +474,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     log: [],
     echoes: 0,
     uidCounter: 0,
-    tally: { kills: 0, elites: 0, bosses: 0, environmentKills: 0, damageTaken: 0, cardsPlayed: 0, floors: 0 },
+    tally: { kills: 0, elites: 0, bosses: 0, damageTaken: 0, cardsPlayed: 0, floors: 0, environmentKills: 0 },
     startedAt: opts.now ?? nowIso(),
   }
   if (daily) run.daily = daily
@@ -518,7 +518,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
 
   if (opts.crpg && !daily && C.crpg) {
     const bg = opts.crpg.background
-    run.crpg = newCrpgState(bg && C.crpg.backgrounds[bg] ? bg : null)
+    run.crpg = newCrpgState(bg && C.crpg.backgrounds[bg] ? bg : null, opts.crpg.trial)
   }
   // What the last loop left behind: an inscribed echo and the autonomy of the lore found so far (never on a daily).
   if (!daily) {

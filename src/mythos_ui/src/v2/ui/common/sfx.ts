@@ -249,7 +249,8 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.thump(150, 62, 0.04, 0.1, 0.45, 0, true)
       break
     case 'swing':
-      v.noise('bandpass', 900, 0.005, 0.12, 0.35, 4200)
+      v.noise('bandpass', 900, 0.004, 0.13, 0.58, 4200)
+      v.tone(260, 'sine', 0.008, 0.11, 0.16, 110)
       break
     case 'shoot':
       v.tone(1900, 'square', 0.001, 0.12, 0.13, 260)
@@ -267,10 +268,10 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.tone(1500, 'sine', 0.02, 0.38, 0.07, 500, 0.05)
       break
     case 'hit_light':
-      v.thump(200 * (1.1 - 0.1 * k), 70, 0.045, 0.1 + 0.04 * k, 0.6 * k, 0, true)
-      v.click(0.4 * k, 3200)
-      v.noise('bandpass', 1900, 0.001, 0.07, 0.5 * k)
-      v.sample('attack', 0.32 * k)
+      v.thump(230 * (1.1 - 0.1 * k), 88, 0.035, 0.09 + 0.03 * k, 0.65 * k, 0, true)
+      v.click(0.45 * k, 3400)
+      v.noise('bandpass', 2200, 0.001, 0.065, 0.55 * k)
+      v.sample('attack', 0.34 * k)
       break
     case 'hit_heavy':
       v.thump(170 * (1.1 - 0.1 * k), 44, 0.07, 0.22 + 0.11 * k, 0.95, 0, true)
@@ -292,12 +293,11 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       duckForImpact(4, 0.2)
       break
     case 'bump':
-      // Body into body: a knock with weight.
-      v.thump(190 * (1.1 - 0.1 * k), 48, 0.06, 0.14 + 0.06 * k, 0.95, 0, true)
-      v.click(0.5 * k, 2600)
-      v.tone(420, 'triangle', 0.001, 0.05, 0.28)
-      v.noise('lowpass', 1000, 0.001, 0.13, 0.55 * k, 260)
-      v.crunch(0.1 * k, 0.32 * k)
+      // Body into body: a hollow armored knock with low-mid resonance.
+      v.thump(155 * (1.1 - 0.1 * k), 44, 0.07, 0.16 + 0.06 * k, 0.92, 0, true)
+      v.tone(185, 'triangle', 0.002, 0.09, 0.34, 95)
+      v.tone(360, 'sine', 0.001, 0.055, 0.24, 180)
+      v.noise('lowpass', 720, 0.002, 0.14, 0.5 * k, 220)
       duckForImpact(2.5, 0.12)
       break
     case 'wall_slam':
@@ -315,22 +315,23 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       duckForImpact(4.5, 0.18)
       break
     case 'void':
-      v.thump(150, 28, 0.25, 0.5, 0.85, 0, true)
-      v.tone(900, 'sine', 0.005, 0.7, 0.3, 45)
-      v.noise('bandpass', 2200, 0.01, 0.6, 0.45, 120)
-      v.stutter(10, 0.035, 0.28)
-      v.sample('glitch', 0.62)
+      // Pit / chasm fall: deep descending gravity sweep + hollow sub drone.
+      v.thump(135, 24, 0.28, 0.58, 0.9, 0, true)
+      v.tone(540, 'sawtooth', 0.015, 0.68, 0.26, 36)
+      v.tone(1100, 'sine', 0.01, 0.62, 0.22, 52, 0.04)
+      v.noise('bandpass', 1400, 0.02, 0.65, 0.42, 95)
+      v.sample('drone', 0.48)
       duckForImpact(4, 0.3)
       break
     case 'explosion':
       // Boom: sub drop + crack + a low-passed noise body that closes down, crunch, a rumble tail and debris.
-      v.thump(150, 30, 0.1, 0.4 + 0.12 * k, 1, 0, true)
-      v.click(0.7, 1800)
-      v.noise('lowpass', 3600, 0.002, 0.35 + 0.2 * k, 0.65 + 0.2 * k, 150)
-      v.crunch(0.25 + 0.08 * k, 0.4 + 0.12 * k)
-      v.noise('bandpass', 260, 0.03, 0.7 + 0.25 * k, 0.5, 120, 0.04)
-      v.crackle(5 + Math.round(3 * k), 0.45, 0.2, 0.08)
-      v.sample('attack', 0.4)
+      v.thump(130, 26, 0.12, 0.44 + 0.12 * k, 1, 0, true)
+      v.click(0.65, 1400)
+      v.noise('lowpass', 3200, 0.003, 0.38 + 0.2 * k, 0.7 + 0.2 * k, 130)
+      v.crunch(0.28 + 0.08 * k, 0.44 + 0.12 * k)
+      v.noise('bandpass', 240, 0.03, 0.72 + 0.25 * k, 0.55, 110, 0.04)
+      v.crackle(6 + Math.round(3 * k), 0.48, 0.22, 0.08)
+      v.sample('overload', 0.38)
       duckForImpact(3.5 + 2 * k, 0.3)
       break
     case 'shockwave':
@@ -463,8 +464,9 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.noise('lowpass', 500, 0.001, 0.16, 0.45)
       break
     case 'alarm':
-      v.tone(620, 'square', 0.01, 0.22, 0.07, 900)
-      v.tone(620, 'square', 0.01, 0.22, 0.07, 900, 0.26)
+      v.tone(620, 'square', 0.01, 0.22, 0.16, 900)
+      v.tone(620, 'square', 0.01, 0.22, 0.16, 900, 0.26)
+      v.sample('alarm', 0.38)
       break
     case 'type_tick':
       v.tone(1700 + Math.random() * 500, 'square', 0.001, 0.008, 0.018)

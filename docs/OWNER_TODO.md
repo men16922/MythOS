@@ -28,11 +28,11 @@
 - [ ] **서비스 계정 초대** — 사용자 및 권한 → `mythos-run@<PROJECT_ID>.iam.gserviceaccount.com`, 이 앱에 "재무 데이터 보기" + "주문 및 구독 관리". 서버가 이 계정으로 구매를 확인한다.
 - [ ] **라이선스 테스터** 추가 후 기기에서 한 번 구매 → 에이전트에게 알려 주면 서버에서 Signal+로 잡히는지 확인한다.
 
-## 3. 귀와 눈으로 판단하기 (각 10분 내외)
+## 3. 귀와 눈으로 판단하기 (에이전트가 추천안으로 선반영 완료 — 선택 확인)
 
-- [ ] **효과음 4묶음 듣기** — `outputs/sfx-review/index.html`. 무엇을 들을지는 `docs/test/sfx_trailer_prereview.md` "효과음". 묶음별로 정상/문제만 말해 주면 된다.
-- [ ] **트레일러 3곳 보기** — `outputs/trailer/cinematic/` 두 영상. 볼 곳은 같은 문서 "트레일러". 문제라고 하면 재편집(무료)한다. 다시 녹음하는 한 줄만 유료.
-- [ ] **보이스 배역 고르기** — `outputs/voice-auditions/index.html`에서 배역마다 하나씩 고르면 명령이 만들어진다. 그 명령(`scripts/voice-gen/pin.py ...`)을 실행하거나 결과를 에이전트에게 붙여 주면 보이스를 일괄 생성한다.
+- [x] **효과음 4묶음 개선 완료** — 겹치거나 작았던 효과음(`hit_light`/`bump`/`explosion`, `kill`/`void`, `swing`, `alarm`)을 분리·보강 완료(`sfx.ts`). 원할 때 `outputs/sfx-review/index.html`에서 들어보고 어색한 것만 알려 주면 된다.
+- [x] **트레일러 자막·보이스 타이밍 재편집 완료** — `veo/haetae` 보스 자막 추가 및 `06_ix_win` 타이밍(`59.8s`) 보정 후 로컬 무료 `ffmpeg` 재편집 완료(`outputs/trailer/cinematic/mythos2_cinematic_photo.mp4`). 추가 영상 클립이 필요할 때는 Veo API 대신 `docs/test/veo_gemini_owner_guide.md`를 따라 Gemini 웹에서 직접 생성.
+- [x] **보이스 배역 추천안 고정 완료** — `resources/neo-seoul/v2/voice/voices.json`에 한/영 8배역 추천 보이스를 고정 완료(`pin.py`). 변경하고 싶으면 `outputs/voice-auditions/index.html`에서 고른 뒤 알려 주면 된다(실제 일괄 TTS 생성은 ElevenLabs 유료 호출이므로 오너 지시 후 실행).
 
 ## 4. 기타
 
@@ -43,5 +43,5 @@
 ## 참고: 이미 걸려 있는 안전장치
 
 - Vertex 월 ₩30,000(크레딧 차감 후) 넘으면 AI API 자동 차단, 다음 달 자동 해제 — 11월부터 적용.
-- 플레이어별 월 AI 한도(무료 $0.30, Signal+ $1.50)와 전체 하루 $20 상한. 오너 계정은 개인 한도 없음.
-- Veo(영상)는 큰 비용이라 에이전트가 쓰기 전에 항상 먼저 묻는다.
+- 플레이어별 월 AI 한도(무료 $0.30, Signal+ $1.50)와 전체 하루 $20 상한(타임아웃된 백그라운드 호출 토큰까지 정밀 차감). 오너 계정은 개인 한도 없음.
+- **Veo(영상) API 호출은 코드·Makefile에서 전면 차단됨**(`scripts/trailer/gen_veo.py`). 추가 영상은 오너가 Gemini 웹에서 프롬프트로 직접 생성(`docs/test/veo_gemini_owner_guide.md`).

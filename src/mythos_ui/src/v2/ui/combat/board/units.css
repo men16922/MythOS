@@ -533,8 +533,58 @@
 .m2c-u-burnglow {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 120, 30, 0.6), rgba(255, 80, 10, 0) 100%);
+  background: radial-gradient(closest-side, rgba(255, 130, 35, 0.68), rgba(255, 80, 10, 0) 100%);
   animation: m2c-burnglow 1.1s ease-in-out infinite;
+}
+.m2c-unit.is-in-fire .m2c-u-ring {
+  border-color: #ff9e38;
+  box-shadow:
+    0 0 16px rgba(255, 110, 24, 0.85),
+    inset 0 0 12px rgba(255, 150, 45, 0.55);
+}
+.m2c-u-mark-reticle {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(190, 255, 90, 0.85);
+  box-shadow: 0 0 8px rgba(190, 255, 90, 0.45);
+  animation: m2c-spin 8s linear infinite;
+}
+.m2c-u-shock {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.m2c-u-spark {
+  position: absolute;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(95, 211, 255, 0), #ffffff 48%, rgba(95, 211, 255, 0));
+  box-shadow:
+    0 0 5px #5fd3ff,
+    0 0 10px rgba(95, 211, 255, 0.85);
+  animation: m2c-uspark 0.95s steps(1) infinite;
+}
+@keyframes m2c-uspark {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  22% {
+    opacity: 0.15;
+  }
+  32% {
+    opacity: 0.9;
+  }
+  44% {
+    opacity: 0;
+  }
 }
 @keyframes m2c-burnglow {
   50% {
@@ -543,7 +593,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .m2c-u-burnglow {
+  .m2c-u-burnglow,
+  .m2c-u-mark-reticle,
+  .m2c-u-spark {
     animation: none;
   }
 }

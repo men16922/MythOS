@@ -126,6 +126,33 @@ export function CombatSandbox() {
         <button
           type="button"
           onClick={() => {
+            if (!current) return
+            const tiles = current.tiles.map((row, y) =>
+              row.map((t, x) => {
+                if (x >= 2 && x <= 4 && y >= 1 && y <= 2 && t.kind === 'floor') {
+                  return { ...t, fire: 3 }
+                }
+                return t
+              }),
+            )
+            const units = current.units.map((u, idx) =>
+              u.side === 'enemy'
+                ? {
+                    ...u,
+                    pos: idx % 2 === 0 ? { x: 3, y: 2 } : u.pos,
+                    statuses: { ...u.statuses, burn: 3, shock: idx % 2 === 0 ? 2 : 0, mark: idx % 2 === 1 ? 1 : 0 },
+                  }
+                : u,
+            )
+            setCombat({ ...current, tiles, units })
+            setRemount((n) => n + 1)
+          }}
+        >
+          fx:fire
+        </button>
+        <button
+          type="button"
+          onClick={() => {
             try {
               window.localStorage.removeItem(TUTORIAL_KEY)
             } catch {

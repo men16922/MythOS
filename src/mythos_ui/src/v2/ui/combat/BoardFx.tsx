@@ -81,22 +81,23 @@ function Particles({
 
 // ---------------------------------------------------------------- element particles (absolute in the board box)
 
-/** Flame tongues licking up from a point (teardrop gradients stretching up and dying). */
+/** Flame tongues licking up from a point (teardrop gradients stretching up and dying, with white-hot inner cores). */
 function Tongues({ seed, n, x, y, w, h, ms, delay = 0 }: { seed: number; n: number; x: number; y: number; w: number; h: number; ms: number; delay?: number }) {
   const out: ReactNode[] = []
   for (let i = 0; i < n; i++) {
     const ox = (rnd(seed, i + 3) - 0.5) * w
     const oy = (rnd(seed, i + 11) - 0.5) * w * 0.32
-    const hh = h * (0.6 + rnd(seed, i + 17) * 0.6)
+    const hh = h * (0.65 + rnd(seed, i + 17) * 0.65)
+    const isCore = i % 2 === 1
     out.push(
       <i
         key={i}
-        className="m2c-ft"
+        className={isCore ? 'm2c-ft is-core' : 'm2c-ft'}
         style={{
           left: x + ox,
           top: y + oy,
-          width: hh * 0.42,
-          height: hh,
+          width: hh * (isCore ? 0.38 : 0.46),
+          height: hh * (isCore ? 0.78 : 1),
           animationDuration: `${ms * (0.65 + rnd(seed, i + 23) * 0.35)}ms`,
           animationDelay: `${delay + rnd(seed, i + 29) * ms * 0.18}ms`,
         }}
@@ -232,28 +233,33 @@ function Ground({ g, fx }: { g: BoardGeom; fx: FxItem[] }) {
           return f.tiles.map((p, i) => {
             const c = tileCenter(g, p)
             const s = tileScale(g, p)
-            const rx = tw * 0.42 * s
-            const ry = tw * 0.28 * s
+            const rx = tw * 0.44 * s
+            const ry = tw * 0.3 * s
             const blob: Pt[] = []
             for (let k = 0; k < 11; k++) {
               const a = (k / 11) * Math.PI * 2
-              const r = 0.7 + rnd(f.id + i, k + 151) * 0.35
+              const r = 0.72 + rnd(f.id + i, k + 151) * 0.34
               blob.push({ x: c.x + Math.cos(a) * rx * r, y: c.y + Math.sin(a) * ry * r })
             }
-            const lines = f.element === 'blast' ? cracks(f.id + i * 13, c, rx * 0.9, 4, 0.62) : []
+            const lines =
+              f.element === 'blast'
+                ? cracks(f.id + i * 13, c, rx * 0.9, 4, 0.62)
+                : f.element === 'fire'
+                  ? cracks(f.id + i * 17, c, rx * 0.85, 5, 0.62)
+                  : []
             return (
               <g key={`${f.id}:${posKey(p)}`} className={`m2c-scorch is-${f.element}`} style={{ animationDuration: `${f.ms}ms` }}>
-                <polygon points={pts(blob)} fill="url(#m2c-scorch-grad)" />
+                <polygon points={pts(blob)} fill="url(#m2c-scorch-grad)" className={f.element === 'fire' ? 'm2c-scorch-rim' : undefined} />
                 {lines.map((l, j) => (
-                  <polyline key={j} points={pts(l)} className="m2c-scorch-crack" />
+                  <polyline key={j} points={pts(l)} className={f.element === 'fire' ? 'm2c-scorch-crack is-fire' : 'm2c-scorch-crack'} />
                 ))}
                 {f.element === 'fire' &&
-                  [0, 1, 2, 3].map((j) => (
+                  [0, 1, 2, 3, 4, 5].map((j) => (
                     <circle
                       key={`e${j}`}
-                      cx={c.x + (rnd(f.id + i, j + 161) - 0.5) * rx * 1.1}
-                      cy={c.y + (rnd(f.id + i, j + 163) - 0.5) * ry * 1.1}
-                      r={1.4 + rnd(f.id + i, j + 167) * 1.8}
+                      cx={c.x + (rnd(f.id + i, j + 161) - 0.5) * rx * 1.15}
+                      cy={c.y + (rnd(f.id + i, j + 163) - 0.5) * ry * 1.15}
+                      r={1.5 + rnd(f.id + i, j + 167) * 2.0}
                       className="m2c-scorch-ember"
                       style={{ animationDelay: `${-rnd(f.id + i, j + 171) * 900}ms` }}
                     />
@@ -303,16 +309,45 @@ function AreaBurst({ g, f }: { g: BoardGeom; f: Extract<FxItem, { kind: 'area' }
             style={{
               left: c.x,
               top: c.y - tw * 0.05 * s,
-              width: tw * 0.95 * s,
-              height: tw * 0.62 * s,
-              background: `radial-gradient(closest-side, ${core}cc, ${body}77 45%, transparent)`,
-              animationDuration: `${f.ms * 0.28}ms`,
+              width: tw * 1.05 * s,
+              height: tw * 0.68 * s,
+              background: `radial-gradient(closest-side, ${core}ee, ${body}99 48%, transparent)`,
+              animationDuration: `${f.ms * 0.34}ms`,
               animationDelay: `${delay}ms`,
             }}
           />,
         )
-        nodes.push(<Tongues key={`t${k}`} seed={seed} n={3} x={c.x} y={c.y + tw * 0.08 * s} w={tw * 0.62 * s} h={tw * 0.62 * s} ms={f.ms * 0.85} delay={delay} />)
-        nodes.push(<Rising key={`e${k}`} seed={seed} n={4} x={c.x} y={c.y} w={tw * 0.6 * s} rise={tw * 0.9 * s} ms={f.ms} delay={delay} kind="ember" />)
+        nodes.push(
+          <i
+            key={`fr${k}`}
+            className="m2c-firering"
+            style={{
+              left: c.x,
+              top: c.y,
+              width: tw * 0.96 * s,
+              height: tw * 0.58 * s,
+              animationDuration: `${f.ms * 0.52}ms`,
+              animationDelay: `${delay}ms`,
+            }}
+          />,
+        )
+        nodes.push(
+          <i
+            key={`fp${k}`}
+            className="m2c-firepillar"
+            style={{
+              left: c.x,
+              top: c.y + tw * 0.06 * s,
+              width: tw * 0.48 * s,
+              height: tw * 1.15 * s,
+              animationDuration: `${f.ms * 0.58}ms`,
+              animationDelay: `${delay}ms`,
+            }}
+          />,
+        )
+        nodes.push(<Tongues key={`t${k}`} seed={seed} n={5} x={c.x} y={c.y + tw * 0.08 * s} w={tw * 0.68 * s} h={tw * 0.76 * s} ms={f.ms * 0.88} delay={delay} />)
+        nodes.push(<Rising key={`e${k}`} seed={seed} n={6} x={c.x} y={c.y} w={tw * 0.65 * s} rise={tw * 1.05 * s} ms={f.ms} delay={delay} kind="ember" />)
+        nodes.push(<Rising key={`sm${k}`} seed={seed + 19} n={2} x={c.x} y={c.y - tw * 0.1 * s} w={tw * 0.48 * s} rise={tw * 0.65 * s} ms={f.ms * 1.1} delay={delay + 70} kind="smoke" />)
         break
       case 'shock':
         nodes.push(<Lightning key={`l${k}`} seed={seed} x={c.x + (rnd(seed, 1) - 0.5) * tw * 0.2 * s} y={c.y} h={tw * 1.25 * s} ms={f.ms * 0.55} delay={delay} />)
@@ -660,7 +695,7 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
                 </div>
               )
             case 'flame':
-              // Burn tick on a unit: the body goes up in a short burst of fire.
+              // Burn tick on a unit: the body goes up in a searing column of fire and thermal shock ring.
               return (
                 <div key={f.id} className="m2c-fxgroup is-fire">
                   <i
@@ -668,14 +703,34 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
                     style={{
                       left: p.x,
                       top: chest,
-                      width: tw * 0.9 * s,
-                      height: tw * 1.1 * s,
-                      background: 'radial-gradient(closest-side, #fff1b0, #ff6a14aa 45%, transparent)',
-                      animationDuration: `${f.ms * 0.45}ms`,
+                      width: tw * 1.05 * s,
+                      height: tw * 1.2 * s,
+                      background: 'radial-gradient(closest-side, #fff8d2, #ff6a14bb 48%, transparent)',
+                      animationDuration: `${f.ms * 0.48}ms`,
                     }}
                   />
-                  <Tongues seed={f.id} n={6} x={p.x} y={p.y - tw * 0.05 * s} w={tw * 0.55 * s} h={tw * 0.75 * s} ms={f.ms} />
-                  <Rising seed={f.id} n={6} x={p.x} y={chest} w={tw * 0.5 * s} rise={tw * 0.8 * s} ms={f.ms * 1.2} kind="ember" />
+                  <i
+                    className="m2c-firering"
+                    style={{
+                      left: p.x,
+                      top: p.y,
+                      width: tw * 0.92 * s,
+                      height: tw * 0.54 * s,
+                      animationDuration: `${f.ms * 0.55}ms`,
+                    }}
+                  />
+                  <i
+                    className="m2c-firepillar"
+                    style={{
+                      left: p.x,
+                      top: p.y + tw * 0.04 * s,
+                      width: tw * 0.44 * s,
+                      height: tw * 1.05 * s,
+                      animationDuration: `${f.ms * 0.6}ms`,
+                    }}
+                  />
+                  <Tongues seed={f.id} n={7} x={p.x} y={p.y - tw * 0.05 * s} w={tw * 0.6 * s} h={tw * 0.82 * s} ms={f.ms} />
+                  <Rising seed={f.id} n={7} x={p.x} y={chest} w={tw * 0.55 * s} rise={tw * 0.95 * s} ms={f.ms * 1.2} kind="ember" />
                 </div>
               )
             case 'zap':
@@ -714,14 +769,24 @@ export const BoardFx = memo(function BoardFx({ g, fx }: { g: BoardGeom; fx: FxIt
                     style={{
                       left: p.x,
                       top: p.y - tw * 0.1 * s,
-                      width: tw * 1.1 * s,
-                      height: tw * 0.8 * s,
-                      background: 'radial-gradient(closest-side, #fff1b0, #ff6a14aa 45%, transparent)',
-                      animationDuration: `${f.ms * 0.4}ms`,
+                      width: tw * 1.15 * s,
+                      height: tw * 0.85 * s,
+                      background: 'radial-gradient(closest-side, #fff8d2, #ff6a14bb 48%, transparent)',
+                      animationDuration: `${f.ms * 0.45}ms`,
                     }}
                   />
-                  <Tongues seed={f.id} n={4} x={p.x} y={p.y + tw * 0.08 * s} w={tw * 0.6 * s} h={tw * 0.7 * s} ms={f.ms} />
-                  <Rising seed={f.id} n={5} x={p.x} y={p.y} w={tw * 0.6 * s} rise={tw * 0.9 * s} ms={f.ms * 1.1} kind="ember" />
+                  <i
+                    className="m2c-firering"
+                    style={{
+                      left: p.x,
+                      top: p.y,
+                      width: tw * 0.98 * s,
+                      height: tw * 0.58 * s,
+                      animationDuration: `${f.ms * 0.55}ms`,
+                    }}
+                  />
+                  <Tongues seed={f.id} n={5} x={p.x} y={p.y + tw * 0.08 * s} w={tw * 0.64 * s} h={tw * 0.78 * s} ms={f.ms} />
+                  <Rising seed={f.id} n={6} x={p.x} y={p.y} w={tw * 0.64 * s} rise={tw * 0.98 * s} ms={f.ms * 1.1} kind="ember" />
                 </div>
               ) : (
                 <div key={f.id} className="m2c-fxgroup">

@@ -411,6 +411,8 @@ export interface CombatState {
   /** Per-combat implant trigger bookkeeping. */
   triggered: Record<string, number>
   stats: { enemiesKilled: number; environmentKills: number; damageDealt: number; damageTaken: number; cardsPlayed: number }
+  /** Active CRPG combat twists (conversation mods or boss quest payoffs) applied at fight start. */
+  mods?: CombatModId[]
 }
 
 export interface PlayTarget {
@@ -852,6 +854,8 @@ export interface CrpgRunState {
   nextCombat: CombatModId[]
   /** Quest payoffs already spent on a boss fight. */
   payoffsUsed: string[]
+  /** Free-tier Act 1 taste: places the Act 1 district only; Act 2–3 districts and camp nights require Signal+. */
+  trial?: boolean
 }
 
 export interface DistrictVisit {

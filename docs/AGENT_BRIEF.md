@@ -4,7 +4,7 @@ Last updated: 2026-10-18
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner goal (2026-10-18): commercial-grade fun/polish + distinctive AI features, contest-ready; paid Play release and Signal+ are ON HOLD (`docs/DECISIONS.md`) — do not push business registration or store steps.** Done today: named RNG streams (`engine/streams.ts` — dailies are one run for everyone, shuffle ≠ enemy AI, order-free reshuffle, legacy saves untouched; never rename a stream). Next in `docs/NEXT_PLAN.md` P0: replay-verified daily board → fun/experience audit fixes → contest kit. Production is still rev `00113-w55` (`3f2bf81`); the streams change is committed, not deployed. **Never call Vertex Veo API; test muted (`?mute=1`), one browser tab at most.**
+> ▶ NEXT SESSION: **Owner goal (2026-10-18): commercial-grade fun/polish + distinctive AI features, contest-ready; paid Play release and Signal+ are ON HOLD (`docs/DECISIONS.md`) — do not push business registration or store steps.** Done today: named RNG streams (`engine/streams.ts` — dailies are one run for everyone, shuffle ≠ enemy AI, order-free reshuffle, legacy saves untouched; never rename a stream). Also done: UX audit pass 1 (GM fallback lines, IX overlay, phone top bar, 18 NPC portraits, cache art — see `PROGRESS_LOG.md`). Next in `docs/NEXT_PLAN.md` P0: audit pass 2 → contest kit → replay-verified daily board; owner call pending on judge-visible AI. Production is still rev `00113-w55` (`3f2bf81`); the streams change is committed, not deployed. **Never call Vertex Veo API; test muted (`?mute=1`), one browser tab at most.**
 
 ## Snapshot
 

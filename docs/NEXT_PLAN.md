@@ -9,8 +9,9 @@ Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (pau
 Paid Play release and Signal+ are on hold (`DECISIONS.md` 2026-10-18). Goal: fun and play experience at or above commercial roguelites, plus distinctive AI features, demo-ready for contests.
 
 - `[x]` **Named RNG streams** (`engine/streams.ts`, 2026-10-18) — dailies are one run for everyone (maps, fights, rewards, shops per node), shuffle ≠ enemy AI, order-free reshuffle; legacy saves unchanged.
-- `[ ]` **Replay-verified daily board** — record the run's actions (choices, card plays, typed Improvise outcomes) and re-simulate top daily entries server-side (Node) before they rank; closes the "client-trusted results" risk. Needs the streams above.
-- `[ ]` **Fun / experience audit → fixes** — play full runs in the real UI (muted, one tab), list friction by severity, fix in priority order; record findings here.
+- `[ ]` **Replay-verified daily board** (moved below the audit: integrity, not player-facing) — record the run's actions (choices, card plays, typed Improvise outcomes) and re-simulate top daily entries server-side (Node) before they rank; closes the "client-trusted results" risk. Needs the streams above.
+- `[~]` **Fun / experience audit → fixes** — pass 1 done 2026-10-18 (GM fallback lines, IX overlay, coach timing, implant overflow, phone top bar + directive fold, NPC portraits, cache art; `PROGRESS_LOG.md`). Next pass: combat feel at phone width, English text pass, shop/rest art parity.
+- `[ ]` `[owner]` **Judge-visible AI** — guests get no model calls (tier decision), so a contest judge who does not sign in never sees the AI GM / NPC talk / Improvise lines. Decide: a demo code with a tiny allowance, or a recorded walkthrough.
 - `[ ]` **Contest kit** — English write-up, 60–90 s demo video from the existing trailer pipeline, judge-accessible web demo URL; pick the next deadline (§5 of the strategy doc).
 
 ## Priority 1 — ship Mythos 2.0 (on hold: paid release)

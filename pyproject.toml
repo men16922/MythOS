@@ -38,6 +38,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 mythos_api = ["static/*", "static/assets/*", "legal/*"]
+mythos_v2 = ["replay_verify.mjs"]
 
 [tool.ruff]
 line-length = 100

@@ -1,7 +1,7 @@
 // Mythos 2.0 — "오늘의 시드" leaderboard (modal): one date, archetype tabs, the top 20 with my row highlighted
 // (and my place when it is further down), loading / offline / empty states. Opened from the title's daily item and
 // from the end screen of a daily run. Signed out on a sign-in server it is read-only with a nudge to sign in.
-import { Pencil, RefreshCw, Trophy } from 'lucide-react'
+import { Pencil, RefreshCw, ShieldCheck, Trophy } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { dateLabel, shiftDateKey } from '../../engine/daily.ts'
 import type { ContentRegistry, Lang, MetaProfile } from '../../engine/types.ts'
@@ -41,6 +41,11 @@ function Row({ row, lang }: { row: BoardRow; lang: Lang }) {
       <span className="m2-board__name">
         {row.name}
         {row.me && <em className="m2-board__me">{ko ? '나' : 'You'}</em>}
+        {row.verified && (
+          <span className="m2-board__verified" title={ko ? '서버가 이 기록을 직접 재생해 확인했다' : 'The server replayed this run and confirmed it'}>
+            <ShieldCheck size={12} aria-label={ko ? '검증됨' : 'Verified'} />
+          </span>
+        )}
       </span>
       <span className="m2-board__res">{tr(resultLabel(row.result), lang)}</span>
       <span className="m2-board__echo m2-mono">◈ {row.result.echoes}</span>

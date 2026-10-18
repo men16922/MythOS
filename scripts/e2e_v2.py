@@ -16,6 +16,7 @@ import socket
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -23,6 +24,7 @@ import uvicorn
 from playwright.sync_api import Page, sync_playwright
 
 from mythos_api.app import create_app
+from mythos_v2 import replay
 
 
 def free_port() -> int:
@@ -121,6 +123,15 @@ def online_flow(page: Page, errors: list[str]) -> None:
             f"HUD mutator chip {chip.inner_text()!r} does not match the setup card {mutator_name!r}"
         )
     print("daily run → HUD mutator chip matches the card")
+    daily_puts: list[Any] = []
+    page.on(
+        "response",
+        lambda r: (
+            daily_puts.append(r)
+            if r.request.method == "PUT" and "/api/v2/daily/" in r.url
+            else None
+        ),
+    )
     page.locator("button[title^='메뉴']").first.click()
     page.get_by_role("button", name=re.compile("루프 포기")).click()
     page.get_by_role("button", name=re.compile(r"^\s*포기한다\s*$")).click()
@@ -133,9 +144,21 @@ def online_flow(page: Page, errors: list[str]) -> None:
     page.wait_for_timeout(2600)  # let the tally finish counting
     shot(page, "daily_end_rank")
     print(f"daily run end → {text.strip()!r}")
+    # The submit carries the run's recorded actions; with a verifier (node) the server replays them.
+    sent = daily_puts[0].request.post_data_json if daily_puts else {}
+    if not isinstance(sent, dict) or not isinstance(sent.get("replay"), dict):
+        errors.append("daily submit carried no replay log")
+    elif replay.available():
+        verdict = daily_puts[0].json().get("verified")
+        if verdict is not True:
+            errors.append(f"server replay did not verify the daily: {verdict!r}")
+        else:
+            print(f"daily submit → replay of {len(sent['replay'].get('steps', []))} steps verified")
 
     page.locator(".m2-ending__daily .m2-btn").click()
     page.wait_for_selector(".m2-board__row.is-me", timeout=10000)
+    if replay.available() and page.locator(".m2-board__row.is-me .m2-board__verified").count() == 0:
+        errors.append("my verified daily row shows no verified badge")
     shot(page, "board_after_daily")
     page.get_by_role("button", name=re.compile(r"^\s*(닫기|Close)\s*$")).last.click()
     print("end screen → leaderboard shows my row")

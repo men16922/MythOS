@@ -34,7 +34,7 @@ Authority plan: `docs/NEXT_PLAN.md` · strategy & market analysis: `docs/plans/2
 
 - **Signal+ is dormant and unproven end to end** (paid release on hold 2026-10-18): purchase verification is tested against a fake Play API only; the product, the merchant profile and the service account's Play Console access do not exist yet. Refunds land at the stored expiry (no RTDN). Budget defaults rest on the unverified 3.8 price.
 
-- **Client-trusted results**: saves are JSON blobs and leaderboard results are client-reported (plausibility checks only) — fine for a single-player daily board, not for prizes. Runs are now replayable per stream (`engine/streams.ts`); server-side replay of top daily entries is the open fix.
+- **Daily results**: replay-verified server-side since 2026-10-18 (shield badge; ranking unchanged — an unverified row can still rank). Saves stay client JSON blobs. Not deployed yet.
 - **Balance noise**: mixed-bot win rate swings ±6 % by seed block — A/B on identical blocks (`docs/LESSONS.md`).
 - **GM quality**: local `gemma4:8b-64k` lines are serviceable; Vertex `gemini-3.8-flash` is sharper (3.8's introductory price reportedly doubles in Jan 2027). All lines are cleaned and have authored fallbacks.
 - **Generated assets** were spot-checked, not hand-curated; regenerate single files with `scripts/v2_assets/` (call-budget ledger).

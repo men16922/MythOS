@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-18 — Daily results are replay-verified server-side; verification is a badge, not a ranking rule
+
+- **Context**: daily results were client-reported (plausibility checks only). Named RNG streams made a run reproducible from its seed and actions.
+- **Decision**: the client logs each committed action of a daily run (no extra state in the save) and submits it; the server replays it with the same engine bundled for Node (`replay_verify.mjs`, built with the SPA) and stores `verified` true/false/null. The leaderboard shows a shield on verified rows but ranks as before. The Docker image gains Debian's `nodejs`.
+- **Trade-off**: an honest run can be unverified (played across devices, reload lost the log, verifier busy); ranking only verified rows would hide those, so it stays an owner call for when prizes are involved. The verifier must be rebuilt whenever engine/content change (`make frontend-build` does both).
+
 ## 2026-10-18 — Named RNG streams: a daily is one run for everyone; stream names are frozen
 
 - **Context**: one shared `run.rng` fed every roll, so on the same daily seed a player who merely opened a shop got a different Act 2/3 map and different fights (reproduced: same encounter, different opening hand). It also made balance A/B noisy (changing one card re-rolled every later map) and blocked any replay-based leaderboard check. The design follows the clean-room spec in the owner's StS2 RNG study (`~/Desktop/AI/sts2-rea-lab/REPORT.md`, `impl/INTEGRATION.md`; its `work/` decompile is MegaCrit's and is never copied here).

@@ -52,6 +52,7 @@ import { TopBar } from './TopBar.tsx'
 import { TreasureScreen } from './TreasureScreen.tsx'
 import type { ScreenProps } from './types.ts'
 import { ShellMenu } from '../common/shellMenu.ts'
+import { stepOf, tag } from '../replay/record.ts'
 import { useGame } from '../store.ts'
 import './shell.css'
 import './phone.css'
@@ -450,7 +451,10 @@ export function GameShell() {
               settings={profile.settings}
               onCombatChange={(c) => {
                 if (c.phase !== 'player') setIxFinal(c)
-                setRun(rx.updateCombat(run, c, C))
+                const next = rx.updateCombat(run, c, C)
+                const step = stepOf(c)
+                if (step) tag(next, step) // daily replay: the combat action that made this fight state
+                setRun(next)
               }}
               onOpenDeck={() => setDeckOpen(true)}
             />

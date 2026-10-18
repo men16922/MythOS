@@ -24,6 +24,8 @@ export interface DailyEntry {
   result: DailyResult
   /** This player's own row. */
   me: boolean
+  /** The server replayed this best from its recorded actions and it matched. */
+  verified?: boolean
 }
 
 export interface DailyBoardData {
@@ -47,6 +49,8 @@ export interface PendingSubmit {
   date: string
   name: string
   result: DailyResult
+  /** The run's recorded actions (ui/replay/record.ts) so the server can replay and verify the result. */
+  replay?: unknown
 }
 
 // ---------------------------------------------------------------- validation (server replies are untrusted)
@@ -102,7 +106,7 @@ export function parseBoard(raw: unknown): DailyBoardData | null {
     const result = parseDailyResult(e.result)
     const rank = int(e.rank, 1, 1_000_000)
     if (!result || rank === null) continue
-    entries.push({ rank, name: typeof e.name === 'string' ? e.name : '', result, me: e.me === true })
+    entries.push({ rank, name: typeof e.name === 'string' ? e.name : '', result, me: e.me === true, verified: e.verified === true })
   }
   let me: DailyBoardData['me'] = null
   if (isRecord(raw.me)) {
@@ -122,8 +126,9 @@ const sameSlot = (a: PendingSubmit, b: PendingSubmit): boolean => a.date === b.d
 export function queueAdd(queue: readonly PendingSubmit[], item: PendingSubmit): PendingSubmit[] {
   const prev = queue.find((q) => sameSlot(q, item))
   const rest = queue.filter((q) => !sameSlot(q, item))
-  const result = prev && !isBetterDaily(item.result, prev.result) ? prev.result : item.result
-  return [...rest, { date: item.date, name: item.name, result }]
+  // The replay log travels with the result it proves.
+  const kept = prev && !isBetterDaily(item.result, prev.result) ? prev : item
+  return [...rest, { date: item.date, name: item.name, result: kept.result, ...(kept.replay ? { replay: kept.replay } : {}) }]
 }
 
 /** Drop entries the server would refuse: dates outside [today − 1, today] (KST) or malformed. */
@@ -194,7 +199,7 @@ function parseSubmitReply(body: unknown): SubmitOutcome | null {
 
 async function put(item: PendingSubmit): Promise<SubmitOutcome> {
   const res = await apiSend('PUT', `/daily/${item.date}`, {
-    body: JSON.stringify({ name: cleanName(item.name), result: clampDailyResult(item.result) }),
+    body: JSON.stringify({ name: cleanName(item.name), result: clampDailyResult(item.result), ...(item.replay ? { replay: item.replay } : {}) }),
     timeoutMs: TIMEOUT_MS,
   })
   if (res.kind === 'skipped') return { kind: 'signed-out' }
@@ -233,7 +238,7 @@ export function flushDailyQueue(today: string): Promise<void> {
  */
 export async function submitDaily(item: PendingSubmit, today: string): Promise<SubmitOutcome> {
   if (!isDateKey(item.date) || parseDailyResult(clampDailyResult(item.result)) === null) return { kind: 'rejected' }
-  const entry: PendingSubmit = { date: item.date, name: item.name, result: clampDailyResult(item.result) }
+  const entry: PendingSubmit = { date: item.date, name: item.name, result: clampDailyResult(item.result), ...(item.replay ? { replay: item.replay } : {}) }
   writeQueue(queuePrune(queueAdd(readQueue(), entry), today))
   if (flushing) await flushing
   const out = await put(entry)

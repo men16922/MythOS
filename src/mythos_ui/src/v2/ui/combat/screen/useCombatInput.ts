@@ -3,7 +3,8 @@
 // they replace) and act through the screen's commitAction / targeting setters.
 
 import type { RefObject } from 'react'
-import { consumableTargets, moveUnit, partyOrigins, playCard, undoMove, useConsumable as applyConsumable } from '../../../engine/combat.ts'
+import { consumableTargets, partyOrigins } from '../../../engine/combat.ts'
+import { moveUnit, playCard, undoMove, useConsumable as applyConsumable } from '../recordedActions.ts'
 import type { TargetOption } from '../../../engine/combat.ts'
 import { samePos } from '../../../engine/grid.ts'
 import type { CombatState, ContentRegistry, Pos } from '../../../engine/types.ts'

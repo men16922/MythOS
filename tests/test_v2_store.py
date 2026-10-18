@@ -40,6 +40,7 @@ V2_MIGRATIONS = (
     "015_v2_gm_reports.sql",
     "016_v2_gm_spend.sql",
     "017_v2_entitlements.sql",
+    "018_v2_daily_verified.sql",
 )
 DAY = date(2026, 10, 11)
 MONTH = date(2026, 10, 1)
@@ -217,6 +218,20 @@ class _StoreContract:
         case.assertEqual(board.entries[0][1].name, "renamed")
         case.assertIsNone(board.entries[0][1].result.secs)
         case.assertEqual(board.me, board.entries[0])
+
+    def test_daily_verified_travels_with_the_best(self) -> None:
+        case = self._case()
+        p = self.player
+        self.store.submit_daily(DAY, p, "v", _result(self.archetype, floors=20), True)
+        # a worse, unverified resubmit keeps the verified best
+        self.store.submit_daily(DAY, p, "v", _result(self.archetype, floors=5), None)
+        case.assertIs(
+            self.store.daily_board(DAY, self.archetype, 5, p).entries[0][1].verified, True
+        )
+        # a better run that failed its replay replaces the best, and with it the badge
+        self.store.submit_daily(DAY, p, "v", _result(self.archetype, floors=22), False)
+        entry = self.store.daily_board(DAY, self.archetype, 5, p).entries[0][1]
+        case.assertEqual((entry.result.floors, entry.verified), (22, False))
 
     def test_daily_ranks_ties_and_me(self) -> None:
         case = self._case()
@@ -405,7 +420,7 @@ class PostgresStoreTest(_StoreContract, unittest.TestCase):
 
 
 class SchemaParityTest(unittest.TestCase):
-    def test_embedded_ddl_matches_migrations_009_to_017(self) -> None:
+    def test_embedded_ddl_matches_migrations_009_to_018(self) -> None:
         migrations = ";".join(
             (MIGRATIONS / name).read_text(encoding="utf-8") for name in V2_MIGRATIONS
         )

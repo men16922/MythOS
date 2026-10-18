@@ -21,6 +21,7 @@ import { applyRunEnd, computeEchoes, dailyResultOf, migrateProfile, newProfile }
 import type { ContentRegistry, MetaProfile, RunState } from '../engine/types.ts'
 import * as net from '../net/api.ts'
 import { submitDaily, type SubmitOutcome } from '../net/daily.ts'
+import { noteCommit, replayLogFor } from './replay/record.ts'
 
 function safe<T>(fn: () => T, fallback: T): T {
   try {
@@ -179,6 +180,7 @@ export function useGame(C: ContentRegistry): GameStore {
     (next: RunState | null) => {
       const prev = runRef.current
       runRef.current = next
+      noteCommit(prev, next)
       if (next && next.screen.kind === 'ended' && prev?.screen.kind !== 'ended') {
         const banked = applyRunEnd(profileRef.current, next, C)
         if (banked !== profileRef.current) {
@@ -191,7 +193,8 @@ export function useGame(C: ContentRegistry): GameStore {
             const date = next.daily
             const result = dailyResultOf(next, computeEchoes(next, C).total)
             setDailySubmit({ runId: next.id, date, archetype: next.archetype, outcome: null })
-            void submitDaily({ date, name: banked.playerName, result }, dateKeyAt(Date.now()))
+            const replay = replayLogFor(next.id) ?? undefined
+            void submitDaily({ date, name: banked.playerName, result, replay }, dateKeyAt(Date.now()))
               .catch((): SubmitOutcome => ({ kind: 'queued' }))
               .then((outcome) => setDailySubmit((s) => (s && s.runId === next.id ? { ...s, outcome } : s)))
           }

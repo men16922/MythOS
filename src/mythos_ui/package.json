@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build:verifier": "rolldown src/v2/ui/replay/verify.cli.ts -p node -f esm -m -o ../mythos_v2/replay_verify.mjs",
+    "build": "tsc -b && vite build && npm run build:verifier",
     "lint": "eslint .",
     "preview": "vite preview"
   },

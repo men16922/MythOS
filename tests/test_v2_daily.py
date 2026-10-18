@@ -189,7 +189,10 @@ class SubmitValidationTest(unittest.TestCase):
     def test_valid_submit(self) -> None:
         out = self.put(res())
         self.assertEqual(out.status_code, 200, out.text)
-        self.assertEqual(out.json(), {"rank": 1, "total": 1, "best": res(), "improved": True})
+        self.assertEqual(
+            out.json(),
+            {"rank": 1, "total": 1, "best": res(), "improved": True, "verified": None},
+        )
 
     def test_result_ranges_and_types(self) -> None:
         bad: list[dict[str, Any]] = [
@@ -363,7 +366,9 @@ class BoardTest(unittest.TestCase):
         self.assertEqual(top["archetype"], "ghost")
         self.assertEqual([e["name"] for e in top["entries"]], ["p30", "p29", "p28", "p27", "p26"])
         self.assertFalse(any(e["me"] for e in top["entries"]))
-        self.assertEqual(top["me"], {"rank": 28, "name": "p3", "result": res(floors=3)})
+        self.assertEqual(
+            top["me"], {"rank": 28, "name": "p3", "result": res(floors=3), "verified": None}
+        )
         mine = self.board(limit=5, headers=pid(28))
         self.assertEqual([e["me"] for e in mine["entries"]], [False, False, True, False, False])
         self.assertEqual(mine["me"]["rank"], 3)

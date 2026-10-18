@@ -27,7 +27,8 @@ Routes
   POST /gm/improvise               {lang, event, action, stats, act} → Improvisation + source
   POST /gm/talk                    {mode: companion|ix|enemy|npc, lang, …} → {text, source} (+ intent for npc)
   POST /gm/report                  {route, kind, lang, text} → {ok}: flag an offensive AI line (no player id kept)
-  PUT  /daily/{date}               {name, result} → {rank, total, best, improved}  (identity required)
+  PUT  /daily/{date}               {name, result, replay?} → {rank, total, best, improved, verified}  (identity
+                                   required; ``replay`` is re-run by ``mythos_v2.replay`` → verified true/false/null)
   GET  /daily/{date}?archetype=&limit=   public board; ``me`` when the caller is identified
   GET  /admin/overview?days=       operator dashboard data (the ``/admin`` page); admin Google accounts only
 
@@ -69,7 +70,7 @@ from starlette.concurrency import run_in_threadpool
 
 from mythos_v2.log import get_logger
 
-from . import admin, daily, gm, npc, talk, taunt
+from . import admin, daily, gm, npc, replay, talk, taunt
 from .auth import (
     DEMO_PLAYER_PREFIX,
     GOOGLE_PLAYER_PREFIX,
@@ -269,6 +270,8 @@ class PlayPurchaseBody(BaseModel):
 class DailySubmitBody(BaseModel):
     name: str | None = Field(default=None, max_length=200)
     result: DailyResultBody
+    #: The run's recorded actions (client ``ui/replay/record.ts``); re-run server-side to mark the result verified.
+    replay: dict[str, Any] | None = None
 
 
 # --- GM runner -----------------------------------------------------------------
@@ -420,7 +423,12 @@ def _client_player_id(raw: str | None) -> str | None:
 
 
 def _entry_dict(rank: int, entry: daily.DailyEntry) -> dict[str, Any]:
-    return {"rank": rank, "name": entry.name, "result": entry.result.to_dict()}
+    return {
+        "rank": rank,
+        "name": entry.name,
+        "result": entry.result.to_dict(),
+        "verified": entry.verified,
+    }
 
 
 def _norm_stats(raw: dict[str, Any]) -> dict[str, int]:
@@ -747,12 +755,16 @@ def create_v2_router(
             raise HTTPException(status_code=429, detail="too many writes")
         result = body.result.to_result()
         name = daily.clean_name(body.name)
-        sub = await store_call(lambda s: s.submit_daily(day, player_id, name, result))
+        verified = await run_in_threadpool(
+            replay.verify, body.replay, result.to_dict(), day.isoformat()
+        )
+        sub = await store_call(lambda s: s.submit_daily(day, player_id, name, result, verified))
         return {
             "rank": sub.rank,
             "total": sub.total,
             "best": sub.best.to_dict(),
             "improved": sub.improved,
+            "verified": verified,
         }
 
     @router.get("/daily/{day_key}")

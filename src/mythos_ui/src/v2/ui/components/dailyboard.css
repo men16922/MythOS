@@ -220,3 +220,10 @@
     min-height: 30px;
   }
 }
+/* Server-replayed best (mythos_v2.replay): a quiet shield next to the name. */
+.m2-board__verified {
+  display: inline-flex;
+  margin-left: 6px;
+  vertical-align: -1px;
+  color: var(--m2-heal, #6ef59a);
+}

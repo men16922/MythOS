@@ -9,6 +9,7 @@ export interface BoardRow {
   name: string
   result: DailyResult
   me: boolean
+  verified?: boolean
 }
 
 export interface BoardView {
@@ -23,7 +24,7 @@ export interface BoardView {
 export function boardView(data: DailyBoardData): BoardView {
   const rows = [...data.entries]
     .sort((a, b) => a.rank - b.rank)
-    .map((e, i): BoardRow => ({ key: `${e.rank}:${i}`, rank: e.rank, name: e.name.trim() || '익명', result: e.result, me: e.me }))
+    .map((e, i): BoardRow => ({ key: `${e.rank}:${i}`, rank: e.rank, name: e.name.trim() || '익명', result: e.result, me: e.me, verified: e.verified === true }))
   const listed = rows.some((r) => r.me)
   const me = data.me
   const myRow = !listed && me ? { key: `me:${me.rank}`, rank: me.rank, name: me.name.trim() || '익명', result: me.result, me: true } : null

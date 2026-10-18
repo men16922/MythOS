@@ -36,6 +36,14 @@ test('queueAdd keeps one entry per (date, archetype): the better result, the lat
   assert.equal(q.length, 3)
 })
 
+test('queueAdd keeps the replay log with the result it proves', () => {
+  let q = queueAdd([], item({ replay: { v: 1, steps: ['good'] } }, { floors: 5 }))
+  q = queueAdd(q, item({ replay: { v: 1, steps: ['worse'] } }, { floors: 3 })) // worse result: the old log stays
+  assert.deepEqual(q[0]?.replay, { v: 1, steps: ['good'] })
+  q = queueAdd(q, item({ replay: { v: 1, steps: ['better'] } }, { floors: 9 }))
+  assert.deepEqual(q[0]?.replay, { v: 1, steps: ['better'] })
+})
+
 test('queuePrune drops what the server would refuse (outside today − 1 … today, malformed)', () => {
   const q = [item({ date: '2026-10-09' }), item({ date: '2026-10-10' }), item(), item({ date: '2026-10-12' }), item({ date: 'nope' }), item({}, { act: 7 })]
   assert.deepEqual(

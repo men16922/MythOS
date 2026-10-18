@@ -14,6 +14,12 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
+# Node runs the daily replay verifier (src/mythos_v2/replay_verify.mjs, a plain-JS bundle of the game engine built by
+# `make frontend-build`; Node >= 18). Without it the API still works and daily results stay "unverified".
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install the lean dependency set first (cache-friendly: changes rarely).
 COPY requirements-cloud.txt ./
 RUN pip install -r requirements-cloud.txt

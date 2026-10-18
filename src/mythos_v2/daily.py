@@ -107,6 +107,9 @@ class DailyEntry:
     name: str
     result: DailyResult
     achieved_at: datetime
+    #: The best's replay was re-run server-side (mythos_v2.replay): True = matched, False = did not, None = no replay
+    #: or no verifier. Shown as a badge; it does not change the ranking.
+    verified: bool | None = None
 
     def board_key(self) -> tuple[int, datetime, str]:
         """Sort key, ascending = better (score desc, first achieved, then player id for a total order)."""

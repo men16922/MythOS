@@ -51,7 +51,7 @@ SLOTS: tuple[Slot, ...] = ("profile", "run")
 
 DEFAULT_DATABASE_URL = "postgresql://mythos:mythos@localhost:5432/mythos"
 
-#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql + 013_v2_gm_usage.sql + 014_v2_gm_usage_tokens.sql + 015_v2_gm_reports.sql + 016_v2_gm_spend.sql + 017_v2_entitlements.sql (those files are
+#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql + 013_v2_gm_usage.sql + 014_v2_gm_usage_tokens.sql + 015_v2_gm_reports.sql + 016_v2_gm_spend.sql + 017_v2_entitlements.sql + 018_v2_daily_verified.sql (those files are
 #: canonical; a test asserts they match). Every statement is idempotent.
 SCHEMA_STATEMENTS: tuple[str, ...] = (
     """CREATE TABLE IF NOT EXISTS v2_saves (
@@ -133,6 +133,8 @@ END $$""",
   purchase_token TEXT NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 )""",
+    # Server-side replay verdict of the stored daily best; see migration 018.
+    "ALTER TABLE v2_daily_scores ADD COLUMN IF NOT EXISTS verified BOOLEAN",
 )
 
 #: Per-player history kept by the in-memory store (Postgres keeps everything).
@@ -190,10 +192,16 @@ class V2Store(ABC):
 
     @abstractmethod
     def submit_daily(
-        self, day: date, player_id: str, name: str, result: DailyResult
+        self,
+        day: date,
+        player_id: str,
+        name: str,
+        result: DailyResult,
+        verified: bool | None = None,
     ) -> DailySubmission:
         """Keep the better of the stored best and ``result`` for (day, archetype, player); the name is
-        always updated. Returns the player's rank/total on that board after the write."""
+        always updated, ``verified`` travels with the best it belongs to. Returns the player's rank/total on that
+        board after the write."""
         raise NotImplementedError
 
     @abstractmethod
@@ -359,7 +367,12 @@ class MemoryV2Store(V2Store):
         return [copy.deepcopy(row[1]) for row in rows[: max(0, limit)]]
 
     def submit_daily(
-        self, day: date, player_id: str, name: str, result: DailyResult
+        self,
+        day: date,
+        player_id: str,
+        name: str,
+        result: DailyResult,
+        verified: bool | None = None,
     ) -> DailySubmission:
         with self._lock:
             board = self._daily.setdefault((day, result.archetype), {})
@@ -367,7 +380,7 @@ class MemoryV2Store(V2Store):
             now = self._tick()
             improved = prev is None or result.score > prev.result.score
             if prev is None or improved:
-                entry = DailyEntry(player_id, name, result, now)
+                entry = DailyEntry(player_id, name, result, now, verified)
             else:
                 entry = dc_replace(prev, name=name)
             board[player_id] = entry
@@ -636,7 +649,7 @@ class PostgresV2Store(V2Store):
     # Every board query is a range on idx_v2_daily_scores_board (day, archetype, score DESC, achieved_at,
     # player_id); a rank is 1 + the rows strictly ahead in that order.
 
-    _DAILY_COLUMNS = "player_id, name, won, act, floors, echoes, kills, secs, achieved_at"
+    _DAILY_COLUMNS = "player_id, name, won, act, floors, echoes, kills, secs, achieved_at, verified"
     _AHEAD = (
         "(score > %(score)s OR (score = %(score)s AND "
         "(achieved_at, player_id) < (%(achieved_at)s, %(player_id)s)))"
@@ -653,7 +666,14 @@ class PostgresV2Store(V2Store):
             kills=int(row["kills"]),
             secs=None if row["secs"] is None else int(row["secs"]),
         )
-        return DailyEntry(str(row["player_id"]), str(row["name"]), result, row["achieved_at"])
+        verified = row.get("verified")
+        return DailyEntry(
+            str(row["player_id"]),
+            str(row["name"]),
+            result,
+            row["achieved_at"],
+            None if verified is None else bool(verified),
+        )
 
     def _daily_rank(self, conn: Any, day: date, entry: DailyEntry) -> tuple[int, int]:
         row = conn.execute(
@@ -673,7 +693,12 @@ class PostgresV2Store(V2Store):
         return int(row["ahead"]) + 1, int(row["total"])
 
     def submit_daily(
-        self, day: date, player_id: str, name: str, result: DailyResult
+        self,
+        day: date,
+        player_id: str,
+        name: str,
+        result: DailyResult,
+        verified: bool | None = None,
     ) -> DailySubmission:
         key = {"day": day, "archetype": result.archetype, "player_id": player_id}
         with self._conn() as conn, conn.transaction():
@@ -683,13 +708,13 @@ class PostgresV2Store(V2Store):
                 conn.execute(
                     """
                     INSERT INTO v2_daily_scores (day, archetype, player_id, name, won, act, floors,
-                      echoes, kills, secs, score, achieved_at, updated_at)
+                      echoes, kills, secs, score, verified, achieved_at, updated_at)
                     VALUES (%(day)s, %(archetype)s, %(player_id)s, %(name)s, %(won)s, %(act)s,
-                      %(floors)s, %(echoes)s, %(kills)s, %(secs)s, %(score)s, now(), now())
+                      %(floors)s, %(echoes)s, %(kills)s, %(secs)s, %(score)s, %(verified)s, now(), now())
                     ON CONFLICT (day, archetype, player_id) DO UPDATE SET
                       name = EXCLUDED.name, won = EXCLUDED.won, act = EXCLUDED.act,
                       floors = EXCLUDED.floors, echoes = EXCLUDED.echoes, kills = EXCLUDED.kills,
-                      secs = EXCLUDED.secs, score = EXCLUDED.score,
+                      secs = EXCLUDED.secs, score = EXCLUDED.score, verified = EXCLUDED.verified,
                       achieved_at = EXCLUDED.achieved_at, updated_at = EXCLUDED.updated_at
                     WHERE EXCLUDED.score > v2_daily_scores.score
                     RETURNING score
@@ -704,6 +729,7 @@ class PostgresV2Store(V2Store):
                         "kills": result.kills,
                         "secs": result.secs,
                         "score": result.score,
+                        "verified": verified,
                     },
                 ).fetchone()
                 is not None

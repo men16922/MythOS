@@ -53,7 +53,7 @@ python-typecheck:
 	$(VENV)/bin/mypy --strict src/mythos_api src/mythos_v2
 
 # Builds the SPA into src/mythos_api/static (committed: Cloud Run serves it without a Node build).
-frontend-build:
+frontend-build:  # SPA + the daily replay verifier (src/mythos_v2/replay_verify.mjs, same engine + content)
 	cd $(FRONTEND_DIR) && npm run build
 
 # Engine/content tests (pure TS, Node native type stripping — no bundler, no browser).

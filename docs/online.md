@@ -149,9 +149,15 @@ against a port of it). A worse or equal resubmit keeps the stored best and its t
 player_id`); table `v2_daily_scores` (`migrations/010_v2_daily_scores.sql`, mirrored in
 `store.SCHEMA_STATEMENTS`).
 
-Trust model: results are client-reported. The server checks only types and ranges, identity and rate. It does not
-replay runs, so a modified client can post a fake best; Google sign-in makes each entry attributable and
-removable. Revisit (seed replay or Play Games Services) if the board matters competitively.
+Trust model (2026-10-18): the client records every committed action of a daily run (`ui/replay/record.ts`:
+`rx` and the combat actions tag the states they return; the store logs what it commits) and sends the log with
+the result. The server re-runs it with the game's own engine (`mythos_v2/replay.py` → `node replay_verify.mjs`, a
+bundle of engine + content rebuilt by `make frontend-build`) from the date's seed and stores `verified`
+(`migrations/018`): true = the replay reaches exactly the claimed result (all but `secs`, which is wall-clock), false
+= it does not, null = no log (a reload on another device, a dev-tool edit) or no verifier (`node` missing,
+`MYTHOS_REPLAY_VERIFY=off`, busy, timeout). The board shows a shield on verified rows; **ranking is unchanged** (a
+verified-only board would be a one-line change in the board query if it ever matters for prizes). At most two
+replays run at once per instance, 10 s each; a real full daily (533 steps) replays in well under a second.
 
 ## Daily push
 

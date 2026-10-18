@@ -284,7 +284,13 @@ export function CombatScreen(props: CombatScreenProps) {
   // the end of this fight counts as seen. Before, only "skip" or the last "got it" stored that, and
   // the tips came back every fight.
   const coachShown = useRef(false)
-  const coachVisible = coach && interactive && !splash
+  // The first tip waits for the encounter's title banner (shown ~120 ms in, for 1.9 s) instead of covering it.
+  const [introOver, setIntroOver] = useState(false)
+  useEffect(() => {
+    const t = window.setTimeout(() => setIntroOver(true), 2200)
+    return () => window.clearTimeout(t)
+  }, [])
+  const coachVisible = coach && interactive && !splash && introOver && view.banner?.kind !== 'intro'
   useEffect(() => {
     if (coachVisible) coachShown.current = true
   }, [coachVisible])

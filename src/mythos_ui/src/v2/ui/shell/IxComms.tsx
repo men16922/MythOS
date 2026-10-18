@@ -44,7 +44,12 @@ interface Props {
   settings: MetaProfile['settings']
   /** IX's facts about earlier loops for this fight (ui/common/loopMemory.ts); sent with boss / elite openers only. */
   memoryFor?: (encounterId: string) => string[]
+  /** The run's current screen kind. IX only speaks over a fight and its reward screen; anywhere else
+   *  (map, act intro, cache…) a showing line fades out at once and a waiting one is dropped. */
+  screen?: string
 }
+
+const IX_SCREENS = new Set(['combat', 'reward'])
 
 /** Calls `ready` once `minDelay` has passed and the board has been out of the enemy phase for `settle` ms. */
 function whenSettled(minDelay: number, settle: number, ready: () => void): () => void {
@@ -72,8 +77,12 @@ function timingFor(m: IxMoment, ended: boolean): { minDelay: number; settle: num
   return { minDelay: 900, settle: 0 } // let the hit land first
 }
 
-export function IxComms({ combat, C, lang, settings, memoryFor }: Props) {
+export function IxComms({ combat, C, lang, settings, memoryFor, screen }: Props) {
   const [line, setLine] = useState<Line | null>(null)
+  const lineRef = useRef<Line | null>(null)
+  useEffect(() => {
+    lineRef.current = line
+  }, [line])
   const seen = useRef<CombatState | null>(null)
   const memo = useRef<FightMemo | null>(null)
   const queued = useRef<{ priority: number; cancel: () => void } | null>(null)
@@ -161,6 +170,16 @@ export function IxComms({ combat, C, lang, settings, memoryFor }: Props) {
     // Detection runs once per new combat state; C/lang changes mid-fight do not re-trigger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combat])
+
+  // Left the fight's screens: never let a late line cover the next screen's title or GM card.
+  useEffect(() => {
+    if (!screen || IX_SCREENS.has(screen)) return
+    queued.current?.cancel()
+    queued.current = null
+    const l = lineRef.current
+    if (l && !l.leaving) scheduleDismiss(l.key, FADE_MS)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen])
 
   useEffect(
     () => () => {

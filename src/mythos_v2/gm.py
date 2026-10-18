@@ -433,7 +433,7 @@ def _context_notes(kind: NarrateKind, lang: Lang, ctx: Mapping[str, Any]) -> str
         ending = _ctx_str(ctx, "ending", "endingTitle")
         if result == "victory":
             if lang == "ko":
-                tail = f" 그리고 결말 '{ending}'을(를) 택했다" if ending else ""
+                tail = f". 그리고 결말 '{ending}'에 이르렀다" if ending else ""
                 return (
                     f"\n- 마지막 문장: 접속자는 ARK 첨탑 꼭대기에서 관리자 IX를 정지시켰다{tail}."
                 )

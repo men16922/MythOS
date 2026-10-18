@@ -197,7 +197,7 @@ export function leaveDistrict(run: RunState, C: ContentRegistry): RunState {
   const def = C.crpg?.districts[run.screen.district.id]
   const next = clone(run)
   next.screen = { kind: 'map' }
-  if (def) log(next, 'district', t(`${def.name.ko}을(를) 떠났다`, `Left ${def.name.en}`))
+  if (def) log(next, 'district', t(`${def.name.ko}에서 나왔다`, `Left ${def.name.en}`))
   return next
 }
 

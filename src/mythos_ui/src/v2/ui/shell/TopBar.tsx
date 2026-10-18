@@ -1,7 +1,7 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
 import { art } from '../components/art.ts'
 import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, MessagesSquare, ScrollText, Settings, Shuffle, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
@@ -47,6 +47,21 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onM
     return () => window.clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [run.id, implantKey])
+  // Implants that do not fit the bar fold into a "+N" chip (oldest first), so the newest — the one that
+  // just flashed in — always stays visible. 30 px icons + 6 px gap; the chip takes one slot.
+  const implantRow = useRef<HTMLDivElement>(null)
+  const [implantSlots, setImplantSlots] = useState(99)
+  useEffect(() => {
+    const el = implantRow.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => setImplantSlots(Math.max(1, Math.floor((el.clientWidth + 6) / 36))))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const overflow = run.implants.length > implantSlots
+  const shownCount = overflow ? Math.max(1, implantSlots - 1) : run.implants.length
+  const firstShown = run.implants.length - shownCount
+  const hiddenImplants = run.implants.slice(0, firstShown)
   const archetype = C.archetypes[run.archetype]
   const floor = run.nodeId ? (run.map.nodes[run.nodeId]?.row ?? 0) + 1 : 0
   const actDef = C.acts[run.act]
@@ -179,8 +194,35 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onM
         {(run.bench?.length ?? 0) > 0 && <span className="m2-topbar__benchn m2-mono">+{run.bench?.length}</span>}
       </button>
 
-      <div className="m2-topbar__implants">
-        {run.implants.map((id, i) => {
+      <div className="m2-topbar__implants" ref={implantRow}>
+        {hiddenImplants.length > 0 && (
+          <Tooltip
+            placement="bottom"
+            width={320}
+            content={
+              <div className="m2-tip__implants">
+                {hiddenImplants.map((id, i) => {
+                  const def = C.implants[id]
+                  return def ? (
+                    <div key={`${id}:${i}`} className="m2-tip__implantrow">
+                      <ImplantIcon def={def} lang={lang} size={26} noTip />
+                      <div>
+                        <div className="m2-tip__title">{tr(def.name, lang)}</div>
+                        <div className="m2-tip__text">{tr(def.text, lang)}</div>
+                      </div>
+                    </div>
+                  ) : null
+                })}
+              </div>
+            }
+          >
+            <span className="m2-topbar__implmore m2-mono" data-testid="implants-more" aria-label={lang === 'ko' ? `임플란트 ${hiddenImplants.length}개 더` : `${hiddenImplants.length} more implants`}>
+              +{hiddenImplants.length}
+            </span>
+          </Tooltip>
+        )}
+        {run.implants.slice(firstShown).map((id, j) => {
+          const i = firstShown + j
           const def = C.implants[id]
           const key = `${run.id}:${id}:${i}`
           const fresh = shownImplants.size > 0 && !shownImplants.has(key)

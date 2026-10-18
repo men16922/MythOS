@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CombatState, ContentRegistry, Lang, MetaProfile } from '../../engine/types.ts'
 import { logComms, swapComms } from '../common/commsLog.ts'
-import { tr } from '../common/lang.ts'
+import { josa, tr } from '../common/lang.ts'
 import { GmCard } from './GmCard.tsx'
 import { narrate, type Ctx } from './gm.ts'
 import './voices.css'
@@ -95,7 +95,7 @@ export function BossNarration({ combat, C, lang, settings }: Props) {
     const from = fresh ? 0 : known.events
     fight.current = { encounterId: combat.encounterId, events: combat.events.length }
     if (fresh) {
-      const intro = tr(enc.intro, lang) || (lang === 'ko' ? `${name}이(가) 길을 막는다.` : `${name} blocks the way.`)
+      const intro = tr(enc.intro, lang) || (lang === 'ko' ? `${josa(name, '이', '가')} 길을 막는다.` : `${name} blocks the way.`)
       speak(intro, { boss: name, act: enc.act, actName: tr(act?.name, lang), phase: 0, intro }, INTRO_DELAY_MS)
       return
     }

@@ -6,6 +6,7 @@ import type { Improvisation, Lang, StatKey } from '../../engine/types.ts'
 import * as net from '../../net/api.ts'
 import { noteAiLine } from '../common/aiLines.ts'
 import { pickCompanionReply } from './talkLines.ts'
+import { localNarrate } from './localGm.ts'
 
 type NarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro' | 'echo'
 export type Ctx = Record<string, string | number | boolean | string[] | null | undefined>
@@ -48,75 +49,6 @@ function cleanGmText(text: string): string {
 
 function cleanText(t: Improvisation['successText']): Improvisation['successText'] {
   return { ko: cleanGmText(t.ko ?? ''), en: cleanGmText(t.en ?? '') }
-}
-
-function localNarrate(kind: NarrateKind, lang: Lang, context: Ctx): string | null {
-  const ko = lang === 'ko'
-  const party = Array.isArray(context.party) ? context.party.filter(Boolean) : []
-  const comp = party[0]
-  if (kind === 'act_intro') {
-    const act = Number(context.act ?? 1)
-    const loop = Number(context.loop ?? 1)
-    if (act === 1) {
-      return ko
-        ? `${loop}번째 루프의 빗물이 네오-서울 하층부의 네온 위로 떨어진다.${comp ? ` ${comp}의 시선이 먼저 골목 끝 감시 드론을 짚어낸다.` : ' 신호는 아직 희미하지만 분명히 살아 있다.'}`
-        : `Rain of Loop ${loop} hits the neon of Neo-Seoul's undercity.${comp ? ` ${comp}'s eyes lock onto the patrol drone at the end of the alley first.` : ' The signal is faint, but unmistakably alive.'}`
-    }
-    if (act === 2) {
-      return ko
-        ? `데이터 스파이어의 냉각풍이 귓가를 스친다.${comp ? ` ${comp}와(과) 나란히 선 당신 위로 IX의 감시망이 촘촘히 좁혀온다.` : ' 여기서부터는 모든 발걸음이 기록된다.'}`
-        : `Cooling winds from the Data Spire cut past your ears.${comp ? ` Above you and ${comp}, IX's surveillance lattice tightens.` : ' Every step from here is logged.'}`
-    }
-    return ko
-      ? `아크 코어 심장부. 모든 루프의 기억과 반향이 이 한 점으로 수렴한다.`
-      : `The heart of the ARK Core. Every loop's memory and echo converges on this single point.`
-  }
-  if (kind === 'event') {
-    const title = String(context.title ?? '')
-    const choice = typeof context.choice === 'string' ? context.choice : ''
-    const trace = Number(context.trace ?? 0)
-    const seenBefore = Number(context.seenBefore ?? 0)
-    if (choice) {
-      const success = context.success
-      if (success === true) {
-        return ko
-          ? `“${choice}” — 망설임 없는 판단이 스파이어의 예측 모델을 한 박자 앞질렀다.${comp ? ` ${comp}도 짧게 고개를 끄덕인다.` : ''}`
-          : `“${choice}” — an unflinching call that beats the Spire's prediction model by half a beat.${comp ? ` ${comp} gives a short nod.` : ''}`
-      }
-      if (success === false) {
-        return ko
-          ? `“${choice}” — 어긋난 박자 사이로 경보 파형이 스쳤지만, 아직 숨을 고를 틈은 남아 있다.`
-          : `“${choice}” — an alarm waveform grazes past the missed beat, though there is still room to steady your breath.`
-      }
-      return ko
-        ? `선택의 여파가 빗물 고인 아스팔트 위로 잔향처럼 번진다.${comp ? ` ${comp}이(가) 주변 신호를 다시 스캔한다.` : ''}`
-        : `The aftermath of your choice ripples across the rain-slick asphalt.${comp ? ` ${comp} scans the surrounding frequencies again.` : ''}`
-    }
-    if (seenBefore > 0) {
-      return ko
-        ? `이미 지난 루프에서 스쳐 간 ‘${title}’의 잔상이 겹쳐 보인다.${comp ? ` 옆에 선 ${comp}의 숨결만이 지금 이 순간이 새로운 루프임을 일깨운다.` : ' 이번에는 다른 결말을 새길 차례다.'}`
-        : `An afterimage of "${title}" from an earlier loop overlaps the scene.${comp ? ` Only ${comp}'s presence beside you marks this moment as new.` : ' This time, the outcome is yours to rewrite.'}`
-    }
-    if (trace >= 45) {
-      return ko
-        ? `추적 수치(${trace})가 위험역에 가까워지며 구역 전체의 전류가 미세하게 떨린다.${comp ? ` ${comp}이(가) 낮게 경계 신호를 보낸다.` : ''}`
-        : `With Trace at ${trace}, the district's current hums on edge.${comp ? ` ${comp} signals a quiet warning.` : ''}`
-    }
-    return ko
-      ? `${title ? `‘${title}’ 현장.` : '현장 진입.'} 네온 그림자 너머로 선택의 대가가 조용히 저울질되고 있다.${comp ? ` ${comp}이(가) 당신의 다음 신호를 기다린다.` : ''}`
-      : `${title ?AtScene(title) : 'On site.'} Behind the neon shadows, the weight of the next move hangs in the balance.${comp ? ` ${comp} waits on your signal.` : ''}`
-  }
-  if (kind === 'ix_loop_start') {
-    const loop = Number(context.loop ?? 1)
-    return ko
-      ? `[IX // 루프 ${loop}] “다시 접속하셨군요. 이번 주파수는 이전보다 조금 더 흥미로운 파형을 그리길 기대하겠습니다.”`
-      : `[IX // Loop ${loop}] “Connected again. Let us see if your frequency traces a more interesting waveform this time.”`
-  }
-  return null
-}
-
-function AtScene(title: string): string {
-  return `At "${title}".`
 }
 
 /** Returns the GM's line, or contextual local GM narration when the backend is skipped/unreachable. */

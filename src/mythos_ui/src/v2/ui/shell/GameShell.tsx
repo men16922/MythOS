@@ -520,6 +520,7 @@ export function GameShell() {
               lang={lang}
               settings={profile.settings}
               memoryFor={(encounterId) => loopMemory(profile, C, lang, encounterId)}
+              screen={run.screen.kind}
             />
           )}
           {view === 'run' && run && <EnemyTaunt combat={run.screen.kind === 'combat' ? run.screen.combat : null} C={C} lang={lang} settings={profile.settings} />}

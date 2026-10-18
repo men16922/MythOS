@@ -2,7 +2,7 @@
 import { Eraser, Flame, HeartHandshake, HeartPulse, Wrench } from 'lucide-react'
 import { useState } from 'react'
 import { asset, portrait } from '../common/assets.ts'
-import { tr } from '../common/lang.ts'
+import { josa, tr } from '../common/lang.ts'
 import { companionSprite } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
 import { cutsceneAtBond } from '../../content/cutscenes.ts'
@@ -87,7 +87,7 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
             <span>
               <b>{ko ? '캠프의 밤' : 'Camp night'}</b>
               <small>
-                {ko ? `${tr(campDef.name, lang)}이(가) 불가에 앉아 당신을 본다. 할 말이 있는 얼굴이다.` : `${tr(campDef.name, lang)} sits by the fire and looks at you. There is something they want to say.`}
+                {ko ? `${josa(tr(campDef.name, lang), '이', '가')} 불가에 앉아 당신을 본다. 할 말이 있는 얼굴이다.` : `${tr(campDef.name, lang)} sits by the fire and looks at you. There is something they want to say.`}
               </small>
             </span>
           </button>

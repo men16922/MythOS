@@ -26,6 +26,11 @@ export function hasBatchim(word: string): boolean {
   return code < 0 || code > 11171 || code % 28 !== 0
 }
 
+/** A Korean word followed by the particle that fits it: `josa('세린', '이', '가')` → '세린이'. */
+export function josa(word: string, withFinal: string, withoutFinal: string): string {
+  return `${word}${hasBatchim(word) ? withFinal : withoutFinal}`
+}
+
 /** "로" / "으로" after a Korean word (ㄹ 받침 takes "로"). */
 export function withRo(word: string): string {
   const code = word.charCodeAt(word.length - 1) - 0xac00

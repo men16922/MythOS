@@ -294,3 +294,28 @@
   color: var(--m2-amber);
   font-size: 11px;
 }
+.m2-topbar__implmore {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--m2-line, rgba(120, 220, 210, 0.35));
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--m2-cyan, #6ff);
+  background: rgba(10, 30, 34, 0.7);
+  cursor: default;
+}
+.m2-tip__implants {
+  display: grid;
+  gap: 8px;
+}
+.m2-tip__implantrow {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 8px;
+  align-items: start;
+}

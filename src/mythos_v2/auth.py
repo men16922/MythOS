@@ -437,6 +437,25 @@ def load_web_config(raw: str | None = None, path: Path | None = None) -> dict[st
     return {key: str(value) for key, value in picked.items()}
 
 
+DEMO_PLAYER_PREFIX = "demo_"
+DEMO_CODE_RE = re.compile(r"^[A-Za-z0-9_-]{6,40}$")
+
+
+def parse_demo_codes(raw: str | None) -> frozenset[str]:
+    """``MYTHOS_DEMO_CODES``: comma/space separated access codes for signed-out demo players (contest judges).
+
+    Unset or empty = the feature is off. Codes shorter than 6 characters are ignored."""
+    return frozenset(
+        part for part in re.split(r"[,\s]+", raw or "") if DEMO_CODE_RE.fullmatch(part)
+    )
+
+
+def demo_player_id(code: str, client_id: str) -> str:
+    """The demo identity for one device + code: GM calls only, free-tier allowance, never a save slot."""
+    digest = hashlib.sha256(f"{code}|{client_id}".encode()).hexdigest()[:24]
+    return f"{DEMO_PLAYER_PREFIX}{digest}"
+
+
 def parse_admin_emails(raw: str | None) -> frozenset[str]:
     """``MYTHOS_ADMIN_EMAILS``: comma/space separated, case-insensitive."""
     return frozenset(part.lower() for part in re.split(r"[,\s]+", raw or "") if "@" in part)
@@ -451,6 +470,9 @@ class AuthConfig:
     admin_emails: frozenset[str] = frozenset()
     #: Local dev only (``MYTHOS_ADMIN_OPEN=1`` and mode ``open``): ``/admin`` data needs no sign-in.
     admin_open: bool = False
+    #: ``MYTHOS_DEMO_CODES``: a signed-out player sending one of these as ``X-Demo-Code`` may use the AI GM
+    #: routes (and ``/plan``) under a ``demo_`` id with the free allowance. Empty = off (the default).
+    demo_codes: frozenset[str] = frozenset()
 
     @classmethod
     def from_env(cls) -> AuthConfig:
@@ -467,11 +489,13 @@ class AuthConfig:
             web_config=load_web_config(),
             admin_emails=parse_admin_emails(os.getenv("MYTHOS_ADMIN_EMAILS")),
             admin_open=admin_open,
+            demo_codes=parse_demo_codes(os.getenv("MYTHOS_DEMO_CODES")),
         )
 
 
 __all__ = [
     "ACCOUNTS_DELETE_URL",
+    "DEMO_PLAYER_PREFIX",
     "GOOGLE_PLAYER_ID_RE",
     "GOOGLE_PLAYER_PREFIX",
     "SECURETOKEN_CERTS_URL",
@@ -490,9 +514,11 @@ __all__ = [
     "build_account_deleter",
     "build_verifier",
     "cache_max_age",
+    "demo_player_id",
     "fetch_securetoken_certs",
     "load_web_config",
     "parse_admin_emails",
     "parse_auth_mode",
+    "parse_demo_codes",
     "player_id_for_uid",
 ]

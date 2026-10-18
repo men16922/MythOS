@@ -49,8 +49,9 @@ reportable in-app. Measured cost: ≈ 63 model calls ≈ **$0.05 per full run** 
 
 ## Try it
 
-- Web: the production Cloud Run URL (see `docs/online.md`). Plays fully offline without an account; **AI lines need
-  Google sign-in** (guests get the authored game).
+- Web: the production Cloud Run URL (see `docs/online.md`). Plays fully offline without an account; AI lines need
+  Google sign-in — or the judges' demo link (`?demo=<code>`, given with the submission), which turns them on
+  without an account.
 - A full run is three acts (about 15 fights); the daily seed is the quickest way to compare runs.
 
 ## Evidence (in this repo)

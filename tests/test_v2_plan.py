@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import unittest
 from datetime import UTC, date, datetime, timedelta
-from typing import Any
+from typing import Any, ClassVar
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -239,7 +239,12 @@ class _UsageLLM:
 
 
 def _client(
-    llm: _UsageLLM, api: FakePlayAPI, *, free: float = 0.01, plus: float = 0.05
+    llm: _UsageLLM,
+    api: FakePlayAPI,
+    *,
+    free: float = 0.01,
+    plus: float = 0.05,
+    demo_codes: frozenset[str] = frozenset(),
 ) -> TestClient:
     app = FastAPI()
     app.include_router(
@@ -247,7 +252,9 @@ def _client(
             store_factory=MemoryV2Store,
             llm_factory=lambda: llm,
             settings=V2Settings(),
-            auth=AuthConfig(mode="google", project_id="demo-mythos", web_config=None),
+            auth=AuthConfig(
+                mode="google", project_id="demo-mythos", web_config=None, demo_codes=demo_codes
+            ),
             verifier=FakeVerifier(),
             account_deleter=FakeDeleter(),
             now=lambda: NOW,
@@ -364,6 +371,54 @@ class _AdminVerifier(FakeVerifier):
     def verify_identity(self, token: str) -> Identity:
         uid = self.verify(token)
         return Identity(uid, "owner@example.com" if uid == "boss" else f"{uid}@example.com", True)
+
+
+class DemoCodeTest(unittest.TestCase):
+    """Contest demo: a signed-out device with a listed ``X-Demo-Code`` gets AI lines, and nothing else."""
+
+    DEVICE: ClassVar[dict[str, str]] = {"X-Player-Id": "device-aaaa-1111"}
+
+    def test_off_by_default_and_wrong_code_is_still_401(self) -> None:
+        client = _client(_UsageLLM("x", 1, 1), FakePlayAPI())
+        res = client.post(
+            "/api/v2/gm/talk", headers={**self.DEVICE, "X-Demo-Code": "judge-2026"}, json=IX_BODY
+        )
+        self.assertEqual(res.status_code, 401)
+        client = _client(_UsageLLM("x", 1, 1), FakePlayAPI(), demo_codes=frozenset({"judge-2026"}))
+        res = client.post(
+            "/api/v2/gm/talk", headers={**self.DEVICE, "X-Demo-Code": "judge-2027"}, json=IX_BODY
+        )
+        self.assertEqual(res.status_code, 401)
+
+    def test_valid_code_gets_ai_lines_within_a_per_device_free_allowance(self) -> None:
+        llm = _UsageLLM("기록을 갱신했습니다.", 3_000, 500)  # 5_000 µ$ per call, free = 10_000
+        client = _client(llm, FakePlayAPI(), demo_codes=frozenset({"judge-2026"}))
+        demo = {**self.DEVICE, "X-Demo-Code": "judge-2026"}
+        plan = client.get("/api/v2/plan", headers=demo).json()
+        self.assertEqual(plan["features"], ["ai"])
+        self.assertTrue(plan["demo"])
+        self.assertFalse(plan["signedIn"])
+        sources = [
+            client.post("/api/v2/gm/talk", headers=demo, json=IX_BODY).json()["source"]
+            for _ in range(3)
+        ]
+        self.assertEqual(sources, ["llm", "llm", "fallback"])
+        other = {"X-Player-Id": "device-bbbb-2222", "X-Demo-Code": "judge-2026"}
+        self.assertEqual(
+            client.post("/api/v2/gm/talk", headers=other, json=IX_BODY).json()["source"], "llm"
+        )
+
+    def test_code_never_opens_saves_daily_writes_or_purchases(self) -> None:
+        client = _client(_UsageLLM("x", 1, 1), FakePlayAPI(), demo_codes=frozenset({"judge-2026"}))
+        demo = {**self.DEVICE, "X-Demo-Code": "judge-2026"}
+        self.assertEqual(client.get("/api/v2/profile", headers=demo).status_code, 401)
+        self.assertEqual(
+            client.put("/api/v2/run", headers=demo, json={"version": 2}).status_code, 401
+        )
+        res = client.post(
+            "/api/v2/plan/play", headers=demo, json={"purchaseToken": "tok-123456789"}
+        )
+        self.assertEqual(res.status_code, 401)
 
 
 class AdminAccountTest(unittest.TestCase):

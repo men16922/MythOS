@@ -11,6 +11,7 @@ const server: { profile: unknown; run: unknown; reply401: number } = { profile: 
 
 function handler(call: Call): Reply {
   if (call.path === '/config') return { status: 200, body: CONFIG }
+  if (call.headers['X-Demo-Code'] === 'judge-2026' && call.path.startsWith('/gm/')) return { status: 200, body: { text: 'demo line', source: 'llm' } }
   if (!call.headers.Authorization) return { status: 401, body: { detail: 'sign-in required' } }
   if (server.reply401 > 0) {
     server.reply401 -= 1
@@ -67,6 +68,23 @@ test('signed out: saves, history, GM make no requests at all (no 401 spam) and f
   assert.deepEqual(identityCalls(), [])
   // The local mirror still has the progress.
   assert.equal(net.loadProfileLocal()?.loops, 1)
+})
+
+test('signed out with a demo code: only GM calls go out, carrying the code and the device id', async () => {
+  net.captureDemoCode('?demo=judge-2026')
+  assert.equal(net.demoCode(), 'judge-2026')
+  fakes.calls.length = 0
+  const res = await net.narrate({ kind: 'event', lang: 'ko' })
+  assert.equal(res?.text, 'demo line')
+  await net.loadProfile() // the local mirror answers; no request may go out
+  const calls = identityCalls()
+  assert.deepEqual(calls.map((c) => c.path), ['/gm/narrate'])
+  assert.equal(calls[0]?.headers['X-Demo-Code'], 'judge-2026')
+  assert.ok(calls[0]?.headers['X-Player-Id'])
+  net.captureDemoCode('?demo=off')
+  assert.equal(net.demoCode(), null)
+  net.captureDemoCode('?demo=x') // too short: ignored
+  assert.equal(net.demoCode(), null)
 })
 
 test('signed in: Bearer token, no X-Player-Id', async () => {

@@ -224,7 +224,28 @@ export function cloudAvailable(): boolean {
   return cachedConfig()?.auth !== 'google'
 }
 
-type Access = 'public' | 'identity'
+/**
+ * 'public': config, health, leaderboard reads. 'identity': saves, leaderboard writes. 'gm': the AI GM routes and
+ * `/plan` — like 'identity', but a signed-out device holding a contest demo code (`?demo=<code>` once, kept in
+ * localStorage) still sends `X-Player-Id` + `X-Demo-Code`; the server decides whether the code is valid.
+ */
+type Access = 'public' | 'identity' | 'gm'
+
+const DEMO_KEY = 'mythos2.demo'
+const DEMO_CODE_RE = /^[A-Za-z0-9_-]{6,40}$/
+
+/** The contest demo code this device holds (from a `?demo=` link), if any. */
+export function demoCode(): string | null {
+  const code = storageGet(DEMO_KEY)
+  return code && DEMO_CODE_RE.test(code) ? code : null
+}
+
+/** Keep a `?demo=<code>` from the page URL (call once at boot); `?demo=off` forgets it. */
+export function captureDemoCode(search: string): void {
+  const code = new URLSearchParams(search).get('demo')
+  if (code === 'off') storageRemove(DEMO_KEY)
+  else if (code && DEMO_CODE_RE.test(code)) storageSet(DEMO_KEY, code)
+}
 
 /**
  * Identity headers for one request, or null when the request must not be sent: a signed-in player whose token
@@ -236,9 +257,11 @@ async function identityHeaders(access: Access, forceToken = false): Promise<Reco
   if (source?.signedIn()) {
     const token = await source.getIdToken(forceToken).catch(() => null)
     if (token) return { Authorization: `Bearer ${token}` }
-    return access === 'identity' ? null : {}
+    return access === 'public' ? {} : null
   }
-  if (access === 'identity') {
+  const demo = access === 'gm' ? demoCode() : null
+  if (demo) return { 'X-Player-Id': getPlayerId(), 'X-Demo-Code': demo }
+  if (access !== 'public') {
     const cfg = config ?? (await within(loadConfig(), CONFIG_WAIT_MS, cachedConfig()))
     if (cfg?.auth === 'google') return null
   }
@@ -252,7 +275,7 @@ interface RequestOptions {
   timeoutMs: number
   signal?: AbortSignal
   keepalive?: boolean
-  /** 'identity' (default): saves, GM, leaderboard writes. 'public': config, health, leaderboard reads. */
+  /** 'identity' (default): saves, leaderboard writes. 'gm': AI GM + plan. 'public': config, health, reads. */
   access?: Access
 }
 
@@ -764,6 +787,7 @@ export async function narrate(req: NarrateRequest, signal?: AbortSignal): Promis
     body: JSON.stringify({ kind: req.kind, lang: req.lang, context: req.context ?? {} }),
     timeoutMs: TIMEOUT_MS.narrate,
     signal,
+    access: 'gm',
   })
   if (!isRecord(res) || typeof res.text !== 'string' || !res.text.trim()) return null
   return { text: res.text, source: res.source === 'llm' ? 'llm' : 'fallback' }
@@ -795,6 +819,7 @@ export async function improvise(req: ImproviseRequest, signal?: AbortSignal): Pr
     body: JSON.stringify({ ...req, action }),
     timeoutMs: TIMEOUT_MS.improvise,
     signal,
+    access: 'gm',
   })
   if (!isRecord(res)) return null
   const stat = STAT_KEYS.find((s) => s === res.stat)
@@ -877,6 +902,7 @@ export async function talk(req: TalkRequest, opts: { signal?: AbortSignal; timeo
     body: JSON.stringify(body),
     timeoutMs: opts.timeoutMs ?? TIMEOUT_MS.talk,
     signal: opts.signal,
+    access: 'gm',
   })
   if (!isRecord(res) || typeof res.text !== 'string' || !res.text.trim()) return null
   return { text: res.text, source: res.source === 'llm' ? 'llm' : 'fallback' }
@@ -902,6 +928,7 @@ export async function reportAiLine(report: AiLineReport): Promise<boolean> {
   const res = await request<{ ok?: boolean }>('POST', '/gm/report', {
     body: JSON.stringify({ route: report.route, kind, lang: report.lang, text }),
     timeoutMs: TIMEOUT_MS.save,
+    access: 'gm',
   })
   return res?.ok === true
 }
@@ -933,6 +960,8 @@ export interface Plan {
   budget: { limitUsd: number; usedUsd: number; left: number; unlimited?: boolean }
   /** Allow-listed admin account (MYTHOS_ADMIN_EMAILS). */
   admin?: boolean
+  /** Signed out but holding a valid contest demo code (AI lines on the free allowance). */
+  demo?: boolean
   subscription: { sku: string; state: string; expiresAt: string | null } | null
   skus: string[]
 }
@@ -960,6 +989,7 @@ export function parsePlan(raw: unknown): Plan | null {
     features: Array.isArray(raw.features) ? raw.features.filter((f): f is string => typeof f === 'string') : [],
     budget: { limitUsd: num(b.limitUsd), usedUsd: num(b.usedUsd), left: Math.max(0, Math.min(1, num(b.left))), unlimited: b.unlimited === true },
     admin: raw.admin === true,
+    demo: raw.demo === true,
     subscription: sub
       ? { sku: String(sub.sku ?? ''), state: String(sub.state ?? ''), expiresAt: typeof sub.expiresAt === 'string' ? sub.expiresAt : null }
       : null,
@@ -995,7 +1025,7 @@ export function onPlan(listener: (p: Plan) => void): () => void {
 
 /** Refresh the plan from the server (also re-checks an expired subscription there). Offline → the cached plan. */
 export async function loadPlan(): Promise<Plan> {
-  const res = await apiSend('GET', '/plan', { timeoutMs: TIMEOUT_MS.save })
+  const res = await apiSend('GET', '/plan', { timeoutMs: TIMEOUT_MS.save, access: 'gm' })
   if (res.kind === 'skipped' || (res.kind === 'http' && res.status === 401)) return setPlan(FREE_PLAN)
   const parsed = res.kind === 'http' && res.status === 200 ? parsePlan(res.body) : null
   return parsed ? setPlan(parsed) : currentPlan()
@@ -1053,7 +1083,7 @@ export async function talkNpc(req: NpcTalkRequest, opts: { signal?: AbortSignal 
     options: req.options.slice(0, 8),
     context: req.context ?? {},
   }
-  const res = await request<unknown>('POST', '/gm/talk', { body: JSON.stringify(body), timeoutMs: TIMEOUT_MS.talk, signal: opts.signal })
+  const res = await request<unknown>('POST', '/gm/talk', { body: JSON.stringify(body), timeoutMs: TIMEOUT_MS.talk, signal: opts.signal, access: 'gm' })
   if (!isRecord(res) || typeof res.text !== 'string') return null
   return {
     text: res.text.trim(),

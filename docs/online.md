@@ -73,6 +73,16 @@ acknowledges it and stores one `v2_entitlements` row (erased with the account). 
 stored expiry passed — renewals, cancellations and refunds without an RTDN endpoint. Needs the service account in Play
 Console (`docs/play-store.md` step 7); until then purchases answer 503 and everyone stays free. The web has no checkout.
 
+## Contest demo codes (off by default)
+
+Guests get no model calls, so a contest judge who does not sign in would never see the AI. `MYTHOS_DEMO_CODES`
+(comma/space separated, 6–40 chars of `[A-Za-z0-9_-]`; unset = off) opens the AI for a demo link
+`<service URL>/?demo=<code>`: the client keeps the code in localStorage (`?demo=off` forgets it) and sends it as
+`X-Demo-Code` with `X-Player-Id` on the GM routes and `GET /plan` only. The server maps it to `demo_<sha256(code|id)[:24]>`
+with the **free** allowance per device; saves, daily writes and purchases still need sign-in, and the global daily
+ceiling and the Vertex cap still apply. The title screen says "데모 접속" under the sign-in chip. Rotate a code by
+changing the env var (old links fall back to authored lines). Set it with the next deploy (`.env` → `make deploy-preview`).
+
 ## Vertex spend cap (owner, 2026-10-18: "월 3만원 넘으면 Vertex 자동 차단")
 
 Budget `mythos-vertex-cap-30000 (auto-disable Vertex)` on billing account 010556-A2B7AE-292490: ₩30,000/month for the

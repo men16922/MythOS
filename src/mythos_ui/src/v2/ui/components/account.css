@@ -175,3 +175,10 @@
   line-height: 1.5;
   color: var(--m2-ink-2);
 }
+/* Contest demo code active (net/api.ts demoCode): say so under the sign-in chip. */
+.m2-account__demo {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--m2-gold);
+  text-align: right;
+}

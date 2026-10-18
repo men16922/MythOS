@@ -9,6 +9,9 @@ Identity (``mythos_v2.auth``; mode from ``MYTHOS_AUTH``, default ``open``):
     reserved for signed-in players).
   * mode ``google``: saves, GM and leaderboard writes need a valid token, else 401
     ``{"detail": "sign-in required"}``.
+  * contest demo (off unless ``MYTHOS_DEMO_CODES`` is set): a signed-out ``X-Player-Id`` plus a listed
+    ``X-Demo-Code`` may call ``/gm/*`` and ``/plan`` as ``demo_<sha256(code|id)[:24]>`` (free allowance;
+    never saves, daily writes or purchases).
 
 Routes
   GET  /health                     public; store kind + GM backend
@@ -37,7 +40,8 @@ MYTHOS_V2_NARRATE_TIMEOUT (10), MYTHOS_V2_IMPROVISE_TIMEOUT (12),
 MYTHOS_V2_TALK_TIMEOUT (10), MYTHOS_V2_IX_TIMEOUT (4),
 MYTHOS_V2_GM_PER_MINUTE (20), MYTHOS_V2_GM_PER_DAY (400),
 MYTHOS_V2_WRITES_PER_MINUTE (120), MYTHOS_V2_DAILY_PER_MINUTE (10), MYTHOS_V2_GM_CONCURRENCY (4),
-MYTHOS_V2_GM (on|off), MYTHOS_AUTH (open|google), MYTHOS_FIREBASE_PROJECT, MYTHOS_FIREBASE_WEB_CONFIG.
+MYTHOS_V2_GM (on|off), MYTHOS_AUTH (open|google), MYTHOS_FIREBASE_PROJECT, MYTHOS_FIREBASE_WEB_CONFIG,
+MYTHOS_DEMO_CODES.
 """
 
 # No ``from __future__ import annotations`` here: the route signatures use a
@@ -45,6 +49,7 @@ MYTHOS_V2_GM (on|off), MYTHOS_AUTH (open|google), MYTHOS_FIREBASE_PROJECT, MYTHO
 import asyncio
 import concurrent.futures
 import contextvars
+import hmac
 import json
 import os
 import re
@@ -66,6 +71,7 @@ from mythos_v2.log import get_logger
 
 from . import admin, daily, gm, npc, talk, taunt
 from .auth import (
+    DEMO_PLAYER_PREFIX,
     GOOGLE_PLAYER_PREFIX,
     AccountDeleter,
     AuthConfig,
@@ -76,6 +82,7 @@ from .auth import (
     bearer_token,
     build_account_deleter,
     build_verifier,
+    demo_player_id,
     player_id_for_uid,
 )
 from .billing import (
@@ -534,6 +541,22 @@ def create_v2_router(
             return player_id
         return _client_player_id(x_player_id)
 
+    async def gm_player(
+        request: Request,
+        x_player_id: Annotated[str | None, Header()] = None,
+        x_demo_code: Annotated[str | None, Header()] = None,
+    ) -> str:
+        """``require_player`` for the AI GM routes and ``/plan``, plus the contest demo path: a signed-out
+        device sending a code from ``MYTHOS_DEMO_CODES`` gets its own ``demo_`` id (free allowance, GM only)."""
+        player_id = await signed_in_player(request)
+        if player_id is not None:
+            return player_id
+        code = (x_demo_code or "").strip()
+        client_id = _client_player_id(x_player_id)
+        if code and client_id and any(hmac.compare_digest(code, c) for c in auth_cfg.demo_codes):
+            return demo_player_id(code, client_id)
+        return await require_player(request, x_player_id)
+
     async def require_admin(request: Request) -> str:
         """An allow-listed Google account (verified email), else 401/403. Returns a rate-limit key.
 
@@ -565,6 +588,7 @@ def create_v2_router(
             raise HTTPException(status_code=413, detail="request too large")
 
     player_dep = Annotated[str, Depends(require_player)]
+    gm_player_dep = Annotated[str, Depends(gm_player)]
     optional_player_dep = Annotated[str | None, Depends(optional_player)]
 
     async def store_call(fn: Callable[[V2Store], T]) -> T:
@@ -801,7 +825,8 @@ def create_v2_router(
     def plan_dict(player_id: str, tier: Tier, ent: Entitlement | None) -> dict[str, Any]:
         signed_in = player_id.startswith(GOOGLE_PLAYER_PREFIX)
         admin = player_id in admin_players
-        features = (["ai"] if signed_in or auth_cfg.mode == "open" else []) + (
+        demo = player_id.startswith(DEMO_PLAYER_PREFIX)
+        features = (["ai"] if signed_in or demo or auth_cfg.mode == "open" else []) + (
             ["crpg"] if tier == "plus" else []
         )
         return {
@@ -814,6 +839,7 @@ def create_v2_router(
             if admin
             else budget.status(player_id, tier),
             "admin": admin,
+            "demo": demo,
             "subscription": None
             if ent is None
             else {
@@ -825,7 +851,7 @@ def create_v2_router(
         }
 
     @router.get("/plan")
-    async def v2_plan(player_id: player_dep) -> dict[str, Any]:
+    async def v2_plan(player_id: gm_player_dep) -> dict[str, Any]:
         """The caller's tier, AI budget meter and subscription. Re-checks an expired subscription with Google."""
 
         def _load() -> dict[str, Any]:
@@ -912,7 +938,7 @@ def create_v2_router(
         )
 
     @router.post("/gm/narrate", dependencies=[Depends(limit_gm_body)])
-    async def v2_gm_narrate(body: NarrateBody, player_id: player_dep) -> dict[str, Any]:
+    async def v2_gm_narrate(body: NarrateBody, player_id: gm_player_dep) -> dict[str, Any]:
         if len(json.dumps(body.context, default=str)) > cfg.max_context_bytes:
             raise HTTPException(status_code=413, detail="context too large")
         started = time.perf_counter()
@@ -947,7 +973,7 @@ def create_v2_router(
         return {"text": text, "source": source}
 
     @router.post("/gm/improvise", dependencies=[Depends(limit_gm_body)])
-    async def v2_gm_improvise(body: ImproviseBody, player_id: player_dep) -> dict[str, Any]:
+    async def v2_gm_improvise(body: ImproviseBody, player_id: gm_player_dep) -> dict[str, Any]:
         started = time.perf_counter()
         action = gm.normalize_action(body.action)
         cls = gm.classify_action(action)
@@ -1127,7 +1153,7 @@ def create_v2_router(
         return text, "llm", outcome, intent
 
     @router.post("/gm/report", dependencies=[Depends(limit_gm_body)])
-    async def v2_gm_report(body: ReportBody, player_id: player_dep) -> dict[str, Any]:
+    async def v2_gm_report(body: ReportBody, player_id: gm_player_dep) -> dict[str, Any]:
         """Keep a flagged AI line for the operator (``/admin``). The player id only feeds the rate limit."""
         if not report_limiter.allow(player_id):
             raise HTTPException(status_code=429, detail="too many reports")
@@ -1139,7 +1165,7 @@ def create_v2_router(
         return {"ok": True}
 
     @router.post("/gm/talk", dependencies=[Depends(limit_gm_body)])
-    async def v2_gm_talk(body: TalkBody, player_id: player_dep) -> dict[str, Any]:
+    async def v2_gm_talk(body: TalkBody, player_id: gm_player_dep) -> dict[str, Any]:
         """Companion chat reply or one IX comms line. Never changes game state; any miss
         serves an authored line (``source: "fallback"``)."""
         if len(json.dumps(body.context, default=str)) > cfg.max_context_bytes:

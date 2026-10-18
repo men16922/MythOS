@@ -8,6 +8,7 @@ import type { AuthUser } from '../../net/auth.ts'
 import { tr } from '../common/lang.ts'
 import { ACCOUNT_WHY, DELETE_WARNING, initialOf, useAccountActions, useAuthStatus, type AccountNote } from './account.ts'
 import { Modal } from './Modal.tsx'
+import { usePlan } from './plan.ts'
 import { sound } from './sound.ts'
 import './account.css'
 
@@ -39,6 +40,7 @@ export function AccountChip({ lang }: { lang: Lang }) {
   const status = useAuthStatus()
   const { busy, note, signIn, signOut, clearNote } = useAccountActions()
   const [sheet, setSheet] = useState(false)
+  const plan = usePlan()
 
   // A sign-in outcome line fades out on its own after a while.
   useEffect(() => {
@@ -115,6 +117,11 @@ export function AccountChip({ lang }: { lang: Lang }) {
           <small>{tr(ACCOUNT_WHY, lang)}</small>
         </span>
       </button>
+      {plan.demo && (
+        <p className="m2-account__demo" data-testid="demo-chip">
+          {ko ? '데모 접속 — 로그인 없이 AI 대사가 켜져 있다 (기기당 한도)' : 'Demo access — AI lines are on without sign-in (per-device allowance)'}
+        </p>
+      )}
       <Note note={note} lang={lang} />
     </div>
   )

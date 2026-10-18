@@ -433,3 +433,39 @@
     animation: none;
   }
 }
+
+.m2-comp-whisper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 720px;
+  margin: -10px 0 18px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--m2-amber);
+  background: linear-gradient(90deg, rgba(255, 182, 72, 0.1), rgba(8, 22, 28, 0.72));
+  border-radius: 0 6px 6px 0;
+  animation: m2-rise 0.4s var(--m2-ease) both;
+}
+.m2-comp-whisper img {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  border: 1.5px solid var(--m2-amber);
+}
+.m2-comp-whisper b {
+  display: block;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--m2-amber);
+  margin-bottom: 2px;
+}
+.m2-comp-whisper p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--m2-ink);
+}
+

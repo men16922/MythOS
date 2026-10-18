@@ -79,6 +79,36 @@ const OPENING: EventDef = {
         ],
       },
     },
+    {
+      label: t('추락한 진압 드론의 블랙박스를 뜯어낸다', 'Rip the blackbox from a downed riot drone'),
+      hint: t('임플란트 · −7 HP · 추적 +10', 'Implant · −7 HP · +10 Trace'),
+      success: {
+        text: t(
+          '전류가 손끝을 지지고 지나가지만 군용 신경 모듈이 통째로 뽑혀 나온다. 골목 끝 사이렌이 단숨에 가까워진다.',
+          'Current scorches your fingers, but the military neural module comes free in one piece. The sirens at the alley mouth surge closer.',
+        ),
+        effects: [
+          { kind: 'implant', rarity: 'uncommon' },
+          { kind: 'hp', amount: -7 },
+          { kind: 'trace', amount: 10 },
+        ],
+      },
+    },
+    {
+      label: t('배급 캡슐의 암시장 정산 단말을 해킹한다', 'Siphon the ration capsule’s black-market ledger'),
+      hint: t('90₵ · 지능 +1 · 잡음 카드', '90₵ · +1 INT · Static card'),
+      success: {
+        text: t(
+          '익명 계좌에서 크레딧이 쏟아져 들어온다. 역류한 피드백 잡음이 신경망 한구석에 찌꺼기처럼 달라붙는다.',
+          'Credits pour out of an anonymous escrow account. Backwash static clings to the edge of your neural link.',
+        ),
+        effects: [
+          { kind: 'credits', amount: 90 },
+          { kind: 'stat', stat: 'int', amount: 1 },
+          { kind: 'junk', cardId: 'static' },
+        ],
+      },
+    },
   ],
   gmHints: ['opening', 'first moral choice', 'searchlights', 'old man or data core'],
 }

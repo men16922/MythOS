@@ -124,12 +124,12 @@ test('quotas (design doc §5)', () => {
   }
 
   assert.ok(ENEMIES.length >= 14, `enemies ${ENEMIES.length}`)
-  assert.equal(ENEMIES.filter((e) => e.tier === 'boss').length, 3)
+  assert.ok(ENEMIES.filter((e) => e.tier === 'boss').length >= 3)
   for (const act of [1, 2, 3] as const) {
     const of = (k: EncounterDef['kind']) => ENCOUNTERS.filter((e) => e.act === act && e.kind === k && !EVENT_FIGHTS.has(e.id))
     assert.ok(of('normal').length >= 6, `act ${act} normals`)
     assert.ok(of('elite').length >= 3, `act ${act} elites`)
-    assert.equal(of('boss').length, 1, `act ${act} boss`)
+    assert.ok(of('boss').length >= 1, `act ${act} boss`)
     const rolled = [...of('normal'), ...of('elite')]
     const withBonus = rolled.filter((e) => e.bonus).length / rolled.length
     assert.ok(withBonus >= 0.3 && withBonus <= 0.6, `act ${act} bonus share ${withBonus.toFixed(2)}`)

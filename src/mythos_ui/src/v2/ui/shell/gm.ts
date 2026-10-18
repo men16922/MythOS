@@ -50,18 +50,87 @@ function cleanText(t: Improvisation['successText']): Improvisation['successText'
   return { ko: cleanGmText(t.ko ?? ''), en: cleanGmText(t.en ?? '') }
 }
 
-/** Returns the GM's line, or null (no backend, timeout, or a server fallback when `acceptFallback` is off). */
+function localNarrate(kind: NarrateKind, lang: Lang, context: Ctx): string | null {
+  const ko = lang === 'ko'
+  const party = Array.isArray(context.party) ? context.party.filter(Boolean) : []
+  const comp = party[0]
+  if (kind === 'act_intro') {
+    const act = Number(context.act ?? 1)
+    const loop = Number(context.loop ?? 1)
+    if (act === 1) {
+      return ko
+        ? `${loop}번째 루프의 빗물이 네오-서울 하층부의 네온 위로 떨어진다.${comp ? ` ${comp}의 시선이 먼저 골목 끝 감시 드론을 짚어낸다.` : ' 신호는 아직 희미하지만 분명히 살아 있다.'}`
+        : `Rain of Loop ${loop} hits the neon of Neo-Seoul's undercity.${comp ? ` ${comp}'s eyes lock onto the patrol drone at the end of the alley first.` : ' The signal is faint, but unmistakably alive.'}`
+    }
+    if (act === 2) {
+      return ko
+        ? `데이터 스파이어의 냉각풍이 귓가를 스친다.${comp ? ` ${comp}와(과) 나란히 선 당신 위로 IX의 감시망이 촘촘히 좁혀온다.` : ' 여기서부터는 모든 발걸음이 기록된다.'}`
+        : `Cooling winds from the Data Spire cut past your ears.${comp ? ` Above you and ${comp}, IX's surveillance lattice tightens.` : ' Every step from here is logged.'}`
+    }
+    return ko
+      ? `아크 코어 심장부. 모든 루프의 기억과 반향이 이 한 점으로 수렴한다.`
+      : `The heart of the ARK Core. Every loop's memory and echo converges on this single point.`
+  }
+  if (kind === 'event') {
+    const title = String(context.title ?? '')
+    const choice = typeof context.choice === 'string' ? context.choice : ''
+    const trace = Number(context.trace ?? 0)
+    const seenBefore = Number(context.seenBefore ?? 0)
+    if (choice) {
+      const success = context.success
+      if (success === true) {
+        return ko
+          ? `“${choice}” — 망설임 없는 판단이 스파이어의 예측 모델을 한 박자 앞질렀다.${comp ? ` ${comp}도 짧게 고개를 끄덕인다.` : ''}`
+          : `“${choice}” — an unflinching call that beats the Spire's prediction model by half a beat.${comp ? ` ${comp} gives a short nod.` : ''}`
+      }
+      if (success === false) {
+        return ko
+          ? `“${choice}” — 어긋난 박자 사이로 경보 파형이 스쳤지만, 아직 숨을 고를 틈은 남아 있다.`
+          : `“${choice}” — an alarm waveform grazes past the missed beat, though there is still room to steady your breath.`
+      }
+      return ko
+        ? `선택의 여파가 빗물 고인 아스팔트 위로 잔향처럼 번진다.${comp ? ` ${comp}이(가) 주변 신호를 다시 스캔한다.` : ''}`
+        : `The aftermath of your choice ripples across the rain-slick asphalt.${comp ? ` ${comp} scans the surrounding frequencies again.` : ''}`
+    }
+    if (seenBefore > 0) {
+      return ko
+        ? `이미 지난 루프에서 스쳐 간 ‘${title}’의 잔상이 겹쳐 보인다.${comp ? ` 옆에 선 ${comp}의 숨결만이 지금 이 순간이 새로운 루프임을 일깨운다.` : ' 이번에는 다른 결말을 새길 차례다.'}`
+        : `An afterimage of "${title}" from an earlier loop overlaps the scene.${comp ? ` Only ${comp}'s presence beside you marks this moment as new.` : ' This time, the outcome is yours to rewrite.'}`
+    }
+    if (trace >= 45) {
+      return ko
+        ? `추적 수치(${trace})가 위험역에 가까워지며 구역 전체의 전류가 미세하게 떨린다.${comp ? ` ${comp}이(가) 낮게 경계 신호를 보낸다.` : ''}`
+        : `With Trace at ${trace}, the district's current hums on edge.${comp ? ` ${comp} signals a quiet warning.` : ''}`
+    }
+    return ko
+      ? `${title ? `‘${title}’ 현장.` : '현장 진입.'} 네온 그림자 너머로 선택의 대가가 조용히 저울질되고 있다.${comp ? ` ${comp}이(가) 당신의 다음 신호를 기다린다.` : ''}`
+      : `${title ?AtScene(title) : 'On site.'} Behind the neon shadows, the weight of the next move hangs in the balance.${comp ? ` ${comp} waits on your signal.` : ''}`
+  }
+  if (kind === 'ix_loop_start') {
+    const loop = Number(context.loop ?? 1)
+    return ko
+      ? `[IX // 루프 ${loop}] “다시 접속하셨군요. 이번 주파수는 이전보다 조금 더 흥미로운 파형을 그리길 기대하겠습니다.”`
+      : `[IX // Loop ${loop}] “Connected again. Let us see if your frequency traces a more interesting waveform this time.”`
+  }
+  return null
+}
+
+function AtScene(title: string): string {
+  return `At "${title}".`
+}
+
+/** Returns the GM's line, or contextual local GM narration when the backend is skipped/unreachable. */
 export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeoutMs = 12000, acceptFallback = false): Promise<string | null> {
   if (!aiEnabled) return null
   try {
     const res = await withTimeout(net.narrate({ kind, lang, context }), timeoutMs)
-    if (!res) return null
-    if (res.source === 'fallback' && !acceptFallback) return null
+    if (!res) return localNarrate(kind, lang, context)
+    if (res.source === 'fallback' && !acceptFallback) return localNarrate(kind, lang, context)
     const text = res.text ? cleanGmText(res.text) || null : null
     if (text && res.source === 'llm') noteAiLine({ route: 'narrate', kind, lang, text })
-    return text
+    return text ?? localNarrate(kind, lang, context)
   } catch {
-    return null
+    return localNarrate(kind, lang, context)
   }
 }
 
@@ -132,16 +201,70 @@ const KEYWORDS: [StatKey, RegExp][] = [
 const REWARD_BY_STAT: Record<StatKey, Improvisation['reward']> = { str: 'credits', agi: 'trace_down', int: 'card', cha: 'credits', obs: 'heal' }
 const RISK_BY_STAT: Record<StatKey, Improvisation['risk']> = { str: 'hp', agi: 'trace', int: 'trace', cha: 'credits', obs: 'hp' }
 
+const IMPROV_TEXT: Record<StatKey, { win: { ko: string; en: string }; lose: { ko: string; en: string } }> = {
+  int: {
+    win: {
+      ko: '회로망의 빈틈을 정확히 파고들었다. 방화벽이 무음으로 열리며 숨겨진 데이터 패킷이 손안에 떨어진다.',
+      en: 'You thread the gap in the circuit. The firewall opens silently, dropping a hidden data packet into your hands.',
+    },
+    lose: {
+      ko: '역추적 펄스가 손끝을 스쳤다. 급히 접속을 끊었지만 IX의 감시망에 파문이 남았다.',
+      en: 'A counter-trace pulse grazes your fingertips. You jack out fast, but ripples linger on the Spire grid.',
+    },
+  },
+  cha: {
+    win: {
+      ko: '흔들림 없는 어조가 상대의 경계를 허물었다. 보이지 않던 거래 창구가 당신 앞에 열린다.',
+      en: 'Your steady tone disarms their guard. An off-the-books channel opens in your favor.',
+    },
+    lose: {
+      ko: '눈빛에서 의도가 읽혔다. 자리를 빠져나오느라 적잖은 대가를 치러야 했다.',
+      en: 'They read the angle in your eyes. Backing out cleanly costs you more than planned.',
+    },
+  },
+  obs: {
+    win: {
+      ko: '모두가 지나친 미세한 신호의 어긋남을 포착했다. 호흡을 가다듬고 가장 안전한 경로를 확보한다.',
+      en: 'You catch the subtle break in the pattern everyone else missed, steadying your breath along a safe vector.',
+    },
+    lose: {
+      ko: '미끼 신호에 시선이 묶인 사이 사각지대에서 충격파가 스쳤다.',
+      en: 'A decoy signal holds your gaze a beat too long, and a shockwave grazes you from the blind spot.',
+    },
+  },
+  agi: {
+    win: {
+      ko: '감시 레이저가 교차하는 찰나의 사각으로 몸을 날렸다. 흔적조차 남기지 않고 구역을 빠져나간다.',
+      en: 'You slip through the split-second blind spot between sweep lasers, leaving zero trace behind.',
+    },
+    lose: {
+      ko: '착지 순간 빗물 고인 배관이 울렸다. 센서 드론의 서치라이트가 등 뒤를 훑는다.',
+      en: 'Rain-slick piping rings out on landing. A sensor drone sweeps its searchlight across your back.',
+    },
+  },
+  str: {
+    win: {
+      ko: '거침없는 일격으로 봉인 장치를 단숨에 우그러뜨렸다. 파편 사이로 전리품이 쏟아진다.',
+      en: 'One decisive strike buckles the lock assembly. Salvage spills out from the shattered housing.',
+    },
+    lose: {
+      ko: '장갑판의 반동이 예상보다 거셌다. 어깨에 전해진 충격을 털어내며 물러선다.',
+      en: 'The armor plate kicks back harder than expected. You shake off the jolt and step back.',
+    },
+  },
+}
+
 function localImprovise(action: string): Improvisation {
   const stat = KEYWORDS.find(([, re]) => re.test(action))?.[0] ?? 'obs'
+  const lines = IMPROV_TEXT[stat]
   return {
     action,
     stat,
     dc: 6,
     reward: REWARD_BY_STAT[stat],
     risk: RISK_BY_STAT[stat],
-    successText: { ko: '계획대로 풀렸다. 틈이 생겼고, 당신은 그 틈을 놓치지 않았다.', en: 'It works. A gap opens, and you take it.' },
-    failureText: { ko: '어긋났다. 대가를 치르고 물러선다.', en: 'It goes wrong. You pay for it and back off.' },
+    successText: lines.win,
+    failureText: lines.lose,
   }
 }
 

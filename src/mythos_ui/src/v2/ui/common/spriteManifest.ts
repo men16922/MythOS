@@ -171,6 +171,8 @@ export const V2_SPRITE_FOR_ENEMY: Record<string, string> = {
   aegis_drone: 'aegis-drone',
   sentinel_overseer: 'sentinel-overseer',
   incinerator: 'incinerator',
+  jujak_core: 'incinerator',
+  arachne_queen: 'brood-mother',
   scrap_drone: 'scrap-drone',
   spiderling: 'spiderling',
   hunter_spider: 'hunter-spider',

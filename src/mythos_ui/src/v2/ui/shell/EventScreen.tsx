@@ -257,8 +257,69 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
     else act(next)
   }
 
+function companionWhisperText(compId: string, ev: EventDef, lang: Lang): string {
+  const ko = lang === 'ko'
+  const hasInt = ev.options.some((o) => o.check?.stat === 'int')
+  const hasCha = ev.options.some((o) => o.check?.stat === 'cha')
+  const hasImplant = ev.options.some((o) => o.success.effects.some((e) => e.kind === 'implant'))
+  if (ev.id === 'a1_opening') {
+    if (compId === 'se_rin') {
+      return ko
+        ? '“저 진압 드론 블랙박스에 군용 임플란트가 박혀 있어. 피 좀 보겠지만 초반부터 화력을 당길지, 안전하게 크레딧을 챙길지 네가 정해.”'
+        : '“That riot drone blackbox still holds a military implant. Bleeding early for firepower or playing it safe for credits—your call.”'
+    }
+    return ko
+      ? '“첫 갈림길이야. 무리해서 임플란트와 장부를 털지, 흔적을 지우며 진입할지 여기서 이번 루프의 리듬이 갈려.”'
+      : '“First crossroads. Whether we push hard for an implant and ledger or slip in clean sets the rhythm for this whole loop.”'
+  }
+  switch (compId) {
+    case 'se_rin':
+      return hasImplant
+        ? ko
+          ? '“냄새가 나는데… 위험해도 한 건 크게 건질 수 있겠어. 단속국 추적 수치만 조심해.”'
+          : '“Smells like a big score if we take the risk. Just watch the Enforcement trace.”'
+        : ko
+          ? '“수상한 낌새가 있으면 바로 빠져. 아니면 아예 판을 뒤집는 행동(자유 행동)을 적어 봐.”'
+          : '“If it smells like a trap, we bolt—or improvise a move they didn’t script.”'
+    case 'tae_o':
+      return ko
+        ? '“퇴로부터 확인했다. 정면 돌파든 우회든 네 신호에 맞춰 즉시 움직인다.”'
+        : '“Exit vector confirmed. Frontal breach or bypass—I move on your mark.”'
+    case 'han':
+      return hasInt
+        ? ko
+          ? '“오, 저기 해킹 포인트 보인다! 지능(INT) 판정이나 자유 행동으로 단말기를 털어 보자!”'
+          : '“Ooh, I see an access port! Let’s crack it with an INT check or Improvise!”'
+        : ko
+          ? '“정해진 선택지가 마음에 안 들면 밑에 자유 행동으로 해킹해 버리자고!”'
+          : '“If the standard options look boring, let’s improvise a hack down below!”'
+    case 'su_ah':
+      return ko
+        ? '“체력 소모가 큰 선택지는 신중하게 골라. 다음 교차로에서 무슨 일이 생길지 모르니까.”'
+        : '“Be careful with choices that bleed HP. We don’t know what’s waiting at the next junction.”'
+    case 'kai':
+      return hasCha
+        ? ko
+          ? '“대화로 풀 수 있는 여지가 보여요. 진심을 담아 설득해 보면 어떨까요?”'
+          : '“There’s room to resolve this with words. Maybe we can persuade them?”'
+        : ko
+          ? '“주변 신호 파형을 스캔 중이에요. 접속자님의 직감을 믿을게요.”'
+          : '“Scanning ambient waveforms. I trust your intuition, Connector.”'
+    case 'lin_yue':
+      return ko
+        ? '“수지타산부터 따져 보자고. 위험 감수할 만큼의 보상이 있는지가 핵심이야.”'
+        : '“Let’s run the numbers first. The only question is whether the payout justifies the risk.”'
+    default:
+      return ko
+        ? '“신호 파형이 흔들리고 있어. 신중하게 선택해.”'
+        : '“The signal waveform is shifting. Choose carefully.”'
+  }
+}
+
   const ko = lang === 'ko'
   const done = !!resolved || !!rolled
+  const leadCompId = !ev.speaker ? run.party.find((m) => m.hp > 0)?.id : undefined
+  const leadComp = leadCompId ? C.companions[leadCompId] : undefined
 
   return (
     <div className="m2-event">
@@ -286,6 +347,15 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
       <div className="m2-event__panel">
         <h1 className="m2-event__title">{tr(ev.title, lang)}</h1>
         <Typewriter className="m2-event__text" text={tr(ev.text, lang)} cps={settings.fastAnim ? 400 : 110} onDone={() => setIntroDone(`${ev.id}:${run.rng}`)} />
+        {leadComp && leadCompId && !done && (
+          <div className="m2-comp-whisper" data-testid="companion-whisper">
+            <img src={portrait(leadComp.sprite)} alt="" />
+            <div>
+              <b>{tr(leadComp.name, lang)} · {ko ? '동료의 조언' : 'Companion Note'}</b>
+              <p>{companionWhisperText(leadCompId, ev, lang)}</p>
+            </div>
+          </div>
+        )}
         {ev.ixMirror && introDone === `${ev.id}:${run.rng}` && <IxMirrorBlock run={run} lang={lang} />}
 
         {rolling && (

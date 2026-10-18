@@ -568,10 +568,10 @@ const LIN_YUE: DialogueDef = {
 export const CAMP_DIALOGUES: DialogueDef[] = [SE_RIN, TAE_O, HAN, SU_AH, KAI, LIN_YUE]
 
 export const CAMP_SCENES: CampSceneDef[] = [
-  { companion: 'se_rin', minApproval: 3, dialogue: 'camp_se_rin' },
-  { companion: 'tae_o', minApproval: 3, dialogue: 'camp_tae_o' },
-  { companion: 'han', minApproval: 3, dialogue: 'camp_han' },
-  { companion: 'su_ah', minApproval: 3, dialogue: 'camp_su_ah' },
-  { companion: 'kai', minApproval: 3, dialogue: 'camp_kai' },
-  { companion: 'lin_yue', minApproval: 3, dialogue: 'camp_lin_yue' },
+  { companion: 'se_rin', minApproval: 2, dialogue: 'camp_se_rin' },
+  { companion: 'tae_o', minApproval: 2, dialogue: 'camp_tae_o' },
+  { companion: 'han', minApproval: 2, dialogue: 'camp_han' },
+  { companion: 'su_ah', minApproval: 2, dialogue: 'camp_su_ah' },
+  { companion: 'kai', minApproval: 2, dialogue: 'camp_kai' },
+  { companion: 'lin_yue', minApproval: 2, dialogue: 'camp_lin_yue' },
 ]

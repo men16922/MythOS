@@ -1,13 +1,13 @@
 // Party banter: content integrity and the deterministic pick (content/banter.ts, ui/shell/banterPick.ts).
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { BANTER, banterFor } from '../../content/banter.ts'
+import { BANTER, banterFor, SOLO_BANTER } from '../../content/banter.ts'
 import { CONTENT as C } from '../../content/index.ts'
 import { newCrpgState } from '../../engine/crpg.ts'
 import { newProfile } from '../../engine/meta.ts'
 import { newRun } from '../../engine/run.ts'
 import type { RunState } from '../../engine/types.ts'
-import { pickBanter } from './banterPick.ts'
+import { pickBanter, pickSoloBanter } from './banterPick.ts'
 
 test('banter: known companions, speakers from the pair, 2–4 short lines, both languages, unique ids', () => {
   const ids = new Set<string>()
@@ -40,3 +40,14 @@ test('pickBanter: only with the Signal+ layer and two deployed, deterministic pe
   assert.equal(new Set(played.slice(0, pool)).size, Math.min(pool, played.length), 'no repeat before the pool is used up')
   assert.equal(pickBanter({ ...at(crpg, 3), party: base.party }), null, 'one companion: nobody to talk to')
 })
+
+test('pickSoloBanter: Companion <-> Connector banter fires on node 1 in Act 1 when 1 companion is deployed', () => {
+  assert.ok(SOLO_BANTER.length >= 6)
+  const base = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 3, now: '2026-10-18T00:00:00.000Z' }, C)
+  const onMap: RunState = { ...base, screen: { kind: 'map' }, visited: ['a1_r0_c0'] }
+  const solo = pickSoloBanter(onMap)
+  assert.ok(solo, 'first map arrival with 1 companion guarantees solo banter')
+  assert.equal(solo.pair[0], 'se_rin')
+  assert.equal(solo.pair[1], 'connector')
+})
+

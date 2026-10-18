@@ -168,3 +168,72 @@ export function banterFor(party: readonly string[], act: 1 | 2 | 3): BanterDef[]
   const [a, b] = party
   return BANTER.filter((x) => ((x.pair[0] === a && x.pair[1] === b) || (x.pair[0] === b && x.pair[1] === a)) && (!x.acts || x.acts.includes(act)))
 }
+
+/** Act 1 solo-companion <-> Connector exchanges so the map feels alive even before a second companion joins. */
+export const SOLO_BANTER: BanterDef[] = [
+  {
+    id: 'b_solo_serin_signal',
+    pair: ['se_rin', 'connector'],
+    lines: [
+      { who: 'se_rin', text: t('잠깐, 귀에 대 봐. 이 구역 중계기… 방금 네 이름을 흘렸어.', 'Hold up, listen. That relay tower just leaked your callsign.') },
+      { who: 'connector', text: t('IX가 벌써 주파수를 역추적하고 있군.', 'IX is already back-tracing our frequency.') },
+      { who: 'se_rin', text: t('쫄지 마. 내가 뒷골목 우회로 다 외워 놨으니까.', 'Don’t sweat it. I know every back-alley bypass in this sector.') },
+    ],
+  },
+  {
+    id: 'b_solo_serin_neon',
+    pair: ['se_rin', 'connector'],
+    lines: [
+      { who: 'se_rin', text: t('저기 네온 간판 깜빡이는 박자 보여? 순찰 드론 교대 신호야.', 'See the rhythm on that flickering neon sign? Patrol drone shift change.') },
+      { who: 'connector', text: t('타이밍 맞춰서 치고 빠지면 되겠어.', 'Then we strike right on the beat and slip through.') },
+    ],
+  },
+  {
+    id: 'b_solo_taeo_watch',
+    pair: ['tae_o', 'connector'],
+    lines: [
+      { who: 'tae_o', text: t('전방 삼십 미터. 단속국 검문소 잔해다.', 'Thirty meters ahead. Wreckage of an Enforcement checkpoint.') },
+      { who: 'connector', text: t('익숙한 풍경이겠군, 태오.', 'Must be a familiar sight for you, Tae-o.') },
+      { who: 'tae_o', text: t('과거형이다. 지금은 네 신호만 따른다.', 'Past tense. Now I follow your signal alone.') },
+    ],
+  },
+  {
+    id: 'b_solo_han_ping',
+    pair: ['han', 'connector'],
+    lines: [
+      { who: 'han', text: t('야야, 방금 내 덱에 이상한 에코 패킷이 스쳤는데? 이거 지난 루프 거 아냐?', 'Yo, a weird echo packet just grazed my deck. Isn’t this from last loop?') },
+      { who: 'connector', text: t('잡음에 한눈팔지 마. 사거리 안에 적기가 있어.', 'Don’t get distracted by static. Hostiles are in range.') },
+      { who: 'han', text: t('알았다고~ 그래도 로그는 따 놓을 거야!', 'Yeah, yeah~ Still saving the log though!') },
+    ],
+  },
+  {
+    id: 'b_solo_suah_breath',
+    pair: ['su_ah', 'connector'],
+    lines: [
+      { who: 'su_ah', text: t('호흡이 조금 빨라졌어. 접속 부하가 올라오나 봐.', 'Your breathing’s quicker. The neural link load must be climbing.') },
+      { who: 'connector', text: t('아직 버틸 만해. 다음 교차로까진 문제없어.', 'Still manageable. I can hold until the next junction.') },
+      { who: 'su_ah', text: t('무리하진 마. 네가 흔들리면 신호도 흔들리니까.', 'Don’t push too hard. If you waver, the signal wavers with you.') },
+    ],
+  },
+  {
+    id: 'b_solo_kai_rain',
+    pair: ['kai', 'connector'],
+    lines: [
+      { who: 'kai', text: t('접속자님, 빗소리가 매 루프마다 조금씩 다른 것 같아요.', 'Connector, I think the rain sounds a little different every loop.') },
+      { who: 'connector', text: t('네 감각 센서가 점점 사람처럼 변하고 있나 보네.', 'Maybe your sensory array is growing more human, Kai.') },
+    ],
+  },
+  {
+    id: 'b_solo_linyue_odds',
+    pair: ['lin_yue', 'connector'],
+    lines: [
+      { who: 'lin_yue', text: t('이번 판 배당률이 꽤 높게 잡혔어. 살아남기만 하면 대박이야.', 'The odds on this run are stacked high. Survive, and we cash in big.') },
+      { who: 'connector', text: t('수수료 계산은 이 구역을 뚫고 나서 해.', 'Save the commission math until after we breach this sector.') },
+    ],
+  },
+]
+
+export function soloBanterFor(companionId: string, act: 1 | 2 | 3): BanterDef[] {
+  return SOLO_BANTER.filter((x) => x.pair[0] === companionId && (!x.acts || x.acts.includes(act)))
+}
+

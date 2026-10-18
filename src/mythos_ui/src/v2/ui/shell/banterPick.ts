@@ -1,5 +1,5 @@
 // Which party banter (content/banter.ts) plays on this map arrival — deterministic per run and node.
-import { banterFor, type BanterDef } from '../../content/banter.ts'
+import { banterFor, soloBanterFor, type BanterDef } from '../../content/banter.ts'
 import { hashSeed } from '../../engine/rng.ts'
 import type { RunState } from '../../engine/types.ts'
 
@@ -31,4 +31,20 @@ export function pickBanter(run: RunState): BanterDef | null {
   const turn = run.visited.filter((_, i) => hash(`${run.seed}:banter:${i + 1}`) <= BANTER_CHANCE).length - 1
   return order[turn % order.length] ?? null
 }
+
+/** Companion <-> Connector map banter when only 1 companion is deployed (e.g. Act 1). Always fires after the opening node (`visited.length === 1`). */
+export function pickSoloBanter(run: RunState): BanterDef | null {
+  if (run.screen.kind !== 'map' || run.visited.length === 0) return null
+  const alive = run.party.filter((m) => m.hp > 0)
+  if (alive.length !== 1) return null
+  const compId = alive[0]!.id
+  const options = soloBanterFor(compId, run.act)
+  if (options.length === 0) return null
+  const n = run.visited.length
+  const roll = hash(`${run.seed}:solobanter:${n}`)
+  if (n !== 1 && roll > BANTER_CHANCE) return null
+  const order = [...options].sort((a, b) => hash(`${run.seed}:${a.id}`) - hash(`${run.seed}:${b.id}`))
+  return order[(n - 1) % order.length] ?? null
+}
+
 

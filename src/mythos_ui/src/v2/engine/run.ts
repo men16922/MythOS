@@ -17,6 +17,7 @@
 
 import { startCombat } from './combat.ts'
 import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, takeCombatMods } from './crpg.ts'
+import { advanceDirectiveOnWin } from './directives.ts'
 import { AUTONOMY_ACT_SCRUB, autonomyDc, autonomyLevel, echoEffects, echoOffers } from './legacy.ts'
 import { advanceThoughts, offerThought } from './thoughts.ts'
 import { dailySeed, isDateKey } from './daily.ts'
@@ -767,6 +768,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   }
   next.consumables = combat.consumables.filter((id) => C.consumables[id]).slice(0, MAX_CONSUMABLES)
   gainTrace(next, combat.trace, C)
+  advanceDirectiveOnWin(next, combat, nodeKind)
   if (nodeKind === 'elite') {
     next.tally.elites += 1
     next.growth = (next.growth ?? 0) + 1

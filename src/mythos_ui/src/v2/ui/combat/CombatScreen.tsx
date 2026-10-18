@@ -256,20 +256,23 @@ export function CombatScreen(props: CombatScreenProps) {
   const conn = combat.units.find((u) => u.uid === 'connector')
   const crisis = !!conn && conn.hp / Math.max(1, conn.maxHp) < 0.35
   const act = enc?.act ?? props.run.act ?? 1
+  const highTrace = (props.run?.trace ?? 0) >= 55
   const bgm: Bgm =
     enc?.kind === 'boss'
-      ? act === 1
-        ? 'boss1'
-        : act === 2
-          ? 'boss2'
+      ? combat.encounterId === 'a1_boss_jujak' || combat.encounterId === 'a2_boss_echo_eater'
+        ? 'boss2'
+        : act === 1 || combat.encounterId === 'a2_boss_arachne'
+          ? 'boss1'
           : 'boss_ix'
-      : enc?.kind === 'elite' || crisis
+      : enc?.kind === 'elite' || crisis || highTrace
         ? 'elite'
-        : act === 2
-          ? 'combat2'
-          : act === 3
-            ? 'combat3'
-            : 'combat1'
+        : enc?.objective?.kind === 'survive' || enc?.bonus?.kind === 'protect'
+          ? 'combat3'
+          : act === 2 || enc?.backdrop === 'industrial' || combat.encounterId.includes('ambush') || combat.encounterId.startsWith('a1_n2_')
+            ? 'combat2'
+            : act === 3
+              ? 'combat3'
+              : 'combat1'
   useEffect(() => {
     playBgm(bgm)
   }, [bgm])

@@ -1,6 +1,6 @@
 // Mythos 2.0 — act map (Slay-the-Spire style, boss at the top).
 import { art } from '../components/art.ts'
-import { CircleQuestionMark, Landmark, Package, Skull, Store, Swords, Tent, TrendingUp } from 'lucide-react'
+import { CheckCircle2, CircleQuestionMark, Crosshair, Landmark, Package, Skull, Store, Swords, Tent, TrendingUp } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { MapNode, NodeKind } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
@@ -46,6 +46,7 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
   const scrollRef = useRef<HTMLDivElement>(null)
   const actDef = C.acts[run.act]
   const tier = traceTier(run.trace)
+  const dir = useMemo(() => rx.directiveState(run), [run])
 
   const pos = useMemo(() => {
     const out: Record<string, { x: number; y: number }> = {}
@@ -92,12 +93,39 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
 
   const tipFor = (n: MapNode) => {
     const enc = n.encounterId ? C.encounters[n.encounterId] : undefined
+    const bonusTag =
+      enc?.objective?.kind === 'survive'
+        ? lang === 'ko'
+          ? `⧗ ${enc.objective.turns}턴 버티기 작전`
+          : `⧗ Hold out ${enc.objective.turns} turns`
+        : enc?.bonus?.kind === 'environment'
+          ? lang === 'ko'
+            ? `★ 보너스: 환경 처치 ${enc.bonus.count}회`
+            : `★ Bonus: ${enc.bonus.count} environment kill(s)`
+          : enc?.bonus?.kind === 'turn_limit'
+            ? lang === 'ko'
+              ? `★ 보너스: ${enc.bonus.turns}턴 이내 승리`
+              : `★ Bonus: Win in ${enc.bonus.turns} turns`
+            : enc?.bonus?.kind === 'untouched'
+              ? lang === 'ko'
+                ? '★ 보너스: 무피해 돌파'
+                : '★ Bonus: Untouched win'
+              : enc?.bonus?.kind === 'protect'
+                ? lang === 'ko'
+                  ? '★ 보너스: 아군 구조물/유닛 호위'
+                  : '★ Bonus: Protect neutral ally'
+                : null
     return (
       <div>
         <div className="m2-tip__title">{tr(NODE_LABEL[n.kind], lang)}</div>
-        {enc && (n.kind === 'elite' || n.kind === 'boss') && (
-          <div className="m2-tip__text" style={{ color: 'var(--m2-threat-2)' }}>
+        {enc && (
+          <div className="m2-tip__text" style={{ color: n.kind === 'elite' || n.kind === 'boss' ? 'var(--m2-threat-2)' : 'var(--m2-cyan)' }}>
             {tr(enc.name, lang)}
+          </div>
+        )}
+        {bonusTag && (
+          <div className="m2-tip__text" style={{ color: 'var(--m2-gold)', fontWeight: 600 }}>
+            {bonusTag}
           </div>
         )}
         <div className="m2-tip__text">{tr(NODE_HINT[n.kind], lang)}</div>
@@ -121,6 +149,74 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
 
         {/* Thoughts live in the map's side panel: never over another screen's buttons. */}
         <ThoughtCabinet run={run} C={C} lang={lang} act={act} />
+
+        {/* Chapter Tactical Directive (작전 지령): gives each Act a clear replayable objective + reward cache. */}
+        <div className={`m2-directive${dir.completed && !dir.claimed ? ' is-ready' : ''}`} data-testid="tactical-directive">
+          <div className="m2-directive__head">
+            <Crosshair size={14} />
+            <span>{lang === 'ko' ? `${run.act}막 작전 지령` : `Act ${run.act} Tactical Directive`}</span>
+            {dir.selected && (
+              <b className="m2-mono">
+                {dir.claimed ? (lang === 'ko' ? '완료' : 'DONE') : `${dir.progress}/${dir.target}`}
+              </b>
+            )}
+          </div>
+          {!dir.selected ? (
+            <>
+              <p className="m2-directive__lead">
+                {lang === 'ko'
+                  ? '이번 챕터에서 수행할 전술 목표를 선택하십시오. 달성 시 즉시 특별 보급품을 수령합니다.'
+                  : 'Choose a tactical objective for this chapter to earn a special supply cache.'}
+              </p>
+              <div className="m2-directive__choices">
+                {dir.offered.map((d, idx) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    className="m2-directive__option"
+                    data-testid={`directive-opt-${idx + 1}`}
+                    onClick={() => {
+                      sound('ui_click')
+                      act(rx.selectDirective(run, idx + 1))
+                    }}
+                  >
+                    <div className="m2-directive__opt-top">
+                      <span className="m2-mono m2-directive__code">{d.code}</span>
+                      <b>{tr(d.name, lang)}</b>
+                    </div>
+                    <div className="m2-directive__opt-desc">{tr(d.desc, lang)}</div>
+                    <div className="m2-directive__opt-reward">{tr(d.rewardText, lang)}</div>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="m2-directive__active">
+              <div className="m2-directive__opt-top">
+                <span className="m2-mono m2-directive__code">{dir.selected.code}</span>
+                <b>{tr(dir.selected.name, lang)}</b>
+              </div>
+              <div className="m2-directive__opt-desc">{tr(dir.selected.desc, lang)}</div>
+              <div className="m2-directive__bar">
+                <div style={{ width: `${Math.min(100, Math.round((dir.progress / Math.max(1, dir.target)) * 100))}%` }} />
+              </div>
+              <div className="m2-directive__opt-reward">{tr(dir.selected.rewardText, lang)}</div>
+              {dir.completed && !dir.claimed && (
+                <button
+                  type="button"
+                  className="m2-btn m2-btn--primary m2-directive__claim"
+                  data-testid="directive-claim"
+                  onClick={() => {
+                    sound('reward')
+                    act(rx.claimDirective(run))
+                  }}
+                >
+                  <CheckCircle2 size={14} /> {lang === 'ko' ? '지령 완수 — 보급품 수령' : 'Claim Directive Cache'}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         {(run.growth ?? 0) > 0 && (
           <div className="m2-growth" data-testid="growth">

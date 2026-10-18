@@ -169,6 +169,19 @@ const ACT1: EncounterDef[] = [
       "HAETAE, C-17's riot tank. When it charges the beam, park its own drones in front.",
     ),
   },
+  {
+    id: 'a1_boss_jujak',
+    act: 1,
+    kind: 'boss',
+    name: t('주작', 'JUJAK'),
+    backdrop: 'industrial',
+    enemies: [foe('jujak_core', 5, 2), foe('purge_drone', 6, 1), foe('scrap_drone', 6, 3)],
+    terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('hazard', [3, 0], [3, 4], [4, 2])],
+    intro: t(
+      'C-17 구역 소각 기갑기, 주작. 바닥을 불바다로 만들어 퇴로를 지운다 — 불길이 번지기 전에 밀어붙여.',
+      "C-17's heavy purge walker, JUJAK. It turns the floor into a furnace to erase your retreat — push through before the fire spreads.",
+    ),
+  },
 ]
 
 // ------------------------------------------------------------------ Act 2 — Undercity Market
@@ -313,6 +326,19 @@ const ACT2: EncounterDef[] = [
     intro: t(
       '도시가 잊은 기억이 한 덩어리로 뭉쳤다. 놈이 먹는 건 살이 아니라 이름이다.',
       "Everything the city forgot, balled into one hunger. It doesn't eat flesh. It eats names.",
+    ),
+  },
+  {
+    id: 'a2_boss_arachne',
+    act: 2,
+    kind: 'boss',
+    name: t('아라크네', 'ARACHNE'),
+    backdrop: 'undercity',
+    enemies: [foe('arachne_queen', 5, 2), foe('tracker_spider', 6, 0), foe('spiderling', 6, 4)],
+    terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('hazard', [3, 2], [4, 1], [4, 3])],
+    intro: t(
+      '하층 전력망을 집어삼킨 군체 모체, 아라크네. 전류 거미줄에 발이 묶이면 돌진에 꿰인다.',
+      'ARACHNE, the hive matriarch nested in the Undercity grid. Get caught in her electric web and her charge will skewer you.',
     ),
   },
 ]

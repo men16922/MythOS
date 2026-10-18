@@ -503,3 +503,108 @@
   font-size: 12px;
   color: #6fe3c8;
 }
+
+/* Chapter Tactical Directives (작전 지령). */
+.m2-directive {
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid rgba(78, 242, 227, 0.38);
+  background: linear-gradient(180deg, rgba(10, 30, 36, 0.85), rgba(4, 14, 18, 0.92));
+  box-shadow: inset 0 1px 0 rgba(78, 242, 227, 0.14);
+}
+.m2-directive.is-ready {
+  border-color: var(--m2-gold);
+  box-shadow: 0 0 18px rgba(255, 200, 70, 0.28);
+}
+.m2-directive__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--m2-display);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--m2-cyan);
+  margin-bottom: 6px;
+}
+.m2-directive__head b {
+  margin-left: auto;
+  color: var(--m2-gold);
+  font-size: 13px;
+}
+.m2-directive__lead {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--m2-ink-2);
+}
+.m2-directive__choices {
+  display: grid;
+  gap: 6px;
+}
+.m2-directive__option {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid var(--m2-line-2);
+  background: rgba(6, 18, 22, 0.88);
+  color: var(--m2-ink);
+  cursor: pointer;
+  transition: border-color 0.18s, transform 0.15s, background 0.18s;
+}
+.m2-directive__option:hover {
+  border-color: var(--m2-cyan);
+  background: rgba(12, 34, 42, 0.94);
+  transform: translateX(2px);
+}
+.m2-directive__opt-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+.m2-directive__code {
+  font-size: 10px;
+  padding: 1px 5px;
+  background: rgba(78, 242, 227, 0.14);
+  color: var(--m2-cyan);
+  border: 1px solid rgba(78, 242, 227, 0.3);
+}
+.m2-directive__opt-desc {
+  font-size: 12px;
+  color: var(--m2-ink-2);
+  line-height: 1.35;
+}
+.m2-directive__opt-reward {
+  font-size: 11px;
+  color: var(--m2-gold);
+  font-weight: 600;
+}
+.m2-directive__active {
+  display: grid;
+  gap: 5px;
+}
+.m2-directive__bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.m2-directive__bar div {
+  height: 100%;
+  background: linear-gradient(90deg, var(--m2-cyan), var(--m2-gold));
+  box-shadow: 0 0 8px var(--m2-cyan);
+  transition: width 0.5s var(--m2-ease);
+}
+.m2-directive__claim {
+  margin-top: 4px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+

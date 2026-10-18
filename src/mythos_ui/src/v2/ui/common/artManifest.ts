@@ -33,10 +33,14 @@ export const ART: {
   },
   bosses: {
     a1_boss_haetae: 'v2/boss/a1_boss_haetae.webp',
+    a1_boss_jujak: 'v2/boss/a1_boss_haetae.webp',
     a2_boss_echo_eater: 'v2/boss/a2_boss_echo_eater.webp',
+    a2_boss_arachne: 'v2/boss/a2_boss_echo_eater.webp',
     a3_boss_ix: 'v2/boss/a3_boss_ix.webp',
     haetae: 'v2/boss/a1_boss_haetae.webp',
+    jujak_core: 'v2/boss/a1_boss_haetae.webp',
     echo_eater: 'v2/boss/a2_boss_echo_eater.webp',
+    arachne_queen: 'v2/boss/a2_boss_echo_eater.webp',
     administrator_ix: 'v2/boss/a3_boss_ix.webp',
   },
   endings: {

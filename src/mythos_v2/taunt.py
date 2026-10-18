@@ -81,6 +81,24 @@ ENEMY_PERSONAS: dict[str, EnemyPersona] = {
             "service message.",
         },
     ),
+    "jujak_core": EnemyPersona(
+        {"ko": "주작", "en": "JUJAK"},
+        {
+            "ko": "C-17 구역 중장갑 소각 기갑기. 냉혹한 방재·정화 시스템 방송 존댓말('~합니다', '~하십시오')로 "
+            "구역 전체를 불바다로 만들며 퇴로 차단을 선고한다.",
+            "en": "C-17's heavy purge walker. Speaks in cold automated hazard-purification broadcasts, "
+            "announcing total sector incineration and sealed exits.",
+        },
+    ),
+    "arachne_queen": EnemyPersona(
+        {"ko": "아라크네", "en": "ARACHNE"},
+        {
+            "ko": "하층 전력망에 둥지를 튼 기계 군체 모체. 금속 마찰음과 속삭임이 섞인 반말로 전선, 거미줄, "
+            "새끼 거미들을 부르며 접속자를 먹잇감 취급한다.",
+            "en": "A mechanical hive matriarch nested in the Undercity power grid. Rasping whispers about "
+            "wires, electric webs, and her brood feeding on the connector.",
+        },
+    ),
 }
 
 _SITUATION: dict[TauntTrigger, dict[Lang, str]] = {

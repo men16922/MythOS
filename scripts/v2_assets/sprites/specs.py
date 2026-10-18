@@ -211,7 +211,7 @@ SPRITES: list[Sprite] = [
             attack="now ATTACKING toward the LEFT: rearing up on its hind legs, front legs raised to strike, "
             "spitting a compact glob of glowing green acid",
         ),
-        enemy_ids=("spider_matriarch",),
+        enemy_ids=("spider_matriarch", "arachne_queen"),
     ),
     Sprite(
         key="glitch-reaver",
@@ -295,7 +295,7 @@ SPRITES: list[Sprite] = [
             attack="now ATTACKING toward the LEFT: both flamethrower arms blasting a compact cone of roaring "
             "orange fire, exhaust stacks venting",
         ),
-        enemy_ids=("incinerator",),
+        enemy_ids=("incinerator", "jujak_core"),
     ),
     # ------------------------------------------------------------------ normal/minion variants (face LEFT)
     # Defs that used to share a base sprite with a different enemy. The UI scales minions down by tier.

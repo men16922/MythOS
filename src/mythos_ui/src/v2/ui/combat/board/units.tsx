@@ -12,6 +12,7 @@ import type { UnitFx } from '../animator.ts'
 import type { BoardGeom } from '../geometry.ts'
 import { hash, tileCenter, tileScale } from '../geometry.ts'
 import { PatternIcon, ShieldGlyph } from './glyphs.tsx'
+import { FlameTongueSvg } from './tiles.tsx'
 import './units.css'
 
 interface UnitProps {
@@ -202,7 +203,7 @@ export const UnitSprite = memo(function UnitSprite(p: UnitProps) {
   )
 })
 
-/** Small flames licking up around a burning unit (inside the figure box, so they follow every lunge). Scales with burn stacks. */
+/** Sleek orbiting flame wisps rising at staggered heights around a burning unit (never a flat foot comb). */
 function BurnFlames({
   feet,
   seed,
@@ -219,48 +220,74 @@ function BurnFlames({
   layer: 'back' | 'front'
 }) {
   const intense = stacks >= 2
-  const scale = 1 + Math.min(3, stacks - 1) * 0.14
-  const spots = layer === 'back' ? (intense ? [-0.24, 0.22, -0.04, 0.1] : [-0.22, 0.2, -0.02]) : intense ? [0.08, -0.1] : [0.08]
+  const scale = 1 + Math.min(2, stacks - 1) * 0.1
+  const spots: [number, number][] =
+    layer === 'back'
+      ? intense
+        ? [
+            [-0.25, 0.16],
+            [0.25, 0.34],
+          ]
+        : [[-0.22, 0.18]]
+      : intense
+        ? [
+            [0.16, 0.06],
+            [-0.18, 0.42],
+          ]
+        : [[0.14, 0.08]]
   return (
     <div className={`m2c-u-burn is-${layer}`} style={{ top: `${feet * 100}%` }}>
-      {spots.map((dx, i) => {
-        const h = tw * (layer === 'back' ? 0.36 : 0.22) * scale * (0.8 + hash(`${seed}:${layer}:${i}`) * 0.4)
-        const isCore = intense && i === spots.length - 1
+      {spots.map(([dx, dy], i) => {
+        const k = hash(`${seed}:${layer}:${i}`)
+        const h = tw * (layer === 'back' ? 0.28 : 0.22) * scale * (0.88 + k * 0.24)
+        const isCore = intense && layer === 'front' && i === 0
         return (
-          <i
+          <FlameTongueSvg
             key={i}
-            className={isCore ? 'm2c-flame is-core' : 'm2c-flame'}
-            style={{ left: w / 2 + dx * tw, top: -tw * (layer === 'back' ? 0.06 : 0), width: h * (isCore ? 0.48 : 0.56), height: h, animationDelay: `${-(seed * 3 + i * 0.29)}s` }}
+            variant={Math.floor(k * 9) + i}
+            kind={isCore ? 'core' : layer === 'back' ? 'back' : 'front'}
+            flip={dx < 0}
+            style={{
+              left: w / 2 + dx * tw,
+              top: -tw * dy,
+              width: h * 0.72,
+              height: h,
+              animationDelay: `${-(seed * 3 + i * 0.31)}s`,
+            }}
           />
         )
       })}
       {layer === 'back' &&
-        Array.from({ length: intense ? 3 : 2 }, (_, i) => (
-          <i key={`e${i}`} className="m2c-fire-ember" style={{ left: w / 2 + (i - 0.8) * tw * 0.26, top: -tw * 0.32, animationDelay: `${-(seed * 2 + i * 0.65)}s` }} />
+        Array.from({ length: intense ? 4 : 2 }, (_, i) => (
+          <i key={`e${i}`} className="m2c-fire-ember" style={{ left: w / 2 + (i - 1.1) * tw * 0.24, top: -tw * 0.34, animationDelay: `${-(seed * 2 + i * 0.55)}s` }} />
         ))}
     </div>
   )
 }
 
-/** Crackling electric arcs jumping around a shocked unit. */
+/** Crackling SVG electric lightning arcs jumping around a shocked unit. */
 function ShockSparks({ feet, seed, tw, w }: { feet: number; seed: number; tw: number; w: number }) {
   return (
     <div className="m2c-u-shock" style={{ top: `${feet * 100}%` }}>
       {[0, 1, 2].map((i) => {
         const dx = (i - 1) * 0.22
-        const dy = 0.22 + i * 0.22
+        const dy = 0.2 + i * 0.22
         return (
-          <i
+          <svg
             key={i}
             className="m2c-u-spark"
+            viewBox="0 0 36 18"
             style={{
               left: w / 2 + dx * tw,
               top: -tw * dy,
-              width: tw * 0.26,
-              transform: `translate(-50%, -50%) rotate(${-35 + i * 52}deg)`,
+              width: tw * 0.32,
+              height: tw * 0.16,
+              transform: `translate(-50%, -50%) rotate(${-28 + i * 44}deg)`,
               animationDelay: `${-(seed * 2 + i * 0.37)}s`,
             }}
-          />
+          >
+            <polyline points="2,12 11,4 18,13 26,3 34,10" fill="none" stroke="#effdff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         )
       })}
     </div>

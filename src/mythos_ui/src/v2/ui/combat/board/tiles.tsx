@@ -248,7 +248,7 @@ function getFireNeighbors(tiles: Tile[][], x: number, y: number): FireNeighbors 
 }
 
 /** The slab with its tiles ('floor') or just the cover blocks ('covers', drawn above the overlays). */
-export const BoardPlane = memo(function BoardPlane({ g, tiles, part }: { g: BoardGeom; tiles: Tile[][]; part: 'floor' | 'covers' }) {
+export const BoardPlane = memo(function BoardPlane({ g, tiles, part }: { g: BoardGeom; tiles: Tile[][]; part: 'floor' | 'covers' | 'fire' }) {
   const corners = [g.project(0, 0), g.project(GRID_W, 0), g.project(GRID_W, GRID_H), g.project(0, GRID_H)]
   const [, , nr, nl] = corners as [Pt, Pt, Pt, Pt]
   const thick = g.tw * 0.13
@@ -263,6 +263,20 @@ export const BoardPlane = memo(function BoardPlane({ g, tiles, part }: { g: Boar
       if (t.kind === 'cover') covers.push(<CoverBlock key={`c${x},${y}`} g={g} p={p} hp={t.hp ?? 2} />)
     }
   if (part === 'covers') return <g className="m2c-covers">{covers}</g>
+  if (part === 'fire') {
+    const fireOverlays: ReactNode[] = []
+    for (let y = 0; y < GRID_H; y++)
+      for (let x = 0; x < GRID_W; x++) {
+        const t = tiles[y]?.[x]
+        if (t?.fire) {
+          const fn = getFireNeighbors(tiles, x, y)
+          fireOverlays.push(<FireTopOverlay key={`fo${x},${y}`} g={g} p={{ x, y }} turns={t.fire} neighbors={fn} />)
+        } else if (t?.kind === 'hazard') {
+          fireOverlays.push(<HazardTopOverlay key={`ho${x},${y}`} g={g} p={{ x, y }} temp={t.ttl !== undefined} />)
+        }
+      }
+    return <g className="m2c-fire-top">{fireOverlays}</g>
+  }
   return (
     <g>
       <polygon points={pts([nl, nr, { x: nr.x - 4, y: nr.y + thick }, { x: nl.x + 4, y: nl.y + thick }])} className="m2c-slab-front" />
@@ -273,8 +287,139 @@ export const BoardPlane = memo(function BoardPlane({ g, tiles, part }: { g: Boar
   )
 })
 
-/** Burning ground, animated part (DOM above the floor, below units): a warm glow that spills onto neighbouring
- *  tiles, heatwave shimmer ring, rising smoke wisps, layered flickering tongues (with white-hot plasma cores), and rising embers. */
+/** Irregular isometric volcanic crater polygon in tile coordinates. */
+function lavaCraterQuad(g: BoardGeom, p: Pos, seed: number, scale: number): Pt[] {
+  const angles = [
+    [0.5, 0.5 - scale],
+    [0.5 + scale * 0.85, 0.5 - scale * 0.45],
+    [0.5 + scale, 0.5 + scale * 0.15],
+    [0.5 + scale * 0.65, 0.5 + scale * 0.9],
+    [0.5 - scale * 0.2, 0.5 + scale],
+    [0.5 - scale * 0.9, 0.5 + scale * 0.55],
+    [0.5 - scale, 0.5 - scale * 0.25],
+    [0.5 - scale * 0.55, 0.5 - scale * 0.85],
+  ]
+  return angles.map(([u, v], idx) => {
+    const jx = (hash(`${seed}:lcx:${idx}`) - 0.5) * scale * 0.35
+    const jy = (hash(`${seed}:lcy:${idx}`) - 0.5) * scale * 0.35
+    return g.project(p.x + (u as number) + jx, p.y + (v as number) + jy)
+  })
+}
+
+/** Drawn ABOVE enemy intent telegraphs so persistent Area Burn magma craters, tectonic fissures, charred obsidian crust, and inter-tile lava bridges are 100% visible. */
+function FireTopOverlay({ g, p, turns, neighbors }: { g: BoardGeom; p: Pos; turns: number; neighbors: FireNeighbors }) {
+  const r = hash(`fto:${p.x}:${p.y}`)
+  const hot = turns >= 2
+  const inner = tileQuad(g, p, 0.04) as [Pt, Pt, Pt, Pt]
+  const slag = tileQuad(g, p, 0.08)
+  const outerCrater = lavaCraterQuad(g, p, r, hot ? 0.34 : 0.26)
+  const innerCrater = lavaCraterQuad(g, p, r + 0.5, hot ? 0.19 : 0.14)
+  const fissures = fireFissures(g, p, r)
+  const c = tileCenter(g, p)
+  const edges: [Pt, Pt][] = [
+    [inner[0], inner[1]], // N
+    [inner[1], inner[2]], // E
+    [inner[2], inner[3]], // S
+    [inner[3], inner[0]], // W
+  ]
+  const bridgeE = neighbors[1]
+    ? [g.project(p.x + 0.76, p.y + 0.22), g.project(p.x + 1.24, p.y + 0.22), g.project(p.x + 1.24, p.y + 0.78), g.project(p.x + 0.76, p.y + 0.78)]
+    : null
+  const bridgeS = neighbors[2]
+    ? [g.project(p.x + 0.22, p.y + 0.76), g.project(p.x + 0.78, p.y + 0.76), g.project(p.x + 0.78, p.y + 1.24), g.project(p.x + 0.22, p.y + 1.24)]
+    : null
+  const bridgeLineE = neighbors[1]
+    ? [c, g.project(p.x + 0.95, p.y + 0.44), g.project(p.x + 1.15, p.y + 0.56), tileCenter(g, { x: p.x + 1, y: p.y })]
+    : null
+  const bridgeLineS = neighbors[2]
+    ? [c, g.project(p.x + 0.44, p.y + 0.95), g.project(p.x + 0.56, p.y + 1.15), tileCenter(g, { x: p.x, y: p.y + 1 })]
+    : null
+
+  return (
+    <g className={hot ? 'm2c-fire-overlay is-hot' : 'm2c-fire-overlay is-smolder'}>
+      <polygon points={pts(slag)} className="m2c-fire-slag" />
+      {bridgeE && <polygon points={pts(bridgeE)} fill="url(#m2c-fire-grad)" className="m2c-fire-bridge" />}
+      {bridgeS && <polygon points={pts(bridgeS)} fill="url(#m2c-fire-grad)" className="m2c-fire-bridge" />}
+      <polygon points={pts(outerCrater)} className="m2c-fire-crater-outer" />
+      <polygon points={pts(innerCrater)} className="m2c-fire-crater-inner" />
+      {bridgeLineE && <polyline points={pts(bridgeLineE)} className="m2c-fire-vein-link" />}
+      {bridgeLineS && <polyline points={pts(bridgeLineS)} className="m2c-fire-vein-link" />}
+      {fissures.map((f, i) => (
+        <g key={`fis${i}`}>
+          <polyline points={pts(f)} className="m2c-fire-fissure-glow" />
+          <polyline points={pts(f)} className="m2c-fire-fissure" style={{ animationDelay: `${-(r * 2 + i * 0.4)}s` }} />
+        </g>
+      ))}
+      {edges.map(([a, b], side) =>
+        !neighbors[side] ? (
+          <line key={`per${side}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="m2c-fire-perimeter" />
+        ) : null,
+      )}
+    </g>
+  )
+}
+
+/** High-voltage circuit frame drawn above intent telegraphs for persistent & temporary electrified hazard tiles. */
+function HazardTopOverlay({ g, p, temp }: { g: BoardGeom; p: Pos; temp: boolean }) {
+  const inner = tileQuad(g, p, 0.06) as [Pt, Pt, Pt, Pt]
+  const core = tileQuad(g, p, 0.24)
+  return (
+    <g className={temp ? 'm2c-haz-overlay is-temp' : 'm2c-haz-overlay'}>
+      <polygon points={pts(inner)} className="m2c-haz-frame" />
+      <polygon points={pts(core)} className="m2c-haz-core-grid" />
+      {inner.map((pt, idx) => (
+        <circle key={idx} cx={pt.x} cy={pt.y} r={2.4} className="m2c-haz-pylon" />
+      ))}
+    </g>
+  )
+}
+
+const FLAME_PATHS: [string, string, string][] = [
+  // Variant 0: Sleek wind-curved single lava lick (no multi-prong comb!)
+  [
+    'M 20 58 C 9 58 4 49 7 38 C 10 27 21 19 25 4 C 31 15 35 28 32 41 C 30 51 26 58 20 58 Z',
+    'M 20 56 C 12 56 9 49 11 40 C 14 31 21 24 24 12 C 28 21 30 31 28 42 C 26 50 24 56 20 56 Z',
+    'M 20 54 C 15 54 14 48 16 41 C 18 34 21 28 23 21 C 25 28 25 36 24 44 C 23 50 22 54 20 54 Z',
+  ],
+  // Variant 1: Broad curling campfire wisp with a single detached spark droplet
+  [
+    'M 20 58 C 8 58 4 48 8 36 C 12 24 18 16 15 5 C 24 12 33 24 33 38 C 33 50 28 58 20 58 Z M 28 14 C 26 10 28 5 31 3 C 33 7 32 12 28 14 Z',
+    'M 20 56 C 12 56 9 48 12 39 C 15 30 19 22 17 13 C 23 19 29 28 29 39 C 29 49 25 56 20 56 Z',
+    'M 20 54 C 15 54 14 48 16 41 C 18 35 20 29 19 23 C 23 28 25 35 25 43 C 24 50 22 54 20 54 Z',
+  ],
+  // Variant 2: Low sweeping S-curve ember tongue
+  [
+    'M 20 58 C 10 58 5 50 7 40 C 9 29 19 22 27 8 C 30 19 35 30 33 42 C 31 52 26 58 20 58 Z M 12 20 C 10 16 11 11 14 9 C 16 13 15 18 12 20 Z',
+    'M 20 56 C 13 56 9 49 11 41 C 13 33 20 26 25 16 C 27 24 30 33 29 43 C 27 51 24 56 20 56 Z',
+    'M 20 54 C 16 54 14 49 15 43 C 17 37 21 31 24 25 C 25 31 26 38 25 45 C 24 51 22 54 20 54 Z',
+  ],
+]
+
+/** Sleek single-tip vector flame wisp (outer crimson mantle, mid amber blaze, inner white-hot core) used by GroundFire and BurnFlames. */
+export function FlameTongueSvg({
+  variant,
+  kind,
+  flip,
+  style,
+}: {
+  variant: number
+  kind: 'back' | 'front' | 'core'
+  flip?: boolean
+  style: React.CSSProperties
+}) {
+  const [outer, mid, inner] = FLAME_PATHS[variant % FLAME_PATHS.length]!
+  const cls = `m2c-flame m2c-flame-svg${kind === 'back' ? ' is-back' : kind === 'core' ? ' is-core' : ''}${flip ? ' is-flip' : ''}`
+  return (
+    <svg className={cls} viewBox="0 0 40 60" preserveAspectRatio="none" style={style}>
+      <path d={outer} className="m2c-fl-outer" />
+      <path d={mid} className="m2c-fl-mid" />
+      <path d={inner} className="m2c-fl-inner" />
+    </svg>
+  )
+}
+
+/** Burning ground, animated part (DOM above the floor, below units): keeps the tile center open so the isometric magma crater
+ *  and fissures shine through, placing compact swirling flame wisps along the crater rim and rising sparks. */
 export const GroundFire = memo(function GroundFire({
   g,
   p,
@@ -291,72 +436,57 @@ export const GroundFire = memo(function GroundFire({
   const tw = g.tw
   const r = hash(`fire:${p.x}:${p.y}`)
   const strong = turns > 1
-  const boost = cluster ? 1.14 : 1
-  // Back sheet: big, slow tongues along the far half; front: crisp tongues over the near half; core: white-hot inner plasma.
+  const boost = cluster ? 1.08 : 1
+  // Sparse rim positions around the isometric crater so flames never form a horizontal comb or hide the magma fissures.
   const back: [number, number][] = strong
     ? [
-        [-0.24, -0.18],
-        [0.04, -0.25],
-        [0.26, -0.12],
-        ...(cluster ? ([[-0.1, -0.06]] as [number, number][]) : []),
+        [-0.31, -0.22],
+        [0.31, -0.18],
       ]
-    : [[0, -0.16]]
+    : [[-0.26, -0.2]]
   const front: [number, number][] = strong
     ? [
-        [-0.28, 0.06],
-        [-0.06, 0.12],
-        [0.16, 0.04],
-        [0.3, 0.22],
-        [-0.16, 0.28],
+        [-0.28, 0.24],
+        [0.29, 0.22],
       ]
-    : [
-        [-0.2, 0.1],
-        [0.12, 0.16],
-        [0.0, -0.02],
-      ]
-  const cores: [number, number][] = strong
-    ? [
-        [-0.08, 0.06],
-        [0.12, 0.02],
-        ...(cluster ? ([[0.02, -0.1]] as [number, number][]) : []),
-      ]
-    : [[0.0, 0.06]]
+    : [[0.24, 0.22]]
+  const cores: [number, number][] = strong ? [[(r - 0.5) * 0.16, -0.04]] : []
   const tongue = (u: number, v: number, i: number, kind: 'back' | 'front' | 'core') => {
     const at = g.project(p.x + 0.5 + u, p.y + 0.5 + v)
     const k = hash(`fire:${p.x}:${p.y}:${i}`)
-    const baseMul = kind === 'back' ? 0.66 : kind === 'core' ? 0.34 : 0.44
-    const h = tw * s * baseMul * (strong ? 1 : 0.76) * boost * (0.74 + k * 0.56)
-    const cls = kind === 'back' ? 'm2c-flame is-back' : kind === 'core' ? 'm2c-flame is-core' : 'm2c-flame'
+    const baseMul = kind === 'back' ? 0.34 : kind === 'core' ? 0.28 : 0.31
+    const h = tw * s * baseMul * (strong ? 1 : 0.82) * boost * (0.88 + k * 0.24)
     return (
-      <i
+      <FlameTongueSvg
         key={i}
-        className={cls}
+        variant={Math.floor(k * 9) + i}
+        kind={kind}
+        flip={k > 0.5}
         style={{
           left: at.x,
           top: at.y,
-          width: h * (kind === 'back' ? 0.74 : kind === 'core' ? 0.52 : 0.64),
+          width: h * (kind === 'core' ? 0.78 : 0.72),
           height: h,
-          animationDelay: `${-(r * 2 + i * 0.21)}s`,
-          animationDuration: `${(kind === 'back' ? 1.02 : kind === 'core' ? 0.54 : 0.68) + k * 0.26}s`,
+          animationDelay: `${-(r * 2 + i * 0.27)}s`,
+          animationDuration: `${(kind === 'back' ? 0.95 : kind === 'core' ? 0.58 : 0.74) + k * 0.22}s`,
         }}
       />
     )
   }
-  const emberCount = strong || cluster ? 6 : 4
+  const emberCount = strong || cluster ? 8 : 4
   return (
     <>
       <i
         className={cluster ? 'm2c-fire-glow is-cluster' : 'm2c-fire-glow'}
-        style={{ left: c.x, top: c.y, width: tw * (cluster ? 2.65 : 2.3) * s, height: tw * (cluster ? 1.8 : 1.55) * s, animationDelay: `${-r * 2}s` }}
+        style={{ left: c.x, top: c.y, width: tw * (cluster ? 1.85 : 1.55) * s, height: tw * (cluster ? 1.1 : 0.92) * s, animationDelay: `${-r * 2}s` }}
       />
       <i
         className="m2c-fire-heatwave"
-        style={{ left: c.x, top: c.y, width: tw * 0.96 * s, height: tw * 0.58 * s, animationDelay: `${-r * 1.7}s` }}
+        style={{ left: c.x, top: c.y, width: tw * 0.88 * s, height: tw * 0.48 * s, animationDelay: `${-r * 1.7}s` }}
       />
-      <i className="m2c-fire-pool" style={{ left: c.x, top: c.y, width: tw * 0.98 * s * boost, height: tw * 0.62 * s * boost, animationDelay: `${-r * 1.3}s` }} />
       {strong &&
         [0, 1].map((i) => {
-          const at = g.project(p.x + 0.36 + i * 0.28, p.y + 0.44 - i * 0.08)
+          const at = g.project(p.x + 0.26 + i * 0.48, p.y + 0.36 - i * 0.08)
           return (
             <i
               key={`sm${i}`}
@@ -364,8 +494,8 @@ export const GroundFire = memo(function GroundFire({
               style={{
                 left: at.x,
                 top: at.y,
-                width: tw * 0.42 * s,
-                height: tw * 0.42 * s,
+                width: tw * 0.36 * s,
+                height: tw * 0.36 * s,
                 animationDelay: `${-(r * 2.4 + i * 1.1)}s`,
               }}
             />
@@ -375,9 +505,34 @@ export const GroundFire = memo(function GroundFire({
       {front.map(([u, v], i) => tongue(u, v, i + 10, 'front'))}
       {cores.map(([u, v], i) => tongue(u, v, i + 20, 'core'))}
       {Array.from({ length: emberCount }, (_, i) => {
-        const at = g.project(p.x + 0.5 + (hash(`fe:${p.x}:${p.y}:${i}`) - 0.5) * 0.68, p.y + 0.5 + (hash(`fe:${p.y}:${p.x}:${i}`) - 0.5) * 0.48)
-        return <i key={`e${i}`} className="m2c-fire-ember" style={{ left: at.x, top: at.y, animationDelay: `${-(r * 3 + i * 0.39)}s` }} />
+        const at = g.project(p.x + 0.5 + (hash(`fe:${p.x}:${p.y}:${i}`) - 0.5) * 0.72, p.y + 0.5 + (hash(`fe:${p.y}:${p.x}:${i}`) - 0.5) * 0.52)
+        return <i key={`e${i}`} className="m2c-fire-ember" style={{ left: at.x, top: at.y, animationDelay: `${-(r * 3 + i * 0.35)}s` }} />
       })}
+    </>
+  )
+})
+
+/** Persistent electrified / live-wire ground (DOM layer above floor, below units): pulsing plasma node and jumping high-voltage arcs. */
+export const GroundHazard = memo(function GroundHazard({ g, p, temp }: { g: BoardGeom; p: Pos; temp: boolean }) {
+  const c = tileCenter(g, p)
+  const s = tileScale(g, p)
+  const tw = g.tw
+  const r = hash(`ghaz:${p.x}:${p.y}`)
+  return (
+    <>
+      <i
+        className={temp ? 'm2c-haz-glow is-temp' : 'm2c-haz-glow'}
+        style={{ left: c.x, top: c.y, width: tw * 1.35 * s, height: tw * 0.82 * s, animationDelay: `${-r * 2}s` }}
+      />
+      <svg
+        className={temp ? 'm2c-haz-arcs is-temp' : 'm2c-haz-arcs'}
+        viewBox="0 0 80 50"
+        style={{ left: c.x, top: c.y, width: tw * 0.88 * s, height: tw * 0.52 * s, animationDelay: `${-r * 1.5}s` }}
+      >
+        <ellipse cx="40" cy="25" rx="28" ry="13" className="m2c-haz-ring" />
+        <polyline points="10,28 24,14 35,28 48,10 58,26 70,16" className="m2c-haz-bolt" />
+        <polyline points="16,35 30,22 42,35 55,18 66,31" className="m2c-haz-bolt is-alt" style={{ animationDelay: `${-(r + 0.45)}s` }} />
+      </svg>
     </>
   )
 })

@@ -132,6 +132,9 @@ export function CombatSandbox() {
                 if (x >= 2 && x <= 4 && y >= 1 && y <= 2 && t.kind === 'floor') {
                   return { ...t, fire: 3 }
                 }
+                if (x === 1 && y === 1 && t.kind === 'floor') {
+                  return { ...t, kind: 'hazard' as const }
+                }
                 return t
               }),
             )

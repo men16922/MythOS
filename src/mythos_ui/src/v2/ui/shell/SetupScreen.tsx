@@ -66,10 +66,11 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
   const [compId, setCompId] = useState<string | null>(() => comps.find((c) => c.unlocked)?.def.id ?? null)
   const [paradox, setParadox] = useState(0)
   const plan = usePlan()
+  void plan
   useEffect(() => {
     void loadPlan()
   }, [])
-  const crpg = !daily && plan.features.includes('crpg') && !!C.crpg
+  const crpg = !daily && !!C.crpg
   const backgrounds = Object.values(C.crpg?.backgrounds ?? {})
   const [bgId, setBgId] = useState<string | null>(() => backgrounds[0]?.id ?? null)
   const [offer, setOffer] = useState(false)

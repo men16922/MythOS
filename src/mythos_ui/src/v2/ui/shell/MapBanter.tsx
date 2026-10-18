@@ -1,13 +1,13 @@
 // Mythos 2.0 — Signal+ party banter on the map (content/banter.ts): after a node, sometimes the two deployed
-// companions trade a few lines. UI-only flavour; deterministic per run and node so a reload shows the same thing.
+// companions (or Companion <-> Connector in Act 1) trade a few lines. UI-only flavour; deterministic per run and node.
 import { useEffect, useState } from 'react'
 import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
-import { pickBanter } from './banterPick.ts'
+import { pickBanter, pickSoloBanter } from './banterPick.ts'
 
 export function MapBanter({ run, C, lang, fast }: { run: RunState; C: ContentRegistry; lang: Lang; fast: boolean }) {
-  const banter = pickBanter(run)
+  const banter = pickBanter(run) ?? pickSoloBanter(run)
   const key = banter ? `${run.id}:${run.visited.length}:${banter.id}` : ''
   const [shown, setShown] = useState<{ key: string; n: number; closed: boolean }>({ key: '', n: 0, closed: false })
   const state = shown.key === key ? shown : { key, n: 0, closed: false }
@@ -17,15 +17,19 @@ export function MapBanter({ run, C, lang, fast }: { run: RunState; C: ContentReg
     return () => window.clearTimeout(id)
   }, [banter, key, state.n, state.closed, fast])
   if (!banter || state.closed || state.n === 0) return null
+  const arch = C.archetypes[run.archetype]
   return (
     <ol className="m2-banter" aria-live="polite" onClick={() => setShown({ key, n: state.n, closed: true })}>
       {banter.lines.slice(0, state.n).map((l, i) => {
-        const def = C.companions[l.who]
+        const isConn = l.who === 'connector'
+        const def = isConn ? undefined : C.companions[l.who]
+        const sprite = isConn ? arch?.sprite : def?.sprite
+        const speakerName = isConn ? tr(arch?.name, lang) || (lang === 'ko' ? '접속자' : 'Connector') : tr(def?.name, lang)
         return (
           <li key={i} className={l.who === banter.pair[0] ? 'is-a' : 'is-b'}>
-            {def && <img src={portrait(def.sprite)} alt="" />}
+            {sprite && <img src={portrait(sprite)} alt="" />}
             <span>
-              <b>{tr(def?.name, lang)}</b>
+              <b>{speakerName}</b>
               {tr(l.text, lang)}
             </span>
           </li>
@@ -34,3 +38,4 @@ export function MapBanter({ run, C, lang, fast }: { run: RunState; C: ContentReg
     </ol>
   )
 }
+

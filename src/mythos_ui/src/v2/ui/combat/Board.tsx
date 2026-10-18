@@ -15,7 +15,7 @@ import { IntentLabels, IntentShapes, LockOns } from './board/intents.tsx'
 import { aggregateIntents, groundMarks } from './board/marks.ts'
 import type { IntentView } from './board/marks.ts'
 import { MoveChip, PreviewChips } from './board/preview.tsx'
-import { BoardPlane, GroundBadges, GroundFire, TileDefs } from './board/tiles.tsx'
+import { BoardPlane, GroundBadges, GroundFire, GroundHazard, TileDefs } from './board/tiles.tsx'
 import { UnitSprite } from './board/units.tsx'
 import type { BoardGeom } from './geometry.ts'
 import { dirAngle, hash, pts, tileCenter, tileQuad, tileScale, unitScale } from './geometry.ts'
@@ -158,6 +158,8 @@ export function Board({ registerBoard, ...props }: BoardProps) {
             <IntentShapes key={iv.uid} g={g} iv={iv} dim={!!props.focusEnemy && props.focusEnemy !== iv.uid} hot={props.firing === iv.uid || props.focusEnemy === iv.uid} />
           ))}
         </g>
+        {/* burning ground top overlay (magma cracks, slag crust, perimeter bridges above intent fills) */}
+        <BoardPlane g={g} tiles={vc.tiles} part="fire" />
         {/* reinforcement drop zones */}
         {props.incoming.map((r, i) => (
           <polygon key={`in${i}`} points={pts(tileQuad(g, r.pos, 0.1))} className="m2c-incoming" />
@@ -191,17 +193,20 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         </g>
       </svg>
 
-      {ground.length > 0 && (
-        <div className="m2c-ground">
-          {ground
-            .filter((t) => t.fire > 0)
-            .map((t) => {
-              const hasF = (tx: number, ty: number) => (vc.tiles[ty]?.[tx]?.fire ?? 0) > 0
-              const cluster = hasF(t.p.x, t.p.y - 1) || hasF(t.p.x + 1, t.p.y) || hasF(t.p.x, t.p.y + 1) || hasF(t.p.x - 1, t.p.y)
-              return <GroundFire key={posKey(t.p)} g={g} p={t.p} turns={t.fire} cluster={cluster} />
-            })}
-        </div>
-      )}
+      <div className="m2c-ground">
+        {vc.tiles.flatMap((row, y) =>
+          row.map((t, x) =>
+            t.kind === 'hazard' ? <GroundHazard key={`hz:${x},${y}`} g={g} p={{ x, y }} temp={t.ttl !== undefined} /> : null,
+          ),
+        )}
+        {ground
+          .filter((t) => t.fire > 0)
+          .map((t) => {
+            const hasF = (tx: number, ty: number) => (vc.tiles[ty]?.[tx]?.fire ?? 0) > 0
+            const cluster = hasF(t.p.x, t.p.y - 1) || hasF(t.p.x + 1, t.p.y) || hasF(t.p.x, t.p.y + 1) || hasF(t.p.x - 1, t.p.y)
+            return <GroundFire key={posKey(t.p)} g={g} p={t.p} turns={t.fire} cluster={cluster} />
+          })}
+      </div>
 
       <div className="m2c-units" onContextMenu={(e) => (e.preventDefault(), props.onTileContext())}>
         {renderUnits('body')}

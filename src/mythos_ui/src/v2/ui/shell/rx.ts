@@ -3,6 +3,7 @@
 
 import { buyUnlock, canBuyUnlock, unlockedArchetypes, unlockedCompanions } from '../../engine/meta.ts'
 import * as Crpg from '../../engine/crpg.ts'
+import * as Directives from '../../engine/directives.ts'
 import { autonomyDc } from '../../engine/legacy.ts'
 import * as Thoughts from '../../engine/thoughts.ts'
 import * as Run from '../../engine/run.ts'
@@ -50,6 +51,9 @@ export const rx = {
   acceptThought: (r: R): R => Thoughts.acceptThought(r),
   declineThought: (r: R): R => Thoughts.declineThought(r),
   forgetThought: (r: R, id: string): R => Thoughts.forgetThought(r, id),
+  directiveState: (r: R) => Directives.directiveState(r),
+  selectDirective: (r: R, choice: number): R => Directives.selectDirective(r, choice),
+  claimDirective: (r: R): R => Directives.claimDirective(r),
 
   // ---------------------------------------------------------- loop start / map
   /** `daily` = KST date key for a daily-seed run (same run for everyone that day; see engine/daily.ts). */

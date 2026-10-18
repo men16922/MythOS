@@ -140,9 +140,68 @@
 .m2c-fire-floor {
   stroke: none;
 }
+.m2c-fire-slag {
+  fill: rgba(18, 4, 2, 0.78);
+  stroke: rgba(255, 115, 25, 0.62);
+  stroke-width: 1.4;
+  stroke-dasharray: 7 3;
+}
+.m2c-fire-crater-outer {
+  fill: rgba(190, 28, 0, 0.72);
+  stroke: #ff7b14;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 6px rgba(255, 70, 0, 0.8));
+}
+.m2c-fire-crater-inner {
+  fill: rgba(255, 185, 45, 0.86);
+  stroke: #fff6c2;
+  stroke-width: 1.2;
+  animation: m2c-firecore 1s ease-in-out infinite;
+}
 .m2c-fire-bridge {
   stroke: none;
-  opacity: 0.78;
+  opacity: 0.88;
+}
+.m2c-fire-vein-link {
+  fill: none;
+  stroke: #ffe999;
+  stroke-width: 2.5;
+  stroke-dasharray: 6 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px #ff5e00) drop-shadow(0 0 9px rgba(255, 45, 0, 0.85));
+  animation: m2c-fissure 1.1s ease-in-out infinite;
+}
+.m2c-haz-frame {
+  fill: rgba(10, 32, 48, 0.56);
+  stroke: #ffca4b;
+  stroke-width: 1.8;
+  stroke-dasharray: 8 4;
+  filter: drop-shadow(0 0 5px rgba(255, 185, 50, 0.75));
+}
+.m2c-haz-overlay.is-temp .m2c-haz-frame {
+  stroke: #66dcff;
+  filter: drop-shadow(0 0 6px rgba(90, 210, 255, 0.85));
+}
+.m2c-haz-core-grid {
+  fill: rgba(255, 195, 60, 0.16);
+  stroke: rgba(255, 225, 120, 0.65);
+  stroke-width: 1.2;
+}
+.m2c-haz-overlay.is-temp .m2c-haz-core-grid {
+  fill: rgba(85, 205, 255, 0.18);
+  stroke: rgba(155, 235, 255, 0.72);
+}
+.m2c-haz-pylon {
+  fill: #fff6c2;
+  stroke: #ff9a1f;
+  stroke-width: 1;
+  filter: drop-shadow(0 0 4px #ffb838);
+}
+.m2c-haz-overlay.is-temp .m2c-haz-pylon {
+  fill: #e8fcff;
+  stroke: #3ec4ff;
+  filter: drop-shadow(0 0 4px #5fd3ff);
 }
 .m2c-fire-core {
   stroke: none;
@@ -160,24 +219,33 @@
     opacity: 1;
   }
 }
-.m2c-fire-fissure {
+.m2c-fire-fissure-glow {
   fill: none;
-  stroke: #ffe58f;
-  stroke-width: 1.6;
+  stroke: rgba(255, 68, 0, 0.9);
+  stroke-width: 5.4;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 3px #ff7b1c);
-  animation: m2c-fissure 1.35s ease-in-out infinite;
+  filter: blur(1.2px);
 }
-.m2c-t-fire.is-smolder .m2c-fire-fissure {
-  stroke: #ff9442;
-  stroke-width: 1.2;
-  opacity: 0.65;
+.m2c-fire-fissure {
+  fill: none;
+  stroke: #fff9d2;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px #ff7b1c);
+  animation: m2c-fissure 1.2s ease-in-out infinite;
+}
+.m2c-t-fire.is-smolder .m2c-fire-fissure,
+.m2c-fire-overlay.is-smolder .m2c-fire-fissure {
+  stroke: #ffae52;
+  stroke-width: 1.4;
+  opacity: 0.75;
 }
 @keyframes m2c-fissure {
   0%,
   100% {
-    opacity: 0.58;
+    opacity: 0.68;
   }
   45% {
     opacity: 1;
@@ -192,107 +260,211 @@
   stroke: rgba(255, 145, 45, 0.24);
 }
 .m2c-fire-perimeter {
-  stroke: #ffd470;
-  stroke-width: 2.2;
+  stroke: #ffe58f;
+  stroke-width: 2.8;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 5px #ff6a14) drop-shadow(0 0 9px rgba(255, 78, 0, 0.75));
+  filter: drop-shadow(0 0 5px #ff6a14) drop-shadow(0 0 10px rgba(255, 60, 0, 0.88));
 }
-.m2c-t-fire.is-smolder .m2c-fire-perimeter {
-  stroke: rgba(255, 160, 70, 0.75);
-  stroke-width: 1.5;
+.m2c-t-fire.is-smolder .m2c-fire-perimeter,
+.m2c-fire-overlay.is-smolder .m2c-fire-perimeter {
+  stroke: rgba(255, 160, 70, 0.78);
+  stroke-width: 1.7;
 }
-/* Shared flame tongue: base at (left, top), grows up from it. */
+/* Crisp multi-lobed vector flame tongue (replaces the old blurry oval pill). */
 .m2c-flame {
   position: absolute;
-  transform: translate(-50%, -100%);
-  transform-origin: 50% 100%;
-  border-radius: 50% 50% 45% 45% / 64% 64% 36% 36%;
-  background: radial-gradient(ellipse 50% 62% at 50% 80%, #fff8d2 0%, #ffd34a 20%, #ff8a1e 46%, rgba(232, 56, 6, 0.6) 68%, rgba(200, 30, 0, 0) 84%);
-  animation: m2c-flame 0.82s ease-in-out infinite;
+  transform: translate(-50%, -94%);
+  transform-origin: 50% 96%;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(255, 94, 0, 0.85));
+  animation: m2c-flame 0.76s ease-in-out infinite;
+}
+.m2c-flame.is-flip {
+  animation-name: m2c-flame-flip;
+}
+.m2c-fl-outer {
+  fill: #ff3b08;
+  opacity: 0.94;
+}
+.m2c-fl-mid {
+  fill: #ffa91f;
+  opacity: 0.96;
+}
+.m2c-fl-inner {
+  fill: #fffbe0;
 }
 @keyframes m2c-flame {
   0%,
   100% {
-    transform: translate(-50%, -100%) scale(1, 1) skewX(0deg);
-    opacity: 0.92;
+    transform: translate(-50%, -94%) scale(1, 1) skewX(0deg);
+    opacity: 0.95;
   }
-  22% {
-    transform: translate(-50%, -100%) scale(0.84, 1.2) skewX(-6deg);
+  24% {
+    transform: translate(-50%, -94%) scale(0.88, 1.22) skewX(-8deg);
     opacity: 1;
   }
-  48% {
-    transform: translate(-50%, -100%) scale(1.08, 0.86) skewX(4deg);
-    opacity: 0.78;
+  52% {
+    transform: translate(-50%, -94%) scale(1.1, 0.86) skewX(6deg);
+    opacity: 0.84;
   }
-  74% {
-    transform: translate(-50%, -100%) scale(0.9, 1.1) skewX(-3deg);
-    opacity: 0.96;
+  78% {
+    transform: translate(-50%, -94%) scale(0.92, 1.14) skewX(-4deg);
+    opacity: 0.98;
+  }
+}
+@keyframes m2c-flame-flip {
+  0%,
+  100% {
+    transform: translate(-50%, -94%) scale(-1, 1) skewX(0deg);
+    opacity: 0.95;
+  }
+  24% {
+    transform: translate(-50%, -94%) scale(-0.88, 1.22) skewX(8deg);
+    opacity: 1;
+  }
+  52% {
+    transform: translate(-50%, -94%) scale(-1.1, 0.86) skewX(-6deg);
+    opacity: 0.84;
+  }
+  78% {
+    transform: translate(-50%, -94%) scale(-0.92, 1.14) skewX(4deg);
+    opacity: 0.98;
   }
 }
 .m2c-flame.is-back {
-  opacity: 0.85;
-  background: radial-gradient(ellipse 50% 62% at 50% 80%, #ffe08a 0%, #ff9a2a 22%, #f0520e 48%, rgba(190, 30, 0, 0.5) 70%, rgba(160, 20, 0, 0) 86%);
+  opacity: 0.88;
+  filter: drop-shadow(0 0 8px rgba(220, 38, 0, 0.85));
+}
+.m2c-flame.is-back .m2c-fl-outer {
+  fill: #c91b00;
+}
+.m2c-flame.is-back .m2c-fl-mid {
+  fill: #ff6f0f;
+}
+.m2c-flame.is-back .m2c-fl-inner {
+  fill: #ffd86b;
 }
 .m2c-flame.is-core {
-  z-index: 1;
-  background: radial-gradient(ellipse 48% 64% at 50% 82%, #ffffff 0%, #fff7b8 38%, rgba(255, 210, 74, 0.75) 68%, rgba(255, 140, 20, 0) 92%);
-  filter: drop-shadow(0 0 6px rgba(255, 230, 120, 0.9));
+  z-index: 2;
+  filter: drop-shadow(0 0 8px rgba(255, 225, 110, 0.95)) drop-shadow(0 0 14px rgba(255, 110, 15, 0.8));
+}
+.m2c-flame.is-core .m2c-fl-outer {
+  fill: #ff7b14;
+}
+.m2c-flame.is-core .m2c-fl-mid {
+  fill: #ffe266;
+}
+.m2c-flame.is-core .m2c-fl-inner {
+  fill: #ffffff;
 }
 .m2c-fire-glow {
   position: absolute;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 170, 70, 0.52), rgba(255, 100, 25, 0.3) 42%, rgba(255, 60, 0, 0.12) 72%, rgba(255, 60, 0, 0) 100%);
+  background: radial-gradient(closest-side, rgba(255, 140, 35, 0.36), rgba(255, 70, 10, 0.2) 52%, rgba(255, 40, 0, 0) 100%);
   animation: m2c-fireglow 1.3s ease-in-out infinite;
 }
 .m2c-fire-glow.is-cluster {
-  background: radial-gradient(closest-side, rgba(255, 195, 90, 0.62), rgba(255, 110, 25, 0.38) 46%, rgba(255, 55, 0, 0.16) 76%, rgba(255, 50, 0, 0) 100%);
+  background: radial-gradient(closest-side, rgba(255, 165, 50, 0.44), rgba(255, 85, 15, 0.26) 56%, rgba(255, 40, 0, 0) 100%);
 }
 .m2c-fire-heatwave {
   position: absolute;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 205, 110, 0.55);
-  box-shadow: 0 0 10px rgba(255, 120, 25, 0.45);
-  animation: m2c-heatwave 1.6s ease-out infinite;
+  border: 1.8px dashed rgba(255, 220, 120, 0.72);
+  box-shadow:
+    0 0 10px rgba(255, 110, 20, 0.55),
+    inset 0 0 8px rgba(255, 80, 10, 0.35);
+  animation: m2c-heatwave 1.5s ease-out infinite;
 }
 @keyframes m2c-heatwave {
   0% {
-    transform: translate(-50%, -50%) scale(0.55);
-    opacity: 0.75;
+    transform: translate(-50%, -50%) scale(0.48);
+    opacity: 0.85;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.28);
+    transform: translate(-50%, -50%) scale(1.24);
     opacity: 0;
   }
 }
-/* the hot bed under the tongues */
+/* Ring-shaped molten rim bed under the tongues so the dark cracked center stays crisp */
 .m2c-fire-pool {
   position: absolute;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 242, 175, 0.82), rgba(255, 155, 42, 0.55) 48%, rgba(255, 80, 10, 0) 100%);
+  background: radial-gradient(
+    closest-side,
+    rgba(30, 6, 0, 0.15) 0%,
+    rgba(255, 120, 20, 0.48) 54%,
+    rgba(255, 210, 90, 0.62) 72%,
+    rgba(255, 60, 0, 0) 100%
+  );
   animation: m2c-fireglow 0.9s ease-in-out infinite;
 }
 .m2c-fire-smoke {
   position: absolute;
   transform: translate(-50%, -100%);
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(42, 18, 10, 0.52), rgba(90, 38, 16, 0.26) 58%, rgba(30, 12, 6, 0) 100%);
-  animation: m2c-firesmoke 2.1s ease-out infinite;
+  background: radial-gradient(closest-side, rgba(28, 10, 6, 0.62), rgba(75, 28, 12, 0.32) 58%, rgba(20, 8, 4, 0) 100%);
+  animation: m2c-firesmoke 2s ease-out infinite;
 }
 @keyframes m2c-firesmoke {
   0% {
-    transform: translate(-50%, -60%) scale(0.65);
+    transform: translate(-50%, -55%) scale(0.6);
     opacity: 0;
   }
   28% {
-    opacity: 0.68;
+    opacity: 0.72;
   }
   100% {
-    transform: translate(-38%, -195%) scale(1.45);
+    transform: translate(-35%, -205%) scale(1.5);
     opacity: 0;
   }
+}
+/* Persistent hazard / electrified ground DOM overlay */
+.m2c-haz-glow {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 200, 70, 0.32), rgba(255, 150, 30, 0.12) 60%, rgba(255, 140, 20, 0) 100%);
+  pointer-events: none;
+  animation: m2c-fireglow 1.4s ease-in-out infinite;
+}
+.m2c-haz-glow.is-temp {
+  background: radial-gradient(closest-side, rgba(95, 215, 255, 0.42), rgba(40, 140, 255, 0.16) 62%, rgba(30, 110, 255, 0) 100%);
+}
+.m2c-haz-arcs {
+  position: absolute;
+  transform: translate(-50%, -58%);
+  overflow: visible;
+  pointer-events: none;
+}
+.m2c-haz-ring {
+  fill: none;
+  stroke: rgba(255, 210, 95, 0.55);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+.m2c-haz-arcs.is-temp .m2c-haz-ring {
+  stroke: rgba(130, 230, 255, 0.7);
+}
+.m2c-haz-bolt {
+  fill: none;
+  stroke: #fff7c2;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px #ffae2b) drop-shadow(0 0 8px rgba(255, 165, 35, 0.85));
+  animation: m2c-zap 1.35s steps(1) infinite;
+}
+.m2c-haz-arcs.is-temp .m2c-haz-bolt {
+  stroke: #effdff;
+  filter: drop-shadow(0 0 4px #5fd3ff) drop-shadow(0 0 9px rgba(65, 190, 255, 0.9));
+}
+.m2c-haz-bolt.is-alt {
+  stroke-width: 1.7;
+  animation-duration: 0.95s;
 }
 @keyframes m2c-fireglow {
   0%,

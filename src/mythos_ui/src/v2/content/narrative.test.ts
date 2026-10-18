@@ -145,7 +145,7 @@ test('scripted events: present, never rolled, recruit has one authored option', 
 test('option counts, checks and hints', () => {
   for (const e of EVENTS) {
     const min = e.id === RECRUIT_ID ? 1 : 2
-    assert.ok(e.options.length >= min && e.options.length <= 4, `${e.id} has ${e.options.length} options`)
+    assert.ok(e.options.length >= min && e.options.length <= 5, `${e.id} has ${e.options.length} options`)
     for (const o of e.options) {
       const where = `${e.id} / ${o.label.en}`
       assert.ok(o.hint, `${where}: hint`)

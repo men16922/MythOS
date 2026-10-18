@@ -5,10 +5,13 @@
    ===================================================================== */
 
 @media (max-width: 560px) {
-  /* Top bar: two rows (stats, then implants · consumables · tools). One row cannot fit: the tools
-     (deck / settings / menu) ran off the right edge and the implants collapsed to zero width. */
+  /* Top bar: three rows — stats; party · implants; consumables · tools. With two rows the party button
+     spilled into a third row anyway and the first row was clipped above the screen (2026-10-18). */
+  :root {
+    --m2-bar-h: 126px;
+  }
   .m2-topbar {
-    height: 92px;
+    height: var(--m2-bar-h);
     flex-wrap: wrap;
     align-content: center;
     gap: 4px 8px;
@@ -24,10 +27,20 @@
     flex-basis: 100%;
     height: 0;
   }
-  .m2-topbar > .m2-topbar__implants,
+  .m2-topbar > .m2-topbar__party,
+  .m2-topbar > .m2-topbar__partybtn,
+  .m2-topbar > .m2-topbar__implants {
+    order: 3;
+  }
+  .m2-topbar > .m2-topbar__break {
+    display: block;
+    order: 4;
+    flex-basis: 100%;
+    height: 0;
+  }
   .m2-topbar > .m2-topbar__cons,
   .m2-topbar > .m2-topbar__tools {
-    order: 3;
+    order: 5;
   }
   .m2-topbar > .m2-topbar__implants {
     flex: 1 1 0;
@@ -79,22 +92,22 @@
   .m2-autosave span {
     display: none;
   }
-  /* everything sized against the 64 px bar */
+  /* everything sized against the phone bar */
   .m2-stage.has-bar {
-    padding-top: 92px;
+    padding-top: var(--m2-bar-h);
   }
   .m2-stage.has-bar .m2-screen {
-    min-height: calc(100dvh - 92px);
+    min-height: calc(100dvh - var(--m2-bar-h));
   }
   .m2-map {
-    height: calc(100dvh - 92px);
+    height: calc(100dvh - var(--m2-bar-h));
   }
   .m2-reward,
   .m2-shop,
   .m2-rest,
   .m2-treasure,
   .m2-final {
-    min-height: calc(100dvh - 92px);
+    min-height: calc(100dvh - var(--m2-bar-h));
   }
   /* Map: the act title on one line (the trace meter is in the top bar), and the 600 px node board scaled to
      the width so every column is on screen. The scroll box itself is zoomed, so MapScreen's scroll-to-node

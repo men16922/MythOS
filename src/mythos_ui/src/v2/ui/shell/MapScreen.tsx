@@ -38,6 +38,8 @@ function hash(s: string): number {
 
 export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenProps) {
   const [entering, setEntering] = useState<string | null>(null)
+  // Phones fold the directive offer to one header line so the map stays on screen; tap to open.
+  const [dirOpen, setDirOpen] = useState(() => typeof window === 'undefined' || !window.matchMedia?.('(max-width: 560px)').matches)
   const map = run.map
   const bossRow = Math.max(...Object.values(map.nodes).map((n) => n.row))
   const height = TOP + bossRow * ROW_GAP + BOTTOM
@@ -151,22 +153,23 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
         <ThoughtCabinet run={run} C={C} lang={lang} act={act} />
 
         {/* Chapter Tactical Directive (작전 지령): gives each Act a clear replayable objective + reward cache. */}
-        <div className={`m2-directive${dir.completed && !dir.claimed ? ' is-ready' : ''}`} data-testid="tactical-directive">
-          <div className="m2-directive__head">
+        <div className={`m2-directive${dir.completed && !dir.claimed ? ' is-ready' : ''}${dirOpen || (dir.completed && !dir.claimed) ? '' : ' is-folded'}`} data-testid="tactical-directive">
+          <button type="button" className="m2-directive__head" aria-expanded={dirOpen} onClick={() => setDirOpen((o) => !o)}>
             <Crosshair size={14} />
             <span>{lang === 'ko' ? `${run.act}막 작전 지령` : `Act ${run.act} Tactical Directive`}</span>
+            {!dir.selected && !dirOpen && <em className="m2-directive__hint">{lang === 'ko' ? `${dir.offered.length}개 중 선택` : `pick 1 of ${dir.offered.length}`}</em>}
             {dir.selected && (
               <b className="m2-mono">
                 {dir.claimed ? (lang === 'ko' ? '완료' : 'DONE') : `${dir.progress}/${dir.target}`}
               </b>
             )}
-          </div>
+          </button>
           {!dir.selected ? (
             <>
               <p className="m2-directive__lead">
                 {lang === 'ko'
-                  ? '이번 챕터에서 수행할 전술 목표를 선택하십시오. 달성 시 즉시 특별 보급품을 수령합니다.'
-                  : 'Choose a tactical objective for this chapter to earn a special supply cache.'}
+                  ? '이번 막의 목표를 하나 고른다. 해내면 보급품이 온다.'
+                  : 'Pick one objective for this act. Pull it off and a supply cache comes your way.'}
               </p>
               <div className="m2-directive__choices">
                 {dir.offered.map((d, idx) => (

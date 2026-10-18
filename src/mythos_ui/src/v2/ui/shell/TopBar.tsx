@@ -230,6 +230,7 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onM
         })}
       </div>
 
+      <span className="m2-topbar__break" aria-hidden="true" />
       <div className="m2-topbar__cons">
         {[0, 1, 2].map((i) => {
           const id = run.consumables[i]

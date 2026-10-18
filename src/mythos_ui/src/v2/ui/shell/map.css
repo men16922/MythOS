@@ -527,6 +527,31 @@
   color: var(--m2-cyan);
   margin-bottom: 6px;
 }
+.m2-directive__head {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.m2-directive__hint {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--m2-gold);
+}
+.m2-directive.is-folded {
+  padding: 10px 12px;
+}
+.m2-directive.is-folded .m2-directive__head {
+  margin-bottom: 0;
+}
+.m2-directive.is-folded > :not(.m2-directive__head) {
+  display: none;
+}
 .m2-directive__head b {
   margin-left: auto;
   color: var(--m2-gold);

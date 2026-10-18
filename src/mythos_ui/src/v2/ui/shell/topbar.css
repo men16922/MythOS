@@ -319,3 +319,7 @@
   gap: 8px;
   align-items: start;
 }
+/* Row break used only by the phone layout (phone.css). */
+.m2-topbar__break {
+  display: none;
+}

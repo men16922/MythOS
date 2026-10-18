@@ -138,6 +138,20 @@
   object-fit: contain;
   filter: drop-shadow(0 0 24px rgba(0, 0, 0, 0.8));
 }
+/* NPC portraits are square photographs (companions are cut-out sprites): frame them and fade the edges. */
+.m2-dialogue__who img.is-photo {
+  width: min(320px, 70%);
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid var(--crpg);
+  box-shadow:
+    0 0 0 4px rgba(3, 10, 12, 0.9),
+    0 0 0 5px rgba(111, 227, 200, 0.18),
+    0 18px 48px rgba(0, 0, 0, 0.7);
+  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
+  filter: none;
+}
 .m2-dialogue__initial {
   display: grid;
   place-items: center;
@@ -414,6 +428,9 @@
   .m2-dialogue__who img {
     max-height: 22dvh;
     max-width: 40%;
+  }
+  .m2-dialogue__who img.is-photo {
+    width: min(112px, 30%);
   }
   .m2-dialogue__initial {
     width: 72px;

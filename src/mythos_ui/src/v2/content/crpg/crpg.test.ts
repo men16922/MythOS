@@ -29,6 +29,13 @@ function effectsOf(o: DialogueOption): (RunEffect | CrpgEffect)[] {
   return outcomes(o).flatMap((x) => x.effects ?? [])
 }
 
+test('every NPC has a dialogue portrait on disk', () => {
+  for (const n of Object.values(X.npcs)) {
+    assert.ok(n.portrait, `${n.id}: no portrait`)
+    assert.ok(existsSync(join(ROOT, 'resources/neo-seoul', n.portrait)), `${n.id}: portrait ${n.portrait} missing`)
+  }
+})
+
 test('districts: ids, art on disk, actions < points of interest, conversations exist', () => {
   const seenDialogues = new Set<string>()
   for (const d of Object.values(X.districts)) {

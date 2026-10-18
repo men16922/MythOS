@@ -1,5 +1,6 @@
 {
- "codex_image_calls": 9,
+ "codex_image_calls": 28,
+ "codex_image_failed": 1,
  "image_calls": 317,
  "image_failed": 401,
  "lyria_calls": 21,
@@ -2463,6 +2464,114 @@
    "prompt": "Cinematic slow push-in on a lone figure in a long coat standing on the edge of a wet rooftop in a rain-soaked cyberpunk Seoul at night. Heavy rain streaks through cyan and magenta neon. Far away a white spire rises into storm clouds, a single red eye at its top slowly brightens. Small drones drift past with blinking red lights. The coat moves in the wind. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
    "seconds": 8,
    "ts": "2026-10-13T03:12:27"
+  },
+  "v2/npcs/archivist_07.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Archivist 07, a records-floor android that reads each name aloud once and deletes it; white porcelain-like synthetic face with fine seams, a small frost on its casing, a record chip at its fingertips, cold archive shelves behind it. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:08:21"
+  },
+  "v2/npcs/auctioneer_palle.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Palle, the auctioneer of a memory auction house; androgynous Korean person in a sharp velvet suit, slicked hair, a holographic gavel glowing in one hand, a showman's thin smile. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:06:39"
+  },
+  "v2/npcs/auditor_pyo.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Auditor Pyo, a Korean auditor who counts deletion quotas; thin, rimless glasses with a data overlay, a grey bureaucrat suit, holding a tally tablet, emotionless. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:08:58"
+  },
+  "v2/npcs/bora.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Bora, a cheerful, clever Korean kid of about twelve who collects a small toll from passers-by; oversized yellow raincoat with the hood down, a sly grin, holding a clear umbrella, warm market lights. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:10:01"
+  },
+  "v2/npcs/citizen_mun.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Citizen No. 0451, a Korean man at the very end of an 'optimization' queue; grey uniform jumpsuit with a number patch, shaved head, a blank exhausted stare, white corridor behind him. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:08:27"
+  },
+  "v2/npcs/collector_do.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Mr. Do, an elderly Korean collector who only buys childhood memories; immaculate grey suit, white gloves, a small glass vial of glowing memory in his fingers, unsettlingly gentle smile. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:06:38"
+  },
+  "v2/npcs/curator_baek.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Curator Baek, an 'optimized citizen' curator of a glass atrium; flawless Korean woman in a pristine white high-collar outfit, too-perfect calm face, sterile white light instead of neon. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:07:48"
+  },
+  "v2/npcs/iseul.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Iseul, a Korean teenage girl selling her own memories to pay a debt; pale, a neural jack port with a bandage behind her ear, school jacket too thin for the rain, quiet sad eyes. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:06:20"
+  },
+  "v2/npcs/kiosk_dal.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Dal, an IX-licensed welfare kiosk robot: a battered public kiosk with a cracked screen face showing a glitching cartoon smile, rain dripping off its casing, stickers peeling — a machine, not a person. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:05:25"
+  },
+  "v2/npcs/madam_ku.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Madam Ku, a sharp-eyed Korean woman in her sixties who runs the lamp market and sells patrol schedules; permed grey hair, gold-rimmed glasses, a padded market vest over a silk blouse, a ledger tablet. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:05:45"
+  },
+  "v2/npcs/min_courier.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Min, a Korean delivery courier in his twenties hiding from debt collectors; hood up, scuffed rider jacket with reflective strips, a cracked helmet under one arm, nervous darting eyes. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:05:26"
+  },
+  "v2/npcs/mother_so.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Mrs. So, a Korean mother in her fifties disguised as a maintenance worker to find her son's name; maintenance coveralls with sleeves rolled three times, hands red with cold, determined wet eyes. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:08:29"
+  },
+  "v2/npcs/oh_gisa.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Old Oh, an unlicensed Korean electrician in his sixties; weathered face, grease on his cheek, coveralls with rolled sleeves, a coil of cable over his shoulder, warm yellow work-lamp light. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:04:27"
+  },
+  "v2/npcs/scav_pyo.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Pyo, a Korean scavenger who fishes fuel cells out of flooded rail tunnels; diving mask pushed up on the forehead, wet waders, a headlamp, a dented fuel cell under one arm. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:07:20"
+  },
+  "v2/npcs/sgt_yun.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Sergeant Yun, a Korean patrol sergeant in his forties; tired stern eyes, wet riot-police armor with a cracked visor pushed up, red patrol light on his shoulder. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:06:08"
+  },
+  "v2/npcs/stationmaster_yeom.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Stationmaster Yeom, an old Korean stationmaster guarding the timetable of a stopped train; faded railway uniform and cap, a pocket watch on a chain, flooded subway platform behind him. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:08:33"
+  },
+  "v2/npcs/toll_king.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Boss Ma, the Korean man who owns the transfer-corridor tollgate; heavyset, gold chain, a cheap fur-collared coat, cigarette smoke, a toll scanner on his wrist, confident grin. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:07:17"
+  },
+  "v2/npcs/yeon_cleaner.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Yeon, a Korean window cleaner who hangs from the outer wall of a spire; climbing harness, safety rope, wind-whipped hair, squeegee in hand, the city's lights far below. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
+   "ts": "2026-10-18T23:07:30"
   }
  },
  "veo_calls": 17,

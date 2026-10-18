@@ -24,7 +24,9 @@ const PARTS: [DistrictDef | null, DialogueDef[], NpcDef[]][] = [
 
 export const DISTRICTS: DistrictDef[] = PARTS.flatMap(([d]) => (d ? [d] : []))
 export const DIALOGUES: DialogueDef[] = [...PARTS.flatMap(([, ds]) => ds), ...CAMP_DIALOGUES]
-export const NPCS: NpcDef[] = PARTS.flatMap(([, , ns]) => ns)
+// Every NPC's dialogue portrait is resources/neo-seoul/v2/npcs/<id>.webp (scripts/v2_assets/gen_npc_portraits.py)
+// unless the NPC names its own.
+export const NPCS: NpcDef[] = PARTS.flatMap(([, , ns]) => ns).map((n) => ({ portrait: `v2/npcs/${n.id}.webp`, ...n }))
 
 function byId<T extends { id: string }>(xs: readonly T[]): Record<string, T> {
   const out: Record<string, T> = {}

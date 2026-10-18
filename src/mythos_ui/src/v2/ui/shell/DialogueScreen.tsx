@@ -128,10 +128,10 @@ function Approvals({ list, C, lang }: { list: { id: string; delta: number }[]; C
   )
 }
 
-function speakerOf(id: string | undefined, C: ScreenProps['C']): { name: Text; role?: Text; face?: string } | null {
+function speakerOf(id: string | undefined, C: ScreenProps['C']): { name: Text; role?: Text; face?: string; photo?: boolean } | null {
   if (!id) return null
   const npc = C.crpg?.npcs[id]
-  if (npc) return { name: npc.name, role: npc.role, face: npc.portrait ? asset(npc.portrait) : undefined }
+  if (npc) return { name: npc.name, role: npc.role, face: npc.portrait ? asset(npc.portrait) : undefined, photo: true }
   const comp = C.companions[id]
   if (comp) return { name: comp.name, role: comp.alias, face: portrait(comp.sprite) }
   return null
@@ -198,7 +198,7 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
   return (
     <div className="m2-dialogue">
       <aside className="m2-dialogue__who">
-        {speaker?.face ? <img src={speaker.face} alt="" onError={(e) => (e.currentTarget.style.display = 'none')} /> : <span className="m2-dialogue__initial">
+        {speaker?.face ? <img className={speaker.photo ? 'is-photo' : undefined} src={speaker.face} alt="" onError={(e) => (e.currentTarget.style.display = 'none')} /> : <span className="m2-dialogue__initial">
             <i>{speaker ? tr(speaker.name, lang).slice(0, 1) : '…'}</i>
           </span>}
         {speaker && (

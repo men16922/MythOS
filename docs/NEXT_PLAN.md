@@ -19,9 +19,9 @@ Done 2026-10-17–18: Settings "AI 대사 사용"; IX loop memory; chronicle use
 
 ## Tiers + CRPG layer (built 2026-10-18)
 
-Built W0–W5 (`docs/plans/2026-10-18-tiers-and-ai-narrative.md` §9) + Act 1 free district trial (`CrpgRunState.trial`) + combat-twist HUD badges (`.m2c-mod-badge`). Left:
+Built W0–W5 (`docs/plans/2026-10-18-tiers-and-ai-narrative.md` §9) + Multi-boss pool (`jujak_core`, `arachne_queen`), 5-choice `a1_opening`, Chapter Tactical Directives (`engine/directives.ts`), Act 1 `localNarrate` / `CompanionWhisper` / `SOLO_BANTER`, full CRPG web access, dynamic Act 1 BGM, and combat-twist HUD badges (`.m2c-mod-badge`). Left:
 - `[ ]` `[manual]` Play: create `signal_plus_monthly`, merchant profile, service-account access (`docs/play-store.md` step 7), then one license-tester purchase on a device → `/plan` shows plus.
-- `[x]` Promoted `00133-pab` (`git-sha=384050c`, 2026-10-18; rollback `00131`). Owner confirmed 2026-10-18: ₩3,900, allowances $0.30 / $1.50, `MYTHOS_V2_GM_DAILY_USD` 20. `[ ]` `[manual]` Optional: set `MYTHOS_GM_PRICE_*` to Google's list price once known.
+- `[x]` Promoted `00113-w55` (`git-sha=3f2bf81`, 100% `LATEST`, 2026-10-18; rollback `00133-pab`). Owner confirmed 2026-10-18: ₩3,900, allowances $0.30 / $1.50, `MYTHOS_V2_GM_DAILY_USD` 20. `[ ]` `[manual]` Optional: set `MYTHOS_GM_PRICE_*` to Google's list price once known.
 - `[ ]` After real play: more districts if players finish all six.
 
 ## After the first wave of players

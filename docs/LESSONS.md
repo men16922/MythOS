@@ -3,6 +3,7 @@
 Repo-specific things a future unattended iteration should know before repeating a mistake.
 One line per lesson, dated, newest on top. Lessons about the archived 1.x runtime were removed with it (branch `1.0`).
 
+- 2026-10-18: promoting a preview with `gcloud run services update-traffic mythos-api --to-revisions <rev>=100` pins 100% of traffic to that specific revision name — a subsequent `make deploy` (`gcloud run deploy`) builds a new revision at 0% traffic while the public URL keeps serving the old pinned revision. Always follow `make deploy` with `gcloud run services update-traffic mythos-api --to-latest` (or verify with `verify_preview.py --url <service-url>`).
 - 2026-10-18: a floating overlay (the first thought-cabinet card, fixed bottom-right) silently ate the UI bot's click on the shop's leave button — `make playthrough-quick` caught it, unit tests could not. Keep new panels inside a screen's own layout, never fixed over other screens' buttons. Also: `pkill -f mythos_api` inside a shell command whose own text contains `mythos_api` kills that shell (exit 144) — use `make api` / `make api-stop`.
 
 - 2026-10-17: gemini-3.8-flash still spends 100-200 tokens thinking with `thinking_budget=0`; with a tight `max_output_tokens` the answer comes back as one word (finish MAX_TOKENS) and the cleaner silently falls back. Keep the thinking headroom (`GEMINI_THINKING_HEADROOM`) and run `make gm-eval` (Vertex) after any model switch — unit tests with fake LLMs cannot see this.

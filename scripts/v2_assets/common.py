@@ -180,6 +180,54 @@ _client_lock = threading.Lock()
 _client = None
 
 
+CODEX_IMG = Path.home() / ".codex" / "generated_images"
+
+
+def codex_image(prompt: str, refs: Iterable[Path] = ()) -> Path | None:
+    """One image from the Codex CLI image tool (no GCP billing). Returns the PNG it wrote, or None.
+
+    `codex exec --json` prints the thread id; the image is read from ~/.codex/generated_images/<thread>/ so
+    parallel calls never mix outputs. Each call (and each failure) is counted in ledger.json.
+    """
+    import subprocess
+
+    cmd = [
+        "codex",
+        "exec",
+        prompt,
+        "--cd",
+        str(ROOT),
+        "--sandbox",
+        "read-only",
+        "-c",
+        "approval_policy=never",
+    ]
+    cmd += ["--skip-git-repo-check", "--json"]
+    for r in refs:
+        cmd += ["-i", str(r)]
+    ledger_bump("codex_image_calls")
+    proc = subprocess.run(
+        cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=900
+    )
+    thread = None
+    for line in proc.stdout.splitlines():
+        if line.startswith("{"):
+            ev = json.loads(line)
+            if ev.get("type") == "thread.started":
+                thread = ev.get("thread_id")
+                break
+    pngs = (
+        sorted((CODEX_IMG / thread).glob("*.png"), key=lambda p: p.stat().st_mtime)
+        if thread
+        else []
+    )
+    if not pngs:
+        ledger_bump("codex_image_failed")
+        print(f"codex image failed (thread={thread}): {proc.stderr[-300:]}", file=sys.stderr)
+        return None
+    return pngs[-1]
+
+
 def _genai_client():
     global _client
     with _client_lock:

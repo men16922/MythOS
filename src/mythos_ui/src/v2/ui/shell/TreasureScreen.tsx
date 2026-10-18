@@ -1,5 +1,6 @@
 // Mythos 2.0 — supply cache: click to crack it open (light burst), implant + credits inside.
 import { useState } from 'react'
+import { asset } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { sound } from '../components/sound.ts'
@@ -35,10 +36,8 @@ export function TreasureScreen({ run, C, lang, settings, act }: ScreenProps) {
       <h1 className="m2-treasure__title">{t.opened ? (ko ? '봉인 해제' : 'Unsealed') : ko ? '잠긴 보급 상자' : 'A sealed cache'}</h1>
       <div className="m2-cache" onClick={open} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && open()} onMouseEnter={() => !t.opened && sound('ui_hover')}>
         <div className="m2-cache__burst" />
-        <div className="m2-cache__lid" />
-        <div className="m2-cache__body">
-          <span className="m2-cache__lock" />
-        </div>
+        <img className="m2-cache__img" src={asset('v2/ui/cache_closed.webp')} alt="" draggable={false} />
+        <img className="m2-cache__img m2-cache__img--open" src={asset('v2/ui/cache_open.webp')} alt="" draggable={false} />
         {t.opened && def && (
           <div className="m2-cache__loot">
             <ImplantIcon def={def} lang={lang} size={92} flash />

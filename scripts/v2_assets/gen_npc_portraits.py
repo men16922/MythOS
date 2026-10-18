@@ -13,17 +13,14 @@ counted in ledger.json (`codex_image_calls`) and each output is recorded there.
 from __future__ import annotations
 
 import argparse
-import json
 import shutil
-import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import RES, ROOT, ledger_bump, ledger_record
+from common import RES, codex_image, ledger_record
 
-CODEX_IMG = Path.home() / ".codex" / "generated_images"
 OUT = RES / "v2" / "npcs"
 REF = RES / "characters" / "tae-o.png"
 
@@ -86,42 +83,11 @@ def generate(npc: str, force: bool) -> str:
         "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else "
         f"(no files, no code). {NPCS[npc]} {LOOK}"
     )
-    cmd = [
-        "codex",
-        "exec",
-        prompt,
-        "--cd",
-        str(ROOT),
-        "--sandbox",
-        "read-only",
-        "-c",
-        "approval_policy=never",
-        "--skip-git-repo-check",
-        "--json",
-        "-i",
-        str(REF),
-    ]
-    ledger_bump("codex_image_calls")
-    proc = subprocess.run(
-        cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=900
-    )
-    thread = None
-    for line in proc.stdout.splitlines():
-        if line.startswith("{"):
-            ev = json.loads(line)
-            if ev.get("type") == "thread.started":
-                thread = ev.get("thread_id")
-                break
-    pngs = (
-        sorted((CODEX_IMG / thread).glob("*.png"), key=lambda p: p.stat().st_mtime)
-        if thread
-        else []
-    )
-    if not pngs:
-        ledger_bump("codex_image_failed")
-        return f"{npc}: FAILED (thread={thread}) {proc.stderr[-200:]}"
+    png = codex_image(prompt, [REF])
+    if png is None:
+        return f"{npc}: FAILED"
     raw = OUT / f"{npc}.codex_raw.png"
-    shutil.copy2(pngs[-1], raw)
+    shutil.copy2(png, raw)
     im = Image.open(raw).convert("RGB")
     side = min(im.size)
     left, top = (im.width - side) // 2, (im.height - side) // 2

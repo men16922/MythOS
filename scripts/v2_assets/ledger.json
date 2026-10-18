@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 28,
+ "codex_image_calls": 30,
  "codex_image_failed": 1,
  "image_calls": 317,
  "image_failed": 401,
@@ -2572,6 +2572,22 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Yeon, a Korean window cleaner who hangs from the outer wall of a spire; climbing harness, safety rope, wind-whipped hair, squeegee in hand, the city's lights far below. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:07:30"
+  },
+  "v2/ui/cache_closed.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). A sealed military supply cache in a 2070s Korean cyberpunk city: a rugged scratched gunmetal crate with reinforced corners, a glowing cyan electronic seal lock on the front, hazard stripes, stencil marks without readable text. Three-quarter view from slightly above, the crate centered and filling about 60 percent of the frame, standing on rain-wet concrete. Pure near-black background (#030a0c) fading to darkness at all edges so it blends into a dark UI, faint teal rim light, a few raindrops. Photorealistic, cinematic. No readable text, no logos, no watermark, no border.",
+   "refs": [],
+   "ts": "2026-10-18T23:24:37"
+  },
+  "v2/ui/cache_open.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). The exact same crate as the attached image, same camera angle, same position and size in the frame, same near-black background — but now unsealed: the lid is thrown open and tilted back, the seal lock is broken and sparking, and bright cyan light pours up out of the open crate as a column of glow and fine particles. No object visible inside, just light. Photorealistic, cinematic. No readable text, no logos, no watermark, no border.",
+   "refs": [
+    "resources/neo-seoul/v2/ui/cache_closed.webp"
+   ],
+   "ts": "2026-10-18T23:25:18"
   }
  },
  "veo_calls": 17,

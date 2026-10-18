@@ -11,7 +11,7 @@
   justify-content: center;
   padding: 32px 16px;
   text-align: center;
-  background: radial-gradient(ellipse at 50% 55%, rgba(255, 182, 72, 0.1), transparent 60%);
+  background: radial-gradient(ellipse at 50% 55%, rgba(78, 242, 227, 0.08), transparent 60%);
 }
 .m2-treasure__kicker {
   font-family: var(--m2-display);
@@ -20,71 +20,54 @@
   letter-spacing: 0.1em;
 }
 .m2-treasure__title {
-  margin: 4px 0 30px;
+  margin: 4px 0 18px;
   font-family: var(--m2-display);
   font-size: 38px;
 }
 .m2-cache {
   position: relative;
-  width: 260px;
-  height: 200px;
-  margin-top: 40px;
+  width: min(340px, 72vw, 40vh);
+  aspect-ratio: 1;
+  margin-top: 8px;
   cursor: pointer;
   outline: none;
   transition: transform 0.2s var(--m2-ease);
 }
 .m2-cache:hover {
-  transform: scale(1.04);
+  transform: scale(1.03);
 }
 .is-open .m2-cache {
   cursor: default;
   transform: none;
 }
-.m2-cache__body {
+/* Generated art (scripts/v2_assets/gen_codex_image.py): the same crate sealed and unsealed, cross-faded. */
+.m2-cache__img {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 130px;
-  background: repeating-linear-gradient(90deg, transparent 0 34px, rgba(0, 0, 0, 0.35) 34px 36px), linear-gradient(180deg, #2b3a3e, #121c1f);
-  border: 2px solid #4b6a70;
-  clip-path: var(--m2-cut-sm);
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-mask-image: radial-gradient(circle at 50% 52%, #000 48%, transparent 71%);
+  mask-image: radial-gradient(circle at 50% 52%, #000 48%, transparent 71%);
+  user-select: none;
 }
-.m2-cache__lock {
-  position: absolute;
-  left: 50%;
-  top: 22px;
-  width: 34px;
-  height: 34px;
-  margin-left: -17px;
-  border: 2px solid var(--m2-amber);
-  background: #1a1306;
-  box-shadow: 0 0 18px rgba(255, 182, 72, 0.6);
-  animation: m2-pulse-glow 1.4s ease-in-out infinite;
+.m2-cache__img--open {
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
 }
-.m2-cache__lid {
-  position: absolute;
-  left: -6px;
-  right: -6px;
-  bottom: 124px;
-  height: 52px;
-  background: linear-gradient(180deg, #3b5056, #1b2a2e);
-  border: 2px solid #5a7e85;
-  clip-path: polygon(0 100%, 6% 0, 94% 0, 100% 100%);
-  transform-origin: 50% 100%;
-  transition: transform 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+.is-open .m2-cache__img--open {
+  opacity: 1;
+}
+.m2-cache:not(:hover) .m2-cache__img:not(.m2-cache__img--open) {
+  animation: m2-cache-idle 2.4s ease-in-out infinite;
+}
+@keyframes m2-cache-idle {
+  50% {
+    filter: brightness(1.12) drop-shadow(0 0 14px rgba(78, 242, 227, 0.25));
+  }
 }
 .is-cracking .m2-cache {
   animation: m2-shake 0.2s linear infinite;
-}
-.is-open .m2-cache__lid {
-  transform: translateY(-34px) rotate(-14deg);
-}
-.is-open .m2-cache__lock {
-  border-color: var(--m2-heal);
-  box-shadow: 0 0 18px rgba(110, 245, 154, 0.6);
-  animation: none;
 }
 .m2-cache__burst {
   position: absolute;
@@ -104,22 +87,22 @@
   content: '';
   position: absolute;
   left: 50%;
-  bottom: 120px;
-  width: 340px;
-  height: 340px;
-  margin-left: -170px;
+  top: -18%;
+  width: 120%;
+  aspect-ratio: 1;
+  margin-left: -60%;
   background: conic-gradient(
     from 0deg,
     transparent 0 8%,
-    rgba(255, 214, 140, 0.18) 10%,
+    rgba(140, 250, 240, 0.16) 10%,
     transparent 13% 25%,
-    rgba(255, 214, 140, 0.14) 28%,
+    rgba(140, 250, 240, 0.12) 28%,
     transparent 31% 45%,
-    rgba(255, 214, 140, 0.18) 48%,
+    rgba(140, 250, 240, 0.16) 48%,
     transparent 51% 65%,
-    rgba(255, 214, 140, 0.14) 68%,
+    rgba(140, 250, 240, 0.12) 68%,
     transparent 71% 85%,
-    rgba(255, 214, 140, 0.18) 88%,
+    rgba(140, 250, 240, 0.16) 88%,
     transparent 91%
   );
   border-radius: 50%;
@@ -138,20 +121,20 @@
   0% {
     opacity: 1;
     box-shadow:
-      0 0 0 0 rgba(255, 230, 160, 1),
-      0 0 60px 30px rgba(255, 210, 120, 0.9);
+      0 0 0 0 rgba(170, 255, 245, 1),
+      0 0 60px 30px rgba(78, 242, 227, 0.85);
   }
   100% {
     opacity: 0;
     box-shadow:
-      0 0 0 260px rgba(255, 230, 160, 0),
-      0 0 200px 120px rgba(255, 210, 120, 0);
+      0 0 0 260px rgba(170, 255, 245, 0),
+      0 0 200px 120px rgba(78, 242, 227, 0);
   }
 }
 .m2-cache__loot {
   position: absolute;
   left: 50%;
-  top: -70px;
+  top: 4%;
   z-index: 2;
   transform: translateX(-50%);
   animation: m2-loot-rise 0.9s cubic-bezier(0.2, 1.4, 0.4, 1) both;
@@ -173,7 +156,7 @@
   align-items: center;
   gap: 8px;
   max-width: 460px;
-  margin-top: 36px;
+  margin-top: 16px;
   animation: m2-rise 0.6s 0.3s var(--m2-ease) both;
 }
 .m2-treasure__loot b {

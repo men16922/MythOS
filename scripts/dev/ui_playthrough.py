@@ -404,6 +404,10 @@ def tour_screens(page: Page) -> list[str]:
     page.wait_for_timeout(1500)
     expect("final choice -> ended", kind_of(page) == "ended", kind_of(page))
     page.wait_for_selector(".m2-ending", timeout=8000)
+    tour = os.environ.get("PLAYTHROUGH_TOUR")
+    if tour:
+        page.wait_for_timeout(6000)  # the tally counts up and the chronicle settles
+        page.screenshot(path=f"{tour}/tour_ending.png", full_page=True)
     return problems
 
 

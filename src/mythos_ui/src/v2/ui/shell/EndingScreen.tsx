@@ -4,13 +4,14 @@ import { Check, Copy, Sparkles, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { computeEchoes } from '../../engine/meta.ts'
 import type { Lang, RunState } from '../../engine/types.ts'
-import { dateLabel, isDateKey, shiftDateKey } from '../../engine/daily.ts'
+import { isDateKey, shiftDateKey } from '../../engine/daily.ts'
 import type { SubmitOutcome } from '../../net/daily.ts'
-import { hasBatchim, tr } from '../common/lang.ts'
+import { tr } from '../common/lang.ts'
 import { CountUp } from '../components/CountUp.tsx'
 import { dayOf, IMPROVED, submitLine } from '../components/dailyBoard.ts'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
+import { authoredChronicle } from './chronicle.ts'
 import { narrate } from './gm.ts'
 import { commsEntries, improvisedRecords } from '../common/commsLog.ts'
 import type { ScreenProps } from './types.ts'
@@ -50,41 +51,6 @@ function buildShareSummary(
     ? `처치 ${run.tally.kills} (환경 ${run.tally.environmentKills}) · ◈ ${echoTotal}${rankBit}`
     : `Kills ${run.tally.kills} (Terrain ${run.tally.environmentKills}) · ◈ ${echoTotal}${rankBit}`
   return [header, statusLine, statsLine].join('\n')
-}
-
-function authoredChronicle(run: RunState, lang: Lang, C: ScreenProps['C']): string {
-  const ko = lang === 'ko'
-  const arch = C.archetypes[run.archetype]
-  const party = run.party.map((m) => tr(C.companions[m.id]?.name, lang)).filter(Boolean)
-  const won = run.screen.kind === 'ended' && run.screen.result === 'victory'
-  const lines: string[] = []
-  const who = tr(arch?.name, lang) || '접속자'
-  // A daily run is named by its date, not by the loop counter.
-  const label = isDateKey(run.daily)
-    ? ko
-      ? `오늘의 시드 ${tr(dateLabel(run.daily), lang)}`
-      : `Daily Signal ${tr(dateLabel(run.daily), lang)}`
-    : ko
-      ? `루프 ${run.loop}`
-      : `Loop ${run.loop}`
-  lines.push(
-    ko
-      ? `${label}. ${who}${hasBatchim(who) ? '은' : '는'} ${run.act}막까지 ${run.tally.floors}개 구역을 지났다.`
-      : `${label}. The ${tr(arch?.name, lang) || 'connector'} crossed ${run.tally.floors} sectors, reaching Act ${run.act}.`,
-  )
-  if (party.length) {
-    const last = party[party.length - 1] ?? ''
-    lines.push(ko ? `${party.join(', ')}${hasBatchim(last) ? '이' : '가'} 곁에 있었다.` : `${party.join(' and ')} stood beside them.`)
-  }
-  lines.push(
-    ko
-      ? `처치 ${run.tally.kills}, 환경 처치 ${run.tally.environmentKills}. 받은 피해 ${run.tally.damageTaken}.`
-      : `${run.tally.kills} kills, ${run.tally.environmentKills} of them by the terrain. ${run.tally.damageTaken} damage taken.`,
-  )
-  lines.push(
-    won ? (ko ? '이번에는 도시가 대답했다.' : 'This time, the city answered.') : ko ? 'IX는 이 루프를 기억한다. 당신도 잊지 않는다.' : 'IX remembers this loop. So do you.',
-  )
-  return lines.join(' ')
 }
 
 export interface EndingScreenProps extends ScreenProps {
@@ -160,10 +126,15 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
         improvised: improvisedRecords(commsEntries()),
       },
       15000,
-      true,
+      // Only a model line replaces the authored chronicle below (the server's own fallback is a flat fact list).
+      false,
     ).then((text) => {
       if (!alive) return
-      if (!text) return setChronSource((s) => s ?? 'auth')
+      if (!text) {
+        setChronSource((s) => s ?? 'auth')
+        onChronicle(fallback) // archive what the player read
+        return
+      }
       setChronicle(text)
       setChronSource((s) => s ?? 'gm')
       onChronicle(text)

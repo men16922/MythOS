@@ -86,3 +86,20 @@
   font-size: 13px;
   clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
 }
+/* What the current tip is about (Coach.tsx): a pulsing ring, so a tip placed beside the board still points at it. */
+.m2c-coach-target {
+  outline: 2px solid var(--c-cyan);
+  outline-offset: 2px;
+  animation: m2c-coach-pulse 1.1s ease-in-out infinite;
+}
+@keyframes m2c-coach-pulse {
+  50% {
+    outline-color: rgba(78, 242, 227, 0.25);
+    box-shadow: 0 0 18px rgba(78, 242, 227, 0.55);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2c-coach-target {
+    animation: none;
+  }
+}

@@ -82,11 +82,20 @@ export function Coach({ root, lang, onClose, touch = false }: { root: HTMLElemen
       const r = el.getBoundingClientRect()
       const b = root.getBoundingClientRect()
       // 300 px bubble; a phone gets the root width minus a gutter.
-      const W = Math.min(300, b.width - 16)
+      let W = Math.min(300, b.width - 16)
       let left = r.left - b.left + r.width / 2 - W / 2
       let top = r.top - b.top - 150
       let arrow = def.place
-      if (def.place === 'right') {
+      // A tip about something on the board sits beside the board, never over the tiles it explains; the target
+      // itself pulses (m2c-coach-target) so the player still sees what the tip means.
+      const board = root.querySelector('.m2c-board-wrap')
+      const br = board && board.contains(el) ? board.getBoundingClientRect() : null
+      const room = br ? b.right - br.right - 24 : 0
+      if (br && def.place === 'right' && room >= 240) {
+        W = Math.min(300, room)
+        left = br.right - b.left + 12
+        top = r.top - b.top + r.height / 2 - 60
+      } else if (def.place === 'right') {
         left = r.right - b.left + 16
         top = r.top - b.top + r.height / 2 - 60
         if (left + W > b.width - 8) {
@@ -100,7 +109,12 @@ export function Coach({ root, lang, onClose, touch = false }: { root: HTMLElemen
     }
     place()
     const t = window.setInterval(place, 400)
-    return () => window.clearInterval(t)
+    const target = root.querySelector(def.anchor)
+    target?.classList.add('m2c-coach-target')
+    return () => {
+      window.clearInterval(t)
+      target?.classList.remove('m2c-coach-target')
+    }
   }, [root, def])
 
   if (!def || !pos) return null

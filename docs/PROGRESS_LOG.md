@@ -1,6 +1,11 @@
 # Progress Log
 
-Last updated: 2026-10-19
+Last updated: 2026-10-20
+
+## 2026-10-20 — Promoted `00138-mez` (owner: "지금 승격 + 운영 검증"); fun-check sheet
+
+- `gcloud run services update-traffic mythos-api --to-latest` → 100 % `LATEST` = `00138-mez` (`25dbf9b`); rollback `00113-w55`. Service URL: `verify_preview.py --url` 4/4; demo code → `/plan` 200 + `act_intro`/`event` lines 3/3 `llm`; no code → 401; daily board 200 (migration 018 applied itself to production Postgres); title renders with the demo notice, 0 page errors (headless, muted).
+- `docs/test/mythos2_fun_check.md`: the owner's 30–40 min play sheet (first 10 minutes, combat feel, AI features incl. Improvise and NPC talk, replay value, phone) + five tester survey questions.
 
 ## 2026-10-19 — Preview 00137 verified; GM tail latency: per-request timeout + hedged Vertex calls
 

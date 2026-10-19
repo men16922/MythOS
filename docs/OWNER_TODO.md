@@ -32,8 +32,9 @@
 
 ## 공모전 준비 (2026-10-18)
 
-- [ ] **운영 반영(승격)** — 미리보기 `00138-mez`는 검증 끝(5/5, 데모 코드·AI 대사 확인). 올리려면 에이전트에게 "승격해"라고 하거나 직접: `gcloud run services update-traffic mythos-api --to-revisions mythos-api-00138-mez=100 --region us-central1`.
-- [ ] **심사위원 링크 만들기** — `.env`의 `MYTHOS_DEMO_CODES` 값을 `<서비스 주소>/?demo=` 뒤에 붙인 링크를 제출서에 넣는다(승격 후 동작).
+- [x] **운영 반영(승격)** — 2026-10-20 완료, 운영 주소에서 검증 끝. 되돌리기: `gcloud run services update-traffic mythos-api --to-revisions mythos-api-00113-w55=100 --region us-central1`.
+- [ ] **재미 판정** — `docs/test/mythos2_fun_check.md`대로 30~40분 플레이하고 정상/문제를 알려 주기.
+- [ ] **심사위원 링크 만들기** — `.env`의 `MYTHOS_DEMO_CODES` 값을 `<서비스 주소>/?demo=` 뒤에 붙인 링크를 제출서에 넣는다(지금 바로 동작).
 
 - [x] **심사위원 데모 코드** (2026-10-19 에이전트가 생성해 `.env`에 넣음) — 로그인 없이도 AI 대사가 켜지는 링크(`<서비스 주소>/?demo=<코드>`). `.env`에 `MYTHOS_DEMO_CODES=<6자 이상 코드>`를 넣고 에이전트에게 "미리보기 배포"를 요청하면 배포 → 검증 → 승격까지 한다. 기기당 무료 한도만 쓰고, 세이브·순위표는 여전히 로그인이 필요하다. 코드를 바꾸면 옛 링크는 작가 대사로 돌아간다.
 - [ ] **제출 영문 소개서** — `docs/contest/pitch-en.md`(초안 완료). 대회 양식에 맞게 붙여 넣기.

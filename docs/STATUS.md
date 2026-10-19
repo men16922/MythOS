@@ -21,7 +21,7 @@ Last updated: 2026-10-18
 
 Latest verified baseline (2026-10-19, streams + UX pass 1 + demo codes + replay): `make check` green (`node --test src/v2` 344 + Python unittest 329 + 12 DB tests skipped without Postgres; `make test-db` 33 OK against Postgres 16), `make test-e2e-v2` green (headless, muted), `make playthrough-quick` OK (5 nodes + shop/safehouse/treasure/final-choice tour, 223 s). Sim P0 (3 × 360 mixed, identical seeds before/after): greedy ≈ 97 % · mixed ≈ 43 % (36–53 % by 120-run block) · basic 0 %.
 
-Production (2026-10-18): Cloud Run `mythos-api` serves 2.0 — revision `00113-w55` at 100 % `LATEST` (`git-sha=3f2bf81`; rollback `00133-pab`; `/admin` dashboard, `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.8-flash`); 1.x lives only as code on branch `1.0`. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
+Production (2026-10-20): Cloud Run `mythos-api` serves 2.0 — revision `00138-mez` at 100 % `LATEST` (`git-sha=25dbf9b`; rollback `00113-w55`; `/admin` dashboard, `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.8-flash`); 1.x lives only as code on branch `1.0`. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
 
 ## Active Focus
 
@@ -34,8 +34,9 @@ Authority plan: `docs/NEXT_PLAN.md` · strategy & market analysis: `docs/plans/2
 
 - **Signal+ is dormant and unproven end to end** (paid release on hold 2026-10-18): purchase verification is tested against a fake Play API only; the product, the merchant profile and the service account's Play Console access do not exist yet. Refunds land at the stored expiry (no RTDN). Budget defaults rest on the unverified 3.8 price.
 
-- **Daily results**: replay-verified server-side since 2026-10-18 (shield badge; ranking unchanged — an unverified row can still rank). Saves stay client JSON blobs. Not deployed yet.
+- **Daily results**: replay-verified server-side (live since 2026-10-20; shield badge; ranking unchanged — an unverified row can still rank). Saves stay client JSON blobs.
 - **Vertex tail latency**: some GM calls take 10–20 s or end in 504 DEADLINE_EXCEEDED; hedging + 14 s narrate timeout bring act intros to ~83 % answered (local measure). Authored text covers the rest; watch `v2 gm` outcomes after promotion.
+- **Fun / purchase intent is unjudged by a human**: everything above is automated evidence; the owner's play check (`docs/test/mythos2_fun_check.md`) is the open verdict.
 - **Balance noise**: mixed-bot win rate swings ±6 % by seed block — A/B on identical blocks (`docs/LESSONS.md`).
 - **GM quality**: local `gemma4:8b-64k` lines are serviceable; Vertex `gemini-3.8-flash` is sharper (3.8's introductory price reportedly doubles in Jan 2027). All lines are cleaned and have authored fallbacks.
 - **Generated assets** were spot-checked, not hand-curated; regenerate single files with `scripts/v2_assets/` (call-budget ledger).

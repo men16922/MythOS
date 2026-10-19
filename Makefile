@@ -320,7 +320,7 @@ deploy:
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
 	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
 	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
-	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL $(BUDGET_ENV_KEYS); do \
+	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL MYTHOS_DEMO_CODES $(BUDGET_ENV_KEYS); do \
 		VAL=$$(grep -E "^$$KEY=" .env | cut -d= -f2- | tr -d '"'); \
 		test -z "$$VAL" || AUTH_ENV="$$AUTH_ENV@@$$KEY=$$VAL"; \
 	done; \
@@ -337,7 +337,7 @@ deploy-preview:
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
 	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
 	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
-	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL $(BUDGET_ENV_KEYS); do \
+	for KEY in MYTHOS_CONTACT_EMAIL MYTHOS_DEVELOPER_NAME MODEL MYTHOS_DEMO_CODES $(BUDGET_ENV_KEYS); do \
 		VAL=$$(grep -E "^$$KEY=" .env | cut -d= -f2- | tr -d '"'); \
 		test -z "$$VAL" || AUTH_ENV="$$AUTH_ENV@@$$KEY=$$VAL"; \
 	done; \

@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-20
 
+## 2026-10-20 — Promoted `00140-paw` (owner: "승격 + 운영 검증")
+
+- Batch since 00138: coach tips beside the board, NPC free talk kept on screen, story chronicle (`chronicle.ts`), Archive "unlockable now" marks, AI clip with the companion scene. Preview 5/5 → `--to-latest` → service URL 4/4, demo narrate `llm`, title + demo notice, 0 page errors. Rollback `00138-mez`.
+- Also checked on a GM-on local server: the safehouse companion chat answers from this run's choices ("아까 그 노인 버리고 튀었으면…").
+
 ## 2026-10-20 — First-session review, NPC free talk kept on screen, AI-features clip
 
 - First session as a brand-new player (normal speed, recorded): title → first fight in ~40 s of clicks; found the first-combat tip covering the board it explains — tips about the board now sit in the free column beside it and the target pulses.

@@ -21,7 +21,7 @@ Last updated: 2026-10-18
 
 Latest verified baseline (2026-10-19, streams + UX pass 1 + demo codes + replay): `make check` green (`node --test src/v2` 344 + Python unittest 329 + 12 DB tests skipped without Postgres; `make test-db` 33 OK against Postgres 16), `make test-e2e-v2` green (headless, muted), `make playthrough-quick` OK (5 nodes + shop/safehouse/treasure/final-choice tour, 223 s). Sim P0 (3 × 360 mixed, identical seeds before/after): greedy ≈ 97 % · mixed ≈ 43 % (36–53 % by 120-run block) · basic 0 %.
 
-Production (2026-10-20): Cloud Run `mythos-api` serves 2.0 — revision `00138-mez` at 100 % `LATEST` (`git-sha=25dbf9b`; rollback `00113-w55`; `/admin` dashboard, `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.8-flash`); 1.x lives only as code on branch `1.0`. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
+Production (2026-10-20): Cloud Run `mythos-api` serves 2.0 — revision `00140-paw` at 100 % `LATEST` (`git-sha=7707757`; rollback `00138-mez`; `/admin` dashboard, `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.8-flash`); 1.x lives only as code on branch `1.0`. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
 
 ## Active Focus
 

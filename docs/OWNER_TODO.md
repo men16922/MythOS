@@ -32,7 +32,7 @@
 
 ## 공모전 준비 (2026-10-18)
 
-- [x] **운영 반영(승격)** — 2026-10-20 완료, 운영 주소에서 검증 끝. 되돌리기: `gcloud run services update-traffic mythos-api --to-revisions mythos-api-00113-w55=100 --region us-central1`.
+- [x] **운영 반영(승격)** — 2026-10-20 완료, 운영 주소에서 검증 끝. 되돌리기: `gcloud run services update-traffic mythos-api --to-revisions mythos-api-00138-mez=100 --region us-central1` (2026-10-20 두 번째 승격 `00140-paw` 기준).
 - [ ] **재미 판정** — `docs/test/mythos2_fun_check.md`대로 30~40분 플레이하고 정상/문제를 알려 주기.
 - [ ] **심사위원 링크 만들기** — `.env`의 `MYTHOS_DEMO_CODES` 값을 `<서비스 주소>/?demo=` 뒤에 붙인 링크를 제출서에 넣는다(지금 바로 동작).
 

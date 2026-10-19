@@ -137,6 +137,9 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
   const unlocks = Object.values(C.unlocks).filter((u) => u.kind === kind)
   const ownedCount = (k: MetaUnlockKind) => Object.values(C.unlocks).filter((u) => u.kind === k && profile.unlocks.includes(u.id)).length
   const totalCount = (k: MetaUnlockKind) => Object.values(C.unlocks).filter((u) => u.kind === k).length
+  // What the Echoes in hand can buy right now: a badge per tab and a mark on each card ("one more loop" pull).
+  const affordable = (k: MetaUnlockKind) =>
+    Object.values(C.unlocks).filter((u) => u.kind === k && !profile.unlocks.includes(u.id) && rx.unlockGate(profile, u, C).ok).length
 
   const buy = (u: MetaUnlockDef) => {
     if (charging) return
@@ -246,6 +249,11 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                 <small className="m2-mono">
                   {ownedCount(k.kind)}/{totalCount(k.kind)}
                 </small>
+                {affordable(k.kind) > 0 && (
+                  <em className="m2-tabs__new m2-mono" title={ko ? '지금 해금할 수 있다' : 'Unlockable now'}>
+                    {affordable(k.kind)}
+                  </em>
+                )}
               </button>
             ))}
           </nav>
@@ -276,6 +284,7 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                     <b>{tr(u.name, lang)}</b>
                     <small>{tr(u.text, lang)}</small>
                     {!owned && !gate.ok && gate.reason && <em>{tr(gate.reason, lang)}</em>}
+                    {state === 'open' && <i className="m2-unlock__ready">{ko ? '지금 해금 가능' : 'Unlockable now'}</i>}
                   </span>
                   <span className="m2-unlock__cost">
                     {owned ? (

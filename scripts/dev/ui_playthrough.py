@@ -408,6 +408,12 @@ def tour_screens(page: Page) -> list[str]:
     if tour:
         page.wait_for_timeout(6000)  # the tally counts up and the chronicle settles
         page.screenshot(path=f"{tour}/tour_ending.png", full_page=True)
+        with contextlib.suppress(Exception):
+            page.get_by_role("button", name=re.compile("아카이브로|To the Archive")).first.click(
+                timeout=3000
+            )
+            page.wait_for_timeout(2500)
+            page.screenshot(path=f"{tour}/tour_archive.png")
     return problems
 
 

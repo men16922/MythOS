@@ -199,7 +199,40 @@
   background: rgba(14, 36, 42, 0.92);
 }
 .m2-unlock.is-open {
-  border-color: rgba(183, 166, 255, 0.45);
+  border-color: rgba(183, 166, 255, 0.7);
+  box-shadow: inset 0 0 22px rgba(183, 166, 255, 0.1);
+  animation: m2-unlock-ready 2.4s ease-in-out infinite;
+}
+@keyframes m2-unlock-ready {
+  50% {
+    box-shadow: inset 0 0 30px rgba(183, 166, 255, 0.22);
+  }
+}
+.m2-unlock__ready {
+  display: block;
+  margin-top: 4px;
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--m2-echo);
+  letter-spacing: 0.02em;
+}
+.m2-tabs__new {
+  display: inline-grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  margin-left: 6px;
+  padding: 0 4px;
+  border-radius: 9px;
+  font-style: normal;
+  font-size: 11px;
+  color: #0a0716;
+  background: var(--m2-echo);
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2-unlock.is-open {
+    animation: none;
+  }
 }
 .m2-unlock.is-open:hover {
   border-color: var(--m2-echo);

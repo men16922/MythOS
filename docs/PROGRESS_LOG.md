@@ -2,6 +2,13 @@
 
 Last updated: 2026-10-20
 
+## 2026-10-20 — First-session review, NPC free talk kept on screen, AI-features clip
+
+- First session as a brand-new player (normal speed, recorded): title → first fight in ~40 s of clicks; found the first-combat tip covering the board it explains — tips about the board now sit in the free column beside it and the target pulses.
+- **NPC free talk**: the player's typed line and the NPC's model reply were replaced 0.9 s later by the matched option's canned label (unreadable; the AI's work vanished). Now the reply stays, the mapped option is offered as "그 말대로 간다 → …" (the player decides), and the outcome shows their own words + the reply (`DialogueScreen.tsx`).
+- `record_trailer.py --scenes ai --gm`: 45 s clip from the real UI with Vertex lines (Improvise ruling, NPC talk, IX at the Haetae fight) → `outputs/trailer/ai/` (not committed; `outputs/` is ignored).
+- Verified: `make check`, e2e, `playthrough-quick`, a Signal+ 6-node playthrough (dialogue 12 polls), frames of the clip read back. Not deployed yet.
+
 ## 2026-10-20 — Promoted `00138-mez` (owner: "지금 승격 + 운영 검증"); fun-check sheet
 
 - `gcloud run services update-traffic mythos-api --to-latest` → 100 % `LATEST` = `00138-mez` (`25dbf9b`); rollback `00113-w55`. Service URL: `verify_preview.py --url` 4/4; demo code → `/plan` 200 + `act_intro`/`event` lines 3/3 `llm`; no code → 401; daily board 200 (migration 018 applied itself to production Postgres); title renders with the demo notice, 0 page errors (headless, muted).

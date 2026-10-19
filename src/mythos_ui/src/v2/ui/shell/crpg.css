@@ -447,3 +447,15 @@
     animation: none;
   }
 }
+/* Free talk: the option the player's own words map to, offered as a button (DialogueScreen goWithWords). */
+.m2-freechat__go {
+  margin: 0 0 14px;
+}
+/* After it resolves: the NPC's model reply under the player's own words. */
+.m2-said__npc {
+  margin: 4px 0 8px;
+  padding-left: 10px;
+  border-left: 2px solid var(--crpg);
+  color: var(--m2-ink-2);
+  font-style: italic;
+}

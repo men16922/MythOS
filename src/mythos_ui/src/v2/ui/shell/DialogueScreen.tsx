@@ -142,7 +142,10 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
   const [typed, setTyped] = useState('')
   const [line, setLine] = useState('')
   const [busy, setBusy] = useState(false)
-  const [chat, setChat] = useState<{ key: string; turns: { role: 'player' | 'companion'; text: string }[]; note: string | null }>({ key: '', turns: [], note: null })
+  const [chat, setChat] = useState<{ key: string; turns: { role: 'player' | 'companion'; text: string }[]; note: string | null; match: { index: number; label: string } | null }>({ key: '', turns: [], note: null, match: null })
+  // What the player actually said (and the NPC's model reply) for the option it led to: shown in place of the authored
+  // option label once that option resolves, so their own words stay on screen.
+  const [spoken, setSpoken] = useState<{ dialogue: string; label: string; player: string; npc: string | null } | null>(null)
   if (run.screen.kind !== 'dialogue') return null
   const state = run.screen.dialogue
   const def = C.crpg?.dialogues[state.id]
@@ -152,6 +155,7 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
   const nodeKey = `${state.id}:${state.node}:${state.last ? tr(state.last.label, 'en') : ''}`
   const turns = chat.key === nodeKey ? chat.turns : []
   const note = chat.key === nodeKey ? chat.note : null
+  const match = chat.key === nodeKey ? chat.match : null
   const views = rx.dialogueOptions(run, C)
   const speaker = speakerOf(node?.speaker ?? def.npc, C)
   const districtName = run.screen.returnTo.kind === 'district' ? C.crpg?.districts[run.screen.returnTo.district.id]?.name : undefined
@@ -181,9 +185,9 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
     setBusy(false)
     setLine('')
     const nextTurns = [...turns, { role: 'player' as const, text: message }, ...(res?.text ? [{ role: 'companion' as const, text: res.text }] : [])]
-    const match = res?.intent ? open.find((v) => v.option.intent === res.intent) : undefined
-    const noteText = match
-      ? `${ko ? '→ 시도' : '→ Attempt'}: ${tr(match.option.label, lang)}`
+    const found = res?.intent ? open.find((v) => v.option.intent === res.intent) : undefined
+    const noteText = found
+      ? null
       : res === null
         ? ko
           ? '연결이 끊겼다. 선택지를 골라라.'
@@ -191,9 +195,19 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
         : ko
           ? '그 말로는 아무것도 바뀌지 않는다.'
           : 'That changes nothing here.'
-    setChat({ key: nodeKey, turns: nextTurns, note: noteText })
-    if (match) setTimeout(() => choose(match.index), settings.fastAnim ? 200 : 900)
+    // The player reads the reply, then decides: the option it maps to is offered, never taken for them.
+    setChat({ key: nodeKey, turns: nextTurns, note: noteText, match: found ? { index: found.index, label: tr(found.option.label, lang) } : null })
   }
+
+  const goWithWords = () => {
+    if (!match) return
+    const player = [...turns].reverse().find((t) => t.role === 'player')?.text ?? ''
+    const npc = [...turns].reverse().find((t) => t.role === 'companion')?.text ?? null
+    const opt = node?.options[match.index]
+    if (opt) setSpoken({ dialogue: state.id, label: tr(opt.label, 'en'), player, npc })
+    choose(match.index)
+  }
+  const mine = spoken && state.last && spoken.dialogue === state.id && spoken.label === tr(state.last.label, 'en') ? spoken : null
 
   return (
     <div className="m2-dialogue">
@@ -216,7 +230,8 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
       <div className="m2-dialogue__panel">
         {state.last && (
           <div className={`m2-said${state.last.roll ? (state.last.roll.success ? ' is-win' : ' is-loss') : ''}`}>
-            <div className="m2-said__label">{said(tr(state.last.label, lang))}</div>
+            <div className="m2-said__label">{mine ? `“${mine.player}”` : said(tr(state.last.label, lang))}</div>
+            {mine?.npc && <p className="m2-said__npc">{mine.npc}</p>}
             {state.last.roll && <D20 roll={state.last.roll} lang={lang} fast={settings.fastAnim} />}
             <Typewriter className="m2-said__text" text={tr(state.last.text, lang)} cps={settings.fastAnim ? 400 : 120} onDone={() => setTyped(lastKey)} />
             {typed === lastKey && (
@@ -275,6 +290,11 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
                 ))}
                 {note && <li className="m2-freechat__note">{note}</li>}
               </ol>
+            )}
+            {match && (
+              <button type="button" className="m2-btn m2-btn--primary m2-freechat__go" data-testid="npc-go" onClick={goWithWords}>
+                {ko ? '그 말대로 간다' : 'Go with those words'} → {match.label}
+              </button>
             )}
             <div className="m2-options">
               {views.map(({ option, index, available, reason, chance, modifier, advantage, inspires }) => (

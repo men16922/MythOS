@@ -206,9 +206,12 @@ def start_daily_run(page: Page, base: str) -> None:
     page.wait_for_selector(".m2-options .m2-option", timeout=10000)
 
 
-def enter_fight(page: Page, base: str, encounter: str, companions: list[str]) -> None:
+def enter_fight(
+    page: Page, base: str, encounter: str, companions: list[str], fresh: bool = True
+) -> None:
     """A real run (GameShell, not the dev sandbox) dropped straight into `encounter` with the given party."""
-    start_daily_run(page, base)
+    if fresh:
+        start_daily_run(page, base)
     page.evaluate(
         """async ([enc, comps]) => { const m = window.__m2; const run = structuredClone(m.run);
           const { startCombat } = await import('/src/v2/engine/combat.ts');
@@ -270,6 +273,70 @@ def scene_map(page: Page, base: str) -> None:
     set_run(page, "run.screen = { kind: 'map' }")
     page.wait_for_timeout(5500)
 
+
+def scene_ai_improvise(page: Page, base: str) -> None:
+    """Type a free action into a street event (a drone wreck); the GM (model) rules on it, the engine rolls it."""
+    start_daily_run(page, base)
+    set_run(
+        page,
+        "run.screen = { kind: 'event', eventId: 'a1_drone_wreck', resolved: null, improvised: null }",
+    )
+    page.wait_for_selector("#m2-improv-input", timeout=15000)
+    page.wait_for_timeout(3500)  # the GM line settles on the scene
+    page.locator("#m2-improv-input").click()
+    page.keyboard.type("드론 배터리를 뽑아 순찰 탐조등 쪽으로 던져 시선을 돌린다", delay=55)
+    page.wait_for_timeout(500)
+    page.locator(".m2-improv button[type=submit]").click()
+    page.wait_for_selector(".m2-adjud", timeout=20000)
+    page.wait_for_timeout(3200)  # read the ruling: stat, difficulty, odds, stakes
+    page.locator(".m2-adjud .m2-btn--primary").click()
+    page.wait_for_selector(".m2-outcome", timeout=15000)
+    page.wait_for_timeout(4200)
+
+
+def scene_ai_npc(page: Page, base: str) -> None:
+    """Say anything to an NPC: she answers in her own voice and the line becomes one of the scene's real options."""
+    start_daily_run(page, base)
+    page.evaluate(
+        """async () => { const m = window.__m2; let run = structuredClone(m.run);
+          const Crpg = await import('/src/v2/engine/crpg.ts');
+          run.crpg = Crpg.newCrpgState(null, true); run.screen = { kind: 'map' };
+          if (!Crpg.enterDistrict(run, 'd1_lamp_market', m.C)) throw new Error('no district');
+          m.setRun(Crpg.visitPoi(run, 'tent', m.C)) }"""
+    )
+    page.wait_for_selector("#m2-npc-input", timeout=15000)
+    page.wait_for_timeout(2500)
+    page.locator("#m2-npc-input").click()
+    page.keyboard.type("순찰표 말고 하나만 묻죠. 윤 경사는 몇 시에 교대해요?", delay=55)
+    page.wait_for_timeout(400)
+    page.locator("#m2-npc-input").press("Enter")
+    page.wait_for_selector("[data-testid=npc-go]", timeout=20000)
+    page.wait_for_timeout(4500)  # read her reply and the option it maps to
+    page.locator("[data-testid=npc-go]").click()
+    page.wait_for_timeout(6000)  # the outcome under your own words
+
+
+def scene_ai_boss(page: Page, base: str) -> None:
+    """The administrator IX cuts in when a boss fight opens (a model line over the authored one)."""
+    start_daily_run(page, base)
+    page.evaluate(
+        "() => localStorage.setItem('mythos2.tutorialDone', '1')"
+    )  # no first-fight tips in a showcase
+    enter_fight(page, base, "a1_boss_haetae", ["se_rin"], fresh=False)
+    page.wait_for_timeout(9000)
+
+
+# AI cut (record with --scenes ai --gm): what the language model adds, end to end in the real UI.
+AI_SCENES = [
+    (
+        "21_ai_improvise",
+        scene_ai_improvise,
+        16.0,
+        "직접 쓴 행동을 AI가 읽는다 — 판정은 게임 엔진이",
+    ),
+    ("22_ai_npc", scene_ai_npc, 16.0, "NPC에게 하고 싶은 말을 그대로"),
+    ("23_ai_boss", scene_ai_boss, 9.0, "관리자 IX가 끼어든다"),
+]
 
 # Store cut extras (record with --scenes store): the map and two fights played well, end to end.
 STORE_SCENES = [
@@ -413,10 +480,15 @@ class Screencast:
         return dest
 
 
-def cut(out: Path, clips: list[Path]) -> Path:
+def cut(
+    out: Path,
+    clips: list[Path],
+    scenes: list | None = None,
+    final_name: str = "mythos2_trailer.mp4",
+) -> Path:
     """Trim each recording to its last `keep` seconds, overlay a caption PNG (fade in/out), concat, add the music bed."""
     parts: list[Path] = []
-    for (name, _fn, keep, caption), clip in zip(SCENES, clips, strict=True):
+    for (name, _fn, keep, caption), clip in zip(scenes or SCENES, clips, strict=True):
         dur = float(
             subprocess.run(
                 [
@@ -555,7 +627,7 @@ def cut(out: Path, clips: list[Path]) -> Path:
             check=True,
         ).stdout.strip()
     )
-    final = out / "mythos2_trailer.mp4"
+    final = out / final_name
     # Music: the title loop under everything, a fade in/out; the game itself stays muted in the recording.
     subprocess.run(
         [
@@ -616,8 +688,14 @@ def main() -> int:
     ap.add_argument(
         "--scenes",
         default="trailer",
-        choices=["trailer", "store"],
-        help="store = the map and two expert-played fights, added to <out>/raw",
+        choices=["trailer", "store", "ai"],
+        help="store = the map and two expert-played fights, added to <out>/raw; ai = the AI features cut "
+        "(→ mythos2_ai_features.mp4; use --gm for real model lines)",
+    )
+    ap.add_argument(
+        "--gm",
+        action="store_true",
+        help="record with the GM on (Vertex from .env: billed, a few cents) instead of authored fallbacks",
     )
     args = ap.parse_args()
     global SCALE
@@ -644,6 +722,14 @@ def main() -> int:
         "MYTHOS_V2_GM": "off",
         "PYTHONPATH": str(ROOT / "src"),
     }
+    if args.gm:
+        # Model config from .env (never printed): the same Vertex model production uses.
+        for line in (ROOT / ".env").read_text(encoding="utf-8").splitlines():
+            key, sep, val = line.partition("=")
+            if sep and key.strip() and not key.lstrip().startswith("#"):
+                env.setdefault(key.strip(), val.strip().strip('"'))
+        env["MYTHOS_V2_GM"] = "on"
+        env.setdefault("MYTHOS_NARRATIVE_PROVIDER", "vertex")
     api = subprocess.Popen(
         [
             sys.executable,
@@ -674,13 +760,17 @@ def main() -> int:
             out,
             f"http://localhost:{ui_port}",
             args.keep_raw,
-            STORE_SCENES if args.scenes == "store" else None,
+            STORE_SCENES if args.scenes == "store" else AI_SCENES if args.scenes == "ai" else None,
         )
         if args.record_only:
             print(f"recorded → {out / 'raw'}")
             return 0
         print("cutting…")
-        final = cut(out, clips)
+        final = (
+            cut(out, clips, AI_SCENES, "mythos2_ai_features.mp4")
+            if args.scenes == "ai"
+            else cut(out, clips)
+        )
         if not args.keep_raw:
             shutil.rmtree(out / "raw", ignore_errors=True)
         print(f"done → {final} ({final.stat().st_size / 1e6:.1f} MB)")

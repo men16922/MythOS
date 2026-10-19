@@ -316,6 +316,25 @@ def scene_ai_npc(page: Page, base: str) -> None:
     page.wait_for_timeout(6000)  # the outcome under your own words
 
 
+def scene_ai_companion(page: Page, base: str) -> None:
+    """Help the old man in the opening event, then ask Se-rin at the safehouse: she answers from what you did."""
+    start_daily_run(page, base)
+    page.locator(".m2-options .m2-option").first.click()  # pull the old man to his feet
+    page.wait_for_selector(".m2-outcome .m2-btn--primary", timeout=15000)
+    page.locator(".m2-outcome .m2-btn--primary").first.click()
+    page.wait_for_timeout(1200)
+    set_run(page, "run.screen = { kind: 'rest', done: false }")
+    page.locator(".m2-restopt--bond").click()
+    page.wait_for_timeout(700)
+    page.locator(".m2-rest button:has(.m2-bondpips)").first.click()
+    page.wait_for_selector(".m2-chat__input", timeout=15000)
+    page.wait_for_timeout(2200)
+    page.locator(".m2-chat__input input").first.click()
+    page.keyboard.type("솔직히 말해. 나 믿어도 돼?", delay=60)
+    page.keyboard.press("Enter")
+    page.wait_for_timeout(10000)  # she answers from this run
+
+
 def scene_ai_boss(page: Page, base: str) -> None:
     """The administrator IX cuts in when a boss fight opens (a model line over the authored one)."""
     start_daily_run(page, base)
@@ -335,6 +354,7 @@ AI_SCENES = [
         "직접 쓴 행동을 AI가 읽는다 — 판정은 게임 엔진이",
     ),
     ("22_ai_npc", scene_ai_npc, 16.0, "NPC에게 하고 싶은 말을 그대로"),
+    ("24_ai_companion", scene_ai_companion, 12.0, "동료는 이번 판에서 당신이 한 일을 기억한다"),
     ("23_ai_boss", scene_ai_boss, 9.0, "관리자 IX가 끼어든다"),
 ]
 

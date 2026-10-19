@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-19
 
+## 2026-10-19 — Preview 00137 verified; GM tail latency: per-request timeout + hedged Vertex calls
+
+- Preview `00137-loq` (`56a7467`): `make verify-preview` 5/5; on the preview, demo code → `/plan` 200 + a real `llm` line; no/bad code → 401; saves stay closed; title shows "데모 접속".
+- Found on it: ~half of act-intro GM calls ended in Vertex **504 DEADLINE_EXCEEDED** at ~7 s (Cloud Run logs `ServerError`; older revisions show the same sporadically). Measured locally: the same 100-token answer takes 2–5 s, sometimes 10–23 s. Fixes in `mythos_v2/llm.py`: the HTTP timeout is now per request (the cached client kept its first call's timeout), and a call with no answer after 4 s (`MYTHOS_V2_GM_HEDGE_S`) sends the same request once more — first success wins, the loser's tokens still reach the budget (`set_usage_sink`). Narrate timeout 10 → 14 s (client 12 → 16 s; authored text is on screen meanwhile). Local Vertex: act intros 10/12 answered (7 hedged). Failures now log the error message.
+
 ## 2026-10-18/19 — Contest demo codes; replay-verified daily board (`32e14bd`, `c917c51`)
 
 - **Demo codes** (off by default): `MYTHOS_DEMO_CODES` + `?demo=<code>` give a signed-out device AI lines on the free allowance, GM routes and `/plan` only (`docs/online.md`). Verified: 3 server tests, 1 client test, end-to-end against a google-mode server (no code → no AI calls; code → `/plan` 200 + "데모 접속" on the title).

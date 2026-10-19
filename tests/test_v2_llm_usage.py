@@ -58,10 +58,96 @@ class GeminiUsageTest(unittest.TestCase):
             GeminiTextLLM(client=client).complete("s", "u", **KW)
         self.assertEqual(seen["config"]["max_output_tokens"], 50)
 
+    def test_each_call_carries_its_own_http_timeout(self) -> None:
+        seen: list[Any] = []
+        response = SimpleNamespace(text="ok", usage_metadata=None)
+
+        def generate(**kw: Any) -> object:
+            seen.append(kw["config"]["http_options"]["timeout"])
+            return response
+
+        llm = GeminiTextLLM(
+            client=SimpleNamespace(models=SimpleNamespace(generate_content=generate))
+        )
+        llm.complete("s", "u", max_tokens=10, temperature=0.5, timeout=5.5)
+        llm.complete("s", "u", max_tokens=10, temperature=0.5, timeout=10.0)
+        self.assertEqual(seen, [5500, 10000])
+
     def test_missing_metadata_is_zero_not_an_error(self) -> None:
         llm = GeminiTextLLM(client=self._client(None))
         self.assertEqual(llm.complete("s", "u", **KW), "hello")
         self.assertEqual(take_last_usage(), Usage(0, 0))
+
+
+class GeminiHedgeTest(unittest.TestCase):
+    """Vertex latency tail: a slow (or fast-failing) first request gets one more; the first success wins."""
+
+    def _llm(
+        self, behaviours: list[Any], hedge_after: float = 0.05
+    ) -> tuple[GeminiTextLLM, list[float]]:
+        import time as _time
+
+        timeouts: list[float] = []
+        lock = __import__("threading").Lock()
+
+        def generate(**kw: Any) -> object:
+            with lock:
+                timeouts.append(kw["config"]["http_options"]["timeout"] / 1000)
+                act = behaviours.pop(0)
+            delay, outcome = act
+            _time.sleep(delay)
+            if isinstance(outcome, Exception):
+                raise outcome
+            meta = SimpleNamespace(
+                prompt_token_count=10, candidates_token_count=len(outcome), thoughts_token_count=0
+            )
+            return SimpleNamespace(text=outcome, usage_metadata=meta)
+
+        client = SimpleNamespace(models=SimpleNamespace(generate_content=generate))
+        return GeminiTextLLM(client=client, hedge_after=hedge_after), timeouts
+
+    def test_slow_first_request_is_hedged_and_the_faster_answer_wins(self) -> None:
+        llm, timeouts = self._llm([(0.6, "slow"), (0.0, "quick")])
+        self.assertEqual(
+            llm.complete("s", "u", max_tokens=5, temperature=0.5, timeout=3.0), "quick"
+        )
+        self.assertEqual(llm.hedged, 1)
+        self.assertEqual(take_last_usage(), Usage(10, 5))
+        self.assertEqual(timeouts[0], 3.0)
+        self.assertLess(timeouts[1], 3.0)  # the second request only gets what is left
+
+    def test_the_losing_request_still_reports_its_tokens(self) -> None:
+        import time as _time
+
+        from mythos_v2.llm import set_usage_sink
+
+        late: list[Usage] = []
+        llm, _ = self._llm([(0.3, "slow-but-finishes"), (0.0, "quick")])
+        set_usage_sink(late.append)
+        try:
+            self.assertEqual(
+                llm.complete("s", "u", max_tokens=5, temperature=0.5, timeout=3.0), "quick"
+            )
+            _time.sleep(0.5)  # the loser completes after the reply
+        finally:
+            set_usage_sink(None)
+        self.assertEqual(late, [Usage(10, len("slow-but-finishes"))])
+
+    def test_a_fast_failure_is_retried_once(self) -> None:
+        llm, _ = self._llm([(0.0, RuntimeError("504 DEADLINE_EXCEEDED")), (0.0, "ok")])
+        self.assertEqual(llm.complete("s", "u", max_tokens=5, temperature=0.5, timeout=3.0), "ok")
+
+    def test_both_failing_raises_the_first_error(self) -> None:
+        llm, _ = self._llm([(0.0, RuntimeError("first")), (0.0, RuntimeError("second"))])
+        with self.assertRaisesRegex(RuntimeError, "first"):
+            llm.complete("s", "u", max_tokens=5, temperature=0.5, timeout=3.0)
+
+    def test_short_timeouts_and_hedge_off_send_one_request(self) -> None:
+        llm, timeouts = self._llm([(0.0, "ix")], hedge_after=4.5)
+        self.assertEqual(llm.complete("s", "u", max_tokens=5, temperature=0.5, timeout=5.5), "ix")
+        llm, timeouts = self._llm([(0.2, "one")], hedge_after=0.0)
+        self.assertEqual(llm.complete("s", "u", max_tokens=5, temperature=0.5, timeout=10.0), "one")
+        self.assertEqual((len(timeouts), llm.hedged), (1, 0))
 
 
 class OpenAICompatUsageTest(unittest.TestCase):

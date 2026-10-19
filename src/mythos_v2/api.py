@@ -37,7 +37,7 @@ global concurrency cap and a per-player rate budget; any miss serves the
 deterministic authored fallback with HTTP 200 (``source: "fallback"``).
 
 Env: MYTHOS_V2_STORE (auto|postgres|memory), MYTHOS_V2_MAX_BLOB_BYTES (524288),
-MYTHOS_V2_NARRATE_TIMEOUT (10), MYTHOS_V2_IMPROVISE_TIMEOUT (12),
+MYTHOS_V2_NARRATE_TIMEOUT (14), MYTHOS_V2_IMPROVISE_TIMEOUT (12),
 MYTHOS_V2_TALK_TIMEOUT (10), MYTHOS_V2_IX_TIMEOUT (4),
 MYTHOS_V2_GM_PER_MINUTE (20), MYTHOS_V2_GM_PER_DAY (400),
 MYTHOS_V2_WRITES_PER_MINUTE (120), MYTHOS_V2_DAILY_PER_MINUTE (10), MYTHOS_V2_GM_CONCURRENCY (4),
@@ -95,7 +95,7 @@ from .billing import (
     PurchaseVerifier,
 )
 from .budget import Budget, BudgetConfig, Tier
-from .llm import TextLLM, Usage, build_text_llm, take_last_usage
+from .llm import TextLLM, Usage, build_text_llm, set_usage_sink, take_last_usage
 from .npc import MAX_OPTIONS as NPC_MAX_OPTIONS
 from .ratelimit import RateLimiter
 from .store import (
@@ -144,7 +144,7 @@ class V2Settings:
     max_history_bytes: int = 64 * 1024
     max_gm_body_bytes: int = 16 * 1024
     max_context_bytes: int = 8 * 1024
-    narrate_timeout: float = 10.0
+    narrate_timeout: float = 14.0
     improvise_timeout: float = 12.0
     talk_timeout: float = 10.0
     ix_timeout: float = 5.5
@@ -162,7 +162,7 @@ class V2Settings:
     def from_env(cls) -> "V2Settings":
         return cls(
             max_blob_bytes=_env_int("MYTHOS_V2_MAX_BLOB_BYTES", 512 * 1024),
-            narrate_timeout=_env_float("MYTHOS_V2_NARRATE_TIMEOUT", 10.0),
+            narrate_timeout=_env_float("MYTHOS_V2_NARRATE_TIMEOUT", 14.0),
             improvise_timeout=_env_float("MYTHOS_V2_IMPROVISE_TIMEOUT", 12.0),
             talk_timeout=_env_float("MYTHOS_V2_TALK_TIMEOUT", 10.0),
             ix_timeout=_env_float("MYTHOS_V2_IX_TIMEOUT", 5.5),
@@ -358,6 +358,11 @@ class _GMRunner:
                 raise _BusyError
             try:
                 take_last_usage()  # drop anything a previous call on this worker thread left behind
+                # A hedged call's losing request finishes later: its tokens count like a late completion.
+                on_late = self._on_late_usage
+                set_usage_sink(
+                    (lambda u: on_late(player_id, u)) if on_late is not None and player_id else None
+                )
                 text = llm.complete(
                     system,
                     user,
@@ -412,6 +417,11 @@ def _unauthorized() -> HTTPException:
     return HTTPException(
         status_code=401, detail="sign-in required", headers={"WWW-Authenticate": "Bearer"}
     )
+
+
+def _err_detail(exc: BaseException) -> str:
+    """A model-call error's own message, one line and short, for the log (status/code; never the prompt)."""
+    return " ".join(str(exc).split())[:160]
 
 
 def _client_player_id(raw: str | None) -> str | None:
@@ -976,7 +986,9 @@ def create_v2_router(
             except Exception as exc:
                 outcome = _outcome_for(exc)
                 if outcome == "error":
-                    _logger.warning("v2 gm narrate failed: %s", type(exc).__name__)
+                    _logger.warning(
+                        "v2 gm narrate failed: %s: %s", type(exc).__name__, _err_detail(exc)
+                    )
         source = "llm"
         if text is None:
             text = gm.fallback_narration(body.kind, body.lang, context)
@@ -1018,7 +1030,9 @@ def create_v2_router(
             except Exception as exc:
                 outcome = _outcome_for(exc)
                 if outcome == "error":
-                    _logger.warning("v2 gm improvise failed: %s", type(exc).__name__)
+                    _logger.warning(
+                        "v2 gm improvise failed: %s: %s", type(exc).__name__, _err_detail(exc)
+                    )
         if verdict is None:
             verdict = gm.fallback_improvisation(action, cls)
         await log_gm("improvise", player_id, outcome, started)
@@ -1057,7 +1071,9 @@ def create_v2_router(
             except Exception as exc:
                 outcome = _outcome_for(exc)
                 if outcome == "error":
-                    _logger.warning("v2 gm talk failed: %s", type(exc).__name__)
+                    _logger.warning(
+                        "v2 gm talk failed: %s: %s", type(exc).__name__, _err_detail(exc)
+                    )
         if text is not None:
             return text, "llm", outcome
         fallback = talk.fallback_companion(companion, body.lang, message, history, deflect=deflect)
@@ -1087,7 +1103,9 @@ def create_v2_router(
             except Exception as exc:
                 outcome = _outcome_for(exc)
                 if outcome == "error":
-                    _logger.warning("v2 gm talk failed: %s", type(exc).__name__)
+                    _logger.warning(
+                        "v2 gm talk failed: %s: %s", type(exc).__name__, _err_detail(exc)
+                    )
         if text is not None:
             return text, "llm", outcome
         return talk.fallback_ix(trigger, body.lang, context), "fallback", outcome
@@ -1117,7 +1135,9 @@ def create_v2_router(
             except Exception as exc:
                 outcome = _outcome_for(exc)
                 if outcome == "error":
-                    _logger.warning("v2 gm talk failed: %s", type(exc).__name__)
+                    _logger.warning(
+                        "v2 gm talk failed: %s: %s", type(exc).__name__, _err_detail(exc)
+                    )
         return (text, "llm", outcome) if text is not None else ("", "fallback", outcome)
 
     async def talk_npc(
@@ -1159,7 +1179,9 @@ def create_v2_router(
             except Exception as exc:
                 outcome = _outcome_for(exc)
                 if outcome == "error":
-                    _logger.warning("v2 gm talk failed: %s", type(exc).__name__)
+                    _logger.warning(
+                        "v2 gm talk failed: %s: %s", type(exc).__name__, _err_detail(exc)
+                    )
         if text is None:
             return "", "fallback", outcome, npc.fallback_intent(message, intents)
         return text, "llm", outcome, intent

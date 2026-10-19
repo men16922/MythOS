@@ -52,7 +52,7 @@ function cleanText(t: Improvisation['successText']): Improvisation['successText'
 }
 
 /** Returns the GM's line, or contextual local GM narration when the backend is skipped/unreachable. */
-export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeoutMs = 12000, acceptFallback = false): Promise<string | null> {
+export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeoutMs = 16000, acceptFallback = false): Promise<string | null> {
   if (!aiEnabled) return null
   try {
     const res = await withTimeout(net.narrate({ kind, lang, context }), timeoutMs)

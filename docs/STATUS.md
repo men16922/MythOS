@@ -35,6 +35,7 @@ Authority plan: `docs/NEXT_PLAN.md` · strategy & market analysis: `docs/plans/2
 - **Signal+ is dormant and unproven end to end** (paid release on hold 2026-10-18): purchase verification is tested against a fake Play API only; the product, the merchant profile and the service account's Play Console access do not exist yet. Refunds land at the stored expiry (no RTDN). Budget defaults rest on the unverified 3.8 price.
 
 - **Daily results**: replay-verified server-side since 2026-10-18 (shield badge; ranking unchanged — an unverified row can still rank). Saves stay client JSON blobs. Not deployed yet.
+- **Vertex tail latency**: some GM calls take 10–20 s or end in 504 DEADLINE_EXCEEDED; hedging + 14 s narrate timeout bring act intros to ~83 % answered (local measure). Authored text covers the rest; watch `v2 gm` outcomes after promotion.
 - **Balance noise**: mixed-bot win rate swings ±6 % by seed block — A/B on identical blocks (`docs/LESSONS.md`).
 - **GM quality**: local `gemma4:8b-64k` lines are serviceable; Vertex `gemini-3.8-flash` is sharper (3.8's introductory price reportedly doubles in Jan 2027). All lines are cleaned and have authored fallbacks.
 - **Generated assets** were spot-checked, not hand-curated; regenerate single files with `scripts/v2_assets/` (call-budget ledger).

@@ -34,7 +34,7 @@ function buildEnv(key: string): string {
 const API_V2 = `${buildEnv('VITE_API_BASE').replace(/\/+$/, '')}/api/v2`
 
 export const SAVE_DEBOUNCE_MS = 800
-const TIMEOUT_MS = { narrate: 12_000, improvise: 15_000, talk: 11_000, save: 5_000 } as const
+const TIMEOUT_MS = { narrate: 16_000, improvise: 15_000, talk: 11_000, save: 5_000 } as const
 /** Server limit (MYTHOS_V2_MAX_BLOB_BYTES). Bigger blobs stay local-only. */
 const MAX_BLOB_BYTES = 512 * 1024
 /** Browsers cap in-flight keepalive bodies at 64 KB. */

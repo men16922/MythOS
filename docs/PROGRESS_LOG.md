@@ -24,6 +24,7 @@ Last updated: 2026-10-24
 - Plan review: `docs/plans/2026-10-24-improvement-and-direction-plan.md` fact-checked; HP A/B re-measured on 3 × 360 mixed runs (current 44.0 %, 34/32/36 → 32.3 %, 32/30/34 → 29.2 %).
 - `gm.ts` `narrateLine()` returns `{text, ai}`: act intros, event lines and boss narration no longer log the local narration as AI (it carried the report flag too). `AiMark` (`✦ AI`) on model lines in GmCard / IX comms / enemy taunts / companion chat / GM ruling; one soft cyan flash when the line lands.
 - Improvise: three one-tap ideas for the player's top stats (`improvSuggest.ts`); a tap fills the box, the chips hide while typing; each phrase reads as its named stat to the local judge (test).
+- NPC free talk (`DialogueScreen`): model replies carry the mark + inline report flag and join the Settings AI-line list (they were missing from it). Verified on Vite dev with a mocked `llm` reply (district `d1_lamp_market` tent), 0 errors.
 - Owner rule mid-wave: UX first, low fatigue → dropped the TopBar AI chip and intent-% / memory tags (`DECISIONS.md`).
 - Verified: `make check` green (node 350, Python 337 + 12 DB skipped); `make playthrough-quick` OK (134 s); headless muted 1440×900 + 390×844 with a mocked `llm` narrate: mark on act intro + event card, 3 chips, tap fills, 0 console errors. Unverified: the mark with a real model line (GM was off locally), NPC talk screen.
 

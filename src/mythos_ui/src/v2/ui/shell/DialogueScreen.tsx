@@ -6,6 +6,9 @@ import { useEffect, useState } from 'react'
 import type { CrpgEffect, D20Roll, DialogueOption, Intent, Lang, RunEffect, Text } from '../../engine/types.ts'
 import { COMBAT_MOD_TEXT } from '../../engine/crpg.ts'
 import { talkNpc } from '../../net/api.ts'
+import { noteAiLine } from '../common/aiLines.ts'
+import { AiMark } from '../components/AiMark.tsx'
+import { ReportLine } from '../components/ReportLine.tsx'
 import { asset, portrait } from '../common/assets.ts'
 import { L, tr } from '../common/lang.ts'
 import { effectChips, statLabel, type EffectChip } from '../components/format.ts'
@@ -142,7 +145,7 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
   const [typed, setTyped] = useState('')
   const [line, setLine] = useState('')
   const [busy, setBusy] = useState(false)
-  const [chat, setChat] = useState<{ key: string; turns: { role: 'player' | 'companion'; text: string }[]; note: string | null; match: { index: number; label: string } | null }>({ key: '', turns: [], note: null, match: null })
+  const [chat, setChat] = useState<{ key: string; turns: { role: 'player' | 'companion'; text: string; ai?: boolean }[]; note: string | null; match: { index: number; label: string } | null }>({ key: '', turns: [], note: null, match: null })
   // What the player actually said (and the NPC's model reply) for the option it led to: shown in place of the authored
   // option label once that option resolves, so their own words stay on screen.
   const [spoken, setSpoken] = useState<{ dialogue: string; label: string; player: string; npc: string | null } | null>(null)
@@ -184,7 +187,9 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
     })
     setBusy(false)
     setLine('')
-    const nextTurns = [...turns, { role: 'player' as const, text: message }, ...(res?.text ? [{ role: 'companion' as const, text: res.text }] : [])]
+    const ai = res?.source === 'llm'
+    if (ai && res?.text) noteAiLine({ route: 'talk', kind: `npc:${def.npc}`, lang, text: res.text })
+    const nextTurns = [...turns, { role: 'player' as const, text: message }, ...(res?.text ? [{ role: 'companion' as const, text: res.text, ai }] : [])]
     const found = res?.intent ? open.find((v) => v.option.intent === res.intent) : undefined
     const noteText = found
       ? null
@@ -286,6 +291,8 @@ export function DialogueScreen({ run, C, lang, settings, act }: ScreenProps) {
                 {turns.map((t, i) => (
                   <li key={i} className={t.role === 'player' ? 'is-player' : 'is-npc'}>
                     {t.text}
+                    {t.ai && <AiMark lang={lang} />}
+                    {t.ai && <ReportLine line={{ route: 'talk', kind: `npc:${def.npc}`, lang, text: t.text }} lang={lang} />}
                   </li>
                 ))}
                 {note && <li className="m2-freechat__note">{note}</li>}

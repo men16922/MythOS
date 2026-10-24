@@ -45,6 +45,18 @@
   .m2-topbar > .m2-topbar__implants {
     flex: 1 1 0;
   }
+  /* Empty belt: no dashed placeholder slots, and the tools join the party row — a two-row bar (less to scan,
+     more screen for the scene). A consumable brings the third row back. */
+  .m2-app.is-belt-empty {
+    --m2-bar-h: 88px;
+  }
+  .m2-app.is-belt-empty .m2-topbar > .m2-topbar__break,
+  .m2-app.is-belt-empty .m2-topbar > .m2-topbar__cons {
+    display: none;
+  }
+  .m2-app.is-belt-empty .m2-topbar > .m2-topbar__tools {
+    order: 3;
+  }
   .m2-topbar__who {
     gap: 6px;
   }

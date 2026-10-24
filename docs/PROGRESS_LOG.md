@@ -2,10 +2,11 @@
 
 Last updated: 2026-10-24
 
-## 2026-10-24 — Phone: first-combat tips no longer cover the board
+## 2026-10-24 — Phone: first-combat tips off the board; two-row top bar
 
+- Phone top bar: with an empty belt the three dashed slots are gone and the tools join the party row — 2 rows (88 px) instead of 3 (126 px); the first event option now shows without scrolling at 390×844. A consumable brings the third row back.
 - `Coach.tsx`: a board tip sits beside the board when ≥ 180 px is free (desktop, phone landscape), else under the board / docked over the hand (phone portrait) — never on the tiles it explains.
-- Verified: headless muted sandbox `a1_n2_nest` at 390×844, 844×390 and 1440×900 (whole board visible in all three); `make check` green; `make playthrough-quick` OK (97 s).
+- Verified: headless muted sandbox `a1_n2_nest` at 390×844, 844×390 and 1440×900 (whole board visible in all three); phone flow title → event → map, 0 errors; `make check` green; `make playthrough-quick` OK (97 s / 137 s).
 
 ## 2026-10-24 — `?lang=en|ko` link parameter (judge links)
 

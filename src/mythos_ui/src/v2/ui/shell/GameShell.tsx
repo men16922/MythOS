@@ -472,7 +472,7 @@ export function GameShell() {
 
   return (
     <ShellMenu.Provider value={view === 'run' && game.hasRun ? openMenu : null}>
-      <div className={`m2-app${profile.settings.fastAnim ? ' is-fast' : ''}`} onPointerDownCapture={firstGesture} onKeyDownCapture={firstGesture} lang={lang}>
+      <div className={`m2-app${profile.settings.fastAnim ? ' is-fast' : ''}${run && run.consumables.length === 0 ? ' is-belt-empty' : ''}`} onPointerDownCapture={firstGesture} onKeyDownCapture={firstGesture} lang={lang}>
         {showBar && run && (
           <TopBar
             run={run}

@@ -1,7 +1,8 @@
 # MYTHOS 2.0 — Signal Run (세계:접속) · contest write-up
 
-*Judge-facing summary, English. Facts are as of 2026-10-18; numbers come from the repo's own tests, simulator and
-logs (see "Evidence" at the end). Owner-facing contest plan: `docs/plans/2026-10-18-strategy-and-market-analysis.md` §5.*
+*Judge-facing summary, English. Facts are as of 2026-10-25; numbers come from the repo's own tests, simulator and
+logs (see "Evidence" at the end). Architecture deep-dive: `docs/contest/architecture-en.md`; Devpost text:
+`docs/contest/devpost-en.md`; strategy plan: `docs/plans/2026-10-18-strategy-and-market-analysis.md` §5.*
 
 ## One line
 
@@ -30,9 +31,10 @@ allowed to decide the outcome.
 | **IX**, the administrator AI, cuts in on notable combat moments and remembers earlier loops (who killed you, how often) | Touch the daily seed: dailies are identical for everyone, AI or not |
 | Writes a run chronicle from the actions you typed; talking enemies taunt at half health | Generate images, cards or enemies at runtime |
 
-Design rule: **authored text first, AI on top.** Every AI call has an authored fallback, a timeout, a per-player
-monthly allowance, a global daily ceiling and a monthly spend cap. Lines a model wrote are logged per run and
-reportable in-app. Measured cost: ≈ 63 model calls ≈ **$0.05 per full run** (Vertex `gemini-3.8-flash`).
+Design rule: **authored text first, AI on top.** Every AI call has an authored fallback, a timeout, a 4 s hedged retry
+for scene narration, a per-player monthly allowance, a global daily ceiling and a monthly spend cap. Lines a model wrote
+carry a `✦ AI` badge, are logged per run and reportable in-app; an opt-in Architect HUD (`?hud=1`) displays live call
+outcomes, latency and budget in-game. Measured cost: ≈ 63 model calls ≈ **$0.048 per full run** (Vertex `gemini-3.8-flash`).
 
 ## Engineering worth a look
 
@@ -42,21 +44,22 @@ reportable in-app. Measured cost: ≈ 63 model calls ≈ **$0.05 per full run** 
   no matter what they did before — the precondition for replay-verified leaderboards.
 - **Bots that play the real thing**: a greedy (1-ply exhaustive) and a mixed bot drive the run simulator used for
   balance A/B on identical seed blocks, and a UI bot plays whole runs through real clicks in a headless browser.
-- **Gates**: 339 engine/content tests, 323 backend tests, a browser smoke, a 3-minute UI playthrough; 100 %
-  generated-art coverage is itself a test.
+- **Gates**: 355 engine/content/UI tests, 340+ backend tests (plus 12 Postgres integration tests), a 25-case bilingual
+  GM eval suite (`make gm-eval`, 12 KO + 13 EN), a browser smoke, and a UI playthrough; 100 % generated-art coverage is
+  itself a test.
 - Stack: React 19 + Vite, FastAPI on Cloud Run, Postgres, Firebase Google sign-in, Vertex AI (Gemini), Capacitor
   Android. Art: generated (image models), curated per screen; music: generated loops.
 
 ## Try it
 
-- Web: the production Cloud Run URL (see `docs/online.md`). Plays fully offline without an account; AI lines need
-  Google sign-in — or the judges' demo link (`?demo=<code>`, given with the submission), which turns them on
-  without an account.
+- Web: the production Cloud Run URL (`?lang=en&hud=1`; see `docs/online.md`). Plays fully offline without an account;
+  AI lines need Google sign-in — or the judges' demo link (`?lang=en&hud=1&demo=<code>`, given with the submission),
+  which turns them on without an account.
 - A full run is three acts (about 15 fights); the daily seed is the quickest way to compare runs.
 
 ## Evidence (in this repo)
 
-- Rules: `docs/GAMEPLAY.md` · design contract: `docs/plans/2026-10-10-mythos-2.0.md`
-- Balance numbers: `.claude/skills/gameplay-qa/references/qa-routes.md` (mixed bot ≈ 43 % wins at base difficulty)
+- Rules: `docs/GAMEPLAY.md` · design contract: `docs/plans/2026-10-10-mythos-2.0.md` · architecture: `docs/contest/architecture-en.md`
+- Balance numbers: `.claude/skills/gameplay-qa/references/qa-routes.md` (greedy ≈ 95 %, mixed ≈ 31 %, basic 0 % across 3 × 360 runs at HP 34/32/36)
 - AI cost measurement: `bin/docs/archive/progress-2026-10-17-mythos2-ai-and-bench.md`
 - Named RNG streams: `src/mythos_ui/src/v2/engine/streams.ts` + `streams.test.ts`

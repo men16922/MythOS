@@ -14,6 +14,12 @@ import './rest.css'
 
 type Choice = { kind: 'heal' | 'upgrade' | 'scrub' } | { kind: 'bond'; id: string }
 
+const REST_PLACE: Record<number, { ko: string; en: string; bg: string }> = {
+  1: { ko: '은신처 · C-17 폐쇄 승강장', en: 'Safehouse · C-17 closed platform', bg: 'v2/cutscenes/kai_rain_sound.webp' },
+  2: { ko: '은신처 · 지하 거점', en: 'Safehouse · Undercity refuge', bg: 'v2/events/a2_refuge_night.webp' },
+  3: { ko: '은신처 · 첨탑 새벽 초소', en: 'Safehouse · Spire dawn post', bg: 'v2/cutscenes/tae_o_dawn_watch.webp' },
+}
+
 export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsceneSeen, loopsWith }: ScreenProps) {
   const [chosen, setChosen] = useState<Choice | null>(null)
   const [closedScene, setClosedScene] = useState('')
@@ -21,6 +27,7 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
   if (run.screen.kind !== 'rest') return null
   const done = run.screen.done
   const ko = lang === 'ko'
+  const place = REST_PLACE[run.act] ?? REST_PLACE[2]!
   const heal = rx.restHealAmount(run, C)
   const scrub = rx.restScrubAmount()
   const canUpgrade = rx.canUpgradeAny(run, C)
@@ -69,9 +76,10 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
           }}
         />
       )}
-      <div className="m2-rest__bg" style={{ backgroundImage: `url(${asset('scenes/abandoned_signal.png')})` }} />
+      <div className="m2-rest__bg" style={{ backgroundImage: `url(${asset(place.bg)})` }} />
       <div className="m2-rest__inner">
-        <div className="m2-rest__kicker">{ko ? '은신처' : 'Safehouse'}</div>
+        <div className="m2-rest__banner" style={{ backgroundImage: `url(${asset(place.bg)})` }} />
+        <div className="m2-rest__kicker">{ko ? place.ko : place.en}</div>
         <h1 className="m2-rest__title">{ko ? '잠시 숨을 고른다' : 'A moment to breathe'}</h1>
         <p className="m2-rest__sub">{ko ? '여기서는 한 가지만 할 수 있다.' : 'There is time for one thing here.'}</p>
         {camp && campDef && (

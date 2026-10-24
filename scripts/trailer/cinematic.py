@@ -28,6 +28,7 @@ OUT = ROOT / "outputs" / "trailer" / "cinematic"
 VEO = OUT / "veo"
 VO = OUT / "vo_en"
 GAME = ROOT / "outputs" / "trailer" / "hq" / "raw"
+AI_RAW = ROOT / "outputs" / "trailer" / "ai" / "raw"
 ART = ROOT / "resources" / "neo-seoul" / "v2"
 FONT = "/System/Library/Fonts/AppleSDGothicNeo.ttc"
 W, H, FPS = 1920, 1080, 30
@@ -135,6 +136,86 @@ STORE_TIMELINE: list[tuple[str, str, float, float, tuple[str, str] | None]] = [
 STORE_LINES = {"01_ix_welcome": 0.5, "03_serin_run": 4.6, "04_ix_last": 36.0, "07_ix_loop": 43.7}
 # The score's first impact (≈20 s into music.mp3) lands on the cut to gameplay at 9.5 s.
 STORE_MUSIC_OFFSET = 10.5
+# Global showcase cut (82.0 s, English captions): combines the store gameplay hook, all four recorded AI features
+# (outputs/trailer/ai/raw/*.webm), and an 8 s cloud-architecture diagram card (docs/contest/architecture-en.md).
+SHOWCASE_TIMELINE: list[tuple[str, str, float, float, tuple[str, str] | None]] = [
+    ("veo", "title", 0.5, 4.5, None),
+    ("veo", "se_rin", 1.0, 5.0, None),
+    (
+        "game",
+        "09_fight_haetae",
+        18.0,
+        7.5,
+        ("7×5 tactical board · push, hazard and void kills", "Every enemy move is telegraphed"),
+    ),
+    (
+        "game",
+        "10_fight_incinerator",
+        26.0,
+        6.5,
+        (
+            "Deterministic pure-TS engine · named RNG streams",
+            "Push them into fire, walls and the void",
+        ),
+    ),
+    (
+        "game",
+        "08_map",
+        6.0,
+        4.0,
+        ("3 acts · 6 districts · replay-verified daily seed", "Plan your route across Neo-Seoul"),
+    ),
+    (
+        "ai",
+        "21_ai_improvise",
+        -11.0,
+        11.0,
+        (
+            "Type any action → Gemini classifies → engine clamps DC 3–9 & rolls",
+            "AI Game Master — Free-Text Improvise",
+        ),
+    ),
+    (
+        "ai",
+        "22_ai_npc",
+        -10.5,
+        10.5,
+        (
+            "Speak in your own words → mapped to authored intent → d20 check",
+            "AI NPC Dialogue — In-Character & Grounded",
+        ),
+    ),
+    (
+        "ai",
+        "23_ai_boss",
+        -8.0,
+        8.0,
+        (
+            "IX recalls your past loops · 0 ms authored fallback if late",
+            "AI Boss Memory — Never Blocks Gameplay",
+        ),
+    ),
+    (
+        "ai",
+        "24_ai_companion",
+        -9.0,
+        9.0,
+        (
+            "Companions remember what you chose earlier in this run",
+            "AI Companion Memory — Safehouse Talk",
+        ),
+    ),
+    ("arch", "architecture", 0.0, 8.0, None),
+    ("veo", "ix", 0.0, 3.0, None),
+    ("card", "logo", 0.0, 5.0, None),
+]
+SHOWCASE_LINES = {
+    "01_ix_welcome": 0.5,
+    "03_serin_run": 4.6,
+    "04_ix_last": 49.4,
+    "06_ix_win": 66.4,
+    "07_ix_loop": 74.1,
+}
 # Fights: crop in on the board (factor, vertical centre as a fraction of the frame, from source second) so the tiles
 # read on a phone. Earlier source time stays full-frame: the boss splash puts its title ("해태") at the left edge,
 # which the crop cut to "…태".
@@ -251,6 +332,119 @@ def text_png(
     return dest
 
 
+def arch_png(dest: Path) -> Path:
+    """1920x1080 cloud-architecture diagram card matching docs/contest/architecture-en.md."""
+    from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
+
+    bg = (
+        Image.open(ART / "art" / "title.webp")
+        .convert("RGB")
+        .resize((W, H))
+        .filter(ImageFilter.GaussianBlur(10))
+    )
+    img = ImageEnhance.Brightness(bg).enhance(0.18).convert("RGBA")
+    draw = ImageDraw.Draw(img)
+
+    f_title = ImageFont.truetype(FONT, 46)
+    f_sub = ImageFont.truetype(FONT, 26)
+    f_col = ImageFont.truetype(FONT, 30)
+    f_item = ImageFont.truetype(FONT, 22)
+    f_foot = ImageFont.truetype(FONT, 24)
+
+    header = "MYTHOS 2.0 : SIGNAL RUN — GOOGLE CLOUD ARCHITECTURE"
+    hb = draw.textbbox((0, 0), header, font=f_title)
+    draw.text(((W - (hb[2] - hb[0])) // 2, 54), header, font=f_title, fill=(92, 242, 216, 255))
+
+    sub = "AI off the critical path  ·  Deterministic pure-TS engine  ·  Vertex AI Gemini on Cloud Run"
+    sb = draw.textbbox((0, 0), sub, font=f_sub)
+    draw.text(((W - (sb[2] - sb[0])) // 2, 118), sub, font=f_sub, fill=(210, 228, 236, 255))
+
+    cols = [
+        (
+            "1 · CLIENT (Browser / Android)",
+            (92, 242, 216),
+            [
+                "• Pure-TS engine (no Math.random)",
+                "• Named RNG streams per act/node/fight",
+                "• 0 ms authored line renders immediately",
+                "• [AI] badge swaps in if Gemini lands",
+                "• Daily replay recorder & offline saves",
+                "• Opt-in Architect HUD (?hud=1)",
+            ],
+        ),
+        (
+            "2 · CLOUD RUN (FastAPI /api/v2)",
+            (255, 204, 102),
+            [
+                "• Firebase Google Auth / ?demo= code",
+                "• 4-Layer Cost Cap ($0.30/mo · $20/day)",
+                "• GM: Prompt → Hedge → Clean → Clamp",
+                "• Improvise clamped to DC 3–9 & rolled",
+                "• NPC talk mapped to authored d20 intent",
+                "• Node replay verifier (replay_verify.mjs)",
+            ],
+        ),
+        (
+            "3 · GOOGLE CLOUD & VERTEX AI",
+            (150, 200, 255),
+            [
+                "• Vertex AI gemini-3.8-flash",
+                "• Hedged retry after 4 s (cuts tail 504s)",
+                "• Late-usage token accounting",
+                "• Cloud SQL Postgres + memory fallback",
+                "• Billing budget → Pub/Sub kill-switch",
+                "• Preview tag (git-sha) → verify → promote",
+            ],
+        ),
+    ]
+    box_w, box_h, top_y = 540, 560, 195
+    xs = [90, 690, 1290]
+    for idx, (col_title, accent, items) in enumerate(cols):
+        x0 = xs[idx]
+        draw.rounded_rectangle(
+            (x0, top_y, x0 + box_w, top_y + box_h),
+            radius=16,
+            fill=(8, 16, 26, 228),
+            outline=(*accent, 210),
+            width=3,
+        )
+        draw.text((x0 + 28, top_y + 28), col_title, font=f_col, fill=(*accent, 255))
+        draw.line(
+            (x0 + 28, top_y + 78, x0 + box_w - 28, top_y + 78),
+            fill=(*accent, 110),
+            width=2,
+        )
+        for j, line in enumerate(items):
+            draw.text(
+                (x0 + 28, top_y + 104 + j * 70),
+                line,
+                font=f_item,
+                fill=(234, 242, 246, 255),
+            )
+        if idx < 2:
+            ax = x0 + box_w + 8
+            ay = top_y + box_h // 2
+            draw.line((ax, ay, ax + 34, ay), fill=(92, 242, 216, 240), width=4)
+            draw.polygon(
+                [(ax + 44, ay), (ax + 30, ay - 9), (ax + 30, ay + 9)],
+                fill=(92, 242, 216, 240),
+            )
+
+    draw.rounded_rectangle(
+        (90, 810, W - 90, 905),
+        radius=12,
+        fill=(6, 14, 22, 235),
+        outline=(92, 242, 216, 160),
+        width=2,
+    )
+    foot = "0 ms Critical-Path Wait   |   4 s Hedged Retry   |   ~$0.048 / Full Run   |   4-Layer Spend Cap   |   695 Automated Tests"
+    fb = draw.textbbox((0, 0), foot, font=f_foot)
+    draw.text(((W - (fb[2] - fb[0])) // 2, 842), foot, font=f_foot, fill=(240, 248, 252, 255))
+
+    img.convert("RGB").save(dest)
+    return dest
+
+
 def segment(
     i: int, kind: str, src: str, start: float, length: float, caption: tuple[str, str] | None
 ) -> Path:
@@ -259,7 +453,25 @@ def segment(
     seg.mkdir(parents=True, exist_ok=True)
     dest = seg / f"{i:02d}_{src}.mp4"
     fade = f"fade=t=in:st=0:d=0.3,fade=t=out:st={length - 0.3:.2f}:d=0.3"
-    if kind == "card":
+    if kind == "arch":
+        card = arch_png(OUT / "arch_card.png")
+        inputs = [
+            "-loop",
+            "1",
+            "-t",
+            f"{length}",
+            "-i",
+            str(card),
+            "-f",
+            "lavfi",
+            "-t",
+            f"{length}",
+            "-i",
+            "anullsrc=r=48000:cl=stereo",
+        ]
+        graph = f"[0:v]scale={W}:{H},{fade},format=yuv420p[v]"
+        audio_map = "1:a"
+    elif kind == "card":
         bg = OUT / "logo_bg.png"
         from PIL import Image, ImageEnhance, ImageFilter
 
@@ -304,7 +516,11 @@ def segment(
         )
         audio_map = "2:a"
     else:
-        path = VEO / f"{src}.mp4" if kind == "veo" else GAME / f"{src}.mp4"
+        path = (
+            VEO / f"{src}.mp4"
+            if kind == "veo"
+            else (AI_RAW / f"{src}.webm" if kind == "ai" else GAME / f"{src}.mp4")
+        )
         if not path.exists():
             raise SystemExit(f"missing source {path}")
         ss = start if start >= 0 else max(0.0, duration(path) + start)
@@ -315,7 +531,7 @@ def segment(
             graph += (
                 f",crop=iw/{f}:ih/{f}:(iw-iw/{f})/2:ih*{yc}-ih/{f}/2,scale={W}:{H}:flags=lanczos"
             )
-        if kind == "game":
+        if kind in ("game", "ai"):
             # Real UI footage: a slow push-in so it reads as part of the film, not a screen capture.
             graph += f",zoompan=z='1.0+0.0008*on':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={W}x{H}:fps={FPS}"
         graph += f",{fade}"
@@ -374,11 +590,13 @@ def segment(
 
 def cmd_build(args: argparse.Namespace) -> int:
     store = args.cut == "store"
-    timeline = STORE_TIMELINE if store else TIMELINE
+    showcase = args.cut == "showcase"
+    timeline = STORE_TIMELINE if store else (SHOWCASE_TIMELINE if showcase else TIMELINE)
+    line_cues = STORE_LINES if store else (SHOWCASE_LINES if showcase else None)
     LINES = [  # noqa: N806
-        (n[0], n[1], n[2], STORE_LINES[n[0]]) if store else n
+        (n[0], n[1], n[2], line_cues[n[0]]) if line_cues else n
         for n in NARRATION
-        if n[0] not in set(args.skip or []) and (not store or n[0] in STORE_LINES)
+        if n[0] not in set(args.skip or []) and (line_cues is None or n[0] in line_cues)
     ]
     segs, t = [], 0.0
     for i, (kind, src, start, length, caption) in enumerate(timeline):
@@ -445,7 +663,9 @@ def cmd_build(args: argparse.Namespace) -> int:
     graph.append(
         f"[duck][amb][vo_a]amix=inputs=3:normalize=0,atrim=0:{total},alimiter=limit=0.89,loudnorm=I=-15:TP=-1.5:LRA=11[a]"
     )
-    tag = ("_photo" if VEO.name == "veo_photo" else "") + ("_store" if store else "")
+    tag = ("_photo" if VEO.name == "veo_photo" else "") + (
+        "_store" if store else ("_showcase" if showcase else "")
+    )
     final = OUT / f"mythos2_cinematic{tag}.mp4"
     run(
         [
@@ -529,8 +749,8 @@ def main() -> int:
     b.add_argument(
         "--cut",
         default="cinematic",
-        choices=["cinematic", "store"],
-        help="store = Play Store promo",
+        choices=["cinematic", "store", "showcase"],
+        help="store = Play Store promo; showcase = 82s English contest cut (gameplay + AI features + architecture)",
     )
     b.add_argument("--skip", nargs="*", help="narration line ids to leave out (e.g. 03_serin_run)")
     b.add_argument(

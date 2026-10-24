@@ -357,6 +357,32 @@ AI_SCENES = [
     ("24_ai_companion", scene_ai_companion, 12.0, "동료는 이번 판에서 당신이 한 일을 기억한다"),
     ("23_ai_boss", scene_ai_boss, 9.0, "관리자 IX가 끼어든다"),
 ]
+AI_SCENES_EN = [
+    (
+        "21_ai_improvise",
+        scene_ai_improvise,
+        16.0,
+        "Type any action — Gemini classifies it, the engine rolls it",
+    ),
+    (
+        "22_ai_npc",
+        scene_ai_npc,
+        16.0,
+        "Speak to any NPC in your own words — mapped to a real d20 check",
+    ),
+    (
+        "24_ai_companion",
+        scene_ai_companion,
+        12.0,
+        "Companions remember what you actually did this run",
+    ),
+    (
+        "23_ai_boss",
+        scene_ai_boss,
+        9.0,
+        "Administrator IX cuts in — and remembers earlier loops",
+    ),
+]
 
 # Store cut extras (record with --scenes store): the map and two fights played well, end to end.
 STORE_SCENES = [
@@ -375,7 +401,24 @@ SCENES = [
     ("06_daily", scene_daily_setup, 3.4, "매일 다른 변형"),
     ("07_memories", scene_memories, 3.2, "기억은 쌓인다"),
 ]
+SCENES_EN = [
+    ("01_title", scene_title, 3.2, "MYTHOS 2.0 · SIGNAL RUN"),
+    ("02_event", scene_event, 5.4, "Every choice has a price"),
+    ("03_combat", scene_combat, 11.0, "Every enemy move is telegraphed"),
+    ("04_cutscene", scene_cutscene, 6.0, "The people who walk with you"),
+    ("05_ix", scene_ix_mirror, 5.0, "IX remembers what you chose"),
+    ("06_daily", scene_daily_setup, 3.4, "A new daily seed and mutator every day"),
+    ("07_memories", scene_memories, 3.2, "Every loop leaves an echo"),
+]
 OUTRO = "MYTHOS 2.0 · SIGNAL RUN"
+
+
+def scenes_for(kind: str, lang: str = "ko") -> list:
+    if kind == "store":
+        return STORE_SCENES
+    if kind == "ai":
+        return AI_SCENES_EN if lang == "en" else AI_SCENES
+    return SCENES_EN if lang == "en" else SCENES
 
 
 def record(out: Path, base: str, keep_raw: bool, scenes: list | None = None) -> list[Path]:
@@ -718,18 +761,30 @@ def main() -> int:
         action="store_true",
         help="record with the GM on (Vertex from .env: billed, a few cents) instead of authored fallbacks",
     )
+    ap.add_argument(
+        "--lang",
+        default="ko",
+        choices=["ko", "en"],
+        help="caption language for the cut (default: ko; --lang en writes *_en.mp4 when cutting --scenes ai)",
+    )
     args = ap.parse_args()
     global SCALE
     SCALE = args.scale
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    selected = scenes_for(args.scenes, args.lang)
+    default_name = (
+        ("mythos2_ai_features_en.mp4" if args.lang == "en" else "mythos2_ai_features.mp4")
+        if args.scenes == "ai"
+        else ("mythos2_trailer_en.mp4" if args.lang == "en" else "mythos2_trailer.mp4")
+    )
     if args.cut_only:
         raw = out / "raw"
-        clips = [raw / f"{name}.webm" for name, *_ in SCENES]
+        clips = [raw / f"{name}.webm" for name, *_ in selected]
         missing = [c.name for c in clips if not c.exists()]
         if missing:
             raise SystemExit(f"--cut-only needs earlier recordings (--keep-raw); missing {missing}")
-        final = cut(out, clips)
+        final = cut(out, clips, selected, default_name)
         print(f"done → {final} ({final.stat().st_size / 1e6:.1f} MB)")
         return 0
     api_port, ui_port = free_port(), free_port()
@@ -781,17 +836,15 @@ def main() -> int:
             out,
             f"http://localhost:{ui_port}",
             args.keep_raw,
-            STORE_SCENES if args.scenes == "store" else AI_SCENES if args.scenes == "ai" else None,
+            selected
+            if args.scenes in ("store", "ai")
+            else (SCENES_EN if args.lang == "en" else None),
         )
         if args.record_only:
             print(f"recorded → {out / 'raw'}")
             return 0
         print("cutting…")
-        final = (
-            cut(out, clips, AI_SCENES, "mythos2_ai_features.mp4")
-            if args.scenes == "ai"
-            else cut(out, clips)
-        )
+        final = cut(out, clips, selected, default_name)
         if not args.keep_raw:
             shutil.rmtree(out / "raw", ignore_errors=True)
         print(f"done → {final} ({final.stat().st_size / 1e6:.1f} MB)")

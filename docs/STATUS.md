@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 2026-10-24
+Last updated: 2026-10-25
 
 ## Current State
 
@@ -19,7 +19,7 @@ Last updated: 2026-10-24
 - **Party bench, random run seeds, AI toggle, IX loop memory** (2026-10-17, live in `00125`) — unlimited recruits, two deployed, swap on the map (party screen); every normal run has a random seed; Settings 'AI 대사 사용'; IX recalls earlier loops; the chronicle uses typed Improvise actions; tutorial no longer repeats.
 - **Comms log + GM model switch** (2026-10-17, live in `00125`) — per-run log of every GM / IX / boss / companion line (HUD + pause menu, AI lines flaggable); Vertex GM `gemini-3.8-flash` (3.5-flash failed 9/40 calls with 504s in an A/B, 3.8 0/40); `make deploy*` passes `.env` `MODEL`.
 
-Latest verified baseline (2026-10-19, streams + UX pass 1 + demo codes + replay): `make check` green (`node --test src/v2` 344 + Python unittest 329 + 12 DB tests skipped without Postgres; `make test-db` 33 OK against Postgres 16), `make test-e2e-v2` green (headless, muted), `make playthrough-quick` OK (5 nodes + shop/safehouse/treasure/final-choice tour, 223 s). Sim P0 (3 × 360 mixed, identical seeds before/after): greedy ≈ 97 % · mixed ≈ 43 % (36–53 % by 120-run block) · basic 0 %.
+Latest verified baseline (2026-10-25, Waves 1–4 + W0–W3 global showcase kit): `make check` green (`node --test src/v2` 355 + Python unittest 340 + 12 DB tests skipped without Postgres; `make test-db` 33 OK against Postgres 16), `make test-e2e-v2` green (headless, muted), `make playthrough-quick` OK, `make gm-eval` English slice 13 × 2 = 100 % usable (p50 0.58 s, p95 1.08 s on `gemma4:8b-64k`). Sim P0 (3 × 360 mixed, maxHp 34/32/36, `a1_n1_*` hazard/void polish): greedy 95.0 % · mixed 30.9 % (28.3–33.1 % by 360-run block) · basic 0 %.
 
 Production (2026-10-24): Cloud Run `mythos-api` serves 2.0 — revision `00142-neh` at 100 % `LATEST` (`git-sha=4a3e65b`; rollback `00140-paw`; `/admin` dashboard, `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.8-flash`); 1.x lives only as code on branch `1.0`. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
 
@@ -27,7 +27,7 @@ Production (2026-10-24): Cloud Run `mythos-api` serves 2.0 — revision `00142-n
 
 Authority plan: `docs/NEXT_PLAN.md` · improvement & direction plan: `docs/plans/2026-10-24-improvement-and-direction-plan.md` · global showcase: `docs/plans/2026-10-24-global-showcase-2026.md`.
 
-1. **Global showcase + Wave 1–4 improvements** (owner direction 2026-10-24; paid Play release and Signal+ on hold, `DECISIONS.md`) — named RNG streams and replay-verified daily board are live (`00140-paw`); next: Wave 1 (Gemini `✦ LIVE AI` visibility & `gm.ts` source preservation, Improvise/NPC chips), Wave 2 (Connector `maxHp` reduction `42/40/44 → 34/32/36` + Act 1 puzzle tension), Wave 3 (`Architect Telemetry HUD`), Wave 4 (`?lang=en` auto-entry + `docs/contest/architecture-en.md`).
+1. **Global showcase + Wave 1–4 improvements** (owner direction 2026-10-24; paid Play release and Signal+ on hold, `DECISIONS.md`) — Waves 1–4 and W0–W3 agent deliverables are complete (2026-10-25: `✦ AI` mark & source preservation, Improvise chips, HP 34/32/36 + `a1_n1_*` hazard/void angles, `?hud=1` Architect HUD, `?lang=en` + browser-language default, 13-case English GM eval, English prose pass, per-act shop/rest 2.0 WebP art, `375–412 px` phone combat layout, 82 s English showcase video + `docs/contest/devpost-en.md`). Remaining: owner feel check (`docs/test/mythos2_fun_check.md`), optional preview/promote deploy of the 2026-10-25 batch, and public-repo / contest submission decisions.
 2. **Watch production** — first real players on 2.0: Cloud Run logs (`v2 gm` outcomes, 401/429 rates), the 19:00 KST push job status, Crashlytics. Checked 2026-10-13: only owner/QA traffic so far (no real players → no balance data yet), 0 × 429, 0 × 5xx, the 10-11 405s were Android-emulator CORS preflights from before the origin fix (preflight now 200 for all three Capacitor origins), push jobs ran 10-13 19:00 KST with OK status.
 
 ## Open Risks

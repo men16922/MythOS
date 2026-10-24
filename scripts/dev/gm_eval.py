@@ -162,6 +162,11 @@ YUN_OPTIONS = [
     {"intent": "sneak", "label": "바리케이드를 피해 돌아간다"},
     {"intent": "leave", "label": "돌아선다"},
 ]
+YUN_OPTIONS_EN = [
+    {"intent": "deceive", "label": "“Power company meter check.”"},
+    {"intent": "sneak", "label": "Slip around the barricade"},
+    {"intent": "leave", "label": "Turn back"},
+]
 OH_OPTIONS_EN = [
     {"intent": "ask", "label": "“Where’s the power coming from?”"},
     {"intent": "insight", "label": "Read the switchboard wiring"},
@@ -171,6 +176,10 @@ OH_OPTIONS_EN = [
 MEMORY = [
     "지난 루프들에서 이 해태에게 세 번 쓰러졌다",
     "기록된 접속 네 번 중 끝까지 간 것은 아직 없다",
+]
+MEMORY_EN = [
+    "Fell to this Haetae three times in earlier loops",
+    "Zero of four recorded connections reached the top",
 ]
 HAN = {
     "name": "한",
@@ -308,6 +317,20 @@ def cases() -> list[Case]:
                 ],
             },
         ),
+        _narrate(
+            "event_outcome_en",
+            "event",
+            "en",
+            {
+                "title": "The Substation",
+                "text": "A substation with its door torn off. Boots around the corner.",
+                "act": 1,
+                "party": ["Se-rin"],
+                "choice": "Hack the terminal",
+                "outcome": "The alarm dies.",
+                "success": True,
+            },
+        ),
         _companion("companion_han_ko", "han", "ko", HAN, "오늘 어땠어?"),
         _companion(
             "companion_han_dejavu_ko",
@@ -323,12 +346,19 @@ def cases() -> list[Case]:
             "ko",
             {"boss": "해태", "act": 1, "memory": MEMORY},
         ),
+        _ix(
+            "ix_boss_start_memory_en",
+            "boss_start",
+            "en",
+            {"boss": "Haetae", "act": 1, "memory": MEMORY_EN},
+        ),
         _ix("ix_companion_down_ko", "companion_down", "ko", {"companion": "정세린", "act": 1}),
         _ix("ix_env_kill_en", "env_kill", "en", {"enemy": "Scrap Drone", "act": 1}),
         _enemy("enemy_haetae_hurt_ko", "haetae", "hurt", "ko"),
         _enemy("enemy_echo_winning_en", "echo_eater", "winning", "en"),
         _improvise("improvise_hack_ko", "ko", "단말기를 해킹해 경보를 끈다"),
         _improvise("improvise_bluff_en", "en", "Bluff the guards that I'm an inspector"),
+        _improvise("improvise_hack_en", "en", "Hack the terminal to kill the alarm"),
         _narrate(
             "echo_scar_ko",
             "echo",
@@ -366,6 +396,15 @@ def cases() -> list[Case]:
             OH_OPTIONS_EN,
             "Nobody sent me. How are you keeping these lights on?",
             "ask",
+        ),
+        _npc(
+            "npc_yun_deceive_en",
+            "sgt_yun",
+            "en",
+            "Four enforcers. The man in the middle raises a gloved hand. “Halt. Power audit in progress.”",
+            YUN_OPTIONS_EN,
+            "Just here to read the meter. I'll check the box and move on.",
+            "deceive",
         ),
     ]
 

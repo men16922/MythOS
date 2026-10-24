@@ -38,17 +38,20 @@ interface Layout {
 
 function computeLayout(mode: LayoutMode, W: number, H: number): Layout {
   if (mode === 'port') {
-    const topH = 62
-    const partyH = 46
-    const peekH = 54
-    const fs = clamp(Math.min(W / 34, H / 72), 9, 11.5)
+    const short = H < 740
+    const topH = short ? 54 : 62
+    const partyH = short ? 42 : 46
+    const peekH = short ? 46 : 54
+    const fs = clamp(Math.min(W / 34, H / (short ? 76 : 72)), 8.6, 11.5)
     // hand (+ the number tabs above it) · draw / piles / items row · orb + end turn row · padding
-    const bottomH = Math.round(fs * 15 + 16) + 36 + 50 + 12 + 8
+    const row2 = short ? 32 : 36
+    const row3 = short ? 44 : 50
+    const bottomH = Math.round(fs * 15 + (short ? 14 : 16)) + row2 + row3 + 12 + (short ? 6 : 8)
     const bandTop = topH + partyH
     const bandH = H - bandTop - peekH - bottomH - 6
     const tw = fitTileWidthFor(W - 6, bandH, GEOM.port ?? {}, 36, 96)
     // The fan's outer cards tilt out past their slot: keep them off the screen edge.
-    return { topH, fs, bottomH, sideW: W - 16, handW: W - 50, tw, bandTop, bandH, bias: 0.5, partyH, peekH, handPeek: 0 }
+    return { topH, fs, bottomH, sideW: W - 16, handW: W - (W < 390 ? 40 : 50), tw, bandTop, bandH, bias: 0.5, partyH, peekH, handPeek: 0 }
   }
   if (mode === 'land') {
     // The top strip only uses the side columns, so the board gets the full height above the hand.

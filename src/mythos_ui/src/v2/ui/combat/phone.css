@@ -598,6 +598,23 @@
   min-width: 34px;
   padding: 0 5px;
 }
+@media (max-height: 739px) {
+  .is-port .m2c-bottom {
+    grid-template-columns: 44px auto 1fr auto;
+    grid-template-rows: minmax(0, 1fr) 32px 44px;
+    padding: 0 8px 6px;
+  }
+  .is-port .m2c-orb {
+    width: 44px;
+    height: 44px;
+  }
+  .is-port .m2c-orb b {
+    font-size: 21px;
+  }
+  .is-port .m2c-end {
+    height: 44px;
+  }
+}
 
 /* ---------------------------------------------------------------- landscape */
 

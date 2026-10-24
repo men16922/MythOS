@@ -121,27 +121,27 @@ flowchart TD
     W1 --> W2 --> W3 --> W4
 ```
 
-### Wave 1. Gemini AI 작동 가시화 및 체감 강화 (최우선)
-- `[ ]` **[gm.ts](../../src/mythos_ui/src/v2/ui/shell/gm.ts) · [eventOpening.ts](../../src/mythos_ui/src/v2/ui/shell/eventOpening.ts)**: `narrateWithSource()` 도입(또는 반환값에 `ai: boolean` 포함)으로 [ActIntro.tsx](../../src/mythos_ui/src/v2/ui/shell/ActIntro.tsx), [EventScreen.tsx](../../src/mythos_ui/src/v2/ui/shell/EventScreen.tsx), [BossNarration.tsx](../../src/mythos_ui/src/v2/ui/shell/BossNarration.tsx), [EndingScreen.tsx](../../src/mythos_ui/src/v2/ui/shell/EndingScreen.tsx)에서 실제 Gemini 응답(`source === 'llm'`)과 로컬 폴백을 정확히 구분.
-- `[ ]` **[GmCard.tsx](../../src/mythos_ui/src/v2/ui/shell/GmCard.tsx) · [IxComms.tsx](../../src/mythos_ui/src/v2/ui/shell/IxComms.tsx) · [EnemyTaunt.tsx](../../src/mythos_ui/src/v2/ui/shell/EnemyTaunt.tsx) · [CompanionChat.tsx](../../src/mythos_ui/src/v2/ui/shell/CompanionChat.tsx)**: `ai === true`일 때 **`✦ Gemini AI`** 라이브 배지 및 교체(Swap) 시 시안색 하이라이트 애니메이션 표시.
-- `[ ]` **[TopBar.tsx](../../src/mythos_ui/src/v2/ui/shell/TopBar.tsx)**: 통신 기록 버튼 옆에 현재 세션 AI 활성 상태 및 이번 판 AI 생성 대사 수를 실시간 배지로 표시.
-- `[ ]` **[EventScreen.tsx](../../src/mythos_ui/src/v2/ui/shell/EventScreen.tsx) · [DialogueScreen.tsx](../../src/mythos_ui/src/v2/ui/shell/DialogueScreen.tsx)**:
-  - 사건별 맥락에 맞는 **추천 자유 행동 칩 2~3개** 제공(클릭 시 입력창에 자동 입력).
-  - `Adjudication` 카드에 `✦ AI GM 판정` 배지, NPC 매칭 버튼에 `[✦ AI 의도 분석: <의도> · <확률>%]` 배지, 과거 행적 인용 시 `[기억 인용]` 배지 부착.
+### Wave 1. Gemini AI 작동 가시화 및 체감 강화 (최우선 — 완료 2026-10-24)
+- `[x]` **[gm.ts](../../src/mythos_ui/src/v2/ui/shell/gm.ts) · [eventOpening.ts](../../src/mythos_ui/src/v2/ui/shell/eventOpening.ts)**: `narrateLine()` 도입(`{text, ai}`)으로 [ActIntro.tsx](../../src/mythos_ui/src/v2/ui/shell/ActIntro.tsx), [EventScreen.tsx](../../src/mythos_ui/src/v2/ui/shell/EventScreen.tsx), [BossNarration.tsx](../../src/mythos_ui/src/v2/ui/shell/BossNarration.tsx), [EndingScreen.tsx](../../src/mythos_ui/src/v2/ui/shell/EndingScreen.tsx)에서 실제 Gemini 응답(`source === 'llm'`)과 로컬 폴백을 정확히 구분.
+- `[x]` **[GmCard.tsx](../../src/mythos_ui/src/v2/ui/shell/GmCard.tsx) · [IxComms.tsx](../../src/mythos_ui/src/v2/ui/shell/IxComms.tsx) · [EnemyTaunt.tsx](../../src/mythos_ui/src/v2/ui/shell/EnemyTaunt.tsx) · [CompanionChat.tsx](../../src/mythos_ui/src/v2/ui/shell/CompanionChat.tsx)**: `ai === true`일 때 **`✦ AI`** 라이브 배지 및 교체(Swap) 시 시안색 하이라이트 애니메이션 표시.
+- `[-]` **[TopBar.tsx](../../src/mythos_ui/src/v2/ui/shell/TopBar.tsx)**: 오너 결정(2026-10-24 `DECISIONS.md`: UX-first, 저피로도 유지)으로 상단바 상시 칩 및 의도-%/기억 배지는 제외.
+- `[x]` **[EventScreen.tsx](../../src/mythos_ui/src/v2/ui/shell/EventScreen.tsx) · [DialogueScreen.tsx](../../src/mythos_ui/src/v2/ui/shell/DialogueScreen.tsx)**:
+  - 플레이어 상위 스탯에 맞는 **원탭 추천 자유 행동 칩 3개** 제공(`improvSuggest.ts`, 클릭 시 입력창에 자동 입력).
+  - `Adjudication` 카드와 NPC 자유 대화 응답에 `✦ AI` 배지 및 인라인 신고 버튼 부착.
 
-### Wave 2. 주인공 기본 체력 하향 & 1막 전투 긴장감 보강
-- `[ ]` **[archetypes.ts](../../src/mythos_ui/src/v2/content/archetypes.ts) · [content.test.ts](../../src/mythos_ui/src/v2/content/content.test.ts)**: 주인공 `maxHp`를 `42 / 40 / 44` → **`34 / 32 / 36` (또는 `32 / 30 / 34`)**로 조정하고 테스트 범위(현재 `38 <= maxHp <= 46`)를 새 값에 맞게 갱신(예: `30 <= maxHp <= 38`). `[owner]` A/B 선택.
-- `[ ]` **[encounters.ts](../../src/mythos_ui/src/v2/content/encounters.ts)**: 1막 초반 전투(`a1_n1_*`)에서 밀치기·지형 활용 시 한 턴에 위기를 넘기는 전술 구도 점검 및 동일 시드 블록 `simulateRun` 검증.
+### Wave 2. 주인공 기본 체력 하향 & 1막 전투 긴장감 보강 (완료 2026-10-24/25)
+- `[x]` **[archetypes.ts](../../src/mythos_ui/src/v2/content/archetypes.ts) · [content.test.ts](../../src/mythos_ui/src/v2/content/content.test.ts)**: 주인공 `maxHp`를 `42 / 40 / 44` → **`34 / 32 / 36`**(오너 선택)으로 조정하고 테스트 범위(`30 <= maxHp <= 38`)를 갱신.
+- `[x]` **[encounters.ts](../../src/mythos_ui/src/v2/content/encounters.ts)**: 1막 초반 전투(`a1_n1_dodge`, `a1_n1_overpass`, `a1_n1_cover`)에서 밀치기·화염·낭떠러지 환경킬 퍼즐 구도 보강 및 동일 시드 블록(3 × 360) `simulateRun` 검증(2026-10-25: greedy 95.0 %, mixed 30.9 %, basic 0 %).
 
-### Wave 3. 아키텍처 가시화 — `Architect Telemetry HUD`
-- `[ ]` **`src/mythos_ui/src/v2/ui/common/telemetry.ts` · `ArchitectHud.tsx`**:
-  - 최근 AI 호출의 `Route / Latency(ms) / Source(llm|fallback|local) / Clamped Output`, 현재 `Named RNG Stream` 시드 키, `Replay Action Steps`, `Session AI Cost ($)`를 기록.
-  - `?hud=1`, 데모 배지 클릭, 또는 설정 토글로 여닫을 수 있는 비차단 인스펙터 드로어 구현(버튼 클릭을 가리지 않도록 레이아웃 격리).
+### Wave 3. 아키텍처 가시화 — `Architect Telemetry HUD` (완료 2026-10-24)
+- `[x]` **`src/mythos_ui/src/v2/ui/common/telemetry.ts` · `ArchitectHud.tsx`**:
+  - 최근 AI 호출의 `Route / Latency(ms) / Outcome(llm|fallback|local|off)`, 현재 `Named RNG Stream` 시드 키, `Replay Action Steps`, `Allowance`를 기록.
+  - `?hud=1`로 여닫을 수 있는 비차단 인스펙터 오버레이 구현(모바일에서는 접힌 탭으로 시작).
 
-### Wave 4. 글로벌(영문) 자동 진입 & 영문/모바일 UX 마감
-- `[ ]` **[store.ts](../../src/mythos_ui/src/v2/ui/store.ts) · [meta.ts](../../src/mythos_ui/src/v2/engine/meta.ts)**: `?lang=en|ko` URL 쿼리 지원 및 신규 로컬 프로필 생성 시 `navigator.language` 기반 자동 영문(`en`) 진입(`newProfile()` 기본 인자는 기존 유닛 테스트 호환을 위해 `'ko'` 유지). **`[owner OK: default change]`** — 기본값 변경이라 global showcase 계획 W1과 같이 오너 승인 후 진행.
-- `[ ]` **[phone.css](../../src/mythos_ui/src/v2/ui/shell/phone.css) · 영문 첫 세션 감사**: `?lang=en&mute=1` 및 `390×844` 모바일 뷰포트에서 텍스트 잘림·여백 점검.
-- `[ ]` **`docs/contest/architecture-en.md`**: 위 Wave 1~3의 실측 수치와 아키텍처 다이어그램을 포함한 영문 기술 아키텍처 문서 작성.
+### Wave 4. 글로벌(영문) 자동 진입 & 영문/모바일 UX 마감 (완료 2026-10-24/25)
+- `[x]` **[store.ts](../../src/mythos_ui/src/v2/ui/store.ts) · [lang.ts](../../src/mythos_ui/src/v2/ui/common/lang.ts)**: `?lang=en|ko` URL 쿼리 지원 및 신규 디바이스(`mythos2.lang0`) 브라우저 언어 기반 자동 영문(`en`) 진입(오너 승인 2026-10-24).
+- `[x]` **[phone.css](../../src/mythos_ui/src/v2/ui/combat/phone.css) · [layout.ts](../../src/mythos_ui/src/v2/ui/combat/screen/layout.ts) · 영문/모바일 감사**: `?lang=en&mute=1` 및 `375×667` / `390×844` / `412×915` 모바일 뷰포트에서 전투 타일 크기(`50~57px`) 및 상점/은신처 2.0 WebP 아트 패리티 마감(2026-10-25).
+- `[x]` **`docs/contest/architecture-en.md` · `docs/contest/devpost-en.md`**: Wave 1~4의 실측 수치와 아키텍처 다이어그램을 포함한 영문 기술 아키텍처 및 Devpost 제출 문서 작성(2026-10-24/25).
 
 ---
 

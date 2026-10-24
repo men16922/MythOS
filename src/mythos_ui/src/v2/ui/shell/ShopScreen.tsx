@@ -18,9 +18,9 @@ function Price({ value, credits }: { value: number; credits: number }) {
 }
 
 const SHOP_PLACE: Record<number, { ko: string; en: string; bg: string }> = {
-  1: { ko: 'C-17 뒷골목 좌판', en: 'C-17 back-alley stall', bg: 'scenes/wet_dawn_street.png' },
-  2: { ko: '야시장 뒷골목', en: 'Back alley, night market', bg: 'scenes/night_market.png' },
-  3: { ko: '첨탑 하층 · 유령 단말', en: 'Spire underlevel, ghost terminal', bg: 'scenes/control_grid_ghost.png' },
+  1: { ko: 'C-17 뒷골목 좌판', en: 'C-17 back-alley stall', bg: 'v2/districts/d1_lamp_market.webp' },
+  2: { ko: '야시장 뒷골목', en: 'Back alley, night market', bg: 'v2/events/a2_memory_stall.webp' },
+  3: { ko: '첨탑 하층 · 유령 단말', en: 'Spire underlevel, ghost terminal', bg: 'v2/events/a3_control_net_ghost.webp' },
 }
 
 export function ShopScreen({ run, C, lang, act }: ScreenProps) {
@@ -54,7 +54,7 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
     <div className="m2-shop">
       <div className="m2-shop__bg" style={{ backgroundImage: `url(${asset(place.bg)})` }} />
       <div className="m2-shop__inner">
-        <header className="m2-shop__head">
+        <header className="m2-shop__head" style={{ backgroundImage: `linear-gradient(90deg, rgba(4, 14, 18, 0.92) 0%, rgba(4, 14, 18, 0.38) 52%, rgba(4, 14, 18, 0.88) 100%), url(${asset(place.bg)})` }}>
           <div>
             <div className="m2-shop__kicker">{ko ? place.ko : place.en}</div>
             <h1 className="m2-shop__title">{ko ? '암시장' : 'Black Market'}</h1>

@@ -76,6 +76,7 @@ class IntentTest(unittest.TestCase):
         intents = npc.open_intents(OPTIONS)
         self.assertEqual(npc.fallback_intent("몰래 돌아갈게", intents), "sneak")
         self.assertEqual(npc.fallback_intent("I'm with the power company", intents), "deceive")
+        self.assertEqual(npc.fallback_intent("Just here to read the meter.", intents), "deceive")
         self.assertEqual(
             npc.fallback_intent("give me money", intents), None
         )  # offer is not open here

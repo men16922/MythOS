@@ -48,25 +48,23 @@ hackathons on other clouds (Nebius×NVIDIA, Meta, Open Agent — would need a re
   text, a blog post and a README.
 - `[x]` (2026-10-24, phone title → setup → event → map: no overflow, no hard-coded Korean seen) English first-session audit: play the first ~10 minutes with `lang=en` (headless, muted, one tab), list
   hard-coded Korean, awkward English, overflow/clipping; fix in `v2/content` / `v2/ui`.
-- `[ ]` `make gm-eval` English slice on local Ollama (free); one Vertex run only with the owner's OK.
+- `[x]` (2026-10-24/25) `make gm-eval` English slice on local Ollama (free; 13 cases × 2, usable 100 %, p50 0.58 s, p95 1.08 s in `outputs/gm-eval/20261025-062735-ollama_gemma4_8b-64k-en.json`); one Vertex run only with the owner's OK.
 
 ### W1 · November — English as a first-class entry
-- `[ ]` `[owner OK: default change]` Demo/judge links open in English: `?lang=en` link parameter, and/or the
+- `[x]` (2026-10-24) `[owner OK: default change]` Demo/judge links open in English: `?lang=en` link parameter, and the
   browser language for brand-new profiles only (existing saves keep their setting).
-- `[ ]` English text quality pass over cards, events, companions, IX lines (register rule: repetition
-  is the problem, not abstract SF terms; plain screenplay action-lines except in deliberately strange scenes).
-- `[ ]` More English GM eval cases (Improvise ruling, NPC talk) and a baseline file.
-- `[ ]` Trailer: English caption track for the AI cut.
+- `[x]` (2026-10-25) English text quality pass over cards, events, companions, IX lines (`ixMirror.ts`, `statVoices.ts`, `ix.ts`, `eventsArcs.ts`, `eventsMore.ts`).
+- `[x]` (2026-10-25) More English GM eval cases (13 cases total incl. Improvise ruling, NPC talk, event outcome, IX boss memory) and a baseline file (`outputs/gm-eval/20261025-062735-ollama_gemma4_8b-64k-en.json`).
+- `[x]` (2026-10-25) Trailer: English caption track for the AI cut (`scripts/trailer/record_trailer.py --lang en` → `outputs/trailer/ai/mythos2_ai_features_en.mp4`).
 
 ### W2 · 12-01 → 12-14 — polish + public demo
 - `[ ]` `[owner]` Fun check (`docs/test/mythos2_fun_check.md`), ideally once in English → fix what it flags.
-- `[ ]` Combat feel at phone width (375–412 px), shop/rest art parity.
+- `[x]` (2026-10-25) Combat feel at phone width (`375–412 px`: `tw` 50–57 px, 44 px touch targets, 0 overflow), shop/rest art parity (per-act 2.0 WebP art + framed banners).
 - `[ ]` `[owner]` Demo code deploy: preview → `make verify-preview` → promote; judge link `<URL>/?demo=<code>&lang=en`.
 
 ### W3 · 12-15 → 12-31 — submission package
-- `[ ]` 3-minute English video: gameplay + the AI features clip + the architecture diagram (local `ffmpeg`;
-  Vertex Veo API stays banned).
-- `[ ]` Devpost-style text (problem, build, Google Cloud services used, challenges, what's next) from W0.
+- `[x]` (2026-10-25) English showcase video: gameplay + the 4 AI features clips + the Google Cloud architecture diagram (`scripts/trailer/cinematic.py build --cut showcase` → `outputs/trailer/cinematic/mythos2_cinematic_showcase.mp4`, 82.0 s, local `ffmpeg`; Vertex Veo API stays banned).
+- `[x]` (2026-10-25) Devpost-style text (`docs/contest/devpost-en.md`: problem, build, Google Cloud services used, challenges, what's next) from W0 + refreshed `docs/contest/pitch-en.md`.
 - `[ ]` `[owner decision]` Public code: a new curated public repo vs cleaning this one (no `.env`, keys, keystores,
   `google-services.json`, `.firebase/`, `outputs/`).
 - `[ ]` When the challenge is announced: re-angle to its theme, submit.

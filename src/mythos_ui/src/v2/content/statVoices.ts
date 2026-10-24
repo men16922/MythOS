@@ -85,7 +85,7 @@ export const STAT_VOICES: Record<StatKey, StatVoice> = {
   obs: {
     tag: t('관측', 'Perception'),
     success: [
-      t('어긋난 곳을 포착했다. 거기가 틈이다.', 'The out-of-place thing is caught. That is the gap.'),
+      t('어긋난 곳을 포착했다. 거기가 틈이다.', 'Caught what was out of place. There is the gap.'),
       t('이질감의 출처를 확인함. 간단한 속임수였다.', 'Source of the wrongness confirmed. A simple trick.'),
       t('발자국이 하나 더 있었다. 이제 맞는다.', 'There was one more footprint. Now it fits.'),
       t('규칙을 읽었다. 규칙은 늘 어딘가 어긋난다.', 'The pattern is read. Patterns always slip somewhere.'),

@@ -602,7 +602,7 @@ const SERIN: EventDef[] = [
         success: {
           text: t(
             '둘의 손이 한 선을 긋는다. 세린이 짧게 웃는다. “삐뚤어졌네.” 그 뒤로 몸이 새로 배운 길처럼 가벼워진다.',
-            'Two hands draw one line. Se-rin laughs shortly. “It’s crooked.” After that your body feels light, like a route newly learned.',
+            'Two hands draw one line. Se-rin gives a short laugh. “It’s crooked.” After that your body feels light, like a route newly learned.',
           ),
           effects: [{ kind: 'upgrade_card', count: 2 }],
         },
@@ -801,7 +801,7 @@ const KAI: EventDef[] = [
         success: {
           text: t(
             '카이가 눈을 가늘게 뜬다. 흐렸던 십자선이 한순간에 선명해진다. “이제 놓치지 않아요.” 당신의 기술도 한 겹 더 날이 선다.',
-            'Kai narrows his eyes. The blurred crosshair snaps clear. “I won’t miss now.” Two of your own techniques sharpen a layer as well.',
+            'Kai narrows his eyes. The blurred crosshair snaps clear. “I won’t miss now.” Your own techniques sharpen a notch as well.',
           ),
           effects: [{ kind: 'upgrade_card', count: 2 }],
         },

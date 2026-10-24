@@ -15,7 +15,7 @@ export const IX_LINES: ContentRegistry['ixLines'] = {
     },
     {
       ko: '추운 밤입니다. 체온 유지에 유의하십시오. 정정 절차는 따뜻한 곳에서 진행됩니다.',
-      en: 'It is a cold night. Please keep warm. Correction is carried out somewhere warm.',
+      en: 'It is a cold night. Please watch your body temperature. Correction takes place somewhere warm.',
     },
     {
       ko: '맥박을 확인했습니다. 분당 128회. 두려워하실 필요는 없습니다. 끝은 대부분 조용합니다.',

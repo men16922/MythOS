@@ -193,7 +193,7 @@ _KEYWORDS: tuple[tuple[Intent, re.Pattern[str]], ...] = (
     (
         "deceive",
         re.compile(
-            r"사실은|난 .{0,8}(?:이야|입니다|에요)|검침|점검|from the|i'?m (?:a|an|with)",
+            r"사실은|난 .{0,8}(?:이야|입니다|에요)|검침|점검|from the|i'?m (?:a|an|with)|meter|inspector|technician|maintenance|official|sent by",
             re.IGNORECASE,
         ),
     ),

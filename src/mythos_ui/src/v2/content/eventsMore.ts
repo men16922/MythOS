@@ -1035,7 +1035,7 @@ export const SUAH_ARC: EventDef[] = [
         success: {
           text: t(
             '칼날이 쇳물에서 올라오자 희미한 소리가 난다. 노래도 말도 아닌 무엇. 손에 익은 기술이 두 겹 더 날이 선다.',
-            'The blade rises out of the melt with a faint sound — not song, not speech. Two of your techniques come out sharper by a layer.',
+            'The blade rises out of the melt with a faint sound — not song, not speech. Two of your techniques come out a notch sharper.',
           ),
           effects: [{ kind: 'upgrade_card', count: 2 }],
         },

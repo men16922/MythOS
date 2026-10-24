@@ -1,6 +1,14 @@
 # Progress Log
 
-Last updated: 2026-10-24
+Last updated: 2026-10-25
+
+## 2026-10-25 — Global showcase W1–W3 completion: English GM eval, prose pass, shop/rest art, phone combat & Act 1 puzzles, showcase video + Devpost text
+
+- **English GM eval & prompt/cleaner (`scripts/dev/gm_eval.py`, `src/mythos_v2/gm.py`, `npc.py`)**: expanded the English eval slice from 9 to 13 cases (+4: `event_outcome_en`, `ix_boss_start_memory_en`, `improvise_hack_en`, `npc_yun_deceive_en`); enforced single-sensory-detail discipline in `_ACT_SENSORY`, replaced fourth-wall wording (`"this event"` / `"your stat"`) in `improvised_block`, capitalized leading lowercase letters in `_improv_text`, and broadened `deceive` English keyword fallback in `npc.py`. Local `gemma4:8b-64k` baseline (`outputs/gm-eval/20261025-062735-ollama_gemma4_8b-64k-en.json`): 13 × 2, usable **100 %**, p50 **0.58 s**, p95 **1.08 s**, 0 errors, 0 % repeats.
+- **English text quality pass (`v2/content/`)**: tightened repetitive SF filler and matched plain screenplay register across `ixMirror.ts`, `statVoices.ts`, `ix.ts`, `eventsArcs.ts` and `eventsMore.ts` (`make test-v2` 355/355).
+- **Shop/rest art parity & phone-width combat (`375–412 px`)**: `ShopScreen.tsx` and `RestScreen.tsx` now render per-act 2.0 WebP art (`d1_lamp_market`, `a2_memory_stall`, `a3_control_net_ghost`, `kai_rain_sound`, `a2_refuge_night`, `tae_o_dawn_watch`, asserted by `art.test.ts`) with framed banners and a 1-column mobile shelf. `combat/screen/layout.ts` + `combat/phone.css` compact vertical HUD bands on short portrait viewports (`H < 740`), raising `375×667` board tiles from `41px` to `50px` (`390×844` `53px`, `412×915` `57px`) while keeping `44px` touch targets and 0 horizontal overflow (verified in headless muted Playwright across all 3 phone sizes).
+- **Act 1 early encounters (`a1_n1_*` in `encounters.ts`)**: added hazard/void opportunities to `a1_n1_dodge` (`envKills/fight` `0.17 → 0.69`), `a1_n1_overpass` (`envKills/fight` `0.75 → 1.00`, 2-env-kill bonus `14 % → 31 %`), and `a1_n1_cover`. Verified on 3 × 360 `mixed` / 120 `greedy` / 60 `basic` seeds: greedy **95.0 %**, mixed **30.9 %** (`31.4 / 28.3 / 33.1 %`), basic **0 %**.
+- **Showcase video & Devpost kit (`scripts/trailer/`, `docs/contest/`)**: added `--lang en|ko` to `record_trailer.py` (`outputs/trailer/ai/mythos2_ai_features_en.mp4`, 55.6 s) and `--cut showcase` + `arch_png` to `cinematic.py` (`outputs/trailer/cinematic/mythos2_cinematic_showcase.mp4`, 82.0 s: gameplay + 4 AI features + 8 s Google Cloud architecture card, 0 cloud calls). Wrote `docs/contest/devpost-en.md` and refreshed `docs/contest/pitch-en.md`.
 
 ## 2026-10-24 — Promoted `00142-neh` (owner: "미리보기 + 검증 후 승격")
 

@@ -63,8 +63,13 @@ class GmEvalTest(unittest.TestCase):
         self.assertEqual(len(ids), len(set(ids)))
         routes = {c.route.split(":")[0] for c in cases}
         self.assertEqual(routes, {"narrate", "talk", "improvise"})
-        self.assertTrue({"talk:companion", "talk:ix", "talk:enemy"} <= {c.route for c in cases})
+        self.assertTrue(
+            {"talk:companion", "talk:ix", "talk:enemy", "talk:npc"} <= {c.route for c in cases}
+        )
         self.assertEqual({c.lang for c in cases}, {"ko", "en"})
+        en_cases = [c for c in cases if c.lang == "en"]
+        self.assertGreaterEqual(len([c for c in en_cases if c.route == "improvise"]), 2)
+        self.assertGreaterEqual(len([c for c in en_cases if c.route == "talk:npc"]), 2)
         dejavu = next(c for c in cases if c.id == "event_open_dejavu_ko")
         self.assertIn("데자뷔", dejavu.system)
 

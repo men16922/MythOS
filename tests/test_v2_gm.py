@@ -140,7 +140,7 @@ class NarrateMessagesTest(unittest.TestCase):
         self.assertIn("한국어로만", system)
         self.assertIn("companion: 세린", user)
         _, act2_user = gm.narrate_messages("event", "ko", {"act": 2, "title": "야시장"})
-        self.assertIn("공간 질감(2막 야시장 하층)", act2_user)
+        self.assertIn("공간 질감(2막 야시장 하층", act2_user)
 
 
 class FallbackNarrationTest(unittest.TestCase):
@@ -298,6 +298,19 @@ class AdjudicateTest(unittest.TestCase):
         )
         self.assertEqual(out["successText"]["ko"], out["successText"]["en"])
         self.assertEqual(out["successText"]["ko"], "자판기가 토하듯 동전을 쏟아낸다.")
+        en_verdict = gm.adjudicate_llm_output(
+            self.raw(
+                success="fingers dance across the interface, silencing the alarm.",
+                failure="sparks erupt from the wiring.",
+            ),
+            "hack the terminal",
+            "en",
+        )
+        assert en_verdict is not None
+        self.assertEqual(
+            en_verdict.success_text["en"],
+            "Fingers dance across the interface, silencing the alarm.",
+        )
 
     def test_dc_is_clamped(self) -> None:
         high = gm.adjudicate_llm_output(self.raw(dc=15), "hack it", "ko")

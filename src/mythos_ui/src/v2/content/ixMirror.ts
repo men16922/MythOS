@@ -101,7 +101,7 @@ export const IX_MIRROR_LINES: MirrorLine[] = [
     flag: 'lin_yue_debt',
     line: t(
       '린위에 씨의 장부에 이름을 올리셨더군요. 빚을 모으는 일은 제 전공입니다. 우리는 생각보다 비슷한 일을 합니다.',
-      'You put your name in Lin-yue’s ledger. Collecting debts is my specialty. We do more alike work than you think.',
+      'You put your name in Lin-yue’s ledger. Collecting debts is my specialty. Our work is more alike than you think.',
     ),
   },
   {

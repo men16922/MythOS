@@ -29,7 +29,18 @@ test('every music cue has a generated loop', () => {
   assert.deepEqual(missing(cues, MUSIC), [])
 })
 
-test('screen art referenced by path is on disk (supply cache)', () => {
+test('screen art referenced by path is on disk (supply cache, shop, safehouse)', () => {
   const res = join(dirname(fileURLToPath(import.meta.url)), '../../../../../resources/neo-seoul')
-  for (const f of ['v2/ui/cache_closed.webp', 'v2/ui/cache_open.webp']) assert.ok(existsSync(join(res, f)), `${f} missing`)
+  for (const f of [
+    'v2/ui/cache_closed.webp',
+    'v2/ui/cache_open.webp',
+    'v2/districts/d1_lamp_market.webp',
+    'v2/events/a2_memory_stall.webp',
+    'v2/events/a3_control_net_ghost.webp',
+    'v2/cutscenes/kai_rain_sound.webp',
+    'v2/events/a2_refuge_night.webp',
+    'v2/cutscenes/tae_o_dawn_watch.webp',
+  ]) {
+    assert.ok(existsSync(join(res, f)), `${f} missing`)
+  }
 })

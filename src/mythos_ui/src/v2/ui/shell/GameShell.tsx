@@ -48,6 +48,8 @@ import { rx } from './rx.ts'
 import { SetupScreen } from './SetupScreen.tsx'
 import { ShopScreen } from './ShopScreen.tsx'
 import { TitleScreen } from './TitleScreen.tsx'
+import { ArchitectHud } from '../components/ArchitectHud.tsx'
+import { hudRequested } from '../common/telemetry.ts'
 import { TopBar } from './TopBar.tsx'
 import { TreasureScreen } from './TreasureScreen.tsx'
 import type { ScreenProps } from './types.ts'
@@ -141,6 +143,8 @@ export function GameShell() {
   const game = useGame(C)
   const { profile, run, setRun, setProfile } = game
   const lang = profile.settings.lang
+  // Opt-in inspector for judges (`?hud=1`); never shown otherwise.
+  const [hud] = useState(() => typeof window !== 'undefined' && hudRequested(window.location.search))
   const [viewState, setView] = useState<View>(bootView)
   const view: View = viewState === 'run' && !run ? 'title' : viewState
   const [deckOpen, setDeckOpen] = useState(false)
@@ -663,6 +667,7 @@ export function GameShell() {
             </p>
           </Modal>
         )}
+        {hud && <ArchitectHud run={run} />}
       </div>
     </ShellMenu.Provider>
   )

@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-24
 
+## 2026-10-24 — Architect HUD (opt-in `?hud=1`)
+
+- `telemetry.ts` (memory only) + `gm.ts` record each GM call's outcome and latency; `ArchitectHud.tsx` shows AI calls / LLM share / median latency (authored line at 0 ms), allowance, seed + named streams, daily replay steps. Off unless the link has `?hud=1`; phones start folded.
+- Verified: `telemetry.test.ts`; headless with a 0.9 s mocked `llm` narrate: HUD lists both calls (~920 ms), absent without `?hud=1`, 0 errors; `make check` green; `make playthrough-quick` OK.
+
 ## 2026-10-24 — Phone: first-combat tips off the board; two-row top bar
 
 - Phone top bar: with an empty belt the three dashed slots are gone and the tools join the party row — 2 rows (88 px) instead of 3 (126 px); the first event option now shows without scrolling at 390×844. A consumable brings the third row back.

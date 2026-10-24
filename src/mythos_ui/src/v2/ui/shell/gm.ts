@@ -5,6 +5,7 @@
 import type { Improvisation, Lang, StatKey } from '../../engine/types.ts'
 import * as net from '../../net/api.ts'
 import { noteAiLine } from '../common/aiLines.ts'
+import { recordAiCall, type AiCall, type CallOutcome } from '../common/telemetry.ts'
 import { pickCompanionReply } from './talkLines.ts'
 import { localNarrate } from './localGm.ts'
 
@@ -25,6 +26,13 @@ export function setAiEnabled(on: boolean): void {
 }
 export function aiOn(): boolean {
   return aiEnabled
+}
+
+const clock = (): number => (typeof performance !== 'undefined' ? performance.now() : Date.now())
+
+/** Note how a GM call ended, for the opt-in Architect HUD (ui/common/telemetry.ts). */
+function track(route: AiCall['route'], kind: string, t0: number, outcome: CallOutcome): void {
+  recordAiCall({ route, kind, outcome, ms: clock() - t0 })
 }
 
 function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | null> {
@@ -64,18 +72,27 @@ function localLine(kind: NarrateKind, lang: Lang, context: Ctx): GmLine | null {
 
 /** The GM's line with its provenance, or contextual local GM narration when the backend is skipped/unreachable. */
 export async function narrateLine(kind: NarrateKind, lang: Lang, context: Ctx, timeoutMs = 16000, acceptFallback = false): Promise<GmLine | null> {
-  if (!aiEnabled) return null
+  const t0 = clock()
+  if (!aiEnabled) {
+    track('narrate', kind, t0, 'off')
+    return null
+  }
+  const local = (outcome: CallOutcome): GmLine | null => {
+    track('narrate', kind, t0, outcome)
+    return localLine(kind, lang, context)
+  }
   try {
     const res = await withTimeout(net.narrate({ kind, lang, context }), timeoutMs)
-    if (!res) return localLine(kind, lang, context)
-    if (res.source === 'fallback' && !acceptFallback) return localLine(kind, lang, context)
+    if (!res) return local('local')
+    if (res.source === 'fallback' && !acceptFallback) return local('fallback')
     const text = res.text ? cleanGmText(res.text) || null : null
-    if (!text) return localLine(kind, lang, context)
+    if (!text) return local('local')
     const ai = res.source === 'llm'
+    track('narrate', kind, t0, ai ? 'llm' : 'fallback')
     if (ai) noteAiLine({ route: 'narrate', kind, lang, text })
     return { text, ai }
   } catch {
-    return localLine(kind, lang, context)
+    return local('local')
   }
 }
 
@@ -95,17 +112,21 @@ interface CompanionReplyReq {
 /** A companion's chat reply. Always resolves: the LLM line, the server's authored fallback, or (backend
  *  unreachable / ~11 s timeout) the client's own in-voice pool. Never changes game state. */
 export async function companionReply(req: CompanionReplyReq, signal?: AbortSignal): Promise<{ text: string; source: 'llm' | 'fallback' | 'local' }> {
+  const t0 = clock()
+  const kind = `companion:${req.companion}`
   try {
     if (!aiEnabled) throw new Error('ai off') // straight to the authored in-voice pool
     const res = await withTimeout(net.talk({ mode: 'companion', ...req }, { signal }), 11500)
     const text = res ? cleanGmText(res.text) : ''
     if (res && text) {
+      track('talk', kind, t0, res.source)
       if (res.source === 'llm') noteAiLine({ route: 'talk', kind: `companion:${req.companion}`, lang: req.lang, text })
       return { text, source: res.source }
     }
   } catch {
     /* fall through to the local pool */
   }
+  track('talk', kind, t0, aiEnabled ? 'local' : 'off')
   const said = req.history.filter((t) => t.role === 'companion').map((t) => t.text)
   return { text: pickCompanionReply(req.companion, req.lang, said, req.history.length + req.message.length), source: 'local' }
 }
@@ -113,14 +134,24 @@ export async function companionReply(req: CompanionReplyReq, signal?: AbortSigna
 /** IX's LLM comms line for a combat moment, or null (timeout, no backend, server fallback). The caller is
  *  already showing an authored line and swaps this in once. */
 export async function ixLine(trigger: net.IxTrigger, lang: Lang, context: Ctx, timeoutMs = 5500, signal?: AbortSignal): Promise<string | null> {
-  if (!aiEnabled) return null
+  const t0 = clock()
+  const kind = `ix:${trigger}`
+  if (!aiEnabled) {
+    track('talk', kind, t0, 'off')
+    return null
+  }
   try {
     const res = await withTimeout(net.talk({ mode: 'ix', lang, trigger, context }, { signal, timeoutMs }), timeoutMs)
-    if (!res || res.source !== 'llm') return null
+    if (!res || res.source !== 'llm') {
+      track('talk', kind, t0, res ? 'fallback' : 'local')
+      return null
+    }
     const text = cleanGmText(res.text) || null
-    if (text) noteAiLine({ route: 'talk', kind: `ix:${trigger}`, lang, text })
+    track('talk', kind, t0, text ? 'llm' : 'local')
+    if (text) noteAiLine({ route: 'talk', kind, lang, text })
     return text
   } catch {
+    track('talk', kind, t0, 'local')
     return null
   }
 }
@@ -128,14 +159,24 @@ export async function ixLine(trigger: net.IxTrigger, lang: Lang, context: Ctx, t
 /** A talking enemy's AI taunt, or null (AI off, timeout, no backend, no model line). The caller already shows
  *  the authored line and swaps this in once. */
 export async function enemyTaunt(enemy: string, moment: 'hurt' | 'winning', lang: Lang, timeoutMs = 3500, signal?: AbortSignal): Promise<string | null> {
-  if (!aiEnabled) return null
+  const t0 = clock()
+  const kind = `enemy:${enemy}:${moment}`
+  if (!aiEnabled) {
+    track('talk', kind, t0, 'off')
+    return null
+  }
   try {
     const res = await withTimeout(net.talk({ mode: 'enemy', lang, enemy, moment }, { signal, timeoutMs }), timeoutMs)
-    if (!res || res.source !== 'llm') return null
+    if (!res || res.source !== 'llm') {
+      track('talk', kind, t0, res ? 'fallback' : 'local')
+      return null
+    }
     const text = cleanGmText(res.text) || null
-    if (text) noteAiLine({ route: 'talk', kind: `enemy:${enemy}:${moment}`, lang, text })
+    track('talk', kind, t0, text ? 'llm' : 'local')
+    if (text) noteAiLine({ route: 'talk', kind, lang, text })
     return text
   } catch {
+    track('talk', kind, t0, 'local')
     return null
   }
 }
@@ -225,11 +266,19 @@ const VALID_RISK: Improvisation['risk'][] = ['hp', 'trace', 'credits']
 /** Ask the GM to adjudicate a free action; falls back to the local keyword judge. Always resolves.
  *  `ai`: the model wrote the outcome texts (the comms log marks them). */
 export async function improvise(req: ImproviseReq): Promise<{ imp: Improvisation; ai: boolean }> {
+  const t0 = clock()
   const local = localImprovise(req.action)
-  if (!aiEnabled) return { imp: local, ai: false }
+  if (!aiEnabled) {
+    track('improvise', 'event', t0, 'off')
+    return { imp: local, ai: false }
+  }
   try {
     const res: Partial<net.ImproviseResult> | null = await withTimeout(net.improvise(req), 16000)
-    if (!res) return { imp: local, ai: false }
+    if (!res) {
+      track('improvise', 'event', t0, 'local')
+      return { imp: local, ai: false }
+    }
+    track('improvise', 'event', t0, res.source === 'llm' ? 'llm' : 'fallback')
     const stat = VALID_STATS.includes(res.stat as StatKey) ? (res.stat as StatKey) : local.stat
     const dc = Math.max(3, Math.min(9, Math.round(Number(res.dc) || local.dc)))
     let reward = VALID_REWARD.includes(res.reward as Improvisation['reward']) ? (res.reward as Improvisation['reward']) : local.reward
@@ -245,6 +294,7 @@ export async function improvise(req: ImproviseReq): Promise<{ imp: Improvisation
     }
     return { imp: { action: req.action, stat, dc, reward, risk, successText, failureText }, ai: res.source === 'llm' }
   } catch {
+    track('improvise', 'event', t0, 'local')
     return { imp: local, ai: false }
   }
 }

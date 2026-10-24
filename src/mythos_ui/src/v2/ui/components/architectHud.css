@@ -1,0 +1,73 @@
+/* Architect HUD (ArchitectHud.tsx): opt-in only (`?hud=1`). Small, bottom-left, above the screens; collapsible. */
+.m2-hud {
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
+  z-index: 900;
+  width: min(300px, calc(100vw - 16px));
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--m2-cyan) 45%, transparent);
+  background: rgba(4, 10, 14, 0.92);
+  color: #cfe9ea;
+  font-family: var(--m2-mono);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.m2-hud--tab {
+  width: auto;
+  padding: 4px 8px;
+  color: var(--m2-cyan);
+  cursor: pointer;
+}
+.m2-hud__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  color: var(--m2-cyan);
+  letter-spacing: 0.12em;
+}
+.m2-hud__head button {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.m2-hud__grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1px 8px;
+  margin: 0 0 6px;
+}
+.m2-hud__grid dt {
+  color: var(--m2-mute);
+}
+.m2-hud__grid dd {
+  margin: 0;
+}
+.m2-hud__calls {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgba(78, 242, 227, 0.18);
+}
+.m2-hud__calls li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.m2-hud__calls li span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m2-hud__calls .is-llm span:last-child {
+  color: var(--m2-cyan);
+}
+.m2-hud__calls .is-empty {
+  color: var(--m2-mute);
+}

@@ -60,7 +60,7 @@ hackathons on other clouds (Nebius×NVIDIA, Meta, Open Agent — would need a re
 ### W2 · 12-01 → 12-14 — polish + public demo
 - `[ ]` `[owner]` Fun check (`docs/test/mythos2_fun_check.md`), ideally once in English → fix what it flags.
 - `[x]` (2026-10-25) Combat feel at phone width (`375–412 px`: `tw` 50–57 px, 44 px touch targets, 0 overflow), shop/rest art parity (per-act 2.0 WebP art + framed banners).
-- `[ ]` `[owner]` Demo code deploy: preview → `make verify-preview` → promote; judge link `<URL>/?demo=<code>&lang=en`.
+- `[x]` (2026-10-25) Demo code deploy: preview → `make verify-preview` → promoted `00144-haw` (`b4da377`, rollback `00142-neh`); judge link `<URL>/?demo=<code>&lang=en&hud=1`.
 
 ### W3 · 12-15 → 12-31 — submission package
 - `[x]` (2026-10-25) English showcase video: gameplay + the 4 AI features clips + the Google Cloud architecture diagram (`scripts/trailer/cinematic.py build --cut showcase` → `outputs/trailer/cinematic/mythos2_cinematic_showcase.mp4`, 82.0 s, local `ffmpeg`; Vertex Veo API stays banned).

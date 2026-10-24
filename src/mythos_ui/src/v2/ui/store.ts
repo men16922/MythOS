@@ -22,6 +22,7 @@ import type { ContentRegistry, MetaProfile, RunState } from '../engine/types.ts'
 import * as net from '../net/api.ts'
 import { submitDaily, type SubmitOutcome } from '../net/daily.ts'
 import { noteCommit, replayLogFor } from './replay/record.ts'
+import { langFromSearch } from './common/lang.ts'
 
 function safe<T>(fn: () => T, fallback: T): T {
   try {
@@ -38,6 +39,14 @@ function isLiveRun(r: RunState | null | undefined): r is RunState {
 function bootProfile(): MetaProfile {
   const local = safe(() => net.loadProfileLocal(), null)
   return local ? migrateProfile(local) : newProfile('Connector')
+}
+
+/** The language pinned by the page link (`?lang=en|ko`, e.g. a judge link), read once at boot. */
+const linkLang = typeof window === 'undefined' ? null : langFromSearch(window.location.search)
+
+/** `p` in the link's language (the same object when there is no pin or it already matches). */
+function withLinkLang(p: MetaProfile): MetaProfile {
+  return linkLang && p.settings.lang !== linkLang ? { ...p, settings: { ...p.settings, lang: linkLang } } : p
 }
 
 function bootRun(): RunState | null {
@@ -82,12 +91,14 @@ export interface GameStore {
 }
 
 export function useGame(C: ContentRegistry): GameStore {
-  const [profile, setProfileState] = useState<MetaProfile>(bootProfile)
+  const [mirror] = useState<MetaProfile>(bootProfile)
+  const [profile, setProfileState] = useState<MetaProfile>(() => withLinkLang(mirror))
   const [run, setRunState] = useState<RunState | null>(bootRun)
   const profileRef = useRef(profile)
   const runRef = useRef(run)
   // The states that already match the local mirror (boot, or a cloud copy just adopted): not saved again.
-  const quietProfile = useRef<MetaProfile | null>(profile)
+  // A link-pinned language differs from the mirror: that one is saved like any settings change.
+  const quietProfile = useRef<MetaProfile | null>(profile === mirror ? profile : null)
   const quietRun = useRef<RunState | null>(run)
   const savedRun = useRef(run !== null)
   const [savedAt, setSavedAt] = useState<number | null>(() => safe(() => net.runSavedAt(), null))
@@ -148,7 +159,7 @@ export function useGame(C: ContentRegistry): GameStore {
     void net
       .loadProfile()
       .then((p) => {
-        if (alive && p && profileRef.current === bootProfileState) adoptProfile(p)
+        if (alive && p && profileRef.current === bootProfileState) adoptProfile(withLinkLang(p))
       })
       .catch(() => undefined)
     void net

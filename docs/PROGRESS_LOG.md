@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-24
 
+## 2026-10-24 — `?lang=en|ko` link parameter (judge links)
+
+- `ui/store.ts`: a link's `lang` is applied at boot and saved like a settings change; a server copy adopted at boot keeps it. No default change (the browser-language default stays an owner call).
+- Verified: `lang.test.ts`; headless phone: `?lang=en` → English title, plain reload stays English, `?lang=ko` → Korean, 0 errors; `make check` green.
+
 ## 2026-10-24 — Wave 2: player HP 34/32/36 (owner pick)
 
 - Telemetry first (`onFight`, same 360-run block): the cut barely changes Act 1 normal fights (~2 HP each) and moves deaths to bosses (Act 1 boss loss 3.6 → 9.8 %, final boss 19 → 27 %) — shown to the owner, who chose 34/32/36.

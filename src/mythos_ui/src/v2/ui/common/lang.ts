@@ -37,3 +37,9 @@ export function withRo(word: string): string {
   const plainRo = code >= 0 && code <= 11171 && (code % 28 === 0 || code % 28 === 8)
   return `${word}${plainRo ? '로' : '으로'}`
 }
+
+/** A language pinned by the page link (`?lang=en` / `?lang=ko`, e.g. a judge link), or null. */
+export function langFromSearch(search: string): Lang | null {
+  const v = new URLSearchParams(search).get('lang')?.trim().toLowerCase()
+  return v === 'en' || v === 'ko' ? v : null
+}

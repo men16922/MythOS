@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-24
 
+## 2026-10-24 — Wave 2: player HP 34/32/36 (owner pick)
+
+- Telemetry first (`onFight`, same 360-run block): the cut barely changes Act 1 normal fights (~2 HP each) and moves deaths to bosses (Act 1 boss loss 3.6 → 9.8 %, final boss 19 → 27 %) — shown to the owner, who chose 34/32/36.
+- After, real content, 3 × 360 mixed: 30.3 / 34.2 / 32.5 % (was 44 %); greedy 95.8 % (120); basic 0 %. `content.test.ts` HP range 30–38; `qa-routes.md` baseline updated.
+- Verified: `make check` green, `make test-e2e-v2` green (combat shows 34/34). Needs the owner's feel verdict.
+
 ## 2026-10-24 — Wave 1: honest AI mark + one-tap Improvise ideas (UX-first cut)
 
 - Plan review: `docs/plans/2026-10-24-improvement-and-direction-plan.md` fact-checked; HP A/B re-measured on 3 × 360 mixed runs (current 44.0 %, 34/32/36 → 32.3 %, 32/30/34 → 29.2 %).

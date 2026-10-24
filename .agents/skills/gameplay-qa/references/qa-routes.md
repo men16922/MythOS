@@ -8,7 +8,7 @@
 
 ## Run simulator (balance)
 - `simulateRun(seed, archetype, CONTENT, policy, { paradox, onFight })` in `engine/runSim.ts`; policies `greedy` (1-ply exhaustive), `mixed` (greedy ~75 % of turns), `basic` (ignores telegraphs).
-- Baseline 2026-10-18 (named RNG streams, `engine/streams.ts`), P0 over 3 × 360 mixed / 120 greedy / 60 basic runs (seeds `OFF + 100000·block + i`, archetypes round-robin): greedy ≈ 97 % · mixed ≈ 43 % (36–53 % by 120-run block) · basic 0 %. Older 2026-10-11 figure (mixed ≈ 35 %) predates the 10-17/18 content.
+- Baseline 2026-10-24 (archetype maxHp 34/32/36, owner), P0 over 3 × 360 mixed / 120 greedy / 60 basic runs (seeds `100000·block + i`, archetypes round-robin): greedy ≈ 96 % · mixed ≈ 32 % (30–34 % by block) · basic 0 %. Deaths cluster at bosses (Act 1 boss loss 3.6 → 9.8 %, `a3_boss_ix` 19 → 27 %); Act 1 normal fights still cost ~2 HP. Before (42/40/44, 2026-10-18): greedy ≈ 97 % · mixed ≈ 43–44 %.
 - Randomness is per stream: a run's rolls come from `runStream(run, name)` scoped to the current node, act maps from `mapRng`, fights from `combatSeeds` (+ `shuffle` / `ai` inside). To vary rolls in a test, vary `run.seed` (setting `run.rng` only changes legacy saves without `run.streams`).
 - A/B a change on identical seed blocks; report per-act turns and HP lost from `onFight` telemetry.
 - Daily-seed determinism: `engine/daily.test.ts`.

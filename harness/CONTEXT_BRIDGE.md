@@ -6,7 +6,7 @@ The root handoff harness for passing work context between agents. The source of 
 
 - **Project state**: Mythos 2.0 (세계:접속 — "Signal Run") is the only game on `main`: a browser tactics deck-builder roguelite (pure-TS engine in `src/mythos_ui/src/v2`) with an AI GM off the critical path (`src/mythos_v2`: narrate, improvise, companion chat, IX comms). The 1.x AI-narrated loop runtime is archived on branch `1.0` (2026-10-11).
 - **Play path**: `make api` → `http://127.0.0.1:8000` (SPA + `/api/v2`); dev UI `cd src/mythos_ui && npx vite`. Android: Capacitor app in `src/mythos_ui/android` (`docs/android.md`).
-- **Verification baseline**: `make check` (skills, doc budget, ruff/eslint, mypy, tsc/vite, `node --test src/v2`, Python unittest) + `make test-e2e-v2` (headless, muted). Balance via `simulateRun` (P0 2026-10-18: greedy ≈ 97 % · mixed ≈ 43 % · basic 0 %; `gameplay-qa` `qa-routes.md`).
+- **Verification baseline**: `make check` (skills, doc budget, ruff/eslint, mypy, tsc/vite, `node --test src/v2`, Python unittest) + `make test-e2e-v2` (headless, muted). Balance via `simulateRun` (P0 2026-10-24, maxHp 34/32/36: greedy ≈ 96 % · mixed ≈ 32 % · basic 0 %; `gameplay-qa` `qa-routes.md`).
 - **Doc entry point**: `docs/AGENT_BRIEF.md` → `docs/STATUS.md` → `docs/NEXT_PLAN.md`. Rules in `docs/GAMEPLAY.md`; design contract `docs/plans/2026-10-10-mythos-2.0.md`.
 
 ## Current Handover

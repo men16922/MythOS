@@ -86,7 +86,8 @@ test('archetypes and companions reference real cards/implants', () => {
     const imp = C.implants[a.startingImplant]
     assert.ok(imp, a.startingImplant)
     assert.equal(imp.rarity, 'starter')
-    assert.ok(a.maxHp >= 38 && a.maxHp <= 46, `${a.id} hp`)
+    // 34/32/36 since 2026-10-24 (owner: "주인공 체력이 너무 많음"; mixed-bot win 44 → 32 %).
+    assert.ok(a.maxHp >= 30 && a.maxHp <= 38, `${a.id} hp`)
     assert.ok(a.startingCredits >= 60 && a.startingCredits <= 99, `${a.id} credits`)
     const sum = Object.values(a.stats).reduce((s, v) => s + v, 0)
     assert.ok(sum >= 18 && sum <= 22, `${a.id} stat sum ${sum}`)

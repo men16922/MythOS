@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 2026-10-18
+Last updated: 2026-10-24
 
 ## Current State
 
@@ -25,9 +25,9 @@ Production (2026-10-20): Cloud Run `mythos-api` serves 2.0 — revision `00140-p
 
 ## Active Focus
 
-Authority plan: `docs/NEXT_PLAN.md` · strategy & market analysis: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
+Authority plan: `docs/NEXT_PLAN.md` · improvement & direction plan: `docs/plans/2026-10-24-improvement-and-direction-plan.md` · global showcase: `docs/plans/2026-10-24-global-showcase-2026.md`.
 
-1. **Commercial-grade polish + contest readiness** (owner goal 2026-10-18; paid Play release and Signal+ on hold, `DECISIONS.md`) — named RNG streams done; next: replay-verified daily board, a fun/experience audit with fixes, the contest kit (`NEXT_PLAN.md` P0).
+1. **Global showcase + Wave 1–4 improvements** (owner direction 2026-10-24; paid Play release and Signal+ on hold, `DECISIONS.md`) — named RNG streams and replay-verified daily board are live (`00140-paw`); next: Wave 1 (Gemini `✦ LIVE AI` visibility & `gm.ts` source preservation, Improvise/NPC chips), Wave 2 (Connector `maxHp` reduction `42/40/44 → 34/32/36` + Act 1 puzzle tension), Wave 3 (`Architect Telemetry HUD`), Wave 4 (`?lang=en` auto-entry + `docs/contest/architecture-en.md`).
 2. **Watch production** — first real players on 2.0: Cloud Run logs (`v2 gm` outcomes, 401/429 rates), the 19:00 KST push job status, Crashlytics. Checked 2026-10-13: only owner/QA traffic so far (no real players → no balance data yet), 0 × 429, 0 × 5xx, the 10-11 405s were Android-emulator CORS preflights from before the origin fix (preflight now 200 for all three Capacitor origins), push jobs ran 10-13 19:00 KST with OK status.
 
 ## Open Risks

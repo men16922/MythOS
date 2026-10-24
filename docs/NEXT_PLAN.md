@@ -4,12 +4,16 @@ Last updated: 2026-10-24
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
-## Priority 0 — global showcase for the rest of 2026 (owner direction 2026-10-24)
+## Priority 0 — global showcase & improvement waves (owner direction 2026-10-24)
 
-Plan: `docs/plans/2026-10-24-global-showcase-2026.md`. Go global, framed as the owner's cloud-architect portfolio; target = the next Google Gemini / Cloud developer challenge on Devpost (expected Dec–Mar, unannounced), fallback = public write-up + talk CFPs. Korean contests move to 2027 spring.
+Plans: `docs/plans/2026-10-24-improvement-and-direction-plan.md` (Waves 1–4 + data-backed recommendations) · `docs/plans/2026-10-24-global-showcase-2026.md` (rest-of-2026 roadmap). Go global, framed as the owner's cloud-architect portfolio; target = the next Google Gemini / Cloud developer challenge on Devpost (expected Dec–Mar, unannounced), fallback = public write-up + talk CFPs. Korean contests move to 2027 spring.
 
+- `[ ]` **Wave 1 — Gemini AI live visibility & agency**: preserve `res.source === 'llm'` in `gm.ts` (`narrate`); render `✦ Gemini AI` live badges + swap glow on `GmCard`/`IxComms`/`EnemyTaunt`/`CompanionChat`/`EventScreen`/`DialogueScreen`; add `TopBar` live AI status chip; add context-aware Improvise suggestion chips (2–3 per event), `✦ AI 의도 분석` badges on NPC talk, and `[기억 인용]` tags.
+- `[ ]` **Wave 2 — Connector HP tuning & Act 1 tension**: lower archetype `maxHp` from `42/40/44` to `34/32/36` (`[owner]` pick A or `32/30/34`; sim 3 × 360 mixed on identical blocks: mixed 44.0 % → 32.3 % (B 29.2 %), greedy ~98 → ~97 %, mixed Act 1 deaths 5.5 % → 11.5 %; the single 1000..1119 block in the plan (51.7 → 34.2 %) is a high outlier) and tighten `a1_n1_*` push/environment-kill puzzle angles.
+- `[ ]` **Wave 3 — Architect Telemetry HUD**: in-memory AI/RNG/replay telemetry (`ui/common/telemetry.ts`) + collapsible `ArchitectHud.tsx` (`?hud=1`, demo chip click, or Settings toggle) showing `0ms Fallback → LLM Swap (ms)`, Clamped Sandbox diff, Named RNG streams, Replay steps, and FinOps budget.
+- `[ ]` **Wave 4 — Global English entry & phone UX**: `[owner OK: default change]` `?lang=en|ko` URL param + `navigator.language` auto-default for brand-new profiles; English first-session audit + `390×844` combat density polish. Schedule below (Waves 1–3 must not push W0 past 11-07).
 - `[ ]` W0 (→ 11-07): `docs/contest/architecture-en.md` + diagram; English first-session audit (`lang=en`); English `make gm-eval` slice on local Ollama.
-- `[ ]` W1 (Nov): `[owner OK]` judge links open in English (`?lang=en` / browser language for new profiles); English text quality pass; English trailer captions.
+- `[ ]` W1 (Nov): `[owner OK]` judge links open in English (Wave 4); English text quality pass; English trailer captions.
 - `[ ]` W2 (12-01→14): `[owner]` fun check → fixes; phone combat feel; `[owner]` demo-code deploy.
 - `[ ]` W3 (12-15→31): 3-min English video, Devpost text, `[owner]` public-repo decision.
 

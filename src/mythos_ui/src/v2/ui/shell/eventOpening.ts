@@ -3,14 +3,14 @@
 // that same request instead of starting its own. Cost-neutral: one call per event either way, never a speculative one.
 import type { ContentRegistry, EventDef, Lang, RunState } from '../../engine/types.ts'
 import { tr } from '../common/lang.ts'
-import { narrate } from './gm.ts'
+import { narrateLine, type GmLine } from './gm.ts'
 
-const inflight = new Map<string, Promise<string | null>>()
+const inflight = new Map<string, Promise<GmLine | null>>()
 
 const keyOf = (run: RunState, eventId: string): string => `${run.id}:${run.act}:${eventId}:${run.seenEvents.length}`
 
-function request(run: RunState, ev: EventDef, C: ContentRegistry, lang: Lang, seenBefore: number): Promise<string | null> {
-  return narrate('event', lang, {
+function request(run: RunState, ev: EventDef, C: ContentRegistry, lang: Lang, seenBefore: number): Promise<GmLine | null> {
+  return narrateLine('event', lang, {
     eventId: ev.id,
     title: tr(ev.title, lang),
     text: tr(ev.text, lang),
@@ -36,7 +36,7 @@ export function prefetchOpening(run: RunState, C: ContentRegistry, lang: Lang, e
 }
 
 /** The opening line: the prefetched request when there is one (taken once), else a fresh one. */
-export function openingLine(run: RunState, ev: EventDef, C: ContentRegistry, lang: Lang, eventsSeen?: Readonly<Record<string, number>>): Promise<string | null> {
+export function openingLine(run: RunState, ev: EventDef, C: ContentRegistry, lang: Lang, eventsSeen?: Readonly<Record<string, number>>): Promise<GmLine | null> {
   const key = keyOf(run, ev.id)
   const early = inflight.get(key)
   inflight.delete(key)

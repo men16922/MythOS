@@ -9,6 +9,7 @@ import { TALK_LIMITS, type TalkTurn } from '../../net/api.ts'
 import { portrait } from '../common/assets.ts'
 import { earlierChat, logComms } from '../common/commsLog.ts'
 import { tr } from '../common/lang.ts'
+import { AiMark } from '../components/AiMark.tsx'
 import { ReportLine } from '../components/ReportLine.tsx'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
@@ -140,6 +141,7 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening, lo
         {msgs.map((m) => (
           <div key={m.id} className={`m2-chat__msg is-${m.role}`}>
             {m.role === 'companion' && m.id === latestId ? <Typewriter text={m.text} cps={settings.fastAnim ? 400 : 48} /> : <span>{m.text}</span>}
+            {m.llm && <AiMark lang={lang} className="m2-chat__aimark" />}
             {m.llm && <ReportLine className="m2-chat__report" line={{ route: 'talk', kind: `companion:${companionId}`, lang, text: m.text }} lang={lang} />}
           </div>
         ))}

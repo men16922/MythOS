@@ -213,6 +213,40 @@
   font-size: 12.5px;
   color: var(--m2-mute);
 }
+.m2-improv__ideas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+/* One-tap ideas (improvSuggest.ts): fill the box, the player still presses "Try it". */
+.m2-improv__idea {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 11px;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--m2-ink);
+  text-align: left;
+  background: rgba(183, 166, 255, 0.08);
+  border: 1px solid rgba(183, 166, 255, 0.35);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.m2-improv__idea small {
+  font-family: var(--m2-mono);
+  font-size: 11px;
+  color: var(--m2-echo);
+}
+.m2-improv__idea:hover,
+.m2-improv__idea:focus-visible {
+  background: rgba(183, 166, 255, 0.18);
+  border-color: var(--m2-echo);
+}
 .m2-improv__row {
   display: flex;
   gap: 8px;

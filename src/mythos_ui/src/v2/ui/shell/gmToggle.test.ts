@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { companionReply, improvise, ixLine, narrate, setAiEnabled } from './gm.ts'
+import { companionReply, improvise, ixLine, narrate, narrateLine, setAiEnabled } from './gm.ts'
 
 test('AI lines off: no model call is made and every caller gets its authored path', async () => {
   let calls = 0
@@ -23,5 +23,30 @@ test('AI lines off: no model call is made and every caller gets its authored pat
   } finally {
     setAiEnabled(true)
     globalThis.fetch = realFetch
+  }
+})
+
+test('narrateLine keeps provenance: a model line is ai, a server fallback / no backend is not', async () => {
+  const g = globalThis as unknown as { window?: unknown }
+  const hadWindow = 'window' in g
+  if (!hadWindow) g.window = globalThis
+  const realFetch = globalThis.fetch
+  const reply = (body: unknown) => (async () => new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } })) as typeof fetch
+  try {
+    setAiEnabled(true)
+    globalThis.fetch = reply({ text: '네온이 젖은 골목을 핥는다.', source: 'llm' })
+    assert.deepEqual(await narrateLine('act_intro', 'ko', { act: 1, loop: 1 }, 300), { text: '네온이 젖은 골목을 핥는다.', ai: true })
+    globalThis.fetch = reply({ text: '서버 기본 문장.', source: 'fallback' })
+    const local = await narrateLine('act_intro', 'ko', { act: 1, loop: 1 }, 300)
+    assert.equal(local?.ai, false, 'server fallback → local narration, not marked AI')
+    assert.notEqual(local?.text, '서버 기본 문장.')
+    globalThis.fetch = (async () => {
+      throw new Error('offline')
+    }) as typeof fetch
+    assert.equal((await narrateLine('act_intro', 'ko', { act: 1, loop: 1 }, 300))?.ai, false)
+    assert.equal(typeof (await narrate('act_intro', 'ko', { act: 1, loop: 1 }, 300)), 'string', 'narrate still returns the text')
+  } finally {
+    globalThis.fetch = realFetch
+    if (!hadWindow) delete g.window
   }
 })

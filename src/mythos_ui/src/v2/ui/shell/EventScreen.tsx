@@ -13,7 +13,9 @@ import { ixMirror } from '../../content/ixMirror.ts'
 import { statVoiceLine } from '../../content/statVoices.ts'
 import { GmCard } from './GmCard.tsx'
 import { openingLine } from './eventOpening.ts'
-import { improvise, narrate } from './gm.ts'
+import { improvise, narrateLine } from './gm.ts'
+import { improvSuggestions } from './improvSuggest.ts'
+import { AiMark } from '../components/AiMark.tsx'
 import { logComms } from '../common/commsLog.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
@@ -115,7 +117,7 @@ function Chips({ chips }: { chips: EffectChip[] }) {
 export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenProps) {
   const screen = run.screen.kind === 'event' ? run.screen : null
   const ev: EventDef | undefined = screen ? C.events[screen.eventId] : undefined
-  const [gmLine, setGmLine] = useState<{ id: string; text: string } | null>(null)
+  const [gmLine, setGmLine] = useState<{ id: string; text: string; ai: boolean } | null>(null)
   /** Event id while the GM's opening line is on its way (the card shows a quiet "reading" state). */
   const [gmWait, setGmWait] = useState<string | null>(null)
   const [action, setAction] = useState('')
@@ -135,13 +137,13 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
     if (!ev) return
     let alive = true
     const waitTimer = window.setTimeout(() => alive && setGmWait(ev.id), 700)
-    void openingLine(run, ev, C, lang, eventsSeen).then((text) => {
+    void openingLine(run, ev, C, lang, eventsSeen).then((line) => {
       window.clearTimeout(waitTimer)
       if (!alive) return
       setGmWait(null)
-      if (!text) return
-      setGmLine({ id: ev.id, text })
-      logComms({ speaker: 'gm', text, ai: true, act: run.act, where: tr(ev.title, lang), report: { route: 'narrate', kind: 'event' } })
+      if (!line) return
+      setGmLine({ id: ev.id, ...line })
+      logComms({ speaker: 'gm', text: line.text, ai: line.ai, act: run.act, where: tr(ev.title, lang), report: line.ai ? { route: 'narrate', kind: 'event' } : undefined })
     })
     return () => {
       alive = false
@@ -160,7 +162,7 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
     const imp = !res ? (screen.improvised ?? null) : null
     const opt = res ? (picked && picked.eventId === ev.id && picked.index === res.optionIndex ? picked.opt : rx.eventOptions(run, C)[res.optionIndex]?.option) : undefined
     const checked = !!opt?.check || !!imp?.rolled
-    void narrate('event', lang, {
+    void narrateLine('event', lang, {
       eventId: ev.id,
       title: tr(ev.title, lang),
       act: run.act,
@@ -169,10 +171,10 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
       choice: opt ? tr(opt.label, lang) : imp ? imp.action : undefined,
       outcome: res ? tr(res.text, lang) : imp ? tr(imp.rolled?.success ? imp.successText : imp.failureText, lang) : undefined,
       success: checked ? (res ? res.success : !!imp?.rolled?.success) : undefined,
-    }).then((text) => {
-      if (!alive || !text) return
-      setGmLine({ id: ev.id, text })
-      logComms({ speaker: 'gm', text, ai: true, act: run.act, where: tr(ev.title, lang), report: { route: 'narrate', kind: 'event' } })
+    }).then((line) => {
+      if (!alive || !line) return
+      setGmLine({ id: ev.id, ...line })
+      logComms({ speaker: 'gm', text: line.text, ai: line.ai, act: run.act, where: tr(ev.title, lang), report: line.ai ? { route: 'narrate', kind: 'event' } : undefined })
     })
     return () => {
       alive = false
@@ -204,6 +206,7 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
   const rolled = screen.improvised?.rolled ? screen.improvised : null
   const resolved = screen.resolved && screen.resolved.optionIndex >= 0 ? screen.resolved : null
   const views = rx.eventOptions(run, C)
+  const ideas = improvSuggestions(ev.id, run.stats, lang)
   const resolvedOpt = resolved ? (picked && picked.eventId === ev.id && picked.index === resolved.optionIndex ? picked.opt : views[resolved.optionIndex]?.option) : undefined
 
   const choose = (i: number, opt: EventOption, available: boolean) => {
@@ -337,6 +340,7 @@ function companionWhisperText(compId: string, ev: EventDef, lang: Lang): string 
         <GmCard
           className={speaker ? 'has-speaker' : undefined}
           text={gmLine && gmLine.id === ev.id ? gmLine.text : null}
+          ai={gmLine?.id === ev.id && gmLine.ai}
           pending={gmWait === ev.id}
           lang={lang}
           fast={settings.fastAnim}
@@ -430,6 +434,24 @@ function companionWhisperText(compId: string, ev: EventDef, lang: Lang): string 
                   {ko ? '자유 행동' : 'Improvise'}
                   <small>{ko ? '하고 싶은 행동을 직접 적는다. GM이 판정한다.' : 'Describe your own action. The GM sets the odds.'}</small>
                 </label>
+                {!action && !judging && (
+                  <div className="m2-improv__ideas">
+                    {ideas.map((idea) => (
+                      <button
+                        key={idea.text}
+                        type="button"
+                        className="m2-improv__idea"
+                        onClick={() => {
+                          sound('ui_click')
+                          setAction(idea.text)
+                        }}
+                      >
+                        <small>{statLabel(idea.stat, lang)}</small>
+                        {idea.text}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="m2-improv__row">
                   <input
                     id="m2-improv-input"
@@ -449,7 +471,7 @@ function companionWhisperText(compId: string, ev: EventDef, lang: Lang): string 
         )}
 
         {pending && !done && !rolling && (
-          <Adjudication imp={pending} lang={lang} statValue={run.stats[pending.stat]} chance={rx.improviseChance(run, pending)} onRoll={roll} onCancel={() => setPending(null)} />
+          <Adjudication imp={pending} ai={pendingAi} lang={lang} statValue={run.stats[pending.stat]} chance={rx.improviseChance(run, pending)} onRoll={roll} onCancel={() => setPending(null)} />
         )}
 
         {resolved && (
@@ -506,12 +528,15 @@ function companionWhisperText(compId: string, ev: EventDef, lang: Lang): string 
   )
 }
 
-function Adjudication(props: { imp: Improvisation; lang: Lang; statValue: number; chance: number; onRoll: () => void; onCancel: () => void }) {
+function Adjudication(props: { imp: Improvisation; ai: boolean; lang: Lang; statValue: number; chance: number; onRoll: () => void; onCancel: () => void }) {
   const { imp, lang, statValue, chance } = props
   const ko = lang === 'ko'
   return (
     <div className="m2-adjud">
-      <div className="m2-adjud__head">{ko ? 'GM 판정' : 'GM ruling'}</div>
+      <div className="m2-adjud__head">
+        {ko ? 'GM 판정' : 'GM ruling'}
+        {props.ai && <AiMark lang={lang} />}
+      </div>
       <div className="m2-adjud__action">“{imp.action}”</div>
       <div className="m2-adjud__grid">
         <div>

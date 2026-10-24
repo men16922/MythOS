@@ -565,3 +565,68 @@
     transform: translate(-50%, calc(-100% - 18px));
   }
 }
+
+/* ---------------------------------------------------------------------
+   Live-AI mark (AiMark.tsx): only on lines a model wrote for this run.
+   The card it sits on flashes cyan once when the AI line lands.
+   --------------------------------------------------------------------- */
+.m2-aimark {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid color-mix(in srgb, var(--m2-cyan) 70%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--m2-cyan) 14%, transparent);
+  color: var(--m2-cyan);
+  font-family: var(--m2-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-transform: none;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--m2-cyan) 60%, transparent);
+  white-space: nowrap;
+  animation: m2-aimark-in 0.5s var(--m2-ease) both;
+}
+.m2-chat__aimark {
+  vertical-align: 1px;
+}
+.m2-gmcard.is-ai,
+.m2-ixcomms.is-ai,
+.m2-taunt.is-ai {
+  --ai-flash: var(--m2-cyan);
+}
+.m2-gmcard.is-ai {
+  border-color: color-mix(in srgb, var(--m2-cyan) 55%, transparent);
+}
+.m2-gmcard.is-ai .m2-gmcard__text,
+.m2-ixcomms.is-ai .m2-ixcomms__text,
+.m2-taunt.is-ai .m2-taunt__text {
+  animation: m2-ai-land 1.1s ease-out both;
+}
+@keyframes m2-aimark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+@keyframes m2-ai-land {
+  0% {
+    text-shadow:
+      0 0 14px var(--ai-flash),
+      0 1px 3px #000;
+  }
+  100% {
+    text-shadow: 0 1px 3px #000;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2-aimark,
+  .m2-gmcard.is-ai .m2-gmcard__text,
+  .m2-ixcomms.is-ai .m2-ixcomms__text,
+  .m2-taunt.is-ai .m2-taunt__text {
+    animation: none;
+  }
+}

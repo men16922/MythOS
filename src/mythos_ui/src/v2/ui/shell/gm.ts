@@ -51,19 +51,37 @@ function cleanText(t: Improvisation['successText']): Improvisation['successText'
   return { ko: cleanGmText(t.ko ?? ''), en: cleanGmText(t.en ?? '') }
 }
 
-/** Returns the GM's line, or contextual local GM narration when the backend is skipped/unreachable. */
-export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeoutMs = 16000, acceptFallback = false): Promise<string | null> {
+/** A GM line and whether a model wrote it (`ai`); false for the local contextual narration and server fallbacks. */
+export interface GmLine {
+  text: string
+  ai: boolean
+}
+
+function localLine(kind: NarrateKind, lang: Lang, context: Ctx): GmLine | null {
+  const text = localNarrate(kind, lang, context)
+  return text ? { text, ai: false } : null
+}
+
+/** The GM's line with its provenance, or contextual local GM narration when the backend is skipped/unreachable. */
+export async function narrateLine(kind: NarrateKind, lang: Lang, context: Ctx, timeoutMs = 16000, acceptFallback = false): Promise<GmLine | null> {
   if (!aiEnabled) return null
   try {
     const res = await withTimeout(net.narrate({ kind, lang, context }), timeoutMs)
-    if (!res) return localNarrate(kind, lang, context)
-    if (res.source === 'fallback' && !acceptFallback) return localNarrate(kind, lang, context)
+    if (!res) return localLine(kind, lang, context)
+    if (res.source === 'fallback' && !acceptFallback) return localLine(kind, lang, context)
     const text = res.text ? cleanGmText(res.text) || null : null
-    if (text && res.source === 'llm') noteAiLine({ route: 'narrate', kind, lang, text })
-    return text ?? localNarrate(kind, lang, context)
+    if (!text) return localLine(kind, lang, context)
+    const ai = res.source === 'llm'
+    if (ai) noteAiLine({ route: 'narrate', kind, lang, text })
+    return { text, ai }
   } catch {
-    return localNarrate(kind, lang, context)
+    return localLine(kind, lang, context)
   }
+}
+
+/** `narrateLine` for callers that only need the text. */
+export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeoutMs = 16000, acceptFallback = false): Promise<string | null> {
+  return (await narrateLine(kind, lang, context, timeoutMs, acceptFallback))?.text ?? null
 }
 
 interface CompanionReplyReq {

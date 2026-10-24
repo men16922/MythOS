@@ -11,6 +11,7 @@ import { TAUNTS } from '../../content/taunts.ts'
 import { logComms, swapComms } from '../common/commsLog.ts'
 import { tr } from '../common/lang.ts'
 import { enemyTaunt } from './gm.ts'
+import { AiMark } from '../components/AiMark.tsx'
 import { detectTaunt } from './tauntMoments.ts'
 import './voices.css'
 
@@ -26,6 +27,8 @@ interface Bubble {
   top: number
   /** No room above the unit (phone top rows): the bubble hangs below it instead. */
   below: boolean
+  /** A model wrote `text`. */
+  ai: boolean
   leaving: boolean
 }
 
@@ -92,7 +95,7 @@ export function EnemyTaunt({ combat, C, lang, settings }: Props) {
         pending = text
         return
       }
-      setBubble((b) => (b && b.key === key && !b.leaving ? { ...b, text } : b))
+      setBubble((b) => (b && b.key === key && !b.leaving ? { ...b, text, ai: true } : b))
       swapComms(logId, { text, ai: true, report })
     })
     // Let the hit that caused it land first, and never speak over IX (wait up to ~8 s, then drop the line).
@@ -105,7 +108,7 @@ export function EnemyTaunt({ combat, C, lang, settings }: Props) {
       }
       shown = true
       const at = spot(hit.unit.uid)
-      setBubble({ key, text: pending ?? authored, name, ...at, leaving: false })
+      setBubble({ key, text: pending ?? authored, name, ...at, ai: pending !== null, leaving: false })
       logId = logComms({ speaker: 'enemy', text: pending ?? authored, ai: pending !== null, where: name, report: pending !== null ? report : undefined })
       later(() => setBubble((b) => (b && b.key === key ? { ...b, leaving: true } : b)), SHOW_MS - FADE_MS)
       later(() => {
@@ -129,12 +132,15 @@ export function EnemyTaunt({ combat, C, lang, settings }: Props) {
   if (!bubble) return null
   return (
     <div
-      className={`m2-taunt${bubble.below ? ' is-below' : ''}${bubble.leaving ? ' is-leaving' : ''}${settings.fastAnim ? ' is-fast' : ''}`}
+      className={`m2-taunt${bubble.ai ? ' is-ai' : ''}${bubble.below ? ' is-below' : ''}${bubble.leaving ? ' is-leaving' : ''}${settings.fastAnim ? ' is-fast' : ''}`}
       style={{ left: bubble.left, top: bubble.top }}
       role="status"
       aria-live="polite"
     >
-      <b className="m2-taunt__name">{bubble.name}</b>
+      <b className="m2-taunt__name">
+        {bubble.name}
+        {bubble.ai && <AiMark lang={lang} />}
+      </b>
       <p className="m2-taunt__text">{bubble.text}</p>
     </div>
   )

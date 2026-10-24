@@ -14,6 +14,7 @@ import { asset } from '../common/assets.ts'
 import { logComms, swapComms } from '../common/commsLog.ts'
 import { sound } from '../components/sound.ts'
 import { ixLine } from './gm.ts'
+import { AiMark } from '../components/AiMark.tsx'
 import { detectMoment, newMemo, turnAllows, type FightMemo, type IxMoment } from './ixMoments.ts'
 import { pickIxLine } from './talkLines.ts'
 import './voices.css'
@@ -191,7 +192,7 @@ export function IxComms({ combat, C, lang, settings, memoryFor, screen }: Props)
 
   if (!line) return null
   return (
-    <div className={`m2-ixcomms${line.after ? ' is-after' : ''}${line.leaving ? ' is-leaving' : ''}${settings.fastAnim ? ' is-fast' : ''}`} role="status" aria-live="polite">
+    <div className={`m2-ixcomms${line.llm ? ' is-ai' : ''}${line.after ? ' is-after' : ''}${line.leaving ? ' is-leaving' : ''}${settings.fastAnim ? ' is-fast' : ''}`} role="status" aria-live="polite">
       <div className="m2-ixcomms__face" aria-hidden="true">
         <img src={asset('characters/administrator-ix.png')} alt="" />
       </div>
@@ -199,6 +200,7 @@ export function IxComms({ combat, C, lang, settings, memoryFor, screen }: Props)
         <div className="m2-ixcomms__label">
           <span className="m2-ixcomms__rec" aria-hidden="true" />
           {lang === 'ko' ? '관리자 IX · 통신' : 'ADMINISTRATOR IX · COMMS'}
+          {line.llm && <AiMark lang={lang} />}
         </div>
         <p key={line.llm ? 'llm' : 'authored'} className="m2-ixcomms__text">
           {line.text}

@@ -5,7 +5,7 @@ import { openingLines } from '../../content/openings.ts'
 import { tr } from '../common/lang.ts'
 import { sound } from '../components/sound.ts'
 import { GmCard } from './GmCard.tsx'
-import { narrate } from './gm.ts'
+import { narrateLine, type GmLine } from './gm.ts'
 import { logComms } from '../common/commsLog.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
@@ -19,7 +19,7 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
   const lines = [...introLines, ...opening]
   const [shown, setShown] = useState(0)
   const all = shown >= lines.length
-  const [gmLine, setGmLine] = useState<string | null>(null)
+  const [gmLine, setGmLine] = useState<GmLine | null>(null)
 
   useEffect(() => {
     sound('transition', { intensity: 1.6 })
@@ -28,17 +28,17 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
   // The GM opens the act in its own words; it appears over the art once the authored lines have started.
   useEffect(() => {
     let alive = true
-    void narrate('act_intro', lang, {
+    void narrateLine('act_intro', lang, {
       act: run.act,
       actName: tr(actDef?.name, lang),
       subtitle: tr(actDef?.subtitle, lang),
       loop: run.loop,
       party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
       archetype: tr(C.archetypes[run.archetype]?.name, lang),
-    }).then((text) => {
-      if (!alive || !text) return
-      setGmLine(text)
-      logComms({ speaker: 'gm', text, ai: true, act: run.act, where: tr(actDef?.name, lang), report: { route: 'narrate', kind: 'act_intro' } })
+    }).then((line) => {
+      if (!alive || !line) return
+      setGmLine(line)
+      logComms({ speaker: 'gm', text: line.text, ai: line.ai, act: run.act, where: tr(actDef?.name, lang), report: line.ai ? { route: 'narrate', kind: 'act_intro' } : undefined })
     })
     return () => {
       alive = false
@@ -66,7 +66,7 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
     <div className="m2-actintro" onClick={go}>
       <div className="m2-actintro__art" style={{ backgroundImage: `url(${art.act(run.act, actDef?.image)})` }} />
       <div className="m2-actintro__shade" />
-      <GmCard className="m2-actintro__gm" text={shown > 0 ? gmLine : null} lang={lang} fast={settings.fastAnim} report={{ route: 'narrate', kind: 'act_intro' }} />
+      <GmCard className="m2-actintro__gm" text={shown > 0 ? (gmLine?.text ?? null) : null} ai={gmLine?.ai} lang={lang} fast={settings.fastAnim} report={{ route: 'narrate', kind: 'act_intro' }} />
       <div className="m2-actintro__inner">
         <div className="m2-actintro__num">
           {run.act}

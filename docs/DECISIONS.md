@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-24 — UX first: the game stays simple, the backend may be complex
+
+- **Context**: Wave 1 planned many AI indicators (badges, a TopBar AI chip with a counter, intent-and-percent tags, memory tags, a telemetry HUD).
+- **Decision** (owner): UI and player experience come first; the game must never feel complicated or tiring. Backend complexity is fine. New indicators are small and quiet; anything technical for judges stays hidden by default; prefer changes that cut clicks, typing and reading.
+- **Consequence**: Wave 1 ships one small `✦ AI` mark on model-written lines + one-tap Improvise ideas; the TopBar AI chip and the intent-percent / memory tags are dropped. The Architect HUD (Wave 3) stays opt-in only (`?hud=1`).
+
 ## 2026-10-18 — Daily results are replay-verified server-side; verification is a badge, not a ranking rule
 
 - **Context**: daily results were client-reported (plausibility checks only). Named RNG streams made a run reproducible from its seed and actions.

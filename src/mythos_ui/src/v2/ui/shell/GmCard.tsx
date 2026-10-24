@@ -4,6 +4,7 @@
 import { Sparkles } from 'lucide-react'
 import type { Lang } from '../../engine/types.ts'
 import type { AiLineReport } from '../../net/api.ts'
+import { AiMark } from '../components/AiMark.tsx'
 import { ReportLine } from '../components/ReportLine.tsx'
 import { Typewriter } from '../components/Typewriter.tsx'
 import './voices.css'
@@ -14,19 +15,22 @@ interface Props {
   lang: Lang
   fast: boolean
   pending?: boolean
+  /** A model wrote `text` (shows the live-AI mark and the report flag); false = authored / local narration. */
+  ai?: boolean
   className?: string
   /** Where the line came from, to offer an inline report flag (omit on click-through cards). */
   report?: Omit<AiLineReport, 'text' | 'lang'>
 }
 
-export function GmCard({ text, lang, fast, pending, className, report }: Props) {
+export function GmCard({ text, lang, fast, pending, ai, className, report }: Props) {
   if (!text && !pending) return null
   return (
-    <aside className={`m2-gmcard${text ? '' : ' is-pending'}${className ? ` ${className}` : ''}`} role="status" aria-live="polite">
+    <aside className={`m2-gmcard${text ? '' : ' is-pending'}${text && ai ? ' is-ai' : ''}${className ? ` ${className}` : ''}`} role="status" aria-live="polite">
       <div className="m2-gmcard__label">
         <Sparkles size={13} aria-hidden="true" />
         <span>{lang === 'ko' ? 'GM · 세계:접속' : 'GM · World:Connect'}</span>
-        {text && report && <ReportLine className="m2-gmcard__report" line={{ ...report, text, lang }} lang={lang} />}
+        {text && ai && <AiMark lang={lang} />}
+        {text && ai && report && <ReportLine className="m2-gmcard__report" line={{ ...report, text, lang }} lang={lang} />}
       </div>
       {text ? (
         <Typewriter key={text} className="m2-gmcard__text" text={text} cps={fast ? 400 : 46} tick={false} />

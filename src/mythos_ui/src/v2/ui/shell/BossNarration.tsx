@@ -10,7 +10,7 @@ import type { CombatState, ContentRegistry, Lang, MetaProfile } from '../../engi
 import { logComms, swapComms } from '../common/commsLog.ts'
 import { josa, tr } from '../common/lang.ts'
 import { GmCard } from './GmCard.tsx'
-import { narrate, type Ctx } from './gm.ts'
+import { narrateLine, type Ctx } from './gm.ts'
 import './voices.css'
 
 const SHOW_MS = 9000
@@ -21,6 +21,8 @@ const INTRO_DELAY_MS = 2600
 interface Shown {
   key: number
   text: string
+  /** A model wrote `text` (the swapped-in GM line). */
+  ai: boolean
   leaving: boolean
 }
 
@@ -56,17 +58,18 @@ export function BossNarration({ combat, C, lang, settings }: Props) {
     let logId: number | null = null
     const report = { route: 'narrate', kind: 'boss' } as const
     const swapIn = (text: string) => {
-      setShown((s) => (s && s.key === key && !s.leaving ? { ...s, text } : s))
+      setShown((s) => (s && s.key === key && !s.leaving ? { ...s, text, ai: true } : s))
       swapComms(logId, { text, ai: true, report })
     }
-    void narrate('boss', lang, context, LLM_WAIT_MS + delay).then((text) => {
-      if (!text || ctrl.signal.aborted) return
-      if (up) swapIn(text)
-      else pending = text
+    void narrateLine('boss', lang, context, LLM_WAIT_MS + delay).then((line) => {
+      // Only a model line replaces the authored one (a local line would be a downgrade, not news).
+      if (!line?.ai || ctrl.signal.aborted) return
+      if (up) swapIn(line.text)
+      else pending = line.text
     })
     later(() => {
       up = true
-      setShown({ key, text: pending ?? authored, leaving: false })
+      setShown({ key, text: pending ?? authored, ai: pending !== null, leaving: false })
       logId = logComms({
         speaker: 'boss',
         text: pending ?? authored,
@@ -123,5 +126,5 @@ export function BossNarration({ combat, C, lang, settings }: Props) {
   )
 
   if (!shown) return null
-  return <GmCard text={shown.text} lang={lang} fast={settings.fastAnim} className={`m2-bossgm${shown.leaving ? ' is-leaving' : ''}`} />
+  return <GmCard text={shown.text} ai={shown.ai} lang={lang} fast={settings.fastAnim} className={`m2-bossgm${shown.leaving ? ' is-leaving' : ''}`} />
 }

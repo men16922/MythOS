@@ -2,6 +2,11 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-24 — New players start in their browser's language
+
+- **Decision** (owner): a device with no saved profile starts in Korean for a Korean browser and English otherwise. The choice is remembered (`mythos2.lang0`) so a run started in English never flips; a device that played before this rule (a run or player id stored) keeps Korean; a saved profile always keeps its own setting; `?lang=en|ko` overrides.
+- **Consequence**: headless UI tests and the trailer recorder pin `locale="ko-KR"` (they read Korean labels).
+
 ## 2026-10-24 — UX first: the game stays simple, the backend may be complex
 
 - **Context**: Wave 1 planned many AI indicators (badges, a TopBar AI chip with a counter, intent-and-percent tags, memory tags, a telemetry HUD).

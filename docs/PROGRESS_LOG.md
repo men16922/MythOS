@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-24
 
+## 2026-10-24 — Browser-language default for new players (owner OK)
+
+- `store.ts` `deviceLang()` + `lang.ts` `firstVisitLang()` (tested). Headless: fresh en-US → en, reload mid-run → still en, legacy device (run + id, en-US) → ko, fresh ko-KR → ko; 0 errors. `e2e_v2.py`, `ui_playthrough.py`, `record_trailer.py` pin `ko-KR`.
+- Verified: `make check`, `make test-e2e-v2`, `make playthrough-quick` (122 s) green.
+
 ## 2026-10-24 — Contest W0: English architecture write-up + English GM eval slice
 
 - `docs/contest/architecture-en.md`: problem, mermaid diagram, AI off the critical path, clamped outcomes, hedged tail latency, four cost layers, replay-verified dailies, deploy verification + gates — each number points to its source. Production DB host not claimed (not verifiable from the repo).

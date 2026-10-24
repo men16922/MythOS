@@ -179,7 +179,8 @@ def main() -> int:
                 time.sleep(0.5)
         with sync_playwright() as pw:
             browser = pw.chromium.launch()
-            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            # Korean UI: a brand-new profile follows the browser language, and the flow matches Korean labels.
+            page = browser.new_page(viewport={"width": 1440, "height": 900}, locale="ko-KR")
             page.on("pageerror", lambda exc: errors.append(f"pageerror: {exc}"))
             page.on(
                 "console",

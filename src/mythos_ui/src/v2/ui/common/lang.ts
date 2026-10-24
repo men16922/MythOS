@@ -43,3 +43,16 @@ export function langFromSearch(search: string): Lang | null {
   const v = new URLSearchParams(search).get('lang')?.trim().toLowerCase()
   return v === 'en' || v === 'ko' ? v : null
 }
+
+/** The language a brand-new profile starts in: Korean for a Korean browser, English for every other one. */
+export function browserLang(languages: readonly string[] | undefined): Lang {
+  const first = (languages ?? []).find(Boolean)
+  return first === undefined || first.toLowerCase().startsWith('ko') ? 'ko' : 'en'
+}
+
+/** The language for a device with no saved profile. `kept`: the choice remembered on its first visit (so a run started
+ *  in English never flips); `legacy`: the device played before this rule (keeps Korean, the old default). */
+export function firstVisitLang(kept: string | null, legacy: boolean, languages: readonly string[] | undefined): Lang {
+  if (kept === 'en' || kept === 'ko') return kept
+  return legacy ? 'ko' : browserLang(languages)
+}

@@ -18,11 +18,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { dateKeyAt, isDateKey } from '../engine/daily.ts'
 import { applyRunEnd, computeEchoes, dailyResultOf, migrateProfile, newProfile } from '../engine/meta.ts'
-import type { ContentRegistry, MetaProfile, RunState } from '../engine/types.ts'
+import type { ContentRegistry, Lang, MetaProfile, RunState } from '../engine/types.ts'
 import * as net from '../net/api.ts'
 import { submitDaily, type SubmitOutcome } from '../net/daily.ts'
 import { noteCommit, replayLogFor } from './replay/record.ts'
-import { langFromSearch } from './common/lang.ts'
+import { firstVisitLang, langFromSearch } from './common/lang.ts'
 
 function safe<T>(fn: () => T, fallback: T): T {
   try {
@@ -38,7 +38,24 @@ function isLiveRun(r: RunState | null | undefined): r is RunState {
 
 function bootProfile(): MetaProfile {
   const local = safe(() => net.loadProfileLocal(), null)
-  return local ? migrateProfile(local) : newProfile('Connector')
+  if (local) return migrateProfile(local)
+  return newProfile('Connector', { lang: deviceLang() })
+}
+
+/** Remembers the language a device without a saved profile started in (the profile itself is saved only later). */
+const LANG0_KEY = 'mythos2.lang0'
+
+/** A brand-new player starts in the browser's language (owner 2026-10-24) and keeps it across reloads; a device that
+ *  played before this rule (a run or a player id already stored) keeps Korean; a saved profile keeps its own setting. */
+function deviceLang(): Lang {
+  return safe(() => {
+    const ls = window.localStorage
+    const legacy = ls.getItem('mythos2.run') !== null || ls.getItem('mythos2.playerId') !== null
+    const languages = navigator.languages?.length ? navigator.languages : [navigator.language]
+    const lang = firstVisitLang(ls.getItem(LANG0_KEY), legacy, languages)
+    ls.setItem(LANG0_KEY, lang)
+    return lang
+  }, 'ko' as Lang)
 }
 
 /** The language pinned by the page link (`?lang=en|ko`, e.g. a judge link), read once at boot. */

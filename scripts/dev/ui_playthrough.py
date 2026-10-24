@@ -590,7 +590,8 @@ def main() -> int:
         with sync_playwright() as p:
             browser = p.chromium.launch()
             for n in range(1, args.runs + 1):
-                page = browser.new_page(viewport={"width": 1280, "height": 720})
+                # ko-KR: a brand-new profile follows the browser language; the bot reads Korean labels.
+                page = browser.new_page(viewport={"width": 1280, "height": 720}, locale="ko-KR")
                 errors: list[str] = []
                 page.on("pageerror", lambda e, errors=errors: errors.append(f"pageerror: {e}"))
                 page.on(

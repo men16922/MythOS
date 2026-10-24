@@ -392,6 +392,7 @@ def record(out: Path, base: str, keep_raw: bool, scenes: list | None = None) -> 
             # device pixels instead (crisp 1080p from the same 1280x720 layout), timed by their real timestamps.
             ctx = browser.new_context(
                 viewport={"width": W, "height": H},
+                locale="ko-KR",  # a brand-new profile follows the browser language; the cut is Korean
                 device_scale_factor=SCALE,
                 **(
                     {}

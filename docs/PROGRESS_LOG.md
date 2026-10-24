@@ -2,6 +2,10 @@
 
 Last updated: 2026-10-24
 
+## 2026-10-24 — Promoted `00142-neh` (owner: "미리보기 + 검증 후 승격")
+
+- `make deploy-preview` → `make verify-preview` 5/5 (label `git-sha=4a3e65b` = HEAD) → headless muted preview check (en-US phone, `?hud=1`: English, HUD, HP 34/34, 0 errors) → `update-traffic --to-latest` → service URL 4/4 + the same check, demo-code narrate `source: llm`. Rollback `00140-paw`.
+
 ## 2026-10-24 — Browser-language default for new players (owner OK)
 
 - `store.ts` `deviceLang()` + `lang.ts` `firstVisitLang()` (tested). Headless: fresh en-US → en, reload mid-run → still en, legacy device (run + id, en-US) → ko, fresh ko-KR → ko; 0 errors. `e2e_v2.py`, `ui_playthrough.py`, `record_trailer.py` pin `ko-KR`.

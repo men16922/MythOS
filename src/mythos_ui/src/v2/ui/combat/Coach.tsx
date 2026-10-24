@@ -91,10 +91,16 @@ export function Coach({ root, lang, onClose, touch = false }: { root: HTMLElemen
       const board = root.querySelector('.m2c-board-wrap')
       const br = board && board.contains(el) ? board.getBoundingClientRect() : null
       const room = br ? b.right - br.right - 24 : 0
-      if (br && def.place === 'right' && room >= 240) {
+      if (br && def.place === 'right' && room >= 180) {
         W = Math.min(300, room)
         left = br.right - b.left + 12
         top = r.top - b.top + r.height / 2 - 60
+      } else if (br && def.place === 'right') {
+        // No room beside it (phones): under the board, or docked at the bottom over the hand — never on the tiles.
+        W = Math.min(360, b.width - 16)
+        left = br.left - b.left + br.width / 2 - W / 2
+        top = br.bottom - b.top + 12 + 170 <= b.height ? br.bottom - b.top + 12 : b.height - 170
+        arrow = 'below'
       } else if (def.place === 'right') {
         left = r.right - b.left + 16
         top = r.top - b.top + r.height / 2 - 60
@@ -126,7 +132,7 @@ export function Coach({ root, lang, onClose, touch = false }: { root: HTMLElemen
   const title = (touch && def.touch?.title) || def.title
   const text = (touch && def.touch?.text) || def.text
   return (
-    <div className={`m2c-coach is-${pos.arrow}`} style={pos.width < 300 ? { left: pos.left, top: pos.top, width: pos.width } : { left: pos.left, top: pos.top }} role="dialog">
+    <div className={`m2c-coach is-${pos.arrow}`} style={pos.width !== 300 ? { left: pos.left, top: pos.top, width: pos.width } : { left: pos.left, top: pos.top }} role="dialog">
       <div className="m2c-coach-step">
         {step + 1} / {STEPS.length}
       </div>

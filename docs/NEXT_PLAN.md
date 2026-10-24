@@ -1,10 +1,19 @@
 # Next Plan
 
-Last updated: 2026-10-18
+Last updated: 2026-10-24
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
-## Priority 0 — commercial-grade polish + contest readiness (owner goal 2026-10-18)
+## Priority 0 — global showcase for the rest of 2026 (owner direction 2026-10-24)
+
+Plan: `docs/plans/2026-10-24-global-showcase-2026.md`. Go global, framed as the owner's cloud-architect portfolio; target = the next Google Gemini / Cloud developer challenge on Devpost (expected Dec–Mar, unannounced), fallback = public write-up + talk CFPs. Korean contests move to 2027 spring.
+
+- `[ ]` W0 (→ 11-07): `docs/contest/architecture-en.md` + diagram; English first-session audit (`lang=en`); English `make gm-eval` slice on local Ollama.
+- `[ ]` W1 (Nov): `[owner OK]` judge links open in English (`?lang=en` / browser language for new profiles); English text quality pass; English trailer captions.
+- `[ ]` W2 (12-01→14): `[owner]` fun check → fixes; phone combat feel; `[owner]` demo-code deploy.
+- `[ ]` W3 (12-15→31): 3-min English video, Devpost text, `[owner]` public-repo decision.
+
+## Priority 0b — commercial-grade polish + contest readiness (owner goal 2026-10-18)
 
 Paid Play release and Signal+ are on hold (`DECISIONS.md` 2026-10-18). Goal: fun and play experience at or above commercial roguelites, plus distinctive AI features, demo-ready for contests.
 

@@ -97,7 +97,8 @@ Neo-Seoul under **IX**, a polite administrator AI that scores every citizen and 
   leaked fourth-wall terms (`"this event"`, `"your stat"`), which clashed with the engine's actual roll. We built a
   deterministic post-processor in `src/mythos_v2/gm.py` that strips markdown, speaker labels, unbalanced quotes, and any
   sentence stating mechanics numbers, backed by a 25-case bilingual evaluation suite (`scripts/dev/gm_eval.py`, 12 KO +
-  13 EN cases; 100% usable on `gemma4:8b-64k`).
+  13 EN cases; 100% usable on `gemma4:8b-64k` and 100% cleaner acceptance across all 13 English cases on Vertex
+  `gemini-3.8-flash`).
 - **Keeping Improvise suggestions aligned between offline and online judges:** We added one-tap Improvise ideas tailored
   to the player's top stats (`improvSuggest.ts`) and tuned the phrasing so the offline keyword classifier and the online
   Gemini classifier map each suggestion to the same stat.

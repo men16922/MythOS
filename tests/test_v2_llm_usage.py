@@ -142,6 +142,20 @@ class GeminiHedgeTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "first"):
             llm.complete("s", "u", max_tokens=5, temperature=0.5, timeout=3.0)
 
+    def test_long_timeout_gets_third_recovery_attempt_after_two_failures(self) -> None:
+        llm, timeouts = self._llm(
+            [
+                (0.0, RuntimeError("504 first")),
+                (0.0, RuntimeError("500 second")),
+                (0.0, "recovered"),
+            ]
+        )
+        self.assertEqual(
+            llm.complete("s", "u", max_tokens=5, temperature=0.5, timeout=14.0), "recovered"
+        )
+        self.assertEqual(llm.hedged, 2)
+        self.assertTrue(all(t <= 12.0 for t in timeouts))
+
     def test_short_timeouts_and_hedge_off_send_one_request(self) -> None:
         llm, timeouts = self._llm([(0.0, "ix")], hedge_after=4.5)
         self.assertEqual(llm.complete("s", "u", max_tokens=5, temperature=0.5, timeout=5.5), "ix")

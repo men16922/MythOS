@@ -66,9 +66,12 @@ flowchart LR
 
 - Measured 2026-10-19: the same ~100-token act intro on Vertex took 2–5 s, sometimes > 12 s or a 504
   DEADLINE_EXCEEDED (`src/mythos_v2/llm.py` docstring).
-- Fix: one hedged request after `MYTHOS_V2_GM_HEDGE_S` = 4 s (or after a fast failure), first success wins; IX lines
-  are too short-lived to hedge. Measured on Cloud Run: act intros answered 10/12 with hedging at 14 s vs ~50 %
-  unhedged at 10 s.
+- Fix: one hedged request after `MYTHOS_V2_GM_HEDGE_S` = 4 s (or after a fast failure) on an isolated thread-local
+  `AuthorizedSession`, each leg capped at 12 s HTTP timeout, plus a third recovery attempt on ≥ 10 s budgets if both
+  legs return Vertex `500/504`; first success wins, and IX lines are too short-lived to hedge. Measured on Cloud Run:
+  act intros answered 10/12 with hedging at 14 s vs ~50 % unhedged at 10 s. In the 13-case English `make gm-eval`
+  slice (2026-10-25), local `gemma4:8b-64k` scored 100 % usable (p50 0.58 s, p95 1.08 s), and 100 % of non-500/504
+  Vertex `gemini-3.8-flash` responses passed deterministic cleaning across all 13 cases (`outputs/gm-eval/`).
 - The losing request's tokens are still charged to the player's budget when they arrive (`set_usage_sink`).
 
 ## 4 · Cost governance (four layers)

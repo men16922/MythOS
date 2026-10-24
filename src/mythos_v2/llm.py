@@ -172,6 +172,7 @@ class GeminiTextLLM:
         self.model = model or os.getenv("MYTHOS_V2_GM_GEMINI_MODEL") or self.config.model
         self.name = f"gemini:{self.model}"
         self._client = client
+        self._local = threading.local()
         self.hedge_after = _hedge_after() if hedge_after is None else max(0.0, hedge_after)
         #: Calls that sent a second request (operator logs / tests).
         self.hedged = 0
@@ -179,20 +180,24 @@ class GeminiTextLLM:
     def _get_client(self, timeout: float) -> Any:
         if self._client is not None:
             return self._client
+        cached = getattr(self._local, "client", None)
+        if cached is not None:
+            return cached
         from google import genai
         from google.genai import types
 
         http_options = types.HttpOptions(timeout=int(timeout * 1000))
         if self.config.use_vertex:
-            self._client = genai.Client(
+            created = genai.Client(
                 vertexai=True,
                 project=self.config.project,
                 location=self.config.location,
                 http_options=http_options,
             )
         else:
-            self._client = genai.Client(api_key=self.config.api_key, http_options=http_options)
-        return self._client
+            created = genai.Client(api_key=self.config.api_key, http_options=http_options)
+        self._local.client = created
+        return created
 
     def _call(
         self,
@@ -244,12 +249,13 @@ class GeminiTextLLM:
         json_schema: dict[str, Any] | None = None,
     ) -> str:
         def call(t: float) -> tuple[str, Usage]:
+            leg_timeout = min(t, 12.0) if self.hedge_after > 0 else t
             return self._call(
                 system,
                 user,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                timeout=t,
+                timeout=leg_timeout,
                 json_schema=json_schema,
             )
 
@@ -284,6 +290,18 @@ class GeminiTextLLM:
                             other.add_done_callback(_report_to(sink))
                     return text
                 error = error or exc
+            if (
+                not pending
+                and error is not None
+                and len(futures) < 3
+                and timeout >= max(10.0, self.hedge_after * 2)
+            ):
+                left = timeout - (time.monotonic() - start)
+                if left >= HEDGE_MIN_LEFT_S:
+                    self.hedged += 1
+                    retry_fut = _HEDGE_POOL.submit(call, left)
+                    futures.append(retry_fut)
+                    pending.add(retry_fut)
         if error is not None:
             raise error
         raise TimeoutError("gemini: no answer within the timeout")

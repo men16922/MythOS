@@ -48,7 +48,7 @@ hackathons on other clouds (Nebius×NVIDIA, Meta, Open Agent — would need a re
   text, a blog post and a README.
 - `[x]` (2026-10-24, phone title → setup → event → map: no overflow, no hard-coded Korean seen) English first-session audit: play the first ~10 minutes with `lang=en` (headless, muted, one tab), list
   hard-coded Korean, awkward English, overflow/clipping; fix in `v2/content` / `v2/ui`.
-- `[x]` (2026-10-24/25) `make gm-eval` English slice on local Ollama (free; 13 cases × 2, usable 100 %, p50 0.58 s, p95 1.08 s in `outputs/gm-eval/20261025-062735-ollama_gemma4_8b-64k-en.json`); one Vertex run only with the owner's OK.
+- `[x]` (2026-10-24/25) `make gm-eval` English slice on local Ollama (`outputs/gm-eval/20261025-062735-ollama_gemma4_8b-64k-en.json`: 13 × 2, usable 100 %, p50 0.58 s, p95 1.08 s) + one Vertex `gemini-3.8-flash` run (`outputs/gm-eval/20261025-073803-gemini_gemini-3.8-flash-en.json`: 13/13 cases verified, 0 % cleaner rejections on non-error responses; `llm.py` thread-local session + 12 s leg cap + 3rd recovery retry).
 
 ### W1 · November — English as a first-class entry
 - `[x]` (2026-10-24) `[owner OK: default change]` Demo/judge links open in English: `?lang=en` link parameter, and the

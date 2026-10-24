@@ -43,10 +43,10 @@ hackathons on other clouds (Nebius×NVIDIA, Meta, Open Agent — would need a re
 ## Phases
 
 ### W0 · 10-24 → 11-07 — architecture write-up + English audit
-- `[ ]` `docs/contest/architecture-en.md`: the five points above with the measured numbers and file pointers, plus
+- `[x]` (2026-10-24) `docs/contest/architecture-en.md`: the five points above with the measured numbers and file pointers, plus
   one architecture diagram (request path, fallbacks, budget, replay verify, deploy flow). Source of the Devpost
   text, a blog post and a README.
-- `[ ]` English first-session audit: play the first ~10 minutes with `lang=en` (headless, muted, one tab), list
+- `[x]` (2026-10-24, phone title → setup → event → map: no overflow, no hard-coded Korean seen) English first-session audit: play the first ~10 minutes with `lang=en` (headless, muted, one tab), list
   hard-coded Korean, awkward English, overflow/clipping; fix in `v2/content` / `v2/ui`.
 - `[ ]` `make gm-eval` English slice on local Ollama (free); one Vertex run only with the owner's OK.
 

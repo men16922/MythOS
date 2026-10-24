@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-24
 
+## 2026-10-24 — Contest W0: English architecture write-up + English GM eval slice
+
+- `docs/contest/architecture-en.md`: problem, mermaid diagram, AI off the critical path, clamped outcomes, hedged tail latency, four cost layers, replay-verified dailies, deploy verification + gates — each number points to its source. Production DB host not claimed (not verifiable from the repo).
+- `gm_eval.py --lang en` + 3 English cases (act intro, boss, chronicle). Local Ollama `gemma4:8b-64k` (forced; no Vertex): 9 cases × 2, usable 100 %, p50 0.56 s, p95 1.1 s (`outputs/gm-eval/20261024-162952-…-en.json`). Lines read naturally; the local chronicle can be flat. A Vertex English run needs the owner's OK (billed).
+
 ## 2026-10-24 — Architect HUD (opt-in `?hud=1`)
 
 - `telemetry.ts` (memory only) + `gm.ts` record each GM call's outcome and latency; `ArchitectHud.tsx` shows AI calls / LLM share / median latency (authored line at 0 ms), allowance, seed + named streams, daily replay steps. Off unless the link has `?hud=1`; phones start folded.

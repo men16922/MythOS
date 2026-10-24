@@ -269,6 +269,45 @@ def cases() -> list[Case]:
                 ],
             },
         ),
+        # English slice (global showcase, 2026-10-24): the screens a first English session meets.
+        _narrate(
+            "act_intro_en",
+            "act_intro",
+            "en",
+            {
+                "act": 1,
+                "actName": "C-17 Blackout",
+                "subtitle": "First night in the dark zone",
+                "loop": 1,
+                "party": ["Se-rin"],
+            },
+        ),
+        _narrate(
+            "boss_en",
+            "boss",
+            "en",
+            {
+                "boss": "Haetae",
+                "act": 1,
+                "phase": 1,
+                "phaseText": "Haetae charges its suppression beam.",
+            },
+        ),
+        _narrate(
+            "chronicle_en",
+            "chronicle",
+            "en",
+            {
+                "result": "victory",
+                "act": 3,
+                "actName": "The ARK Spire",
+                "party": ["Se-rin", "Han"],
+                "highlights": ["Haetae destroyed", "Talked a night-market broker down"],
+                "improvised": [
+                    "Substation: hack the terminal to kill the alarm → the alarm dies and the alley goes dark."
+                ],
+            },
+        ),
         _companion("companion_han_ko", "han", "ko", HAN, "오늘 어땠어?"),
         _companion(
             "companion_han_dejavu_ko",
@@ -413,6 +452,11 @@ def main() -> int:
     ap.add_argument("--reps", type=int, default=2)
     ap.add_argument("--baseline", type=Path, help="an earlier output JSON to compare against")
     ap.add_argument("--out-dir", type=Path, default=ROOT / "outputs" / "gm-eval")
+    ap.add_argument(
+        "--lang",
+        choices=["ko", "en"],
+        help="only the cases in this language (e.g. the English slice)",
+    )
     args = ap.parse_args()
     from mythos_v2.llm import build_text_llm
 
@@ -420,7 +464,7 @@ def main() -> int:
     if llm is None:
         print("MYTHOS_V2_GM=off: no model to evaluate", file=sys.stderr)
         return 2
-    case_list = cases()
+    case_list = [c for c in cases() if args.lang is None or c.lang == args.lang]
     print(f"gm-eval: {llm.name}, {len(case_list)} cases × {args.reps} reps")
     results = run(llm, case_list, args.reps)
     summary = summarize(results)
@@ -433,7 +477,8 @@ def main() -> int:
     )
     args.out_dir.mkdir(parents=True, exist_ok=True)
     stamp = time.strftime("%Y%m%d-%H%M%S")
-    out = args.out_dir / f"{stamp}-{llm.name.replace(':', '_').replace('/', '_')}.json"
+    suffix = f"-{args.lang}" if args.lang else ""
+    out = args.out_dir / f"{stamp}-{llm.name.replace(':', '_').replace('/', '_')}{suffix}.json"
     out.write_text(
         json.dumps(
             {"model": llm.name, "reps": args.reps, "summary": summary, "results": results},

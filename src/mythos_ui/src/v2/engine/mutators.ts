@@ -67,12 +67,12 @@ export const MUTATORS: MutatorDef[] = [
     mods: { shopPct: -30, rewardCreditsPct: -30 },
   },
   {
-    id: 'iron_week',
-    name: t('강철의 주', 'Iron Week'),
-    blurb: t('모두가 한 겹씩 더 두껍다. 당신도, 그들도.', 'Everyone is one layer thicker. You and they.'),
-    boon: t('최대 HP +10', 'Max HP +10'),
-    burden: t('적 체력 +20%', 'Enemy HP +20 %'),
-    mods: { maxHp: 10, enemyHpPct: 20 },
+    id: 'long_night',
+    name: t('긴 밤', 'Long Night'),
+    blurb: t('밤이 길어서 쉴 틈은 많다. 그만큼 들키기도 쉽다.', 'The night is long, so there is time to rest — and to be seen.'),
+    boon: t('휴식 회복 +15%p', 'Safehouse heal +15 pts'),
+    burden: t('노드마다 추적도 +4', 'Trace +4 per node'),
+    mods: { restHeal: 15, traceStep: 4 },
   },
   {
     id: 'glass_loop',
@@ -83,12 +83,12 @@ export const MUTATORS: MutatorDef[] = [
     mods: { startCredits: 80, maxHp: -8 },
   },
   {
-    id: 'long_night',
-    name: t('긴 밤', 'Long Night'),
-    blurb: t('밤이 길어서 쉴 틈은 많다. 그만큼 들키기도 쉽다.', 'The night is long, so there is time to rest — and to be seen.'),
-    boon: t('휴식 회복 +15%p', 'Safehouse heal +15 pts'),
-    burden: t('노드마다 추적도 +4', 'Trace +4 per node'),
-    mods: { restHeal: 15, traceStep: 4 },
+    id: 'iron_week',
+    name: t('강철의 주', 'Iron Week'),
+    blurb: t('모두가 한 겹씩 더 두껍다. 당신도, 그들도.', 'Everyone is one layer thicker. You and they.'),
+    boon: t('최대 HP +10', 'Max HP +10'),
+    burden: t('적 체력 +20%', 'Enemy HP +20 %'),
+    mods: { maxHp: 10, enemyHpPct: 20 },
   },
   {
     id: 'cold_boot',
@@ -114,12 +114,56 @@ export const MUTATORS: MutatorDef[] = [
     burden: t('상점 가격 +25%', 'Shop prices +25 %'),
     mods: { rewardCreditsPct: 25, restHeal: 10, shopPct: 25 },
   },
+  {
+    id: 'acid_rain',
+    name: t('산성비 주의보', 'Acid Rain Advisory'),
+    blurb: t('하늘에서 녹슨 빗물이 떨어진다. 장갑판이 먼저 삭는다.', 'Corrosive rain falls from the smog. Armor rots first.'),
+    boon: t('전투 시작 시 모든 적 부식 2 · 전투 크레딧 +20%', 'Combat start: Corrode 2 on all enemies · fight credits +20 %'),
+    burden: t('전투 시작 시 접속자 부식 1 · 최대 HP −4', 'Combat start: Corrode 1 on connector · max HP −4'),
+    mods: { rewardCreditsPct: 20, maxHp: -4 },
+  },
+  {
+    id: 'magnetic_storm',
+    name: t('자기 폭풍', 'Magnetic Storm'),
+    blurb: t('전선이 윙윙거린다. 발걸음은 가볍지만 경보망이 예민하다.', 'Power lines hum. Steps feel lighter, but the grid is jumpy.'),
+    boon: t('전투 시작 시 접속자 회피 1 · 휴식 회복 +10%p', 'Combat start: Evade 1 on connector · safehouse heal +10 pts'),
+    burden: t('노드마다 추적도 +4', 'Trace +4 per node'),
+    mods: { restHeal: 10, traceStep: 4 },
+  },
+  {
+    id: 'overclocked_grid',
+    name: t('과부하 그리드', 'Overclocked Grid'),
+    blurb: t('전술 회선이 과열되어 있다. 첫 전술은 공짜지만 경보가 빨리 울린다.', 'Tactical lines run hot. Your first tactic refunds energy, but alarms trip fast.'),
+    boon: t('전투 첫 전술 카드 에너지 +1 환급 · 시작 크레딧 +30', 'First tactic each combat refunds +1 energy · start with +30 ₵'),
+    burden: t('노드마다 추적도 +5', 'Trace +5 per node'),
+    mods: { startCredits: 30, traceStep: 5 },
+  },
+  {
+    id: 'bounty_hunters',
+    name: t('현상금 사냥꾼', 'Bounty Hunters'),
+    blurb: t('당신 목에 큰돈이 걸렸다. 사냥꾼들을 역으로 털어먹을 시간이다.', 'A fat price is on your head. Time to rob the hunters back.'),
+    boon: t('전투 크레딧 +50% · 전투 시작 시 집중 2', 'Fight credits +50 % · combat start: Focus 2 on connector'),
+    burden: t('엘리트·보스 체력 +25%', 'Elite and boss HP +25 %'),
+    mods: { rewardCreditsPct: 50, eliteHpPct: 25 },
+  },
 ]
 
 const BY_ID: Record<string, MutatorDef> = Object.fromEntries(MUTATORS.map((m) => [m.id, m]))
 
 export function mutatorById(id: string | undefined): MutatorDef | undefined {
   return id ? BY_ID[id] : undefined
+}
+
+/** Deterministic pair of optional mutator offers for a normal loop (seeded by loop/profile). */
+export function mutatorOffersForSeed(seed: number, count = 2): MutatorDef[] {
+  const out: MutatorDef[] = []
+  const n = MUTATORS.length
+  const first = hashSeed(`mut_offer|${seed}`) % n
+  for (let i = 0; i < Math.min(count, n); i++) {
+    const pick = MUTATORS[(first + i * 5) % n]
+    if (pick) out.push(pick)
+  }
+  return out
 }
 
 /** The day's mutator — pure in the date key, so every player sees the same one. */

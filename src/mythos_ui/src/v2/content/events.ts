@@ -53,7 +53,7 @@ const OPENING: EventDef = {
     },
     {
       label: t('데이터 코어를 줍는다', 'Grab the data core'),
-      hint: t('고급 카드 · 추적 +6', 'Uncommon card · +6 Trace'),
+      hint: t('고급 카드 · 관찰 +1 · 추적 +6', 'Uncommon card · +1 OBS · +6 Trace'),
       success: {
         text: t(
           '코어가 손안에서 따뜻하다. 누군가의 전투 프로토콜이 들어 있다. 등 뒤에서 노인의 숨소리가 점점 멀어진다.',
@@ -61,6 +61,7 @@ const OPENING: EventDef = {
         ),
         effects: [
           { kind: 'card_choice', rarity: 'uncommon' },
+          { kind: 'stat', stat: 'obs', amount: 1 },
           { kind: 'trace', amount: 6 },
         ],
       },

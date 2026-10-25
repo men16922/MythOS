@@ -50,6 +50,14 @@ export function playRecorded(maxFights: number, day: string): RunState {
         let c = s.combat
         if (c.phase === 'player') {
           for (const p of planGreedyTurn(c, C)) {
+            if (p.kind === 'card' && p.spot) {
+              const moved = moveUnit(c, C, p.origin, p.spot)
+              if (moved !== c) {
+                c = moved
+                commitCombat(c)
+                if (c.phase !== 'player') break
+              }
+            }
             const next = p.kind === 'move' ? moveUnit(c, C, p.uid, p.to) : playCard(c, C, p.cardUid, p.origin, p.target)
             if (next === c) continue
             c = next

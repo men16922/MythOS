@@ -75,14 +75,23 @@ export function leanClone(c: CombatState): CombatState {
     stats: { ...c.stats },
   }
   if (c.bonus) out.bonus = { ...c.bonus }
+  if (c.runStats) out.runStats = { ...c.runStats }
   return out
 }
 
 function moveInPlace(c: CombatState, uid: string, to: Pos): void {
   const u = getUnit(c, uid)
   if (!u) return
+  const dist = manhattan(u.pos, to)
   u.pos = { ...to }
   u.moved = true
+  if (u.uid === 'connector' && (c.runStats?.agi ?? 0) >= 6 && dist >= 3) {
+    const key = `t${c.turn}:sprint_evade`
+    if (!c.triggered[key]) {
+      c.triggered[key] = 1
+      u.statuses.evade = (u.statuses.evade ?? 0) + 1
+    }
+  }
 }
 
 function toTarget(o: TargetOption): PlayTarget {
@@ -108,7 +117,9 @@ export function incomingDamage(c: CombatState, C: ContentRegistry): Map<string, 
     for (const p of intentGeometry(c, e, move, intent).tiles) {
       const v = unitAt(c, p)
       if (!v || v === e) continue
-      const n = Math.max(0, dmg - v.armor) + (dmg > 0 ? (v.statuses.mark ?? 0) : 0) + (hasRider ? 0.5 : 0)
+      let hit = Math.max(0, dmg - v.armor) + (dmg > 0 ? (v.statuses.mark ?? 0) : 0)
+      if ((v.statuses.evade ?? 0) > 0) hit = Math.floor(hit / 2)
+      const n = hit + (hasRider ? 0.5 : 0)
       if (n > 0) addTo(v, n)
     }
   }
@@ -116,7 +127,8 @@ export function incomingDamage(c: CombatState, C: ContentRegistry): Map<string, 
     if (u.hp <= 0) continue
     if (!u.flying && tileAt(c, u.pos)?.kind === 'hazard') addTo(u, 2)
     const fire = !u.flying && (tileAt(c, u.pos)?.fire ?? 0) > 0 ? 2 : 0
-    if (u.side !== 'enemy' && (u.statuses.burn ?? 0) + fire > 0) addTo(u, (u.statuses.burn ?? 0) + fire)
+    const dots = (u.statuses.burn ?? 0) + (u.statuses.bleed ?? 0) + (u.statuses.corrode ?? 0) + fire
+    if (u.side !== 'enemy' && dots > 0) addTo(u, dots)
   }
   return inc
 }
@@ -135,7 +147,7 @@ export function evaluate(c: CombatState, C: ContentRegistry): number {
   for (const u of livingParty(c)) {
     const conn = u.uid === 'connector'
     s += u.hp * (conn ? 1.5 : 0.8) + (conn ? 0 : 8)
-    s += (u.statuses.guard ?? 0) * 3 + (u.statuses.thorns ?? 0)
+    s += (u.statuses.guard ?? 0) * 3 + (u.statuses.thorns ?? 0) + (u.statuses.evade ?? 0) * 1.5 + (u.statuses.focus ?? 0) * 0.4
   }
   for (const u of c.units) if (u.side === 'neutral' && u.hp > 0) s += u.hp * 1.2 + 10
   if (c.phase === 'won') return 1e5 + s
@@ -144,7 +156,8 @@ export function evaluate(c: CombatState, C: ContentRegistry): number {
     // Dangerous enemies are worth more per hp: every turn they live they swing again.
     const w = 1 + 0.08 * dangerOf(C, e)
     s -= (e.hp + 8) * w
-    s += (Math.min(e.statuses.burn ?? 0, e.hp) * 0.7 + (e.statuses.mark ?? 0) * 0.5) * w
+    const dotVal = (e.statuses.burn ?? 0) + (e.statuses.bleed ?? 0) + (e.statuses.corrode ?? 0)
+    s += (Math.min(dotVal, e.hp) * 0.7 + (e.statuses.mark ?? 0) * 0.5) * w
   }
   const inc = incomingDamage(c, C)
   for (const u of c.units) {

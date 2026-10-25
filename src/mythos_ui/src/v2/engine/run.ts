@@ -18,7 +18,7 @@
 import { startCombat } from './combat.ts'
 import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, takeCombatMods } from './crpg.ts'
 import { advanceDirectiveOnWin } from './directives.ts'
-import { AUTONOMY_ACT_SCRUB, autonomyDc, autonomyLevel, echoEffects, echoOffers } from './legacy.ts'
+import { AUTONOMY_ACT_SCRUB, autonomyDc, autonomyLevel, echoEffects, echoOffers, worldEchoFor } from './legacy.ts'
 import { advanceThoughts, offerThought } from './thoughts.ts'
 import { dailySeed, isDateKey } from './daily.ts'
 import { actEventPool, generateActMap, mapEncounters } from './map.ts'
@@ -38,7 +38,7 @@ import {
   unlockedCompanions,
 } from './meta.ts'
 import { SET_PULL, implantSetOf, newlyReached, setCounts, setPassives } from './implantSets.ts'
-import { mutatorForDate, mutatorMods } from './mutators.ts'
+import { mutatorById, mutatorForDate, mutatorMods } from './mutators.ts'
 import { hashSeed, pick, pickWeighted, rand, randInt, sample, shuffle } from './rng.ts'
 import type { RngHolder } from './rng.ts'
 import { mapRng, resetNodeStreams, runStream } from './streams.ts'
@@ -422,6 +422,8 @@ export interface NewRunOptions {
   crpg?: { background: string | null; trial?: boolean }
   /** Echo to inscribe (engine/legacy.ts echoOffers of this profile). Ignored on a daily or when not offered. */
   echo?: string
+  /** Optional loop mutator id for a non-daily run. */
+  mutator?: string
 }
 
 /** Stand-in profile for a daily run's content: nothing unlocked, no threads. */
@@ -494,6 +496,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   const thread = threadPassive(unlockSource, C)
   applyConcretePassive(run, thread)
   if (daily) run.mutator = mutatorForDate(daily).id
+  else if (opts.mutator && mutatorById(opts.mutator)) run.mutator = opts.mutator
   const mut = mutatorMods(run)
   run.maxHp = Math.max(20, run.maxHp + (mut.maxHp ?? 0))
   run.hp = run.maxHp
@@ -535,6 +538,16 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     const autonomy = autonomyLevel(profile)
     if (autonomy > 0) run.autonomy = autonomy
     if (autonomy >= 3) run.growth = (run.growth ?? 0) + 1
+    const worldEcho = worldEchoFor(profile)
+    if (worldEcho) {
+      run.flags[worldEcho] = 1
+      if (worldEcho === 'world_echo_rewrite') run.credits += 15
+      else if (worldEcho === 'world_echo_refuge') {
+        for (const m of run.party) raiseBond(run, m.id, 1, C)
+      } else if (worldEcho === 'world_echo_noble') {
+        run.credits += 15
+      }
+    }
   }
   run.map = generateActMap(1, mapRng(run, 1), C, { paradox })
   placeDistrict(run, run.map, C)

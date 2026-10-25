@@ -5,20 +5,28 @@ import { L, tr } from '../common/lang.ts'
 
 export const STATUS_NAME: Record<StatusKind, Text> = {
   burn: L('화상', 'Burn'),
+  bleed: L('출혈', 'Bleed'),
+  corrode: L('침식', 'Corrode'),
   shock: L('감전', 'Shock'),
   mark: L('표식', 'Mark'),
   weak: L('약화', 'Weak'),
   guard: L('수호', 'Guard'),
   thorns: L('가시', 'Thorns'),
+  evade: L('회피', 'Evade'),
+  focus: L('집중', 'Focus'),
 }
 
 export const STATUS_TEXT: Record<StatusKind, Text> = {
   burn: L('적 페이즈가 끝날 때 수치만큼 피해(방어막 무시). 그 뒤 1 줄어든다.', 'Takes N damage at the end of each enemy phase (ignores block), then N − 1.'),
+  bleed: L('이동하거나 밀려날 때, 그리고 적 페이즈 종료 시 수치만큼 피해(방어막 무시). 이동 시 1 감소, 턴 종료 시 절반으로 감소.', 'Takes N damage (ignores block) when moving/pushed and at enemy phase end. −1 on move, halved at turn end.'),
+  corrode: L('적 페이즈 종료 시 수치만큼 피해(방어막 무시) 및 장갑 −1. 사망 시 인접 적에게 전염된다.', 'Takes N damage (ignores block) and loses 1 armor at enemy phase end. Spreads to adjacent enemies on death.'),
   shock: L('적: 공격이 불발되고 움직이지 못한다. 아군: 이동할 수 없다.', 'Enemy: its attack fizzles and it does not move. Party: cannot move.'),
   mark: L('다음에 받는 피해가 수치만큼 늘어난다.', 'The next hit taken deals N extra damage.'),
   weak: L('주는 피해 −2.', 'Deals 2 less damage.'),
   guard: L('매 턴 시작 시 수치만큼 방어막을 얻는다.', 'Gains N block at the start of each turn.'),
   thorns: L('근접·돌진으로 공격한 상대는 수치만큼 피해를 받는다.', 'Melee/charge attackers take N damage.'),
+  evade: L('직격 공격을 받을 때 피해량을 절반으로 줄이고(스침) 1 줄어든다.', 'Halves incoming direct attack damage (grazed), then N − 1.'),
+  focus: L('4 이상 모이면 다음 직접 공격이 치명타(피해 1.5배 + 장갑 무시)로 적중하고 4 소모된다.', 'At 4+, the next direct attack critically hits (1.5× damage, ignores armor) and consumes 4.'),
 }
 
 const PATTERN: Record<EnemyMove['pattern'], Text> = {

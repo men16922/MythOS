@@ -22,7 +22,15 @@ export const DIR_PCT: Record<Dir, [number, number]> = {
 
 export const panOf = (x: number): number => (x / 6) * 1.6 - 0.8
 
-export const STATUS_SFX: Partial<Record<string, SfxName>> = { burn: 'status_burn', shock: 'status_shock', mark: 'status_mark', weak: 'status_mark' }
+export const STATUS_SFX: Partial<Record<string, SfxName>> = {
+  burn: 'status_burn',
+  bleed: 'status_burn',
+  corrode: 'status_shock',
+  shock: 'status_shock',
+  mark: 'status_mark',
+  weak: 'status_mark',
+  focus: 'status_mark',
+}
 
 /** Projectile / swing travel time per FX kind. */
 export const travel = (kind: 'bolt' | 'beam' | 'arc' | 'slash' | 'nova' | 'burst') =>

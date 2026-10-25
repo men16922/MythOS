@@ -39,15 +39,19 @@ export function damageSteps(kit: Kit, plan: Plan, ev: Ev<'damage'>, evIdx: numbe
           const isConnector = u.uid === 'connector'
           whiteFlash(uid, isConnector || u.side === 'party')
           pose(uid, 'hit', S(420))
-          const numTone: TextTone = cause === 'burn' ? 'burn' : cause === 'hazard' ? 'zap' : big ? 'crit' : 'dmg'
-          addFx({ kind: 'text', at, text: `${amt}`, tone: numTone, ms: S(big ? 1250 : 1000) })
-          if (cause === 'burn') {
-            // Burn tick: the flames on the body flare up.
+          const isCrit = !!ev.crit
+          const numTone: TextTone = cause === 'burn' || cause === 'bleed' ? 'burn' : cause === 'hazard' || cause === 'corrode' ? 'zap' : isCrit || big ? 'crit' : 'dmg'
+          addFx({ kind: 'text', at, text: isCrit ? `CRIT! ${amt}` : `${amt}`, tone: numTone, ms: S(isCrit || big ? 1250 : 1000) })
+          if (ev.evaded && ev.evaded > 0) {
+            addFx({ kind: 'text', at: { x: at.x - 0.28, y: at.y - 0.22 }, text: `EVADE −${ev.evaded}`, tone: 'block', ms: S(950) })
+          }
+          if (cause === 'burn' || cause === 'bleed') {
+            // Burn / bleed tick: flare up.
             squash(uid)
             addFx({ kind: 'flame', at, tone: 'fire', ms: S(720) })
             trauma(Math.min(0.4, 0.12 + amt * 0.03))
             sfx('fire_tick', { pan, intensity: Math.min(2, 0.7 + amt / 5) })
-          } else if (cause === 'hazard') {
+          } else if (cause === 'hazard' || cause === 'corrode') {
             squash(uid)
             addFx({ kind: 'zap', at, tone: 'shock', ms: S(560) })
             trauma(0.2)

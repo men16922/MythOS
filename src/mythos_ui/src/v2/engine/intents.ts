@@ -32,6 +32,7 @@ import {
   opponentsOf,
   scopeOf,
   spawnEnemy,
+  tickMoveBleed,
   tileAt,
   unitAt,
   WEAK_PENALTY,
@@ -178,6 +179,8 @@ export function fireIntent(c: CombatState, C: ContentRegistry, u: UnitState): vo
   if (move.pattern === 'charge' && geo.dashTo && !samePos(geo.dashTo, u.pos)) {
     emit(c, { t: 'move', uid: u.uid, path: [{ ...u.pos }, ...geo.path.map((p) => ({ ...p }))] })
     u.pos = { ...geo.dashTo }
+    tickMoveBleed(c, C, u)
+    if (u.hp <= 0) return
     enterGround(c, u)
   }
   const effects: Effect[] = []
@@ -540,6 +543,8 @@ export function planIntent(c: CombatState, C: ContentRegistry, u: UnitState, can
   if (pick.spot.path.length > 0) {
     emit(c, { t: 'move', uid: u.uid, path: [{ ...home }, ...pick.spot.path.map((p) => ({ ...p }))] })
     u.pos = { ...pick.spot.pos }
+    tickMoveBleed(c, C, u)
+    if (u.hp <= 0) return
     enterGround(c, u)
   }
   const move = pick.move

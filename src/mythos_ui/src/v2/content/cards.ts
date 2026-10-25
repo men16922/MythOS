@@ -494,6 +494,69 @@ const POOL_COMMON: CardDef[] = [
     icon: 'v2/cards/static_discharge.webp',
     tags: ['push'],
   },
+  {
+    id: 'artery_rip',
+    name: t('동맥 절개', 'Artery Rip'),
+    type: 'attack',
+    rarity: 'common',
+    owner: 'any',
+    cost: 1,
+    target: { mode: 'melee' },
+    effects: [
+      { kind: 'damage', amount: 3 },
+      { kind: 'status', status: 'bleed', amount: 3 },
+    ],
+    text: t('피해 3. 출혈 3.', 'Deal 3. Bleed 3.'),
+    upgrade: {
+      effects: [
+        { kind: 'damage', amount: 4 },
+        { kind: 'status', status: 'bleed', amount: 4 },
+      ],
+      text: t('피해 4. 출혈 4.', 'Deal 4. Bleed 4.'),
+    },
+    icon: 'v2/cards/blink_strike.webp',
+    tags: ['bleed'],
+  },
+  {
+    id: 'corrosive_rain',
+    name: t('산성비 살포', 'Corrosive Rain'),
+    type: 'tactic',
+    rarity: 'common',
+    owner: 'any',
+    cost: 1,
+    target: { mode: 'lob', minRange: 1, range: 4 },
+    effects: [{ kind: 'status', status: 'corrode', amount: 2, area: 'cross' }],
+    text: t('십자 범위에 부식 2.', 'Cross area: Corrode 2.'),
+    upgrade: {
+      effects: [{ kind: 'status', status: 'corrode', amount: 3, area: 'cross' }],
+      text: t('십자 범위에 부식 3.', 'Cross area: Corrode 3.'),
+    },
+    icon: 'v2/cards/meltdown.webp',
+    tags: ['corrode', 'hack'],
+  },
+  {
+    id: 'phantom_feint',
+    name: t('환영 페인트', 'Phantom Feint'),
+    type: 'skill',
+    rarity: 'common',
+    owner: 'any',
+    cost: 1,
+    target: { mode: 'self' },
+    effects: [
+      { kind: 'status', status: 'evade', amount: 1, statScale: { stat: 'agi', div: 4 } },
+      { kind: 'status', status: 'focus', amount: 2 },
+    ],
+    text: t('회피 1 (+민첩/4), 집중 2.', 'Gain Evade 1 (+AGI/4) and Focus 2.'),
+    upgrade: {
+      effects: [
+        { kind: 'status', status: 'evade', amount: 2, statScale: { stat: 'agi', div: 4 } },
+        { kind: 'status', status: 'focus', amount: 3 },
+      ],
+      text: t('회피 2 (+민첩/4), 집중 3.', 'Gain Evade 2 (+AGI/4) and Focus 3.'),
+    },
+    icon: 'v2/cards/ghost_protocol.webp',
+    tags: ['move'],
+  },
 ]
 
 const POOL_UNCOMMON: CardDef[] = [
@@ -695,6 +758,54 @@ const POOL_UNCOMMON: CardDef[] = [
     icon: 'v2/cards/wall_up.webp',
     tags: ['block'],
   },
+  {
+    id: 'crimson_hook',
+    name: t('선혈 갈고리', 'Crimson Hook'),
+    type: 'tactic',
+    rarity: 'uncommon',
+    owner: 'any',
+    cost: 1,
+    target: { mode: 'line', range: 4 },
+    effects: [
+      { kind: 'damage', amount: 2 },
+      { kind: 'status', status: 'bleed', amount: 3 },
+      { kind: 'push', dir: 'toward', distance: 2 },
+    ],
+    text: t('피해 2, 출혈 3. 2칸 끌어당긴다 (출혈 즉시 격발).', 'Deal 2, Bleed 3. Pull 2 (triggers Bleed immediately).'),
+    upgrade: {
+      effects: [
+        { kind: 'damage', amount: 3 },
+        { kind: 'status', status: 'bleed', amount: 4 },
+        { kind: 'push', dir: 'toward', distance: 2 },
+      ],
+      text: t('피해 3, 출혈 4. 2칸 끌어당긴다 (출혈 즉시 격발).', 'Deal 3, Bleed 4. Pull 2 (triggers Bleed immediately).'),
+    },
+    icon: 'v2/cards/grapple.webp',
+    tags: ['bleed', 'push'],
+  },
+  {
+    id: 'vital_snipe',
+    name: t('급소 저격', 'Vital Snipe'),
+    type: 'attack',
+    rarity: 'uncommon',
+    owner: 'any',
+    cost: 1,
+    target: { mode: 'line', range: 5 },
+    effects: [
+      { kind: 'status', status: 'focus', amount: 2, to: 'owner' },
+      { kind: 'damage', amount: 5, statScale: { stat: 'obs', div: 2 } },
+    ],
+    text: t('집중 2를 얻고 피해 5 (+관찰/2).', 'Gain Focus 2, then deal 5 (+OBS/2).'),
+    upgrade: {
+      effects: [
+        { kind: 'status', status: 'focus', amount: 3, to: 'owner' },
+        { kind: 'damage', amount: 7, statScale: { stat: 'obs', div: 2 } },
+      ],
+      text: t('집중 3을 얻고 피해 7 (+관찰/2).', 'Gain Focus 3, then deal 7 (+OBS/2).'),
+    },
+    icon: 'v2/cards/deadeye.webp',
+    tags: ['mark'],
+  },
 ]
 
 const POOL_RARE: CardDef[] = [
@@ -768,6 +879,32 @@ const POOL_RARE: CardDef[] = [
     text: t('장갑·방어막 무시 피해 12.', 'Deal 12, ignoring armor and block.'),
     upgrade: { effects: [{ kind: 'damage', amount: 16, pierce: true }], text: t('장갑·방어막 무시 피해 16.', 'Deal 16, ignoring armor and block.') },
     icon: 'v2/cards/deadeye.webp',
+  },
+  {
+    id: 'pandemic_pulse',
+    name: t('오염 파동', 'Pandemic Pulse'),
+    type: 'tactic',
+    rarity: 'rare',
+    owner: 'any',
+    cost: 2,
+    target: { mode: 'lob', minRange: 1, range: 4 },
+    effects: [
+      { kind: 'damage', amount: 3, area: 'square' },
+      { kind: 'status', status: 'corrode', amount: 3, area: 'square' },
+      { kind: 'status', status: 'bleed', amount: 2, area: 'square' },
+    ],
+    exhaust: true,
+    text: t('3×3 범위에 피해 3, 부식 3, 출혈 2. 소멸.', '3×3 area: deal 3, Corrode 3, Bleed 2. Exhaust.'),
+    upgrade: {
+      effects: [
+        { kind: 'damage', amount: 5, area: 'square' },
+        { kind: 'status', status: 'corrode', amount: 4, area: 'square' },
+        { kind: 'status', status: 'bleed', amount: 3, area: 'square' },
+      ],
+      text: t('3×3 범위에 피해 5, 부식 4, 출혈 3. 소멸.', '3×3 area: deal 5, Corrode 4, Bleed 3. Exhaust.'),
+    },
+    icon: 'v2/cards/singularity.webp',
+    tags: ['corrode', 'bleed'],
   },
 ]
 
@@ -1645,9 +1782,18 @@ const COMPANION_CARDS: CardDef[] = [
     owner: 'kai',
     cost: 0,
     target: { mode: 'lob', minRange: 1, range: 6 },
-    effects: [{ kind: 'status', status: 'mark', amount: 4 }],
-    text: t('표식 4.', 'Mark 4.'),
-    upgrade: { effects: [{ kind: 'status', status: 'mark', amount: 6 }], text: t('표식 6.', 'Mark 6.') },
+    effects: [
+      { kind: 'status', status: 'mark', amount: 4 },
+      { kind: 'status', status: 'focus', amount: 2, to: 'owner' },
+    ],
+    text: t('표식 4. 집중 2.', 'Mark 4. Gain Focus 2.'),
+    upgrade: {
+      effects: [
+        { kind: 'status', status: 'mark', amount: 6 },
+        { kind: 'status', status: 'focus', amount: 3, to: 'owner' },
+      ],
+      text: t('표식 6. 집중 3.', 'Mark 6. Gain Focus 3.'),
+    },
     icon: 'v2/cards/kai_scope_in.webp',
     tags: ['mark', 'companion'],
   },
@@ -2081,12 +2227,21 @@ const TOKENS: CardDef[] = [
     owner: 'any',
     cost: 0,
     target: { mode: 'melee' },
-    effects: [{ kind: 'damage', amount: 4 }],
+    effects: [
+      { kind: 'damage', amount: 4 },
+      { kind: 'status', status: 'bleed', amount: 2 },
+    ],
     exhaust: true,
-    text: t('피해 4. 소멸.', 'Deal 4. Exhaust.'),
-    upgrade: { effects: [{ kind: 'damage', amount: 6 }], text: t('피해 6. 소멸.', 'Deal 6. Exhaust.') },
+    text: t('피해 4. 출혈 2. 소멸.', 'Deal 4. Bleed 2. Exhaust.'),
+    upgrade: {
+      effects: [
+        { kind: 'damage', amount: 6 },
+        { kind: 'status', status: 'bleed', amount: 3 },
+      ],
+      text: t('피해 6. 출혈 3. 소멸.', 'Deal 6. Bleed 3. Exhaust.'),
+    },
     icon: 'v2/cards/echo_blade.webp',
-    tags: ['companion'],
+    tags: ['bleed', 'companion'],
   },
   {
     id: 'echo_shield',

@@ -311,6 +311,36 @@
   background: linear-gradient(180deg, rgba(14, 105, 98, 0.9), rgba(6, 44, 42, 0.95));
   border-color: rgba(98, 250, 235, 0.85);
 }
+.m2c-st--bleed {
+  background: linear-gradient(180deg, rgba(168, 12, 52, 0.94), rgba(68, 4, 24, 0.96));
+  border-color: #ff4d79;
+  box-shadow: 0 0 7px rgba(255, 45, 95, 0.78);
+  color: #ffe2ea;
+}
+.m2c-st--bleed img {
+  filter: sepia(1) saturate(7) hue-rotate(-45deg) brightness(1.15) drop-shadow(0 0 2px #ff2a5f);
+}
+.m2c-st--corrode {
+  background: linear-gradient(180deg, rgba(28, 128, 38, 0.92), rgba(10, 52, 16, 0.95));
+  border-color: #62ff82;
+  box-shadow: 0 0 7px rgba(72, 255, 110, 0.72);
+  color: #e4ffea;
+}
+.m2c-st--corrode img {
+  filter: sepia(1) saturate(6) hue-rotate(70deg) brightness(1.25) drop-shadow(0 0 2px #44ff6b);
+}
+.m2c-st--evade {
+  background: linear-gradient(180deg, rgba(18, 110, 148, 0.92), rgba(8, 44, 68, 0.95));
+  border-color: #84f5ff;
+  box-shadow: 0 0 7px rgba(110, 240, 255, 0.7);
+  color: #ebfdff;
+}
+.m2c-st--focus {
+  background: linear-gradient(180deg, rgba(156, 108, 10, 0.92), rgba(64, 42, 4, 0.95));
+  border-color: #ffd859;
+  box-shadow: 0 0 7px rgba(255, 208, 60, 0.75);
+  color: #fff8dc;
+}
 @keyframes m2c-pop {
   0% {
     transform: scale(0.2);

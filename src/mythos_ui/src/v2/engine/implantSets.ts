@@ -53,7 +53,7 @@ export const IMPLANT_SETS: ImplantSetDef[] = [
     id: 'impact',
     name: t('충돌', 'Impact'),
     blurb: t('밀고, 박고, 떨어뜨린다.', 'Shove, slam, drop.'),
-    members: ['erased_id', 'recoil_boots', 'impact_frame', 'domino_relay', 'momentum_core', 'chain_reaction'],
+    members: ['erased_id', 'recoil_boots', 'impact_frame', 'domino_relay', 'momentum_core', 'chain_reaction', 'serrated_wire'],
     tiers: [
       { count: 2, passive: { bumpDamage: 1 }, text: t('충돌 피해 +1', 'Bump damage +1') },
       { count: 3, passive: { bumpDamage: 2 }, text: t('충돌 피해 +2 더 (합 +3)', 'Another +2 bump damage (+3 total)') },
@@ -63,7 +63,7 @@ export const IMPLANT_SETS: ImplantSetDef[] = [
     id: 'signal',
     name: t('교란', 'Signal'),
     blurb: t('표식, 감전, 소각 — 적의 신호를 어지럽힌다.', 'Mark, shock, burn — scramble the enemy’s signal.'),
-    members: ['cracked_lens', 'sentinel_eye', 'ark_coolant', 'ix_shard', 'purge_igniter', 'feedback_loop'],
+    members: ['cracked_lens', 'sentinel_eye', 'ark_coolant', 'ix_shard', 'purge_igniter', 'feedback_loop', 'acid_injector', 'hawkeye_lens'],
     tiers: [
       { count: 2, passive: { traceMult: -0.1 }, text: t('얻는 추적도 −10%', 'Trace gained −10 %') },
       { count: 3, passive: { traceMult: -0.1 }, text: t('얻는 추적도 −10% 더 (합 −20%)', 'Another −10 % trace gained (−20 % total)') },
@@ -73,7 +73,7 @@ export const IMPLANT_SETS: ImplantSetDef[] = [
     id: 'tempo',
     name: t('속도', 'Tempo'),
     blurb: t('먼저 뽑고, 먼저 움직인다.', 'Draw first, move first.'),
-    members: ['spare_cell', 'reflex_booster', 'overclock_heart', 'kill_chain', 'smugglers_pocket', 'adrenal_loop', 'ghost_engine'],
+    members: ['spare_cell', 'reflex_booster', 'overclock_heart', 'kill_chain', 'smugglers_pocket', 'adrenal_loop', 'ghost_engine', 'reflex_gyro'],
     tiers: [
       { count: 2, passive: { stats: { agi: 1, obs: 1 } }, text: t('민첩 +1 · 관측 +1', '+1 AGI, +1 OBS') },
       { count: 3, passive: { move: 1 }, text: t('모든 아군 이동 +1', 'Every ally moves +1') },

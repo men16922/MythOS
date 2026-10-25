@@ -129,6 +129,14 @@ const COMMON: ImplantDef[] = [
     icon: 'v2/implants/trigger_discipline.webp',
     triggers: [{ on: 'play_attack', effects: [{ kind: 'block', amount: 4, to: 'connector' }], limit: 'turn' }],
   },
+  {
+    id: 'serrated_wire',
+    name: t('톱니 와이어', 'Serrated Wire'),
+    text: t('충돌이 일어날 때마다 무작위 적 하나에 출혈 2.', 'Whenever a bump happens, apply Bleed 2 to a random enemy.'),
+    rarity: 'common',
+    icon: 'v2/implants/thorn_weave.webp',
+    triggers: [{ on: 'bump', effects: [{ kind: 'status', status: 'bleed', amount: 2, to: 'random_enemy' }] }],
+  },
 ]
 
 const UNCOMMON: ImplantDef[] = [
@@ -213,6 +221,23 @@ const UNCOMMON: ImplantDef[] = [
     icon: 'v2/implants/afterimage.webp',
     triggers: [{ on: 'play_tactic', effects: [{ kind: 'block', amount: 2, to: 'connector' }] }],
   },
+  {
+    id: 'acid_injector',
+    name: t('산성 주입기', 'Acid Injector'),
+    text: t('전투 시작 시 모든 적 부식 2.', 'Combat start: Corrode 2 on all enemies.'),
+    rarity: 'uncommon',
+    icon: 'v2/implants/purge_igniter.webp',
+    triggers: [{ on: 'combat_start', effects: [{ kind: 'status', status: 'corrode', amount: 2, to: 'all_enemies' }] }],
+  },
+  {
+    id: 'reflex_gyro',
+    name: t('반사 자이로', 'Reflex Gyro'),
+    text: t('민첩 +1. 전투 시작 시 접속자 회피 1.', 'AGI +1. Combat start: the connector gains Evade 1.'),
+    rarity: 'uncommon',
+    icon: 'v2/implants/afterimage.webp',
+    passive: { stats: { agi: 1 } },
+    triggers: [{ on: 'combat_start', effects: [{ kind: 'status', status: 'evade', amount: 1, to: 'connector' }] }],
+  },
 ]
 
 const RARE: ImplantDef[] = [
@@ -280,6 +305,15 @@ const RARE: ImplantDef[] = [
     rarity: 'rare',
     icon: 'v2/implants/ix_shard.webp',
     triggers: [{ on: 'combat_start', effects: [{ kind: 'status', status: 'shock', amount: 1, to: 'all_enemies' }] }],
+  },
+  {
+    id: 'hawkeye_lens',
+    name: t('호크아이 렌즈', 'Hawkeye Lens'),
+    text: t('관찰 +1. 치명타 배율 +25% (1.5× → 1.75×). 전투 시작 시 접속자 집중 2.', 'OBS +1. Critical hit multiplier +25% (1.5× → 1.75×). Combat start: the connector gains Focus 2.'),
+    rarity: 'rare',
+    icon: 'v2/implants/echo_lens.webp',
+    passive: { stats: { obs: 1 }, critMult: 0.25 },
+    triggers: [{ on: 'combat_start', effects: [{ kind: 'status', status: 'focus', amount: 2, to: 'connector' }] }],
   },
 ]
 

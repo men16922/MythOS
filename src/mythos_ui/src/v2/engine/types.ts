@@ -59,16 +59,31 @@ export interface Tile {
 // ---------------------------------------------------------------- statuses
 
 /**
- * burn   N : at the end of each enemy phase the unit takes N damage (ignores block), then N -= 1.
- * shock  N : enemy — its intent fizzles when it would fire and it does not move; party — cannot move.
- *            Decrements by 1 at the end of that side's phase.
- * mark   N : the next damage instance this unit takes is increased by N, then mark is removed.
- * weak   N : this unit's outgoing damage is reduced by 2 (min 0) for N of its phases.
- * guard  N : party only — gains N block at the start of each player turn (a "power").
- * thorns N : when hit by a melee/charge attack, the attacker takes N damage.
+ * burn    N : at the end of each enemy phase the unit takes N damage (ignores block), then N -= 1.
+ * bleed   N : when the unit moves or is pushed/pulled at least 1 tile (and at the end of the enemy phase),
+ *             it takes N damage (ignores block). Movement ticks N -= 1; enemy phase end decays N to floor(N / 2).
+ * corrode N : at the end of each enemy phase the unit takes N damage (ignores block) and loses 1 permanent armor,
+ *             then N -= 1. If a unit with corrode > 0 dies, its remaining corrode spreads to adjacent enemies.
+ * shock   N : enemy — its intent fizzles when it would fire and it does not move; party — cannot move.
+ *             Decrements by 1 at the end of that side's phase.
+ * mark    N : the next damage instance this unit takes is increased by N, then mark is removed.
+ * weak    N : this unit's outgoing damage is reduced by 2 (min 0) for N of its phases.
+ * guard   N : party only — gains N block at the start of each player turn (a "power").
+ * thorns  N : when hit by a melee/charge attack, the attacker takes N damage.
+ * evade   N : when hit by a direct attack, incoming damage is halved (floor(dmg / 2)) and evade decreases by 1.
+ * focus   N : party only — at focus >= 4, the next direct attack critically hits (ceil(dmg * 1.5), ignores armor)
+ *             and consumes 4 focus.
  */
-export type StatusKind = 'burn' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns'
+export type StatusKind = 'burn' | 'bleed' | 'corrode' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns' | 'evade' | 'focus'
 export type Statuses = Partial<Record<StatusKind, number>>
+
+export interface StatScale {
+  stat: StatKey
+  /** Bonus amount per point of the stat (default 1; floored). */
+  mult?: number
+  /** Divisor for stat scaling: floor(val / div). */
+  div?: number
+}
 
 // ---------------------------------------------------------------- effects
 
@@ -94,7 +109,7 @@ export type AreaShape = 'single' | 'cross' | 'adjacent' | 'square' | 'row'
 
 export type Effect =
   /** Damage. `bonusVsMarked` adds damage when the victim is marked (on top of mark itself). */
-  | { kind: 'damage'; amount: number; to?: EffectScope; area?: AreaShape; pierce?: boolean; bonusVsMarked?: number }
+  | { kind: 'damage'; amount: number; to?: EffectScope; area?: AreaShape; pierce?: boolean; bonusVsMarked?: number; statScale?: StatScale }
   /**
    * Push 1+ tiles. 'away' = away from the owner (for area effects: away from the impact centre),
    * 'toward' = toward the owner (pull). A push into cover/unit/wall/edge stops the unit and BOTH take 1
@@ -102,9 +117,9 @@ export type Effect =
    */
   /** `slam` adds that much to the bump damage when this push ends against a wall / cover / unit (both sides). */
   | { kind: 'push'; dir: 'away' | 'toward'; distance?: number; to?: EffectScope; area?: AreaShape; slam?: number }
-  | { kind: 'block'; amount: number; to?: EffectScope }
+  | { kind: 'block'; amount: number; to?: EffectScope; statScale?: StatScale }
   | { kind: 'heal'; amount: number; to?: EffectScope }
-  | { kind: 'status'; status: StatusKind; amount: number; to?: EffectScope; area?: AreaShape }
+  | { kind: 'status'; status: StatusKind; amount: number; to?: EffectScope; area?: AreaShape; statScale?: StatScale }
   | { kind: 'draw'; amount: number }
   | { kind: 'energy'; amount: number }
   /** Owner teleports to the target tile (must be empty floor/hazard). */
@@ -351,8 +366,8 @@ export type CombatEvent =
   | { t: 'move'; uid: string; path: Pos[] }
   | { t: 'teleport'; uid: string; from: Pos; to: Pos }
   | { t: 'attack'; uid: string; moveId: string; tiles: Pos[] }
-  /** `cause` tags non-attack damage so the board can show it: burn tick, hazard zap, bump (wall/cover/unit). */
-  | { t: 'damage'; uid: string; amount: number; blocked: number; source: 'party' | 'enemy' | 'environment'; cause?: 'burn' | 'hazard' | 'bump' }
+  /** `cause` tags non-attack damage so the board can show it: burn/bleed/corrode tick, hazard zap, bump (wall/cover/unit). */
+  | { t: 'damage'; uid: string; amount: number; blocked: number; source: 'party' | 'enemy' | 'environment'; cause?: 'burn' | 'bleed' | 'corrode' | 'hazard' | 'bump'; crit?: boolean; evaded?: number }
   | { t: 'heal'; uid: string; amount: number }
   | { t: 'block'; uid: string; amount: number }
   | { t: 'push'; uid: string; from: Pos; to: Pos; dir: Dir; bumped?: string | 'wall' | 'cover' }
@@ -415,6 +430,10 @@ export interface CombatState {
   stats: { enemiesKilled: number; environmentKills: number; damageDealt: number; damageTaken: number; cardsPlayed: number }
   /** Active CRPG combat twists (conversation mods or boss quest payoffs) applied at fight start. */
   mods?: CombatModId[]
+  /** Run-level 5 stats (STR/AGI/INT/CHA/OBS) frozen into this combat for stat-driven combat passives and scaling. */
+  runStats?: Stats
+  /** Active run mutator id (if any), for combat-level mutator rules. */
+  mutator?: string
 }
 
 export interface PlayTarget {
@@ -450,6 +469,7 @@ export interface ImplantPassive {
   shopDiscount?: number // 0.2 = 20% off
   stats?: Partial<Stats>
   bumpDamage?: number // extra bump damage
+  critMult?: number // extra critical hit damage multiplier (e.g. 0.25 -> 1.75x instead of 1.5x)
 }
 
 /** A companion's in-combat trait. Triggers work like implant triggers but only while the companion is alive and

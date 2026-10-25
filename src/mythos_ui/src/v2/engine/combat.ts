@@ -41,6 +41,7 @@ import {
   type CombatStateExt,
   type Resolution,
   activePassive,
+  addStatus,
   applyEffects,
   byUid,
   checkEnd,
@@ -65,6 +66,7 @@ import {
   pruneTurnKeys,
   scopeOf,
   spawnEnemy,
+  tickMoveBleed,
   tileAt,
   unitAt,
   winCombat,
@@ -220,6 +222,8 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     triggered: {},
     stats: { enemiesKilled: 0, environmentKills: 0, damageDealt: 0, damageTaken: 0, cardsPlayed: 0 },
     scaling: scalingFor(run),
+    runStats: { ...run.stats },
+    ...(run.mutator ? { mutator: run.mutator } : {}),
   }
   if (enc.bonus) c.bonus = { def: enc.bonus, progress: 0, failed: false }
 
@@ -257,6 +261,36 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
   const thread = (key: string): number => run.flags[`thread_${key}`] ?? 0
   const extraMove = activePassive(c, C, 'move') + thread('move')
   for (const u of livingParty(c)) u.move += extraMove
+  const connUnit = connectorOf(c)
+  const agi = run.stats?.agi ?? 0
+  const obs = run.stats?.obs ?? 0
+  const intStat = run.stats?.int ?? 0
+  if (connUnit && agi >= 8) connUnit.move += 1
+  if (connUnit && agi >= 6) addStatus(c, connUnit, 'evade', agi >= 9 ? 2 : 1)
+  if (connUnit && obs >= 5) addStatus(c, connUnit, 'focus', obs >= 8 ? 2 : 1)
+  if (intStat >= 7) c.pendingDraw = (c.pendingDraw ?? 0) + 1
+  if (run.mutator === 'acid_rain') {
+    for (const e of livingEnemies(c).slice(0, 2)) addStatus(c, e, 'corrode', 2)
+    if (connUnit) addStatus(c, connUnit, 'corrode', 1)
+  } else if (run.mutator === 'magnetic_storm') {
+    if (connUnit) addStatus(c, connUnit, 'evade', 1)
+  } else if (run.mutator === 'bounty_hunters') {
+    if (connUnit) addStatus(c, connUnit, 'focus', 2)
+  }
+  if (run.flags.world_echo_noble) {
+    c.triggered['c:world_echo_noble'] = 1
+  }
+  if (encounterId === 'a3_boss_ix') {
+    const ix = livingEnemies(c).find((e) => e.defId === 'administrator_ix' || e.defId === 'ix_avatar')
+    if (ix && run.flags.world_echo_rewrite) {
+      ix.armor += 1
+      addStatus(c, ix, 'thorns', 2)
+    }
+    if (connUnit && run.flags.world_echo_throne) {
+      addStatus(c, connUnit, 'mark', 2)
+      addStatus(c, connUnit, 'focus', 2)
+    }
+  }
   c.maxEnergy = 3 + activePassive(c, C, 'energy') + thread('energy')
   c.handSize = 5 + activePassive(c, C, 'handSize') + thread('handSize')
   if (thread('bumpDamage')) c.threadBump = thread('bumpDamage')
@@ -279,6 +313,15 @@ function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): vo
     u.moved = false
     const guard = u.statuses.guard ?? 0
     if (guard > 0) gainBlock(c, u, guard)
+  }
+  if (first) {
+    const chaBlock = Math.floor(((c.runStats?.cha ?? 0) - 2) / 2)
+    if (chaBlock > 0) {
+      for (const u of livingParty(c)) if (u.uid !== 'connector') gainBlock(c, u, chaBlock)
+    }
+    if (c.triggered['c:world_echo_noble']) {
+      for (const u of livingParty(c)) gainBlock(c, u, 4)
+    }
   }
   // Unspent energy was dropped at end of turn; anything gained off-turn (e.g. on damage taken) carries over.
   c.energy += c.maxEnergy
@@ -329,7 +372,7 @@ export function legalMoves(c: CombatState, uid: string): Pos[] {
   return out.sort((a, b) => a.y - b.y || a.x - b.x)
 }
 
-export function moveUnit(c0: CombatState, _C: ContentRegistry, uid: string, to: Pos): CombatState {
+export function moveUnit(c0: CombatState, C: ContentRegistry, uid: string, to: Pos): CombatState {
   requirePlayer(c0)
   if (!legalMoves(c0, uid).some((p) => samePos(p, to))) throw new Error(`illegal move for ${uid}`)
   const c = clone(c0)
@@ -341,7 +384,15 @@ export function moveUnit(c0: CombatState, _C: ContentRegistry, uid: string, to: 
   const dir = dirToward(path[path.length - 2] ?? path[0] ?? to, to)
   if (dir) u.facing = dir
   emit(c, { t: 'move', uid, path })
-  enterGround(c, u)
+  if (u.uid === 'connector' && (c.runStats?.agi ?? 0) >= 6 && path.length - 1 >= 3) {
+    const key = `t${c.turn}:sprint_evade`
+    if (!c.triggered[key]) {
+      c.triggered[key] = 1
+      addStatus(c, u, 'evade', 1)
+    }
+  }
+  tickMoveBleed(c, C, u)
+  if (u.hp > 0) enterGround(c, u)
   return c
 }
 
@@ -600,6 +651,18 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
   const key = `t${c.turn}:__cards`
   c.triggered[key] = (c.triggered[key] ?? 0) + 1
   if (c.phase === 'lost') return
+  if (def.owner !== 'any' && def.owner !== 'connector' && (c.runStats?.cha ?? 0) >= 6 && !c.triggered['c:cha_refund']) {
+    c.triggered['c:cha_refund'] = 1
+    c.energy += 1
+    emit(c, { t: 'energy', amount: 1 })
+  }
+  if (def.type === 'tactic' && c.mutator === 'overclocked_grid' && !c.triggered[`t${c.turn}:oc_tactic`]) {
+    c.triggered[`t${c.turn}:oc_tactic`] = 1
+    if (face.cost > 0) {
+      c.energy += 1
+      emit(c, { t: 'energy', amount: 1 })
+    }
+  }
   if (cardsPlayedThisTurn(c) === 1) fireTrigger(c, C, 'first_card', undefined, origin.uid)
   if (def.type === 'attack') fireTrigger(c, C, 'play_attack', undefined, origin.uid)
   else if (def.type === 'skill') fireTrigger(c, C, 'play_skill', undefined, origin.uid)
@@ -693,7 +756,7 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
   }
   if (c.phase !== 'player') return
 
-  // b. fire catches, burn ticks, hazards, ground decays, statuses decay, reinforcements
+  // b. fire catches, burn/bleed/corrode ticks, hazards, ground decays, statuses decay, reinforcements
   igniteStanding(c)
   for (const u of c.units.slice().sort(byUid)) {
     const burn = u.statuses.burn ?? 0
@@ -703,7 +766,27 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
     if (c.phase !== 'player') return
   }
   for (const u of c.units.slice().sort(byUid)) {
-    if (u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') dealDamage(c, C, u, HAZARD_DAMAGE, { source: 'environment', cause: 'hazard' })
+    const bleed = u.statuses.bleed ?? 0
+    if (bleed <= 0 || u.hp <= 0) continue
+    dealDamage(c, C, u, bleed, { source: u.side === 'enemy' ? 'party' : 'enemy', ignoreBlock: true, cause: 'bleed' })
+    if (u.hp > 0) {
+      const nextBleed = Math.floor(bleed / 2)
+      if (nextBleed > 0) u.statuses.bleed = nextBleed
+      else delete u.statuses.bleed
+    }
+    if (c.phase !== 'player') return
+  }
+  for (const u of c.units.slice().sort(byUid)) {
+    const corrode = u.statuses.corrode ?? 0
+    if (corrode <= 0 || u.hp <= 0) continue
+    if (u.armor > 0) u.armor = Math.max(0, u.armor - 1)
+    dealDamage(c, C, u, corrode, { source: u.side === 'enemy' ? 'party' : 'enemy', ignoreBlock: true, cause: 'corrode' })
+    if (u.hp > 0) decayStatus(u, 'corrode')
+    if (c.phase !== 'player') return
+  }
+  const hazDmg = c.mutator === 'acid_rain' ? HAZARD_DAMAGE * 2 : HAZARD_DAMAGE
+  for (const u of c.units.slice().sort(byUid)) {
+    if (u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') dealDamage(c, C, u, hazDmg, { source: 'environment', cause: 'hazard' })
     if (c.phase !== 'player') return
   }
   decayGround(c)

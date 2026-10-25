@@ -66,3 +66,18 @@ export function echoEffects(echo: EchoDef, profile: Pick<MetaProfile, 'history'>
 export function autonomyDc(run: Pick<RunState, 'autonomy'>): number {
   return (run.autonomy ?? 0) >= 1 ? AUTONOMY_IMPROVISE_DC : 0
 }
+
+export type WorldEchoFlag = 'world_echo_rewrite' | 'world_echo_refuge' | 'world_echo_noble'
+
+const ENDING_TO_WORLD_ECHO: Record<string, WorldEchoFlag> = {
+  ending_code_rewrite: 'world_echo_rewrite',
+  ending_safe_refuge: 'world_echo_refuge',
+  ending_noble_sacrifice: 'world_echo_noble',
+}
+
+/** World-state carryover flag from the last victorious normal loop's ending. */
+export function worldEchoFor(profile: Pick<MetaProfile, 'history'>): WorldEchoFlag | undefined {
+  const last = lastLoop(profile)
+  if (!last || last.result !== 'victory') return undefined
+  return ENDING_TO_WORLD_ECHO[last.endingId]
+}

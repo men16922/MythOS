@@ -21,6 +21,7 @@ import type {
   ImplantPassive,
   Pos,
   Side,
+  StatScale,
   StatusKind,
   Tile,
   TriggerEvent,
@@ -40,6 +41,40 @@ export const BUMP_DAMAGE = 1
 export const FIRE_BURN = 2
 export const WEAK_PENALTY = 2
 export const BLOCKED_ARRIVAL_DAMAGE = 2
+export const FOCUS_CRIT_THRESHOLD = 4
+export const BASE_CRIT_MULT = 1.5
+
+export function strAttackBonus(c: CombatState): number {
+  const s = c.runStats?.str ?? 0
+  return s >= 8 ? 2 : s >= 5 ? 1 : 0
+}
+
+export function strBumpBonus(c: CombatState): number {
+  const s = c.runStats?.str ?? 0
+  return s >= 7 ? 2 : s >= 4 ? 1 : 0
+}
+
+export function intDotBonus(c: CombatState): number {
+  const s = c.runStats?.int ?? 0
+  return s >= 8 ? 2 : s >= 5 ? 1 : 0
+}
+
+export function obsMarkBonus(c: CombatState): number {
+  const s = c.runStats?.obs ?? 0
+  return s >= 9 ? 2 : s >= 6 ? 1 : 0
+}
+
+export function obsFocusGain(c: CombatState): number {
+  const s = c.runStats?.obs ?? 0
+  return s >= 8 ? 2 : s >= 5 ? 1 : 0
+}
+
+export function statBonus(c: CombatState, scale: StatScale | undefined): number {
+  if (!scale) return 0
+  const val = c.runStats?.[scale.stat] ?? 0
+  if (scale.div && scale.div > 0) return Math.max(0, Math.floor(val / scale.div))
+  return Math.max(0, Math.floor(val * (scale.mult ?? 1)))
+}
 
 /**
  * Engine-private state extensions. They are plain optional JSON fields, so they survive save/load and
@@ -276,6 +311,8 @@ export function checkEnd(c: CombatState, C: ContentRegistry): void {
  * run can read the final state, and the fight is lost.
  */
 export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause: 'damage' | 'void'): void {
+  const corrode = u.side === 'enemy' ? (u.statuses.corrode ?? 0) : 0
+  const deathPos = { ...u.pos }
   u.hp = 0
   emit(c, { t: 'death', uid: u.uid, cause })
   if (u.uid === 'connector') {
@@ -291,8 +328,15 @@ export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause
       c.stats.environmentKills += 1
       if (c.bonus?.def.kind === 'environment') c.bonus.progress += 1
     }
-    fireTrigger(c, C, 'enemy_killed', u.pos)
-    if (environmental) fireTrigger(c, C, 'environment_kill', u.pos)
+    if (corrode > 0) {
+      for (const adj of livingEnemies(c).sort(byUid)) {
+        if (Math.abs(adj.pos.x - deathPos.x) + Math.abs(adj.pos.y - deathPos.y) === 1) {
+          addStatus(c, adj, 'corrode', corrode)
+        }
+      }
+    }
+    fireTrigger(c, C, 'enemy_killed', deathPos)
+    if (environmental) fireTrigger(c, C, 'environment_kill', deathPos)
     if (C.enemies[u.defId]?.tier === 'boss') collapseWithBoss(c, C)
   } else if (u.side === 'neutral' && c.bonus?.def.kind === 'protect') {
     c.bonus.failed = true
@@ -318,29 +362,49 @@ function collapseWithBoss(c: CombatState, C: ContentRegistry): void {
 export interface HitOpts {
   source: DamageSource
   attacker?: UnitState
-  /** Card/enemy attack: mark, weak and armor apply. Environmental ticks (bump, hazard, burn) skip them. */
+  /** Card/enemy attack: mark, weak and armor apply. Environmental ticks (bump, hazard, burn, bleed, corrode) skip them. */
   attack?: boolean
   pierce?: boolean
   ignoreBlock?: boolean
   /** Melee/charge hit (triggers the victim's thorns). */
   melee?: boolean
   bonusVsMarked?: number
-  /** Tag for the board (burn tick / hazard zap / bump). */
-  cause?: 'burn' | 'hazard' | 'bump'
+  /** Tag for the board (burn / bleed / corrode tick / hazard zap / bump). */
+  cause?: 'burn' | 'bleed' | 'corrode' | 'hazard' | 'bump'
 }
 
 /** Apply one damage instance. Returns hp actually lost. */
 export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState, amount: number, o: HitOpts): number {
   if (victim.hp <= 0) return 0
   let dmg = amount
+  let crit = false
+  let evaded = 0
   if (o.attack) {
+    if (o.attacker?.uid === 'connector' && o.source === 'party') {
+      dmg += strAttackBonus(c)
+    }
     const mark = victim.statuses.mark ?? 0
     if (mark > 0) {
-      dmg += mark + (o.bonusVsMarked ?? 0)
+      dmg += mark + (o.bonusVsMarked ?? 0) + (o.source === 'party' ? obsMarkBonus(c) : 0)
       delete victim.statuses.mark
     }
     if (o.attacker && (o.attacker.statuses.weak ?? 0) > 0) dmg -= WEAK_PENALTY
-    if (!o.pierce) dmg -= victim.armor
+    if (o.attacker && (o.attacker.statuses.focus ?? 0) >= FOCUS_CRIT_THRESHOLD && dmg > 0) {
+      crit = true
+      const mult = BASE_CRIT_MULT + (o.source === 'party' ? activePassive(c, C, 'critMult') : 0)
+      dmg = Math.ceil(dmg * mult)
+      addStatus(c, o.attacker, 'focus', -FOCUS_CRIT_THRESHOLD)
+    } else if (o.attacker && o.source === 'party' && dmg > 0) {
+      const fg = obsFocusGain(c)
+      if (fg > 0) addStatus(c, o.attacker, 'focus', fg)
+    }
+    if (!o.pierce && !crit) dmg -= victim.armor
+    if (dmg > 0 && (victim.statuses.evade ?? 0) > 0) {
+      const after = Math.floor(dmg / 2)
+      evaded = dmg - after
+      dmg = after
+      decayStatus(victim, 'evade')
+    }
   }
   dmg = Math.max(0, dmg)
   let blocked = 0
@@ -352,7 +416,17 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
   const lost = Math.min(victim.hp, dmg)
   victim.hp -= lost
   victim.lastHitBy = o.source
-  emit(c, o.cause ? { t: 'damage', uid: victim.uid, amount: dmg, blocked, source: o.source, cause: o.cause } : { t: 'damage', uid: victim.uid, amount: dmg, blocked, source: o.source })
+  const dmgEv: Extract<CombatEvent, { t: 'damage' }> = {
+    t: 'damage',
+    uid: victim.uid,
+    amount: dmg,
+    blocked,
+    source: o.source,
+  }
+  if (o.cause) dmgEv.cause = o.cause
+  if (crit) dmgEv.crit = true
+  if (evaded > 0) dmgEv.evaded = evaded
+  emit(c, dmgEv)
   if (victim.side === 'enemy' && o.source === 'party') c.stats.damageDealt += lost
   if (victim.uid === 'connector' && lost > 0) {
     c.stats.damageTaken += lost
@@ -451,7 +525,7 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
   if (!moved && !bumped) return
   emit(c, bumped ? { t: 'push', uid: u.uid, from, to: { ...u.pos }, dir, bumped } : { t: 'push', uid: u.uid, from, to: { ...u.pos }, dir })
   if (bumped) {
-    const extra = activePassive(c, C, 'bumpDamage')
+    const extra = activePassive(c, C, 'bumpDamage') + strBumpBonus(c) + (c.mutator === 'magnetic_storm' ? 2 : 0)
     dealDamage(c, C, u, BUMP_DAMAGE + slam + (u.side === 'party' ? 0 : extra), { source: 'environment', cause: 'bump' })
     if (bumped === 'cover' && bumpPos) damageCover(c, bumpPos, 1)
     else if (bumped !== 'wall') {
@@ -460,10 +534,23 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
     }
     fireTrigger(c, C, 'bump', u.hp > 0 ? u.pos : bumpPos)
   }
+  if (moved && u.hp > 0) {
+    tickMoveBleed(c, C, u)
+  }
   if (moved && u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') {
-    dealDamage(c, C, u, HAZARD_DAMAGE, { source: 'environment', cause: 'hazard' })
+    const hazDmg = c.mutator === 'acid_rain' ? HAZARD_DAMAGE * 2 : HAZARD_DAMAGE
+    dealDamage(c, C, u, hazDmg, { source: 'environment', cause: 'hazard' })
   }
   if (moved) enterGround(c, u)
+}
+
+/** Movement / forced movement triggers bleed immediately (ignores block) and decays it by 1. */
+export function tickMoveBleed(c: CombatState, C: ContentRegistry, u: UnitState): void {
+  if (u.hp <= 0) return
+  const bleed = u.statuses.bleed ?? 0
+  if (bleed <= 0) return
+  dealDamage(c, C, u, bleed, { source: u.side === 'enemy' ? 'party' : 'enemy', ignoreBlock: true, cause: 'bleed' })
+  if (u.hp > 0) decayStatus(u, 'bleed')
 }
 
 /** A unit just arrived on its tile (move / push / teleport / swap end): burning ground sets it alight. */
@@ -637,7 +724,7 @@ export function effectTiles(eff: Effect, res: Resolution): Pos[] {
   return uniqPositions(centres.flatMap((p) => areaTiles(p, area, res.dir)))
 }
 
-const DEBUFFS: ReadonlySet<StatusKind> = new Set<StatusKind>(['burn', 'shock', 'mark', 'weak'])
+const DEBUFFS: ReadonlySet<StatusKind> = new Set<StatusKind>(['burn', 'bleed', 'corrode', 'shock', 'mark', 'weak'])
 
 /** Units an effect applies to. `random_enemy` consumes the combat RNG. */
 export function effectTargets(c: CombatState, eff: Effect, res: Resolution): UnitState[] {
@@ -700,8 +787,8 @@ export function applyEffects(c: CombatState, C: ContentRegistry, effects: readon
 function areaElement(effects: readonly Effect[]): Extract<CombatEvent, { t: 'area' }>['element'] | null {
   const has = (f: (e: Effect) => boolean) => effects.some(f)
   if (has((e) => e.kind === 'ignite' || (e.kind === 'status' && e.status === 'burn'))) return 'fire'
-  if (has((e) => e.kind === 'electrify' || (e.kind === 'status' && e.status === 'shock'))) return 'shock'
-  if (has((e) => e.kind === 'damage')) return 'blast'
+  if (has((e) => e.kind === 'electrify' || (e.kind === 'status' && (e.status === 'shock' || e.status === 'corrode')))) return 'shock'
+  if (has((e) => e.kind === 'damage' || (e.kind === 'status' && e.status === 'bleed'))) return 'blast'
   if (has((e) => e.kind === 'push')) return 'force'
   if (has((e) => e.kind === 'block')) return 'shield'
   if (has((e) => e.kind === 'heal')) return 'heal'
@@ -730,11 +817,12 @@ function emitArea(c: CombatState, effects: readonly Effect[], res: Resolution): 
 function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resolution): void {
   switch (eff.kind) {
     case 'damage': {
-      if (eff.amount > 0) {
+      const dmgAmt = eff.amount + statBonus(c, eff.statScale)
+      if (dmgAmt > 0) {
         // Environmental sources (held junk, hazards) carry no attacker: no weak/mark/armor interplay.
         const environmental = res.source === 'environment'
         for (const u of effectTargets(c, eff, res)) {
-          dealDamage(c, C, u, eff.amount, {
+          dealDamage(c, C, u, dmgAmt, {
             source: res.source,
             attacker: environmental ? undefined : res.origin,
             attack: !environmental,
@@ -758,18 +846,26 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       }
       plans.sort((a, b) => lead(b) - lead(a))
       const stopBefore = eff.dir === 'toward' ? res.origin?.uid : undefined
-      for (const { u, d } of plans) pushUnit(c, C, u, d, eff.distance ?? 1, stopBefore, eff.slam ?? 0)
+      const dist = (eff.distance ?? 1) + (c.mutator === 'magnetic_storm' && res.side === 'party' ? 1 : 0)
+      for (const { u, d } of plans) pushUnit(c, C, u, d, dist, stopBefore, eff.slam ?? 0)
       return
     }
-    case 'block':
-      for (const u of effectTargets(c, eff, res)) gainBlock(c, u, eff.amount)
+    case 'block': {
+      const blkAmt = eff.amount + statBonus(c, eff.statScale)
+      for (const u of effectTargets(c, eff, res)) gainBlock(c, u, blkAmt)
       return
+    }
     case 'heal':
       for (const u of effectTargets(c, eff, res)) healUnit(c, u, eff.amount)
       return
-    case 'status':
-      for (const u of effectTargets(c, eff, res)) addStatus(c, u, eff.status, eff.amount)
+    case 'status': {
+      const isDot = eff.status === 'burn' || eff.status === 'bleed' || eff.status === 'corrode'
+      let stAmt = eff.amount + statBonus(c, eff.statScale)
+      if (isDot && res.side === 'party' && stAmt > 0) stAmt += intDotBonus(c)
+      if (isDot && c.mutator === 'overclocked_grid' && stAmt > 0) stAmt = Math.ceil(stAmt * 1.5)
+      for (const u of effectTargets(c, eff, res)) addStatus(c, u, eff.status, stAmt)
       return
+    }
     case 'draw': {
       if (res.side !== 'party') return
       const x = c as CombatStateExt

@@ -10,7 +10,7 @@ Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank
 
 - `[x]` Review + refactor + rebalance + unique art (2026-10-25): `engine/statPerks.ts` single source (engine + HUD), mutator combat rules as data (`MutatorDef.combat`, text = code), `WORLD_ECHOES` table, `CONTENT.tuning`; map 8 → 7 rows; P0 mixed ~75 → ~46 % (Paradox 1/3/5 31/27/16 %); bleed = movement-only; smuggler block 2/turn; 68 Codex images replace every reused asset. `[ ]` `[owner]` deploy (production still ~75 % build).
 - `[x]` **S1–S5** (2026-10-25, same session): archetype gap 5 pts (ghost evade AGI 8, echo victory heal 5, smuggler block 3/turn); **Rage** (`rage` status, `CONTENT.tuning.rage`: elites +3 / bosses +1 per enemy phase from turn 3, Paradox 5 from turn 2) → elite loss 7.3 %, boss 8.9 turns; greedy P5 85.6 %; unique status icons (bleed/evade/focus/rage). P0 mixed 40.5 %, Paradox 1–5 34.7 → 8.7 %.
-- `[x]` Deploy: preview `00150-qen` (`a6615b7`) verified 5/5 and promoted 2026-10-25 (`--to-latest`, production 4/4; rollback `00148-nav`). `[ ]` `[owner]` fun check (watch Rage harshness).
+- `[x]` Deploy: preview `00150-qen` (`a6615b7`) verified 5/5 and promoted 2026-10-25 (`--to-latest`, production 4/4; rollback `00148-nav`). `[x]` owner fun verdict **S — keep it** (2026-10-26).
 - `[x]` Smuggler payoff card `mass_hijack` (rare, cost 1: cross-area redirect + 5₵, Codex art; run-level neutral 38.9 vs 39.3 %).
 
 ## Priority 0 — global showcase & improvement waves (owner direction 2026-10-24)

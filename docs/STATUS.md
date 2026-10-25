@@ -36,9 +36,9 @@ Authority plan: `docs/NEXT_PLAN.md` · improvement & direction plan: `docs/plans
 
 - **Daily results**: replay-verified server-side (live since 2026-10-20; shield badge; ranking unchanged — an unverified row can still rank). Saves stay client JSON blobs.
 - **Vertex tail latency**: some GM calls take 10–20 s or end in 504 DEADLINE_EXCEEDED; hedging + 14 s narrate timeout bring act intros to ~83 % answered (local measure). Authored text covers the rest; watch `v2 gm` outcomes after promotion.
-- **Fun / purchase intent is unjudged by a human**: everything above is automated evidence; the owner's play check (`docs/test/mythos2_fun_check.md`) is the open verdict.
+- **Fun**: owner verdict 2026-10-26 on `00150-qen` = S (keep). Purchase intent stays unjudged (paid release on hold).
 - **Balance noise**: mixed-bot win rate swings ±6 % by seed block — A/B on identical blocks (`docs/LESSONS.md`).
-- **S-rank status**: the six automatable axes are A−/A (`docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` §4); the human fun verdict and the deploy are the owner's. Bot balance is not human feel — Rage (+3/turn on elites) may read harsh; watch the fun check.
+- **S-rank status**: the six automatable axes are A−/A (`docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` §4); the owner's fun verdict (2026-10-26) is S and the build is live — S-rank closed.
 - **GM quality**: local `gemma4:8b-64k` lines are serviceable; Vertex `gemini-3.8-flash` is sharper (3.8's introductory price reportedly doubles in Jan 2027). All lines are cleaned and have authored fallbacks.
 - **Generated assets** were spot-checked, not hand-curated; regenerate single files with `scripts/v2_assets/` (call-budget ledger).
 - **Account deletion on production**: until `mythos-run@` has `roles/firebaseauth.admin`, deletion erases the game data but reports `sign_in_record_deleted: false` (remove the user in the Firebase console; the policy page promises 30 days).

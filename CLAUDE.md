@@ -48,7 +48,7 @@ Browser testing is **always silent** (`?mute=1` / localStorage `mythos2.mute=1`)
 
 ### Deploy
 
-`make deploy` (Cloud Run, env-preserving, `.env` `PROJECT_ID`) / `make deploy-preview` (no-traffic tagged revision). Both stamp the revision with a `git-sha` label. After a preview deploy run `make verify-preview` (read-only: revision built from HEAD, health, google sign-in, served bundle = committed bundle) before anyone promotes it. Deploys are owner decisions; `git push` is owner-only.
+`make deploy` (Cloud Run, env-preserving, `.env` `PROJECT_ID`) / `make deploy-preview` (no-traffic tagged revision). Both stamp the revision with a `git-sha` label. After a preview deploy run `make verify-preview` (read-only: revision built from HEAD, health, google sign-in, served bundle = committed bundle) before anyone promotes it. Deploys are owner decisions; `git push` is allowed for verified, committed work (owner 2026-10-26) — never force-push, never push `.env`/keys.
 
 ## Architecture
 
@@ -75,10 +75,10 @@ Say "done" only with evidence, and say what was not checked:
 - **UI / flow change**: exercise it in the real UI (muted, one tab; `make playthrough-quick` or the combat sandbox), not only unit tests.
 - **Deploy**: `make verify-preview` green and the revision's `git-sha` label equals HEAD. A deploy command exiting 0 is not proof.
 - Anything not run is written as "unverified" in the reply and in `PROGRESS_LOG.md`. Do not add unrequested features or change defaults (e.g. auto-sync behaviour) without asking.
-- Commit what is verified and checkpointed (the plugin's `ship` skill does the checkpoint → budget → gate → commit sequence); `git push` stays the owner's.
+- Commit what is verified and checkpointed (the plugin's `ship` skill does the checkpoint → budget → gate → commit sequence), then push it (owner 2026-10-26: push allowed; `main` advances by fast-forward only, no force-push).
 
 ## Agent execution constraints (from /insights 2026-07-05 — recurring friction)
 
 - **Gate commands**: run `make check`/`make test`/… from the repo root exactly as listed in Commands. Never chain with `cd && <cmd>` (sandbox blocks compound forms); use absolute paths or Makefile targets.
-- **Permission-classifier hard blocks — do not retry; hand the user the exact command to run via the `!` prefix instead**: `git push` (private repo), IAM/role grants (`gcloud iam …`), printing or materializing credentials (admin keys, tokens, Firebase configs, signing keystores; subshell injection without echoing is acceptable), editing shell profiles (`~/.zshrc`) or creating launchd/system services, plugin-marketplace config edits, launching agents with `--dangerously-skip-permissions`.
+- **Permission-classifier hard blocks — do not retry; hand the user the exact command to run via the `!` prefix instead**: IAM/role grants (`gcloud iam …`), printing or materializing credentials (admin keys, tokens, Firebase configs, signing keystores; subshell injection without echoing is acceptable), editing shell profiles (`~/.zshrc`) or creating launchd/system services, plugin-marketplace config edits, launching agents with `--dangerously-skip-permissions`.
 - **Destructive cleanup**: prefer explicit file-by-file removal over broad `rm -rf` on source/tool directories; confirm before deleting anything you did not create.

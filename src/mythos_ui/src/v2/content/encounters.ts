@@ -5,7 +5,7 @@
 // dodge a telegraph, make enemies shoot each other, push into void, use cover against a shooter.
 // `aN_n2_*` combine ideas. Acts 2 and 3 open with fights that introduce that act's new enemy mechanic.
 
-import type { EncounterDef, Pos, Text, TileKind } from '../engine/types.ts'
+import type { ActId, EncounterDef, Pos, Text, TileKind } from '../engine/types.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 const at = (x: number, y: number): Pos => ({ x, y })
@@ -687,7 +687,7 @@ const ACT3: EncounterDef[] = [
 export const ENCOUNTERS: EncounterDef[] = [...ACT1, ...ACT2, ...ACT3]
 
 /** Encounters of one act and kind (event-triggered ambushes excluded unless asked for). */
-export function encountersFor(act: 1 | 2 | 3, kind: EncounterDef['kind'], includeEventFights = false): EncounterDef[] {
+export function encountersFor(act: ActId, kind: EncounterDef['kind'], includeEventFights = false): EncounterDef[] {
   return ENCOUNTERS.filter((e) => e.act === act && e.kind === kind && (includeEventFights || !EVENT_FIGHTS.has(e.id)))
 }
 

@@ -272,7 +272,7 @@ export function CombatScreen(props: CombatScreenProps) {
           ? 'combat3'
           : act === 2 || enc?.backdrop === 'industrial' || combat.encounterId.includes('ambush') || combat.encounterId.startsWith('a1_n2_')
             ? 'combat2'
-            : act === 3
+            : act >= 3
               ? 'combat3'
               : 'combat1'
   useEffect(() => {

@@ -48,7 +48,7 @@ function runFact(r: RunRecord, C: ContentRegistry, lang: Lang): string {
   const mates = r.party.map((id) => tr(C.companions[id]?.name, lang)).filter(Boolean)
   const lastMate = mates[mates.length - 1] ?? ''
   const withWho = mates.length ? (ko ? `${mates.join('·')}${hasBatchim(lastMate) ? '과' : '와'} 함께 ` : `, with ${mates.join(' and ')}`) : ''
-  const act = tr(C.acts[r.act as 1 | 2 | 3]?.name, lang)
+  const act = tr(C.acts[r.act]?.name, lang)
   if (r.result === 'victory') {
     const ending = tr(C.endings[r.endingId]?.title, lang)
     return ko ? `${withWho}${withRo(arch)} 접속해 끝까지 갔다(${ending})` : `Connected as ${arch} and reached the end (${ending})${withWho}`

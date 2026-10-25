@@ -8,6 +8,7 @@ import { CardChoice } from '../components/CardChoice.tsx'
 import { ImplantSetNote } from '../components/ImplantSetNote.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { sound } from '../components/sound.ts'
+import { lastAct } from '../../engine/run.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 import './reward.css'
@@ -32,7 +33,7 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
     ? ko
       ? '지도로'
       : 'To the map'
-    : run.act < 3
+    : run.act < lastAct(run, C)
       ? ko
         ? `${run.act + 1}막으로`
         : `On to Act ${run.act + 1}`

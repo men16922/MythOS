@@ -2,7 +2,7 @@
 // flavour (never in RunState): ui/shell/MapBanter.tsx picks one per map arrival, deterministically from the run.
 // Voices follow src/mythos_v2/talk.py personas: Se-rin short and blunt, Tae-o clipped '~다.', Han slangy and cocky,
 // Su-ah warm, Kai polite and wondering (해요체), Lin Yue smooth and transactional.
-import type { Text } from '../engine/types.ts'
+import type { ActId, Text } from '../engine/types.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 
@@ -11,7 +11,7 @@ export interface BanterDef {
   /** Both must be deployed. The first speaks first. */
   pair: [string, string]
   /** Acts it may play in (default: any). */
-  acts?: (1 | 2 | 3)[]
+  acts?: ActId[]
   lines: { who: string; text: Text }[]
 }
 
@@ -163,7 +163,7 @@ export const BANTER: BanterDef[] = [
 ]
 
 /** Banter the two deployed companions can have in this act. */
-export function banterFor(party: readonly string[], act: 1 | 2 | 3): BanterDef[] {
+export function banterFor(party: readonly string[], act: ActId): BanterDef[] {
   if (party.length < 2) return []
   const [a, b] = party
   return BANTER.filter((x) => ((x.pair[0] === a && x.pair[1] === b) || (x.pair[0] === b && x.pair[1] === a)) && (!x.acts || x.acts.includes(act)))
@@ -233,7 +233,7 @@ export const SOLO_BANTER: BanterDef[] = [
   },
 ]
 
-export function soloBanterFor(companionId: string, act: 1 | 2 | 3): BanterDef[] {
+export function soloBanterFor(companionId: string, act: ActId): BanterDef[] {
   return SOLO_BANTER.filter((x) => x.pair[0] === companionId && (!x.acts || x.acts.includes(act)))
 }
 

@@ -23,7 +23,7 @@ export function authoredChronicle(run: RunState, lang: Lang, C: ContentRegistry)
   const ended = run.screen.kind === 'ended' ? run.screen : null
   const abandoned = (run.flags.abandoned ?? 0) > 0
   const won = ended?.result === 'victory'
-  const acts = ([1, 2, 3] as const).filter((a) => a <= run.act).map((a) => tr(C.acts[a]?.name, lang)).filter(Boolean)
+  const acts = Array.from({ length: run.act }, (_, i) => i + 1).map((a) => tr(C.acts[a]?.name, lang)).filter(Boolean)
   const bosses = run.log
     .filter((l) => l.kind === 'boss')
     .map((l) => tr(l.note, lang))

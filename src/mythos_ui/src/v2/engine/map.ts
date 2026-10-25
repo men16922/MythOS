@@ -14,7 +14,7 @@
 
 import { pick, pickWeighted, randInt, sample } from './rng.ts'
 import type { RngHolder } from './rng.ts'
-import type { ActMap, ContentRegistry, EncounterDef, EventDef, MapNode, NodeKind } from './types.ts'
+import type { ActId, ActMap, ContentRegistry, EncounterDef, EventDef, MapNode, NodeKind } from './types.ts'
 
 /** Regular rows (0..MAP_ROWS-1); the boss sits on row MAP_ROWS. */
 export const MAP_ROWS = 7
@@ -41,7 +41,7 @@ export function mapNodeId(act: number, row: number, col: number): string {
   return `a${act}r${row}c${col}`
 }
 
-export function generateActMap(act: 1 | 2 | 3, rng: RngHolder, C: ContentRegistry, opts: MapOptions = {}): ActMap {
+export function generateActMap(act: ActId, rng: RngHolder, C: ContentRegistry, opts: MapOptions = {}): ActMap {
   const skeleton = growSkeleton(rng)
   const nodes: Record<string, MapNode> = {}
   const bossId = mapNodeId(act, BOSS_ROW, 1)
@@ -292,7 +292,7 @@ function rollEncounters(
 /** Events that may be pre-rolled for this act (scripted and zero-weight events excluded). */
 export function actEventPool(act: number, C: ContentRegistry): EventDef[] {
   return Object.values(C.events).filter(
-    (e) => e.acts.includes(act as 1 | 2 | 3) && !SCRIPTED_EVENTS.has(e.id) && (e.weight ?? 1) > 0,
+    (e) => e.acts.includes(act) && !SCRIPTED_EVENTS.has(e.id) && (e.weight ?? 1) > 0,
   )
 }
 

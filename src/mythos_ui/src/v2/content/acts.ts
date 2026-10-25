@@ -1,7 +1,7 @@
 // The three acts of a loop. Intro text is shown on the act-intro screen (authored, instant).
-import type { ActDef } from '../engine/types.ts'
+import type { ActDef, ActId } from '../engine/types.ts'
 
-export const ACTS: Record<1 | 2 | 3, ActDef> = {
+export const ACTS: Record<ActId, ActDef> = {
   1: {
     act: 1,
     name: { ko: 'C-17 블랙아웃', en: 'C-17 Blackout' },

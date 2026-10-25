@@ -56,6 +56,9 @@ export interface Tile {
   ttl?: number
 }
 
+/** Act number: 1–3 in a standard run; Deep Signal runs continue into the acts content packs add (4+). */
+export type ActId = number
+
 // ---------------------------------------------------------------- statuses
 
 /**
@@ -307,7 +310,7 @@ export type BonusObjective =
 
 export interface EncounterDef {
   id: string
-  act: 1 | 2 | 3
+  act: ActId
   kind: 'normal' | 'elite' | 'boss'
   name: Text
   backdrop: Backdrop
@@ -646,7 +649,7 @@ export interface EventOption {
 
 export interface EventDef {
   id: string
-  acts: (1 | 2 | 3)[]
+  acts: ActId[]
   title: Text
   image: string // 'scenes/night_market.png'
   speaker?: string // companion / character id for portrait
@@ -679,7 +682,7 @@ export interface MapNode {
 }
 
 export interface ActMap {
-  act: 1 | 2 | 3
+  act: ActId
   rows: number
   nodes: Record<string, MapNode>
   startIds: string[]
@@ -758,7 +761,7 @@ export interface RunState {
   loop: number
   paradox: number
   archetype: string
-  act: 1 | 2 | 3
+  act: ActId
   map: ActMap
   /** Current node (null = at the act start, choose from startIds). */
   nodeId: string | null
@@ -804,6 +807,8 @@ export interface RunState {
   thoughts?: ThoughtState
   /** Companions who joined and have not had their recruit scene yet (UI plays them in order; engine/run.ts resolveIntro). */
   introQueue?: string[]
+  /** 'deep' = Deep Signal: the run continues past Act 3 into the content packs' acts (engine/run.ts lastAct). */
+  mode?: 'deep'
   /** The connector's leanings this run (1.0 choice axes): dialogue intents, first impressions, hard wins. */
   axes?: Partial<Record<ChoiceAxis, number>>
 }
@@ -883,7 +888,7 @@ export interface PoiDef {
 
 export interface DistrictDef {
   id: string
-  act: 1 | 2 | 3
+  act: ActId
   name: Text
   image: string
   intro: Text
@@ -1132,7 +1137,7 @@ export interface EndingDef {
 }
 
 export interface ActDef {
-  act: 1 | 2 | 3
+  act: ActId
   name: Text
   subtitle: Text
   intro: Text
@@ -1149,7 +1154,7 @@ export interface ContentRegistry {
   events: Record<string, EventDef>
   companions: Record<string, CompanionDef>
   archetypes: Record<string, ArchetypeDef>
-  acts: Record<1 | 2 | 3, ActDef>
+  acts: Record<ActId, ActDef>
   endings: Record<string, EndingDef>
   unlocks: Record<string, MetaUnlockDef>
   paradox: ParadoxDef[]

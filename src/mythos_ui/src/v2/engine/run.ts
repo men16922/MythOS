@@ -472,6 +472,8 @@ export interface NewRunOptions {
   echo?: string
   /** Optional loop mutator id for a non-daily run. */
   mutator?: string
+  /** Deep Signal (ignored on a daily, and until the profile may play it — see deepSignalOpen). */
+  mode?: 'deep'
 }
 
 /** Stand-in profile for a daily run's content: nothing unlocked, no threads. */
@@ -545,6 +547,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   applyConcretePassive(run, thread)
   if (daily) run.mutator = mutatorForDate(daily).id
   else if (opts.mutator && mutatorById(opts.mutator)) run.mutator = opts.mutator
+  if (!daily && opts.mode === 'deep' && deepSignalOpen(profile, C)) run.mode = 'deep'
   const mut = mutatorMods(run)
   run.maxHp = Math.max(20, run.maxHp + (mut.maxHp ?? 0))
   run.hp = run.maxHp
@@ -847,7 +850,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
       if (combat.units.some((u) => u.uid === m.id && u.side === 'party' && u.hp > 0)) raiseBond(next, m.id, 1, C)
     }
     // After the final boss nothing is left to spend loot on: straight to the ending choice.
-    if (next.act >= 3) {
+    if (next.act >= lastAct(next, C)) {
       clearCurrentNode(next)
       next.screen = { kind: 'final_choice' }
       return next
@@ -893,10 +896,24 @@ export function takeRewardConsumable(run: RunState, C: ContentRegistry): RunStat
   })
 }
 
+/** Acts a standard run plays. */
+export const STANDARD_ACTS = 3
+
+/** The run's final act: 3 on a standard run; a Deep Signal run continues through every act the content holds. */
+export function lastAct(run: Pick<RunState, 'mode'>, C: Pick<ContentRegistry, 'acts'>): number {
+  if (run.mode !== 'deep') return STANDARD_ACTS
+  return Math.max(STANDARD_ACTS, ...Object.keys(C.acts).map(Number))
+}
+
+/** Deep Signal is open once the profile has won a run and the content holds acts beyond the third. */
+export function deepSignalOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<ContentRegistry, 'acts'>): boolean {
+  return profile.wins > 0 && Object.keys(C.acts).some((k) => Number(k) > STANDARD_ACTS)
+}
+
 function advanceAct(run: RunState, C: ContentRegistry): void {
   run.growth = (run.growth ?? 0) + 1
   if ((run.autonomy ?? 0) >= 2) gainTrace(run, -AUTONOMY_ACT_SCRUB, C)
-  run.act = (run.act + 1) as 2 | 3
+  run.act = run.act + 1
   run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents })
   placeDistrict(run, run.map, C)
   run.nodeId = null
@@ -913,7 +930,7 @@ export function leaveReward(run: RunState, C: ContentRegistry): RunState {
     if (!s.reward.taken.credits) next.credits += s.reward.credits
     if (next.nodeId !== null && next.nodeId === next.map.bossId) {
       clearCurrentNode(next)
-      if (next.act < 3) advanceAct(next, C)
+      if (next.act < lastAct(next, C)) advanceAct(next, C)
       else next.screen = { kind: 'final_choice' }
     } else {
       next.screen = { kind: 'map' }

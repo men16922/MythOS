@@ -337,10 +337,10 @@ test('writing budget: event text ≤ 320 chars (ko), act intro ≤ 400, outcomes
 })
 
 test('acts are keyed correctly with the planned backdrops', () => {
-  assert.equal(ACTS[1].backdrop, 'streets')
-  assert.equal(ACTS[2].backdrop, 'undercity')
-  assert.equal(ACTS[3].backdrop, 'spire')
-  for (const k of [1, 2, 3] as const) assert.equal(ACTS[k].act, k)
+  assert.equal(ACTS[1]?.backdrop, 'streets')
+  assert.equal(ACTS[2]?.backdrop, 'undercity')
+  assert.equal(ACTS[3]?.backdrop, 'spire')
+  for (const [k, a] of Object.entries(ACTS)) assert.equal(a.act, Number(k))
 })
 
 test('endings: ids, gates and echo bonuses', () => {

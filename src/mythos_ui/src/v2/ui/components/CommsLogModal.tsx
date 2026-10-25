@@ -62,7 +62,7 @@ export function CommsLogModal({ C, lang, onClose }: { C: ContentRegistry; lang: 
               <li key={e.id} className={`m2-comms__item is-${e.speaker}${e.ai ? ' is-ai' : ''}`}>
                 {actHead && (
                   <div className="m2-comms__act">
-                    {ko ? `${e.act}막` : `Act ${e.act}`} · {tr(C.acts[e.act as 1 | 2 | 3]?.name, lang)}
+                    {ko ? `${e.act}막` : `Act ${e.act}`} · {e.act !== undefined ? tr(C.acts[e.act]?.name, lang) : ''}
                   </div>
                 )}
                 <div className="m2-comms__head">

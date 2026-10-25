@@ -44,6 +44,41 @@ export const FIRE_BURN = 2
 export const WEAK_PENALTY = 2
 export const BLOCKED_ARRIVAL_DAMAGE = 2
 export const FOCUS_CRIT_THRESHOLD = 4
+/** Momentum (액션성 X2): full gauge = Signal Burst. */
+export const MOMENTUM_MAX = 100
+export const MOMENTUM_KILL = 20
+/** Each player turn after the first builds Momentum on its own (a long fight always reaches its Burst). */
+export const MOMENTUM_TURN = 10
+export const MOMENTUM_ENV_KILL = 10 // on top of the kill
+export const MOMENTUM_CRIT = 10
+export const MOMENTUM_EVADE = 10
+export const MOMENTUM_CHAIN4 = 25
+/** Riposte (X3): an Evade graze on the connector hits a melee attacker back for this much. */
+export const RIPOSTE_DAMAGE = 2
+
+/** Add Momentum (party only, capped; nothing after the Burst is spent). */
+export function gainMomentum(c: CombatState, n: number): void {
+  if (n <= 0 || c.burstUsed) return
+  const before = c.momentum ?? 0
+  const after = Math.min(MOMENTUM_MAX, before + n)
+  if (after === before) return
+  c.momentum = after
+  emit(c, { t: 'momentum', amount: after - before, total: after })
+}
+
+/** Chain (X1): kills in one player turn — 2 = draw 1, 3 = +1 energy, 4+ = +25 Momentum. */
+function countChainKill(c: CombatState): void {
+  const key = `t${c.turn}:kills`
+  const n = (c.triggered[key] ?? 0) + 1
+  c.triggered[key] = n
+  if (n < 2) return
+  emit(c, { t: 'chain', n })
+  if (n === 2) drawCards(c, 1)
+  else if (n === 3) {
+    c.energy += 1
+    emit(c, { t: 'energy', amount: 1 })
+  } else gainMomentum(c, MOMENTUM_CHAIN4)
+}
 export const BASE_CRIT_MULT = 1.5
 
 /** The run's stat perks frozen into this fight (engine/statPerks.ts). */
@@ -317,6 +352,10 @@ export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause
       c.stats.environmentKills += 1
       if (c.bonus?.def.kind === 'environment') c.bonus.progress += 1
     }
+    if (c.phase === 'player' && !(c as CombatStateExt).inEnemyPhase) {
+      gainMomentum(c, MOMENTUM_KILL + (environmental ? MOMENTUM_ENV_KILL : 0))
+      countChainKill(c)
+    }
     if (corrode > 0) {
       for (const adj of livingEnemies(c).sort(byUid)) {
         if (Math.abs(adj.pos.x - deathPos.x) + Math.abs(adj.pos.y - deathPos.y) === 1) {
@@ -383,6 +422,7 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
       const mult = BASE_CRIT_MULT + (o.source === 'party' ? activePassive(c, C, 'critMult') : 0)
       dmg = Math.ceil(dmg * mult)
       addStatus(c, o.attacker, 'focus', -FOCUS_CRIT_THRESHOLD)
+      if (o.source === 'party') gainMomentum(c, MOMENTUM_CRIT)
     } else if (o.attacker && o.source === 'party' && dmg > 0) {
       const fg = perksOf(c).focusPerHit
       if (fg > 0) addStatus(c, o.attacker, 'focus', fg)
@@ -393,6 +433,7 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
       evaded = dmg - after
       dmg = after
       decayStatus(victim, 'evade')
+      if (victim.side === 'party') gainMomentum(c, MOMENTUM_EVADE)
     }
   }
   dmg = Math.max(0, dmg)
@@ -424,6 +465,10 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
   const thorns = victim.statuses.thorns ?? 0
   if (o.melee && thorns > 0 && o.attacker && o.attacker !== victim && o.attacker.hp > 0) {
     dealDamage(c, C, o.attacker, thorns, { source: victim.side === 'enemy' ? 'enemy' : 'party' })
+  }
+  // Riposte (X3): the connector grazes a melee hit with Evade and cuts back.
+  if (evaded > 0 && o.melee && victim.uid === 'connector' && victim.hp > 0 && o.attacker && o.attacker.side === 'enemy' && o.attacker.hp > 0) {
+    dealDamage(c, C, o.attacker, RIPOSTE_DAMAGE, { source: 'party' })
   }
   if (victim.hp <= 0) {
     killUnit(c, C, victim, 'damage')
@@ -906,6 +951,10 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       return
     }
     case 'redirect':
+      if (eff.to === 'all_enemies') {
+        for (const u of livingEnemies(c).sort(byUid)) redirectIntent(c, C, u)
+        return
+      }
       for (const p of effectTiles(eff, res)) {
         const u = unitAt(c, p)
         if (u?.side === 'enemy') redirectIntent(c, C, u)

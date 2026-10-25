@@ -227,7 +227,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'jujak_core',
     name: t('주작', 'JUJAK'),
-    sprite: 'incinerator',
+    sprite: 'jujak',
     tier: 'boss',
     hp: 62,
     armor: 1,
@@ -774,7 +774,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'arachne_queen',
     name: t('아라크네', 'ARACHNE'),
-    sprite: 'brood-mother',
+    sprite: 'arachne',
     tier: 'boss',
     hp: 76,
     armor: 1,

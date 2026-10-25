@@ -27,7 +27,11 @@ function build(archetype: string, encounterId: string, extra: boolean, seed: num
       }
       run.consumables = Object.keys(C.consumables).slice(0, 3)
     }
-    return { run, combat: startCombat(run, encounterId, C) }
+    const combat = startCombat(run, encounterId, C)
+    // ?momentum=100 starts with a full gauge (Signal Burst checks).
+    const mom = Number(new URLSearchParams(window.location.search).get('momentum'))
+    if (mom > 0) combat.momentum = Math.min(100, mom)
+    return { run, combat }
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) }
   }

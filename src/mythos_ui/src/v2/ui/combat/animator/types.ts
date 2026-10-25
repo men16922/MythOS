@@ -18,9 +18,11 @@ export interface UnitFx {
 }
 
 export interface Banner {
-  kind: 'enemy' | 'player' | 'phase' | 'victory' | 'defeat' | 'intro'
+  kind: 'enemy' | 'player' | 'phase' | 'victory' | 'defeat' | 'intro' | 'burst'
   title: string
   sub?: string
+  /** Portrait for a 'burst' cut-in. */
+  art?: string
   key: number
 }
 

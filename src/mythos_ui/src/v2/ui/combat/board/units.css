@@ -644,3 +644,29 @@
     animation: none;
   }
 }
+
+/* V5 Rage aura: a red pulse under raging elites/bosses, stronger as Rage stacks (--rage 0..1). */
+.m2c-unit.is-raging .m2c-u-ring {
+  box-shadow:
+    0 0 calc(8px + 22px * var(--rage, 0.3)) rgba(255, 40, 70, calc(0.35 + 0.55 * var(--rage, 0.3))),
+    inset 0 0 12px rgba(255, 60, 60, 0.5);
+  border-color: rgba(255, 70, 90, 0.9);
+  animation: m2c-rage 0.9s ease-in-out infinite;
+}
+.m2c-unit.is-raging .m2c-fig {
+  filter: drop-shadow(0 0 calc(4px + 10px * var(--rage, 0.3)) rgba(255, 50, 60, calc(0.4 + 0.5 * var(--rage, 0.3))));
+}
+@keyframes m2c-rage {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(calc(1.05 + 0.08 * var(--rage, 0.3)));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2c-unit.is-raging .m2c-u-ring {
+    animation: none;
+  }
+}

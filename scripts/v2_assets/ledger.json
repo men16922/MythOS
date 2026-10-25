@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 66,
+ "codex_image_calls": 68,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -2509,6 +2509,24 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/boss/a1_boss_haetae.webp"
    ],
    "ts": "2026-10-25T17:31:42"
+  },
+  "v2/boss/a1_boss_jujak.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Boss splash art: JUJAK, the Vermilion Bird guardian of Korean myth reimagined as a towering fire-core purge war machine: a tall two-legged bird-shaped incinerator walker in scorched vermilion and crimson armour plates, a sharp hooked beak-like head with a single burning amber eye and a flamethrower nozzle, huge folded wing-shaped heat-sink vanes on its back glowing red-hot at the edges like burning feathers, a blazing white-orange furnace core in its chest behind half-open armoured shutters, napalm mortar pods on its shoulders, long tail-feather exhaust fins venting sparks and embers, heavy clawed bird feet. It stalks through a burning blacked-out industrial sector of the lower city, the wet asphalt boiling like red magma beneath its feet, rain hissing into steam, seen from a low dramatic angle. The boss fills the right two thirds of the frame; the left side is darker for the boss name. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/boss/a1_boss_baekho.webp"
+   ],
+   "ts": "2026-10-26T02:13:52"
+  },
+  "v2/boss/a2_boss_arachne.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Boss splash art: ARACHNE, the hive matriarch reimagined as a colossal electric spider-queen machine nested in the Undercity power grid: a huge eight-legged spider mech in glossy black chitin-like armour with violet and electric-blue seams, a sleek armoured upper torso rising from the front like a crowned queen with a smooth faceless mask and a cluster of six glowing blue sensor eyes, two long front legs ending in needle lance tips dripping neuro-toxin, a swollen capacitor-bank abdomen lined with glowing blue egg pods, tangled high-voltage cables strung around her like a web crackling with blue lightning arcs. She looms over a flooded undercity substation beneath the night market, small spiderling drones crawling on the cables, seen from a low dramatic angle. The boss fills the right two thirds of the frame; the left side is darker for the boss name. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/boss/a2_boss_hyeonmu.webp"
+   ],
+   "ts": "2026-10-26T02:13:52"
   },
   "v2/boss/a2_boss_hyeonmu.webp": {
    "generations": 1,

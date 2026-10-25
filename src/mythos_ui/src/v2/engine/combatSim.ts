@@ -10,6 +10,8 @@
 import type { CardInstance, CombatState, ContentRegistry, Effect, PlayTarget, Pos, TargetMode, UnitState } from './types.ts'
 import { manhattan, posKey, samePos } from './grid.ts'
 import {
+  burstInPlace,
+  burstReady,
   canPlay,
   cardFace,
   consumableTargets,
@@ -35,6 +37,9 @@ export type BotPolicy = 'greedy' | 'basic' | 'mixed'
 export function autoPlay(c0: CombatState, C: ContentRegistry, policy: BotPolicy, maxTurns = 25): CombatState {
   const c = leanClone(c0)
   while (c.phase === 'player' && c.turn <= maxTurns) {
+    // Signal Burst: a player fires it as soon as it is ready while two foes or an elite/boss stand.
+    if (burstReady(c, C) && (livingEnemies(c).length >= 2 || livingEnemies(c).some((e) => C.enemies[e.defId]?.tier !== 'normal' && C.enemies[e.defId]?.tier !== 'minion'))) burstInPlace(c, C)
+    if (c.phase !== 'player') break
     if (policy === 'greedy' || (policy === 'mixed' && mixedRoll(c) < 0.75)) greedyTurn(c, C)
     else basicTurn(c, C)
     if (c.phase === 'player') endTurnInPlace(c, C)

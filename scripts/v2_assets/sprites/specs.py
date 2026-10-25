@@ -226,7 +226,7 @@ SPRITES: list[Sprite] = [
             attack="now ATTACKING toward the LEFT: rearing up on its hind legs, front legs raised to strike, "
             "spitting a compact glob of glowing green acid",
         ),
-        enemy_ids=("spider_matriarch", "arachne_queen"),
+        enemy_ids=("spider_matriarch",),
     ),
     Sprite(
         key="glitch-reaver",
@@ -310,7 +310,7 @@ SPRITES: list[Sprite] = [
             attack="now ATTACKING toward the LEFT: both flamethrower arms blasting a compact cone of roaring "
             "orange fire, exhaust stacks venting",
         ),
-        enemy_ids=("incinerator", "jujak_core"),
+        enemy_ids=("incinerator",),
     ),
     # ------------------------------------------------------------------ normal/minion variants (face LEFT)
     # Defs that used to share a base sprite with a different enemy. The UI scales minions down by tier.
@@ -480,6 +480,43 @@ SPRITES: list[Sprite] = [
             "cracking apart, wireframe lattices glitching, red core flaring, shards flying",
         ),
         enemy_ids=("architect_omega",),
+    ),
+    Sprite(
+        key="jujak",
+        kind="boss",
+        idle_ref="resources/neo-seoul/v2/boss/a1_boss_jujak.webp",
+        idle_ref_note=SPLASH_NOTE,
+        subject="JUJAK, the act-1 boss: the Vermilion Bird guardian of Korean myth rebuilt as a fire-core purge "
+        "war machine — a tall two-legged bird-shaped incinerator walker in scorched vermilion and crimson armour, "
+        "a hooked beak-like head with burning amber eyes, quad-barrel napalm mortar pods on its shoulders, a "
+        "blazing white-orange furnace core in its chest, huge wing-shaped heat-sink vanes on its back glowing "
+        "red-hot like burning feathers, heavy clawed bird feet, embers drifting off it",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: beak open and lunging forward, a compact gout of white-orange "
+            "flame bursting from the beak, wing vanes flared wide and blazing, chest core flaring",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, crimson armour plates cracked "
+            "and sparking, wing vanes buckled, the furnace core sputtering, small embers and debris flying",
+        ),
+        enemy_ids=("jujak_core",),
+    ),
+    Sprite(
+        key="arachne",
+        kind="boss",
+        size="1536x1024",
+        idle_ref="resources/neo-seoul/v2/boss/a2_boss_arachne.webp",
+        idle_ref_note=SPLASH_NOTE,
+        subject="ARACHNE, the act-2 boss: the hive matriarch of the Undercity grid — a huge eight-legged "
+        "spider-queen machine in glossy black chitin-like armour with violet and electric-blue seams, a sleek "
+        "armoured upper torso rising from the front like a crowned queen with a smooth mask and six glowing "
+        "blue sensor eyes, long legs ending in violet-lit needle lance tips, a swollen abdomen of glowing blue "
+        "capacitor egg pods, crackling blue electric arcs",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: charging forward with the front lance legs thrust out, a "
+            "compact burst of blue lightning at the lance tips, egg pods flaring bright",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, black carapace plates cracked "
+            "and sparking, legs buckled, an egg pod ruptured and spitting blue sparks, small shards flying",
+        ),
+        enemy_ids=("arachne_queen",),
     ),
     # ------------------------------------------------------------------ content-expansion enemies (face LEFT)
     Sprite(

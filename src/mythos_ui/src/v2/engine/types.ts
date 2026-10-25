@@ -129,7 +129,8 @@ export type Effect =
   /** Owner swaps positions with the target unit (any side). */
   | { kind: 'swap' }
   /** Target enemy's intent is turned around 180° (relative patterns) or re-aimed at the nearest other enemy (lob). */
-  | { kind: 'redirect'; area?: AreaShape }
+  /** `to: 'all_enemies'` flips every living enemy's intent (an archetype burst); otherwise the targeted tiles. */
+  | { kind: 'redirect'; area?: AreaShape; to?: 'all_enemies' }
   /** Target enemy's current intent is cancelled (it still re-telegraphs next enemy phase). */
   | { kind: 'cancel_intent'; area?: AreaShape }
   /** Target empty tile becomes cover with 2 hp. */
@@ -364,6 +365,10 @@ export interface UnitState {
 }
 
 export type CombatEvent =
+  /** `n` enemies killed this player turn (2+ = a chain, with its reward). */
+  | { t: 'chain'; n: number }
+  | { t: 'momentum'; amount: number; total: number }
+  | { t: 'burst'; archetype: string }
   | { t: 'card'; owner: string; cardId: string; target?: Pos; dir?: Dir }
   | { t: 'move'; uid: string; path: Pos[] }
   | { t: 'teleport'; uid: string; from: Pos; to: Pos }
@@ -436,6 +441,12 @@ export interface CombatState {
   runStats?: Stats
   /** Active run mutator id (if any), for combat-level mutator rules. */
   mutator?: string
+  /** Momentum 0..MOMENTUM_MAX: kills, environment kills, crits and evades fill it; full = Signal Burst ready. */
+  momentum?: number
+  /** The Signal Burst was used this fight. */
+  burstUsed?: boolean
+  /** Run archetype (picks the Signal Burst). */
+  archetype?: string
 }
 
 export interface PlayTarget {
@@ -534,6 +545,15 @@ export interface ArchetypeDef {
   startingCredits: number
   startUnlocked?: boolean
   sprite: string // 'player-noise'
+  /** Signal Burst: the archetype's once-per-fight finisher, ready at full Momentum (engine/combat.ts fireBurst). */
+  burst?: BurstDef
+}
+
+export interface BurstDef {
+  name: Text
+  text: Text
+  /** Resolved from the connector, side 'party', no target (group scopes only). */
+  effects: Effect[]
 }
 
 // ---------------------------------------------------------------- events

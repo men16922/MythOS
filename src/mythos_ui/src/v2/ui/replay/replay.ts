@@ -4,7 +4,7 @@
 // change the state the way it did on the player's device; a step that names an unknown action, does nothing, or
 // leaves the screen it expects is a mismatch, and the run is not verified.
 
-import { endTurn, moveUnit, playCard, undoMove, useConsumable } from '../../engine/combat.ts'
+import { endTurn, moveUnit, playCard, undoMove, fireBurst, useConsumable } from '../../engine/combat.ts'
 import { isDateKey } from '../../engine/daily.ts'
 import { computeEchoes, dailyResultOf, newProfile } from '../../engine/meta.ts'
 import type { CombatState, ContentRegistry, DailyResult, RunState } from '../../engine/types.ts'
@@ -13,7 +13,7 @@ import { CONTENT_ARG, type ReplayLog } from './record.ts'
 
 type AnyFn = (...a: unknown[]) => unknown
 
-const COMBAT: Record<string, AnyFn> = { playCard, moveUnit, undoMove, endTurn, useConsumable } as unknown as Record<string, AnyFn>
+const COMBAT: Record<string, AnyFn> = { playCard, moveUnit, undoMove, endTurn, useConsumable, fireBurst } as unknown as Record<string, AnyFn>
 /** Run actions a log may name: every rxCore entry that returns a run state (queries are refused). */
 const RUN_ACTIONS = new Set([
   'visitPoi', 'leaveDistrict', 'chooseDialogue', 'rerollDialogue', 'acceptRoll', 'closeDialogue', 'startCamp',

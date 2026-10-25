@@ -219,3 +219,62 @@
     transform: scale(1.15);
   }
 }
+
+/* X2 Signal Burst cut-in: a gold/magenta slash band with the archetype portrait sliding across. */
+.m2c-banner.is-burst .m2c-banner-bar {
+  background: linear-gradient(100deg, transparent, rgba(46, 10, 40, 0.95) 18%, rgba(70, 18, 8, 0.95) 82%, transparent);
+  border-color: rgba(255, 196, 90, 0.85);
+  transform: skewY(-3deg);
+}
+.m2c-banner.is-burst .m2c-banner-title {
+  font-size: 58px;
+  color: #fff1c4;
+  text-shadow:
+    0 0 22px rgba(255, 170, 60, 0.95),
+    0 0 46px rgba(255, 61, 160, 0.55),
+    0 3px 0 #3a1a00;
+  animation: m2c-burstin 0.5s cubic-bezier(0.2, 1.4, 0.3, 1) both;
+}
+.m2c-banner-art {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 170px;
+  width: auto;
+  transform: translate(-235%, -50%);
+  filter: drop-shadow(0 0 18px rgba(255, 170, 60, 0.8));
+  animation: m2c-burstart 1.3s cubic-bezier(0.15, 0.9, 0.2, 1) both;
+  pointer-events: none;
+}
+@keyframes m2c-burstin {
+  0% {
+    transform: scale(1.8);
+    opacity: 0;
+    letter-spacing: 0.5em;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes m2c-burstart {
+  0% {
+    transform: translate(-420%, -50%);
+    opacity: 0;
+  }
+  25%,
+  80% {
+    transform: translate(-235%, -50%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-200%, -50%);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2c-banner.is-burst .m2c-banner-title,
+  .m2c-banner-art {
+    animation: none;
+  }
+}

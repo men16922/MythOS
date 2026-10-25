@@ -1,6 +1,7 @@
 // Timeline builders for the flow of a fight: turn banners, boss phase shifts, implant triggers and
 // companion passives.
 
+import { portrait } from '../../common/assets.ts'
 import { tr } from '../../common/lang.ts'
 import { setMusicDuck, sfx } from '../../common/sfx.ts'
 import { panOf } from './helpers.ts'
@@ -77,6 +78,44 @@ export function passiveSteps(kit: Kit, plan: Plan, ev: Ev<'passive'>): void {
       addFx({ kind: 'ring', at: u.pos, tone: 'gold', ms: S(640) })
       addFx({ kind: 'burst', at: u.pos, tone: 'gold', ms: S(560) })
       sfx('passive', { pan: panOf(u.pos.x) })
+    },
+  })
+}
+
+/** X1 chain: 2+ kills in one player turn — a rising count over the board (reward is in the engine). */
+export function chainSteps(kit: Kit, plan: Plan, ev: Ev<'chain'>): void {
+  const { addFx, trauma, S } = kit
+  const k = plan.k
+  const reward = ev.n === 2 ? (k ? '카드 +1' : 'Draw 1') : ev.n === 3 ? (k ? '에너지 +1' : 'Energy +1') : k ? '기세 +25' : 'Momentum +25'
+  plan.steps.push({
+    dur: 260,
+    run: () => {
+      addFx({ kind: 'text', at: { x: 3, y: -0.35 }, text: `${ev.n} ${k ? '연쇄!' : 'CHAIN!'} · ${reward}`, tone: 'crit', ms: S(1300) })
+      trauma(0.18 + 0.08 * Math.min(4, ev.n))
+      sfx('success', { intensity: 0.8 + 0.25 * Math.min(4, ev.n) })
+    },
+  })
+}
+
+/** X2 Signal Burst: portrait cut-in banner, gold nova on the connector, a heavy shake. */
+export function burstSteps(kit: Kit, plan: Plan, ev: Ev<'burst'>): void {
+  const { showBanner, addFx, unitOf, pose, trauma, hitStop, S } = kit
+  const arch = plan.C.archetypes[ev.archetype]
+  const name = arch?.burst ? tr(arch.burst.name, plan.lang) : plan.k ? '시그널 버스트' : 'SIGNAL BURST'
+  plan.steps.push({
+    dur: 1250,
+    run: () => {
+      showBanner({ kind: 'burst', title: name, sub: arch ? tr(arch.name, plan.lang) : '', art: portrait(arch?.sprite ?? 'player-noise') }, S(1400))
+      const u = unitOf('connector')
+      if (u) {
+        addFx({ kind: 'nova', at: u.pos, tone: 'gold', ms: S(900) })
+        addFx({ kind: 'ring', at: u.pos, tone: 'gold', ms: S(800) })
+        pose('connector', 'skill', S(900))
+      }
+      hitStop(S(120))
+      trauma(0.75)
+      sfx('unlock')
+      sfx('shockwave', { intensity: 1.4 })
     },
   })
 }

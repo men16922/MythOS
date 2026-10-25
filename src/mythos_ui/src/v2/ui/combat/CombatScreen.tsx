@@ -27,6 +27,7 @@ import { BACKDROPS, asset } from '../common/assets.ts'
 import { playBgm } from '../common/audio.ts'
 import type { Bgm } from '../common/audio.ts'
 import { tr } from '../common/lang.ts'
+import { MOMENTUM_MAX } from '../../engine/effects.ts'
 import { setMusicDuck, sfx } from '../common/sfx.ts'
 import { useCombatAnimator, viewFrom } from './animator.ts'
 import type { FxItem, RectLike } from './animator.ts'
@@ -35,7 +36,7 @@ import { Coach } from './Coach.tsx'
 import { markTutorialDone, tutorialDone } from './describe.ts'
 import { Hand } from './Hand.tsx'
 import { ArmedPanel, DetailPanel, PartyPanel, PileModal, TopStrip } from './Panels.tsx'
-import { EndTurnButton, HelpPopover, ItemSlots, KeyLegend, PileButtons } from './screen/hud.tsx'
+import { EndTurnButton, HelpPopover, ItemSlots, KeyLegend, MomentumGauge, PileButtons } from './screen/hud.tsx'
 import { useCombatLayout } from './screen/layout.ts'
 import { BossSplash, CardGhosts, CardZoom, CombatBanner } from './screen/overlays.tsx'
 import { useTargeting } from './screen/targeting.ts'
@@ -232,7 +233,7 @@ export function CombatScreen(props: CombatScreenProps) {
   const doEndTurn = endTurnQueue.endTurn
 
   // ------------------------------------------------------------ input (cards, items, tiles, keyboard)
-  const { playOpt, onCard, onItem, onTileClick, doUndo } = useCombatInput({
+  const { playOpt, onCard, onItem, onTileClick, doUndo, doBurst } = useCombatInput({
     combat,
     C,
     k,
@@ -562,6 +563,15 @@ export function CombatScreen(props: CombatScreenProps) {
         </div>
 
         <div className="m2c-br">
+          <MomentumGauge
+            k={k}
+            momentum={combat.momentum ?? 0}
+            max={MOMENTUM_MAX}
+            burstName={combat.archetype && C.archetypes[combat.archetype]?.burst ? tr(C.archetypes[combat.archetype]!.burst!.name, lang) : null}
+            used={!!combat.burstUsed}
+            interactive={interactive}
+            onBurst={doBurst}
+          />
           <ItemSlots combat={combat} C={C} lang={lang} armedIndex={armed?.kind === 'item' ? armed.index : -1} onItem={onItem} onOpenDeck={props.onOpenDeck} />
           <PileButtons k={k} discard={piles.discard.length} exhaust={piles.exhaust.length} canUndo={!!combat.undo && interactive} onPile={setPile} onUndo={doUndo} />
           <EndTurnButton

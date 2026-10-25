@@ -3,8 +3,8 @@
 // they replace) and act through the screen's commitAction / targeting setters.
 
 import type { RefObject } from 'react'
-import { consumableTargets, partyOrigins } from '../../../engine/combat.ts'
-import { moveUnit, playCard, undoMove, useConsumable as applyConsumable } from '../recordedActions.ts'
+import { burstReady, consumableTargets, partyOrigins } from '../../../engine/combat.ts'
+import { moveUnit, playCard, undoMove, fireBurst, useConsumable as applyConsumable } from '../recordedActions.ts'
 import type { TargetOption } from '../../../engine/combat.ts'
 import { samePos } from '../../../engine/grid.ts'
 import type { CombatState, ContentRegistry, Pos } from '../../../engine/types.ts'
@@ -218,6 +218,13 @@ export function useCombatInput(d: CombatInputDeps) {
     commitAction(undoMove(combat))
   }
 
+  /** X2: fire the archetype's Signal Burst (B). */
+  const doBurst = () => {
+    if (!interactive || !burstReady(combat, C)) return
+    setArmed(null)
+    commitAction(fireBurst(combat, C))
+  }
+
   const cycleUnit = () => {
     const party = combat.units.filter((u) => u.side === 'party' && u.hp > 0)
     if (party.length === 0) return
@@ -271,6 +278,9 @@ export function useCombatInput(d: CombatInputDeps) {
       case 'z':
         doUndo()
         break
+      case 'b':
+        doBurst()
+        break
       case 't':
         setThreatOn((v) => !v)
         break
@@ -292,5 +302,5 @@ export function useCombatInput(d: CombatInputDeps) {
     }
   }, setAltHeld)
 
-  return { playOpt, onCard, onItem, onTileClick, doUndo }
+  return { playOpt, onCard, onItem, onTileClick, doUndo, doBurst }
 }

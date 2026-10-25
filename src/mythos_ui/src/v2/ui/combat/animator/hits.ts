@@ -7,7 +7,7 @@ import { STATUS_SFX, panOf } from './helpers.ts'
 import type { Ev, FxTone, Kit, Plan, TextTone } from './types.ts'
 
 export function damageSteps(kit: Kit, plan: Plan, ev: Ev<'damage'>, evIdx: number): void {
-  const { unitOf, updUnit, addFx, pose, figImg, hitStop, whiteFlash, squash, recoil, trauma, hurtFlash, later, S } = kit
+  const { unitOf, updUnit, addFx, pose, figImg, hitStop, whiteFlash, squash, recoil, trauma, hurtFlash, zoomPunch, later, S } = kit
   const { prev, events } = plan
   const uid = ev.uid
   plan.lastSource.set(uid, ev.source)
@@ -19,7 +19,8 @@ export function damageSteps(kit: Kit, plan: Plan, ev: Ev<'damage'>, evIdx: numbe
   // Hits inside an area resolution land as a quick ripple; bump hits ride on the slam's own hit-stop
   // (both bodies' numbers pop together).
   const compact = plan.inArea || cause === 'bump'
-  const stop = amt <= 0 || cause === 'bump' ? 0 : lethal ? 110 : compact ? 45 : Math.min(90, 50 + amt * 7)
+  // V1: a crit holds the frame longer (the beat before the number lands).
+  const stop = amt <= 0 || cause === 'bump' ? 0 : ev.crit ? 150 : lethal ? 110 : compact ? 45 : Math.min(90, 50 + amt * 7)
   const nextEv = events[evIdx + 1]
   const tail = cause === 'bump' ? (nextEv?.t === 'damage' && nextEv.cause === 'bump' ? 40 : 160) : compact ? 110 : big || lethal ? 250 : 170
   plan.steps.push({
@@ -40,6 +41,12 @@ export function damageSteps(kit: Kit, plan: Plan, ev: Ev<'damage'>, evIdx: numbe
           whiteFlash(uid, isConnector || u.side === 'party')
           pose(uid, 'hit', S(420))
           const isCrit = !!ev.crit
+          if (isCrit) {
+            addFx({ kind: 'slash', at, tone: 'gold', ms: S(520) })
+            addFx({ kind: 'flare', at, tone: 'gold', ms: S(480) })
+            zoomPunch(uid)
+            trauma(0.45)
+          }
           const numTone: TextTone = cause === 'burn' || cause === 'bleed' || cause === 'corrode' ? cause : cause === 'hazard' ? 'zap' : isCrit || big ? 'crit' : 'dmg'
           addFx({ kind: 'text', at, text: isCrit ? `${plan.k ? '치명타' : 'CRIT'} ${amt}` : `${amt}`, tone: numTone, ms: S(isCrit || big ? 1250 : 1000) })
           if (ev.evaded && ev.evaded > 0) {
@@ -192,7 +199,14 @@ export function deathSteps(kit: Kit, plan: Plan, ev: Ev<'death'>, evIdx: number)
       } else {
         addFx({ kind: 'pixels', at: u.pos, tone: u.side === 'enemy' ? 'enemy' : 'party', ms: S(700) })
         sfx('kill', { pan: panOf(u.pos.x), intensity: u.side === 'enemy' ? 1.2 : 0.8 })
-        trauma(0.35)
+        // V4: elites and bosses go down harder (shockwave + debris + a heavier shake).
+        const tier = u.side === 'enemy' ? plan.C.enemies[u.defId]?.tier : undefined
+        if (tier === 'elite' || tier === 'boss') {
+          addFx({ kind: 'nova', at: u.pos, tone: 'enemy', ms: S(tier === 'boss' ? 1000 : 760) })
+          addFx({ kind: 'debris', at: u.pos, tone: 'enemy', ms: S(900) })
+          sfx('explosion', { pan: panOf(u.pos.x), intensity: tier === 'boss' ? 1.6 : 1.2 })
+          trauma(tier === 'boss' ? 0.9 : 0.6)
+        } else trauma(0.35)
       }
       if (isFinal) zoomPunch(uid)
     },

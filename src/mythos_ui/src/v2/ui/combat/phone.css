@@ -539,7 +539,7 @@
   grid-template-rows: minmax(0, 1fr) 36px 50px;
   grid-template-areas:
     'hand hand hand hand'
-    'draw piles . items'
+    'draw piles mom items'
     'orb end end end';
   gap: 6px;
   align-items: center;
@@ -580,6 +580,19 @@
 .is-port .m2c-piles {
   grid-area: piles;
   gap: 5px;
+}
+.is-port .m2c-momentum {
+  grid-area: mom;
+  min-width: 0;
+  margin-top: 0;
+}
+.is-port .m2c-sigburst {
+  padding: 6px 8px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.is-port .m2c-sigburst kbd {
+  display: none;
 }
 .is-port .m2c-items {
   grid-area: items;

@@ -24,6 +24,7 @@ import type {
   EnemyMove,
   PlayTarget,
   Pos,
+  BurstDef,
   RunState,
   StatusKind,
   TargetMode,
@@ -45,6 +46,9 @@ import {
   activePassive,
   addStatus,
   hazardDamage,
+  MOMENTUM_MAX,
+  MOMENTUM_TURN,
+  gainMomentum,
   perksOf,
   sprintEvade,
   applyEffects,
@@ -278,6 +282,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     stats: { enemiesKilled: 0, environmentKills: 0, damageDealt: 0, damageTaken: 0, cardsPlayed: 0 },
     scaling: scalingFor(run, C),
     runStats: { ...run.stats },
+    archetype: run.archetype,
     ...(run.mutator ? { mutator: run.mutator } : {}),
   }
   if (enc.bonus) c.bonus = { def: enc.bonus, progress: 0, failed: false }
@@ -348,6 +353,7 @@ function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): vo
     const echoBlock = c.triggered[OPENING_BLOCK_KEY] ?? 0
     if (echoBlock > 0) for (const u of livingParty(c)) gainBlock(c, u, echoBlock)
   }
+  if (!first) gainMomentum(c, MOMENTUM_TURN)
   // Unspent energy was dropped at end of turn; anything gained off-turn (e.g. on damage taken) carries over.
   c.energy += c.maxEnergy
   emit(c, { t: 'energy', amount: c.maxEnergy })
@@ -846,6 +852,36 @@ function applyHeldEffects(c: CombatState, C: ContentRegistry): void {
     applyEffects(c, C, held, { origin: conn, side: 'party', impact: { ...conn.pos }, tiles: [{ ...conn.pos }], source: 'environment' })
     if (c.phase !== 'player') return
   }
+}
+
+// ---------------------------------------------------------------- Signal Burst (X2)
+
+/** The archetype's Signal Burst, if Momentum is full and it was not used this fight. */
+export function burstReady(c: CombatState, C: ContentRegistry): BurstDef | undefined {
+  if (c.phase !== 'player' || c.burstUsed || (c.momentum ?? 0) < MOMENTUM_MAX) return undefined
+  const conn = connectorOf(c)
+  if (!conn || conn.hp <= 0) return undefined
+  return c.archetype ? C.archetypes[c.archetype]?.burst : undefined
+}
+
+/** Fire the Signal Burst from the connector (no energy, no target; once per fight). Mutates. */
+export function burstInPlace(c: CombatState, C: ContentRegistry): void {
+  requirePlayer(c)
+  const def = burstReady(c, C)
+  const conn = connectorOf(c)
+  if (!def || !conn) throw new Error('signal burst not ready')
+  c.undo = null
+  c.burstUsed = true
+  c.momentum = 0
+  emit(c, { t: 'burst', archetype: c.archetype ?? '' })
+  applyEffects(c, C, def.effects, { origin: conn, side: 'party', tiles: [], source: 'party' })
+  checkEnd(c, C)
+}
+
+export function fireBurst(c: CombatState, C: ContentRegistry): CombatState {
+  const next = clone(c)
+  burstInPlace(next, C)
+  return next
 }
 
 export function endTurnInPlace(c: CombatState, C: ContentRegistry): void {

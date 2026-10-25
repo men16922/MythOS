@@ -48,6 +48,7 @@ export function CombatBanner({ banner }: { banner: Banner }) {
   return (
     <div className={`m2c-banner is-${banner.kind}`}>
       <div className="m2c-banner-bar" />
+      {banner.art && <img className="m2c-banner-art" src={banner.art} alt="" />}
       <div className="m2c-banner-title">{banner.title}</div>
       {banner.sub && <div className="m2c-banner-sub">{banner.sub}</div>}
     </div>

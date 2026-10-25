@@ -283,3 +283,76 @@
 .m2c-end.is-hurry svg {
   opacity: 0.85;
 }
+
+/* X2 Momentum gauge + Signal Burst button (bottom-right cluster). */
+.m2c-momentum {
+  display: flex;
+  flex: none; /* the bottom-right column has a fixed height: never let the gauge shrink to 0 */
+  flex-direction: column;
+  gap: 4px;
+  min-width: 150px;
+  margin-top: -44px; /* sits above the item row, into the free space over the cluster */
+  pointer-events: auto;
+}
+.m2c-momentum__label {
+  font-family: 'Chakra Petch', var(--m2-display, sans-serif);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 214, 140, 0.85);
+}
+.m2c-momentum__bar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(20, 12, 4, 0.75);
+  border: 1px solid rgba(255, 190, 90, 0.35);
+  overflow: hidden;
+}
+.m2c-momentum__bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #ff9a3c, #ffd76a);
+  box-shadow: 0 0 10px rgba(255, 190, 90, 0.8);
+  transition: width 0.35s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.m2c-momentum.is-used {
+  opacity: 0.45;
+}
+.m2c-sigburst {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 210, 120, 0.9);
+  background: linear-gradient(100deg, rgba(90, 20, 70, 0.95), rgba(140, 60, 10, 0.95));
+  color: #fff1c4;
+  font-family: 'Chakra Petch', var(--m2-display, sans-serif);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  animation: m2c-sigburstpulse 1.1s ease-in-out infinite;
+}
+.m2c-sigburst:disabled {
+  cursor: default;
+  animation: none;
+  opacity: 0.6;
+}
+.m2c-sigburst kbd {
+  font-size: 11px;
+  opacity: 0.8;
+}
+@keyframes m2c-sigburstpulse {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(255, 180, 70, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(255, 120, 200, 0.9);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2c-sigburst {
+    animation: none;
+  }
+}

@@ -2,6 +2,15 @@
 
 Last updated: 2026-10-25
 
+## 2026-10-26 — DLC update R1: action layer + visuals, Jujak/Arachne unique art (Claude Opus 5.5)
+
+- **Plan**: `docs/plans/2026-10-26-dlc-expansion-plan.md` §17 (owner: DLC-scale free update, CRPG/action/visual boost; execution R1–R7).
+- **Action (engine)**: Chain (`t{turn}:kills` → draw / +1 energy / +25 Momentum), Momentum 0–100 (`gainMomentum`: kill 20, env +10, crit 10, evade 10, +10 per later turn), Signal Burst (`ArchetypeDef.burst` data, `burstReady` / `burstInPlace` / `fireBurst`, recorded for daily replay), Riposte 2 on an Evade-grazed melee hit; redirect `to: 'all_enemies'`. Bot fires the Burst when ≥ 2 foes or an elite/boss stand (act-1 normal fights: 15 % reach it). `engine/action.test.ts` (3).
+- **Balance**: tuning boss Rage 1 → 2, boss HP −15 → −10 % to offset the Burst (boss loss had fallen 15 → 8 %). TUNE A/B 3 × 150 mixed 38.7/39.3/36.7 %, ghost 42 / smuggler 36 / echo 37, elite loss 6.0 % (7.2 t), boss 15.7 % (9.0 t).
+- **Visuals**: Momentum gauge + Burst button (`MomentumGauge`, desktop above items, phone grid area `mom`), Burst cut-in banner with portrait, chain counter text, crit cut (longer hit-stop + slash + flare + zoom punch), elite/boss death shockwave + debris, Rage aura (`--rage` pulse). Sandbox `?momentum=100` for checks.
+- **Art**: Jujak / Arachne got their own key art + idle/attack/hit sprites (Codex, 8 calls) — they had borrowed Haetae / Echo Eater art (owner report: Act 1 always opened on Haetae's illustration).
+- **Verified**: `make check` (373 + 338), `make frontend-build`, `make playthrough-quick` (105 s), sandbox screenshots desktop + phone (Burst ready/cut-in, Jujak). **Unverified**: human feel of the Burst pacing.
+
 ## 2026-10-25 — S-rank pass 2: Rage, archetype parity, Paradox 5 ceiling, status icons (Claude Opus 5.5)
 
 - **Owner fun verdict (2026-10-26)**: "S — fun, keep it" on live `00150-qen` → S-rank criterion 7 passed; goal closed.

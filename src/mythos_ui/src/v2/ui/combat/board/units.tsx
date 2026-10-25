@@ -48,7 +48,7 @@ const STATUS_ORDER: StatusKind[] = ['burn', 'bleed', 'corrode', 'shock', 'mark',
  *  bottom edge (97.7 %) and bosses use square 768×768 canvases. */
 const FIG_W = 1.12
 const FIG_H = 1.68
-const SQUARE_SPRITES = new Set(['haetae', 'echo_eater', 'ix_avatar', 'baekho', 'hyeonmu', 'architect-omega'])
+const SQUARE_SPRITES = new Set(['haetae', 'echo_eater', 'ix_avatar', 'baekho', 'hyeonmu', 'architect-omega', 'jujak', 'arachne'])
 function spriteBox(key: string, tw: number): { w: number; h: number; feet: number } {
   const v2 = !!V2_SPRITES[key]
   const h = tw * FIG_H
@@ -76,6 +76,8 @@ export const UnitSprite = memo(function UnitSprite(p: UnitProps) {
     transform: `translate3d(${c.x.toFixed(1)}px, ${c.y.toFixed(1)}px, 0)`,
     zIndex: 100 + u.pos.y * 10 + u.pos.x,
     transition: moveMs > 0 ? `transform ${moveMs}ms ${ease}` : 'none',
+    // V5: Rage aura strength (0..1) — the CSS pulse reads it.
+    ['--rage' as string]: Math.min(1, (u.statuses.rage ?? 0) / 9).toFixed(2),
   }
   const alive = u.hp > 0 && !fx?.dying
   const burnStacks = alive ? (u.statuses.burn ?? 0) : 0
@@ -107,6 +109,7 @@ export const UnitSprite = memo(function UnitSprite(p: UnitProps) {
     p.inFire && alive ? 'is-in-fire' : '',
     shocked ? 'is-shocked' : '',
     marked ? 'is-marked' : '',
+    (u.statuses.rage ?? 0) > 0 && alive ? 'is-raging' : '',
   ]
     .filter(Boolean)
     .join(' ')

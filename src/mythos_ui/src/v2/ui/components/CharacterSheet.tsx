@@ -1,7 +1,8 @@
 // Mythos 2.0 — the character sheet (CRPG C+2): who the connector is this run — archetype, background, stats and
 // what each does in a fight, the four choice axes, the Signal Burst, and the crew with bond, approval and the
 // first impression they formed. Read-only; opened from the top bar portrait.
-import type { ChoiceAxis, ContentRegistry, FirstImpression, Lang, RunState, StatKey } from '../../engine/types.ts'
+import { REP_TIER, repTier } from '../../engine/crpg.ts'
+import type { ChoiceAxis, ContentRegistry, Faction, FirstImpression, Lang, RunState, StatKey } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
 import { L, tr } from '../common/lang.ts'
 import { companionSprite } from './format.ts'
@@ -31,6 +32,12 @@ const AXES: { id: ChoiceAxis; name: ReturnType<typeof L>; hint: ReturnType<typeo
   { id: 'dominance', name: L('지배', 'Dominance'), hint: L('위협하고, 속이고, 밀어붙인다', 'Threaten, deceive, force') },
   { id: 'resilience', name: L('회복력', 'Resilience'), hint: L('경계하고, 버티고, 이겨낸다', 'Guard, endure, survive') },
   { id: 'insight', name: L('통찰', 'Insight'), hint: L('읽어내고, 꿰뚫고, 웃어넘긴다', 'Read, see through, deflect') },
+]
+
+const FACTIONS: { id: Faction; name: ReturnType<typeof L>; good: ReturnType<typeof L>; bad: ReturnType<typeof L> }[] = [
+  { id: 'offgrid', name: L('비접속자 연대', 'The Off-grid'), good: L('휴식 회복 +10%p', 'Rest heals +10 pts'), bad: L('휴식 회복 −10%p', 'Rest heals −10 pts') },
+  { id: 'market', name: L('야시장', 'Night Market'), good: L('상점 가격 −10%', 'Shop prices −10 %'), bad: L('상점 가격 +10%', 'Shop prices +10 %') },
+  { id: 'grid', name: L('관리망', 'The Grid'), good: L('노드마다 추적도 −1', 'Trace −1 per node'), bad: L('노드마다 추적도 +1', 'Trace +1 per node') },
 ]
 
 const IMPRESSION: Record<FirstImpression, ReturnType<typeof L>> = {
@@ -109,6 +116,28 @@ export function CharacterSheet({ run, C, lang, onClose }: Props) {
             ))}
           </ul>
         </section>
+
+        {run.crpg && (
+          <section>
+            <h4>{ko ? '평판' : 'Reputation'}</h4>
+            <ul className="m2-sheet__axes m2-sheet__rep">
+              {FACTIONS.map((f) => {
+                const v = run.crpg?.rep?.[f.id] ?? 0
+                const tier = repTier(run, f.id)
+                return (
+                  <li key={f.id} className={tier > 0 ? 'is-good' : tier < 0 ? 'is-bad' : ''}>
+                    <span>{tr(f.name, lang)}</span>
+                    <span className="m2-sheet__bar">
+                      <i style={{ width: `${(Math.min(REP_TIER, Math.abs(v)) / REP_TIER) * 100}%` }} />
+                    </span>
+                    <b className="m2-mono">{v > 0 ? `+${v}` : v}</b>
+                    <small>{tier > 0 ? tr(f.good, lang) : tier < 0 ? tr(f.bad, lang) : ko ? `±${REP_TIER}에서 효과` : `Takes effect at ±${REP_TIER}`}</small>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        )}
 
         {arch?.burst && (
           <section>

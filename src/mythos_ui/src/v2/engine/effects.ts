@@ -520,6 +520,7 @@ export function decayStatus(u: UnitState, status: StatusKind): void {
 export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: Dir, distance: number, stopBefore?: string, slam = 0): void {
   if (u.hp <= 0 || distance <= 0) return
   const from = { ...u.pos }
+  const fromTile = tileAt(c, from)
   let bumped: string | undefined
   let bumpPos: Pos | undefined
   for (let i = 0; i < distance; i++) {
@@ -571,10 +572,27 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
   if (moved && u.hp > 0) {
     tickMoveBleed(c, C, u)
   }
-  if (moved && u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') {
-    dealDamage(c, C, u, hazardDamage(c), { source: 'environment', cause: 'hazard' })
-  }
+  if (moved && u.hp > 0 && !u.flying) groundJolt(c, C, u, fromTile)
   if (moved) enterGround(c, u)
+}
+
+/**
+ * Forced movement through damaging ground (owner idea 2026-10-26): a unit shoved onto — or dragged off — fire,
+ * live wire or a hazard tile takes that ground's damage once, right now (at most one jolt per push):
+ * onto fire = a burn hit, onto a hazard = the hazard hit, off fire / a hazard onto safe ground = that hit.
+ */
+function groundJolt(c: CombatState, C: ContentRegistry, u: UnitState, fromTile: Tile | undefined): void {
+  const to = tileAt(c, u.pos)
+  if (to?.kind === 'hazard') {
+    dealDamage(c, C, u, hazardDamage(c), { source: 'environment', cause: 'hazard' })
+    return
+  }
+  if ((to?.fire ?? 0) > 0) {
+    dealDamage(c, C, u, FIRE_BURN, { source: 'environment', ignoreBlock: true, cause: 'burn' })
+    return
+  }
+  if (fromTile?.kind === 'hazard') dealDamage(c, C, u, hazardDamage(c), { source: 'environment', cause: 'hazard' })
+  else if ((fromTile?.fire ?? 0) > 0) dealDamage(c, C, u, FIRE_BURN, { source: 'environment', ignoreBlock: true, cause: 'burn' })
 }
 
 /** Damage a hazard tile deals this fight (a mutator can multiply it). */

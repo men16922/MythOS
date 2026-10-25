@@ -391,7 +391,8 @@ def tour_screens(page: Page) -> list[str]:
 
     # treasure: open, take, continue
     put(
-        "(r) => ({ screen: { kind: 'treasure', implantId: r.pools.implants[0], credits: 25, opened: false } })"
+        # An implant the run does not hold yet (the first pool entry may already be owned — then nothing is granted).
+        "(r) => ({ screen: { kind: 'treasure', implantId: r.pools.implants.find((id) => !r.implants.includes(id)) ?? r.pools.implants[0], credits: 25, opened: false } })"
     )
     owned = page.evaluate("() => window.__m2.run.implants.length")
     click_first(page, ".m2-cache, .m2-treasure .m2-cache")

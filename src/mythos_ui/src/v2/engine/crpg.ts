@@ -28,6 +28,8 @@ import type {
   DialogueOption,
   DialogueState,
   DistrictDef,
+  Faction,
+  Intent,
   PoiDef,
   RunEffect,
   RunScreen,
@@ -112,7 +114,35 @@ function hasAdvantage(run: RunState, option: DialogueOption): boolean {
 
 // ---------------------------------------------------------------- district placement
 
-/** Signal+ normal runs (or Act 1 free trial): one event node of this act's map becomes a district (deterministic, own hash). */
+// ---------------------------------------------------------------- reputation (C+4)
+
+/** Reputation that counts as a tier: at ±REP_TIER a faction helps (or hinders) you. */
+export const REP_TIER = 3
+
+/** How a dialogue intent moves the speaker's faction: warmth raises it, threats and lies lower it. */
+function repDelta(intent: Intent): number {
+  if (intent === 'persuade' || intent === 'offer') return 1
+  if (intent === 'intimidate' || intent === 'deceive' || intent === 'fight') return -1
+  return 0
+}
+
+function shiftRep(run: RunState, faction: Faction | undefined, intent: Intent): void {
+  const s = run.crpg
+  const d = repDelta(intent)
+  if (!s || !faction || d === 0) return
+  s.rep = { ...(s.rep ?? {}), [faction]: Math.max(-9, Math.min(9, (s.rep?.[faction] ?? 0) + d)) }
+}
+
+/** -1, 0 or +1: whether this faction's reputation has reached a tier this run. */
+export function repTier(run: Pick<RunState, 'crpg'>, faction: Faction): -1 | 0 | 1 {
+  const v = run.crpg?.rep?.[faction] ?? 0
+  return v >= REP_TIER ? 1 : v <= -REP_TIER ? -1 : 0
+}
+
+/** Districts per act on a normal run (DLC update C+1: two, on different rows, so the CRPG layer is a real thread). */
+export const DISTRICTS_PER_ACT = 2
+
+/** Normal runs (or the Act 1 trial): up to DISTRICTS_PER_ACT event nodes of this act's map become districts (deterministic, own hash). */
 export function placeDistrict(run: RunState, map: ActMap, C: ContentRegistry): void {
   if (!run.crpg || run.daily || !C.crpg) return
   if (run.crpg.trial && map.act > 1) return
@@ -120,17 +150,20 @@ export function placeDistrict(run: RunState, map: ActMap, C: ContentRegistry): v
   const pool = Object.values(C.crpg.districts)
     .filter((d) => d.act === map.act && !seen.has(d.id))
     .sort((a, b) => a.id.localeCompare(b.id))
-  const nodes = Object.values(map.nodes)
+  let nodes = Object.values(map.nodes)
     .filter((n) => n.kind === 'event' && n.row > 0)
     .sort((a, b) => a.id.localeCompare(b.id))
-  if (pool.length === 0 || nodes.length === 0) return
   const h = hashSeed(`${run.seed}:district:${map.act}`)
-  const node = nodes[h % nodes.length]
-  const district = pool[Math.floor(h / 7) % pool.length]
-  if (!node || !district) return
-  node.kind = 'district'
-  node.districtId = district.id
-  delete node.eventId
+  for (let k = 0; k < DISTRICTS_PER_ACT && pool.length > 0 && nodes.length > 0; k++) {
+    const node = nodes[(h + k * 7) % nodes.length]
+    const district = pool.splice(Math.floor(h / 7 + k) % pool.length, 1)[0]
+    if (!node || !district) return
+    node.kind = 'district'
+    node.districtId = district.id
+    delete node.eventId
+    // The next district sits on another row (a different stretch of the act).
+    nodes = nodes.filter((n) => n.row !== node.row)
+  }
 }
 
 // ---------------------------------------------------------------- districts
@@ -313,6 +346,7 @@ export function chooseDialogue(run: RunState, index: number, C: ContentRegistry)
   const next = clone(run)
   if (next.screen.kind !== 'dialogue') return run
   addAxis(next, intentAxis(view.option.intent))
+  shiftRep(next, C.crpg?.npcs[C.crpg?.dialogues[next.screen.dialogue.id]?.npc ?? '']?.faction, view.option.intent)
   const check = view.option.check
   if (!check) {
     resolve(next, view.option, true, undefined, C)

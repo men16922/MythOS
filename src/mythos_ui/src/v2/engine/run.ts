@@ -16,7 +16,7 @@
 // Victory/ending bonuses are added only when banking (see meta.computeEchoes).
 
 import { startCombat } from './combat.ts'
-import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, takeCombatMods } from './crpg.ts'
+import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, repTier, takeCombatMods } from './crpg.ts'
 import { advanceDirectiveOnWin } from './directives.ts'
 import { AUTONOMY_ACT_SCRUB, autonomyDc, autonomyLevel, echoEffects, echoOffers, worldEchoFor } from './legacy.ts'
 import { advanceThoughts, offerThought } from './thoughts.ts'
@@ -702,7 +702,8 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
   next.nodeId = nodeId
   next.visited.push(nodeId)
   next.tally.floors += 1
-  gainTrace(next, mutatorMods(next).traceStep ?? (next.paradox >= 3 ? NODE_TRACE_PARADOX : NODE_TRACE), C)
+  // The grid's reputation (C+4): on good terms the patrols look away a little; on bad terms they look harder.
+  gainTrace(next, Math.max(0, (mutatorMods(next).traceStep ?? (next.paradox >= 3 ? NODE_TRACE_PARADOX : NODE_TRACE)) - repTier(next, 'grid')), C)
   if (next.thoughts) applyImmediate(next, advanceThoughts(next, C.thoughts ?? []), C)
 
   switch (node.kind) {
@@ -1230,7 +1231,7 @@ function priceBase(base: number, discount: number): number {
 export function generateShop(run: RunState, C: ContentRegistry): ShopStock {
   const h = runStream(run, 'shop')
   const discount = runPassive(run, C, 'shopDiscount')
-  const mult = 1 + (mutatorMods(run).shopPct ?? 0) / 100
+  const mult = 1 + ((mutatorMods(run).shopPct ?? 0) - 10 * repTier(run, 'market')) / 100
   const price = (base: number, off: number): number => priceBase(base * mult, off)
   const jitter = (base: number): number => price(base * (1 + (randInt(h, -10, 10) / 100)), discount)
   const cards: ShopStock['cards'] = []
@@ -1340,7 +1341,7 @@ export const leaveShop: SimpleReducer = (run) =>
 
 /** Heal % at the safehouse: 30 (paradox 5: 20) + restHeal passives. */
 export function restHealPercent(run: RunState, C: ContentRegistry): number {
-  return (run.paradox >= 5 ? PARADOX_REST_HEAL : BASE_REST_HEAL) + asPercent(runPassive(run, C, 'restHeal')) + (mutatorMods(run).restHeal ?? 0)
+  return (run.paradox >= 5 ? PARADOX_REST_HEAL : BASE_REST_HEAL) + asPercent(runPassive(run, C, 'restHeal')) + (mutatorMods(run).restHeal ?? 0) + 10 * repTier(run, 'offgrid')
 }
 
 export function restHeal(run: RunState, C: ContentRegistry): RunState {

@@ -393,7 +393,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
           )}
           {!daily && backgrounds.length > 0 && (
             <section className="m2-setup__bg-pick">
-              <div className="m2-setup__label">{ko ? '출신' : 'Background'} <span className="m2-plus-tag">Signal+</span></div>
+              <div className="m2-setup__label">{ko ? '출신' : 'Background'}</div>
               {crpg ? (
                 <>
                   <div className="m2-bgs" role="radiogroup">

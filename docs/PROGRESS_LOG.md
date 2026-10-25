@@ -2,6 +2,16 @@
 
 Last updated: 2026-10-25
 
+## 2026-10-26 — DLC update R2b: CRPG for everyone, 2 districts/act, factions, d20 roll, ground jolt, Architect Omega art (Claude Opus 5.5)
+
+- **CRPG free (D2)**: "Signal+" tags gone from setup/district; `DISTRICTS_PER_ACT = 2` (two event nodes on different rows; 28/30 seeds get 2 in Act 1).
+- **Factions (C+4)**: `Faction` offgrid/market/grid on every NPC (`NPC_FACTION`), `crpg.rep` moved by dialogue intent (warm +1, threat/lie/force −1); ±3 tiers: market shop ∓10 %, offgrid rest ±10 pts, grid trace ∓1/node. Shown on the character sheet.
+- **d20 (C+3)**: tumbling throw + bounce landing, rattle ticks, natural 20 gold / natural 1 cracked; approval reactions pop in.
+- **Ground jolt (owner idea)**: a push/pull onto fire or a hazard, or off one onto safe ground, deals that ground's hit once (`groundJolt`, ≤ 1 per push). 3 × 150 mixed 39.3/34.7/38.7 % (neutral), greedy P5 82.2 %.
+- **Art**: Architect Omega redesigned as a black-and-brass drafting machine with amber/violet blueprints (key art + 3 sprites, Codex 7 calls) — it had been a near-copy of IX (owner report).
+- **Fix**: `ui_playthrough.py` treasure tour now grants an implant the run does not own (the first pool entry could already be held → "2 -> 2" false failure; seen once, then 3 passes).
+- **Verified**: `make check` (378 + 338), `make playthrough-quick` OK ×3. **Unverified**: phone screenshot of the reputation block.
+
 ## 2026-10-26 — DLC update R2a: companion recruit scenes, character sheet, choice axes, skill SFX (Claude Opus 5.5)
 
 - **Recruit scenes** (owner: "동료 소개·성격·대화 같은 RPG 요소가 너무 없다"): `CompanionIntro` (bio, 3 traits, likes/dislikes, quote, 4–6 beats, 3 first-impression choices with replies, liked tone, reunion lines) for all 6 companions — text by Codex/Astra (`content/companionIntros.ts`, brief `scratch/brief_companion_intros.md`), 6 meeting stills `v2/recruit/*.webp` (Codex). Engine: `joinCompanion` queues `run.introQueue`; `resolveIntro` (liked tone → +1 bond on normal runs, leans an axis). UI `RecruitScene` on the map (full first meeting / one-line reunion via `profile.companionsMet`). `ui_playthrough.py` reads scenes through.

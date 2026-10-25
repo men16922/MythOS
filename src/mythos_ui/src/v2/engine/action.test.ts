@@ -71,3 +71,27 @@ test('Riposte: an Evade graze on the connector cuts a melee attacker back', () =
   dealDamage(c, C, conn, 6, { source: 'enemy', attacker: foe, attack: true })
   assert.equal(foe.hp, foeHp - RIPOSTE_DAMAGE)
 })
+
+test('Ground jolt: shoved onto fire or dragged off a hazard, a unit takes that ground\'s hit once', async () => {
+  const { pushUnit, FIRE_BURN, HAZARD_DAMAGE } = await import('./effects.ts')
+  const c = startCombat(makeRun(), 'duel', C)
+  const foe = c.units.find((u) => u.side === 'enemy')!
+  foe.pos = { x: 4, y: 2 }
+  foe.block = 0
+  foe.armor = 0
+  // onto fire: an immediate burn hit (and it catches fire)
+  c.tiles[2]![5]!.fire = 2
+  let hp = foe.hp
+  pushUnit(c, C, foe, 'right', 1)
+  assert.equal(foe.pos.x, 5)
+  assert.equal(hp - foe.hp, FIRE_BURN)
+  assert.ok((foe.statuses.burn ?? 0) >= FIRE_BURN)
+  // off a hazard onto safe ground: the hazard hit once
+  c.tiles[2]![5]!.fire = 0
+  c.tiles[2]![5]!.kind = 'hazard'
+  c.tiles[2]![4]!.kind = 'floor'
+  hp = foe.hp
+  pushUnit(c, C, foe, 'left', 1)
+  assert.equal(foe.pos.x, 4)
+  assert.equal(hp - foe.hp, HAZARD_DAMAGE)
+})

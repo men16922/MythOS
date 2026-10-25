@@ -182,3 +182,21 @@
   flex: 1;
   min-width: 140px;
 }
+
+.m2-sheet__rep .m2-sheet__bar i {
+  background: rgba(220, 230, 230, 0.6);
+}
+.m2-sheet__rep .is-good .m2-sheet__bar i {
+  background: #6ef59a;
+}
+.m2-sheet__rep .is-bad .m2-sheet__bar i {
+  background: #ff5d7a;
+}
+.m2-sheet__rep .is-good small {
+  color: #6ef59a;
+  opacity: 1;
+}
+.m2-sheet__rep .is-bad small {
+  color: #ff8aa0;
+  opacity: 1;
+}

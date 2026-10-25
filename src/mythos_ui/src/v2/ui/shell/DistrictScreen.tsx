@@ -27,7 +27,7 @@ export function DistrictScreen({ run, C, lang, settings, act }: ScreenProps) {
       <div className="m2-district__art" style={{ backgroundImage: `url(${asset(def.image)})` }} />
       <div className="m2-district__panel">
         <div className="m2-district__kicker">
-          <MapPin size={14} /> {ko ? '구역 탐색' : 'District'} <span className="m2-plus-tag">Signal+</span>
+          <MapPin size={14} /> {ko ? '구역 탐색' : 'District'}
         </div>
         <h1 className="m2-district__title">{tr(def.name, lang)}</h1>
         <Typewriter className="m2-district__text" text={tr(spent ? def.outro : def.intro, lang)} cps={settings.fastAnim ? 400 : 110} />

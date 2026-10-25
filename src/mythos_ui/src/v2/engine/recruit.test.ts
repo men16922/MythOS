@@ -63,3 +63,14 @@ test('axes: dialogue intents map to axes and accumulate', () => {
   addAxis(run, 'humanity', 2)
   assert.equal(run.axes?.humanity, 3)
 })
+
+test('reputation (C+4): warm intents raise a faction, threats lower it; ±3 is a tier', async () => {
+  const { repTier } = await import('./crpg.ts')
+  const run = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 3, now: NOW, crpg: { background: null } }, C)
+  assert.ok(run.crpg)
+  assert.equal(repTier(run, 'market'), 0)
+  run.crpg!.rep = { market: 3, grid: -3 }
+  assert.equal(repTier(run, 'market'), 1)
+  assert.equal(repTier(run, 'grid'), -1)
+  for (const n of Object.values(C.crpg!.npcs)) assert.ok(n.faction, `${n.id} speaks for a faction`)
+})

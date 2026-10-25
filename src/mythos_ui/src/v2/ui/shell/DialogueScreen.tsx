@@ -74,17 +74,22 @@ function D20({ roll, lang, fast }: { roll: D20Roll; lang: Lang; fast: boolean })
   const landed = landedKey === key
   useEffect(() => {
     let face = roll.die
+    let n = 0
     const tick = setInterval(() => {
       face = ((face * 7 + 3) % 20) + 1
       setSpin(face)
+      // The die rattles: a soft tick on every other face change.
+      if (n++ % 2 === 0) sound('roll_tick', { volume: 0.45 })
     }, 45)
     const stop = setTimeout(
       () => {
         clearInterval(tick)
         setLandedKey(key)
+        if (roll.die === 20) sound('crit', { volume: 0.8 })
+        else if (roll.die === 1) sound('wall_slam', { volume: 0.5 })
         sound(roll.success ? 'success' : 'error', { volume: 0.7 })
       },
-      fast ? 120 : 650,
+      fast ? 120 : 900,
     )
     return () => {
       clearInterval(tick)
@@ -92,7 +97,10 @@ function D20({ roll, lang, fast }: { roll: D20Roll; lang: Lang; fast: boolean })
     }
   }, [key, roll.die, roll.success, fast])
   return (
-    <div className={`m2-d20${landed ? (roll.success ? ' is-win' : ' is-loss') : ' is-rolling'}`} data-testid="d20">
+    <div
+      className={`m2-d20${landed ? (roll.success ? ' is-win' : ' is-loss') : ' is-rolling'}${landed && roll.die === 20 ? ' is-nat20' : ''}${landed && roll.die === 1 ? ' is-nat1' : ''}`}
+      data-testid="d20"
+    >
       <span className="m2-d20__die m2-mono">{landed ? roll.die : spin}</span>
       {roll.advantage && roll.other !== undefined && landed && (
         <span className="m2-d20__other m2-mono" title={ko ? '유리: 높은 쪽' : 'Advantage: the higher die'}>

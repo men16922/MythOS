@@ -866,7 +866,12 @@ export interface NpcDef {
   /** One line for the UI (and the prompt's public description; the persona itself lives server-side). */
   role: Text
   portrait?: string
+  /** Which faction this NPC speaks for (reputation, CRPG C+4). */
+  faction?: Faction
 }
+
+/** CRPG factions: the off-grid (비접속자 연대), the night market (야시장), the grid (관리망 — IX and ARK). */
+export type Faction = 'offgrid' | 'market' | 'grid'
 
 export interface PoiDef {
   id: string
@@ -936,6 +941,8 @@ export interface CrpgRunState {
   nextCombat: CombatModId[]
   /** Quest payoffs already spent on a boss fight. */
   payoffsUsed: string[]
+  /** Faction reputation this run (C+4): ±3 tiers change shop prices / rest / trace. */
+  rep?: Partial<Record<Faction, number>>
   /** Free-tier Act 1 taste: places the Act 1 district only; Act 2–3 districts and camp nights require Signal+. */
   trial?: boolean
 }

@@ -1,7 +1,7 @@
 // Signal+ CRPG content (engine/crpg.ts): districts with their conversations and NPCs, backgrounds, quests and camp
 // nights, assembled into id-keyed records. crpg.test.ts guards integrity (reachability, ids, budgets, AI personas).
 // Each district file owns its DistrictDef, dialogues and NPCs; add a new one to PARTS.
-import type { CrpgContent, DialogueDef, DistrictDef, NpcDef } from '../../engine/types.ts'
+import type { CrpgContent, DialogueDef, DistrictDef, NpcDef, Faction } from '../../engine/types.ts'
 import { BACKGROUNDS } from './backgrounds.ts'
 import { CAMP_DIALOGUES } from './camp_dialogues.ts'
 import { CAMPS } from './camps.ts'
@@ -37,10 +37,32 @@ function byId<T extends { id: string }>(xs: readonly T[]): Record<string, T> {
   return out
 }
 
+/** Who each NPC speaks for (reputation). Unlisted NPCs move no faction. */
+const NPC_FACTION: Record<string, Faction> = {
+  oh_gisa: 'offgrid',
+  bora: 'offgrid',
+  min_courier: 'offgrid',
+  scav_pyo: 'offgrid',
+  iseul: 'offgrid',
+  yeon_cleaner: 'offgrid',
+  mother_so: 'offgrid',
+  citizen_mun: 'offgrid',
+  madam_ku: 'market',
+  toll_king: 'market',
+  auctioneer_palle: 'market',
+  collector_do: 'market',
+  sgt_yun: 'grid',
+  kiosk_dal: 'grid',
+  stationmaster_yeom: 'grid',
+  curator_baek: 'grid',
+  archivist_07: 'grid',
+  auditor_pyo: 'grid',
+}
+
 export const CRPG: CrpgContent = {
   districts: byId(DISTRICTS),
   dialogues: byId(DIALOGUES),
-  npcs: byId(NPCS),
+  npcs: byId(NPCS.map((n) => (NPC_FACTION[n.id] ? { ...n, faction: NPC_FACTION[n.id] } : n))),
   backgrounds: byId(BACKGROUNDS),
   quests: byId(QUESTS),
   camps: CAMPS,

@@ -469,15 +469,19 @@ SPRITES: list[Sprite] = [
         kind="boss",
         idle_ref="resources/neo-seoul/v2/boss/a3_boss_architect.webp",
         idle_ref_note=SPLASH_NOTE,
-        subject="ARCHITECT OMEGA, the executive combat form of administrator IX: a tall floating geometric "
-        "construct of white glass and black obsidian monolith plates in perfect symmetry, translucent cyan "
-        "blueprint wireframe lattices folding around it, two long ruler-straight blade arms, a blood-red core "
-        "in its chest, small fractured cubes orbiting it, hovering above the ground",
+        subject="ARCHITECT OMEGA, IX's enforcement engine as a towering drafting machine: a skeletal tower of "
+        "matte black iron and polished antique brass with a narrow mechanical spine, several long many-jointed "
+        "articulated arms — one holding a giant brass drafting compass, one a long steel ruler, the others ending "
+        "in laser-cutting heads with amber tips — and a head that is a large brass lens-and-projector with a "
+        "single glowing amber aperture casting thin amber and deep-violet blueprint grid lines, a few small "
+        "cut-out city-block chunks with glowing amber cut faces floating beside it, hovering above the ground. "
+        "Palette black, amber/gold and deep violet; NOT white, NOT crystal, NO chest core, NO halo rings",
         poses=_enemy_poses(
-            attack="now ATTACKING toward the LEFT: one blade arm sweeping forward and cutting a compact glowing "
-            "red seam through the air, red core blazing, wireframe lattices flaring",
-            hit="now in a HIT-REACTION pose: recoiling backward toward the right, glass and obsidian plates "
-            "cracking apart, wireframe lattices glitching, red core flaring, shards flying",
+            attack="now ATTACKING toward the LEFT: the compass arm and a laser-cutter arm thrust forward, a "
+            "compact amber cutting beam slicing a short glowing seam through the air, lens aperture blazing "
+            "amber, violet grid lines flaring",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, arms jolted and splayed, brass "
+            "joints sparking, the lens cracked and flickering violet, small brass gears and debris flying",
         ),
         enemy_ids=("architect_omega",),
     ),

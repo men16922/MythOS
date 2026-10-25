@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-10-25 (Claude Opus 5.5): Argon review + S-rank passes 1–2 done and LIVE in `00150-qen` (`a6615b7`, rollback `00148-nav`)** — `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (§4: six automatable axes A−/A). Argon's wave had pushed P0 mixed 31 → ~75 % unmeasured; now 40.5 % with archetypes 42/42/37, elites 7.3 % loss, bosses 8.9 turns, Paradox 1–5 34.7 → 8.7 %, greedy P5 85.6 % (7-row map, `CONTENT.tuning` + **Rage**, `engine/statPerks.ts` / `MutatorDef.combat` / `WORLD_ECHOES` single sources, 72 Codex images replace every reused asset). Preview verified 5/5 and promoted (`--to-latest`, production checks 4/4). Owner fun verdict 2026-10-26: **S — keep it** (S-rank goal closed). Next: contest pick when announced. **Owner rule 2026-10-24: UX first — keep the game simple and low-fatigue (`DECISIONS.md`).** Paid Play release and Signal+ are ON HOLD. Demo link = `<service URL>/?demo=<code>&lang=en&hud=1`. **Never call Vertex Veo API; test muted (`?mute=1`), one browser tab at most.**
+> ▶ NEXT SESSION: **2026-10-26 (Claude Opus 5.5): DLC update R1–R7 complete on `main` (`323f5bb`)** — Deep Signal 6 acts (Glass Library / Dreaming Machines / First Record + secret true ending), 11 companions, 5 archetypes, autonomy 5, mastery, Archive Vault; plan `docs/plans/2026-10-26-dlc-expansion-plan.md` §17.6. Preview `00153-tuv` verified 5/5, **not promoted** (production `00150-qen`; promotion = owner call). Next: owner plays a Deep Signal run to Act 6 → fun/difficulty verdict; later proposals in `docs/NEXT_PLAN.md` P0c.
 
 ## Snapshot
 

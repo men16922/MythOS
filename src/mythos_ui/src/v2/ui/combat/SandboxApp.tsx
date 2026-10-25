@@ -20,7 +20,9 @@ function build(archetype: string, encounterId: string, extra: boolean, seed: num
     const enc = C.encounters[encounterId]
     if (enc) run.act = enc.act
     if (extra) {
-      const second = Object.values(C.companions).find((c) => !run.party.some((p) => p.id === c.id))
+      // ?comp=<companion id> picks the second companion (QA screenshots of a specific one).
+      const want = C.companions[new URLSearchParams(window.location.search).get('comp') ?? '']
+      const second = want && !run.party.some((p) => p.id === want.id) ? want : Object.values(C.companions).find((c) => !run.party.some((p) => p.id === c.id))
       if (second && run.party.length < 2) {
         run.party.push({ id: second.id, hp: second.maxHp, maxHp: second.maxHp, bond: 0 })
         for (const id of second.cards) run.deck.push({ uid: `sb_${id}_${run.uidCounter++}`, defId: id, upgraded: false })
@@ -41,7 +43,10 @@ export function CombatSandbox() {
   const encounters = useMemo(() => Object.values(C.encounters).sort((a, b) => a.act - b.act || a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id)), [])
   const archetypes = Object.keys(C.archetypes)
   const [encId, setEncId] = useState(() => new URLSearchParams(window.location.search).get('enc') ?? encounters[0]?.id ?? '')
-  const [arch, setArch] = useState(archetypes[0] ?? 'ghost')
+  const [arch, setArch] = useState(() => {
+    const q = new URLSearchParams(window.location.search).get('arch')
+    return q && C.archetypes[q] ? q : (archetypes[0] ?? 'ghost')
+  })
   const [extra, setExtra] = useState(true)
   const [lang, setLang] = useState<Lang>('ko')
   const [fast, setFast] = useState(false)

@@ -379,13 +379,18 @@ def tour_screens(page: Page) -> list[str]:
     click_first(page, ".m2-shop button.m2-btn--lg")
     expect("shop leave -> map", kind_of(page) == "map", kind_of(page))
 
-    # safehouse: heal, then done
-    put("(r) => ({ hp: 10, screen: { kind: 'rest', done: false } })")
+    # safehouse: workbench patch (salvage parts, free), then heal, then done
+    put("(r) => ({ hp: 10, parts: 2, screen: { kind: 'rest', done: false } })")
     expect("rest renders", page.locator(".m2-rest").count() > 0)
+    expect("workbench renders", page.locator(".m2-restcraft").count() == 3)
+    click_first(page, ".m2-restcraft:not([disabled])")
+    page.wait_for_timeout(400)
+    crafted = page.evaluate("() => [window.__m2.run.hp, window.__m2.run.parts]")
+    expect("workbench patch", crafted == [18, 0], f"hp/parts {crafted}")
     click_first(page, ".m2-restopt--heal")
     page.wait_for_timeout(500)
     healed = page.evaluate("() => window.__m2.run.hp")
-    expect("rest heal", healed > 10, f"hp {healed}")
+    expect("rest heal", healed > 18, f"hp {healed}")
     click_first(page, ".m2-rest__done .m2-btn--primary, .m2-rest .m2-btn--primary")
     expect("rest done -> map", kind_of(page) == "map", kind_of(page))
 
@@ -420,6 +425,9 @@ def tour_screens(page: Page) -> list[str]:
             )
             page.wait_for_timeout(2500)
             page.screenshot(path=f"{tour}/tour_archive.png")
+            page.locator("[data-testid=vault-tab]").first.click(timeout=3000)
+            page.wait_for_timeout(800)
+            page.screenshot(path=f"{tour}/tour_archive_vault.png")
     return problems
 
 

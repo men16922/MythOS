@@ -1,5 +1,6 @@
 // Mythos 2.0 — safehouse: one action — heal, upgrade, scrub Trace, or bond with a companion.
-import { Eraser, Flame, HeartHandshake, HeartPulse, Wrench } from 'lucide-react'
+import { Cog, Eraser, Flame, HeartHandshake, HeartPulse, Wrench } from 'lucide-react'
+import { CRAFT_RECIPES, type CraftRecipe } from '../../engine/run.ts'
 import { useState } from 'react'
 import { asset, portrait } from '../common/assets.ts'
 import { josa, tr } from '../common/lang.ts'
@@ -18,6 +19,9 @@ const REST_PLACE: Record<number, { ko: string; en: string; bg: string }> = {
   1: { ko: '은신처 · C-17 폐쇄 승강장', en: 'Safehouse · C-17 closed platform', bg: 'v2/cutscenes/kai_rain_sound.webp' },
   2: { ko: '은신처 · 지하 거점', en: 'Safehouse · Undercity refuge', bg: 'v2/events/a2_refuge_night.webp' },
   3: { ko: '은신처 · 첨탑 새벽 초소', en: 'Safehouse · Spire dawn post', bg: 'v2/cutscenes/tae_o_dawn_watch.webp' },
+  4: { ko: '은신처 · 유리성 열람석', en: 'Safehouse · Glass Library reading nook', bg: 'v2/events/a4_loop_supper.webp' },
+  5: { ko: '은신처 · 깡통 정원', en: 'Safehouse · The tin garden', bg: 'v2/events/a5_tin_garden.webp' },
+  6: { ko: '은신처 · 눈 내리는 서버실', en: 'Safehouse · Snow in the server hall', bg: 'v2/events/a6_server_snow.webp' },
 }
 
 export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsceneSeen, loopsWith }: ScreenProps) {
@@ -143,6 +147,33 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
                       : 'Bonds are maxed'}
               </span>
             </button>
+          </div>
+        )}
+
+        {(run.parts ?? 0) > 0 && (
+          <div className="m2-rest__craft" aria-label={ko ? '제작대' : 'Workbench'}>
+            <div className="m2-rest__craft-head">
+              <Cog size={16} /> {ko ? '제작대' : 'Workbench'} <span className="m2-mono">{ko ? `부품 ${run.parts}` : `${run.parts} parts`}</span>
+              <small>{ko ? '휴식을 쓰지 않는다 · 각 1회' : 'Does not use your rest · once each'}</small>
+            </div>
+            <div className="m2-rest__craft-row">
+              {(Object.keys(CRAFT_RECIPES) as CraftRecipe[]).map((k) => (
+                <button
+                  key={k}
+                  className="m2-restcraft"
+                  disabled={!rx.canCraft(run, k)}
+                  onClick={() => {
+                    sound('buy')
+                    act(rx.restCraft(run, k, C))
+                  }}
+                >
+                  <b>{tr(CRAFT_RECIPES[k].name, lang)}</b>
+                  <span>
+                    {tr(CRAFT_RECIPES[k].text, lang)} · {ko ? `부품 ${CRAFT_RECIPES[k].cost}` : `${CRAFT_RECIPES[k].cost} parts`}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

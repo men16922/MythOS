@@ -43,12 +43,12 @@ interface UnitProps {
   onClick: (p: Pos) => void
 }
 
-const STATUS_ORDER: StatusKind[] = ['burn', 'bleed', 'corrode', 'shock', 'mark', 'weak', 'guard', 'thorns', 'evade', 'focus', 'rage', 'redact']
+const STATUS_ORDER: StatusKind[] = ['burn', 'bleed', 'corrode', 'shock', 'mark', 'weak', 'guard', 'thorns', 'evade', 'focus', 'rage', 'redact', 'freeze']
 /** Sprite box in tile widths. 1.x art is 512×768 with feet at ~93 %; 2.0 art keeps feet 18 px above the
  *  bottom edge (97.7 %) and bosses use square 768×768 canvases. */
 const FIG_W = 1.12
 const FIG_H = 1.68
-const SQUARE_SPRITES = new Set(['haetae', 'echo_eater', 'ix_avatar', 'baekho', 'hyeonmu', 'architect-omega', 'jujak', 'arachne', 'io', 'blank', 'first-reader', 'list-warden'])
+const SQUARE_SPRITES = new Set(['haetae', 'echo_eater', 'ix_avatar', 'baekho', 'hyeonmu', 'architect-omega', 'jujak', 'arachne', 'io', 'blank', 'first-reader', 'list-warden', 'furnace-mother', 'kai-zero', 'rem', 'ix-origin', 'omega-complete', 'loop-engine', 'first-connector'])
 function spriteBox(key: string, tw: number): { w: number; h: number; feet: number } {
   const v2 = !!V2_SPRITES[key]
   const h = tw * FIG_H

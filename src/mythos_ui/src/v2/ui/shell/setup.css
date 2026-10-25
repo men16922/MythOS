@@ -511,3 +511,14 @@
     font-size: 14px;
   }
 }
+
+/* Archetype mastery badge (R7c): small and quiet, details in the title. */
+.m2-arch__mastery {
+  margin-left: 8px;
+  padding: 0 5px;
+  border: 1px solid var(--m2-gold);
+  border-radius: 4px;
+  font-size: 10px;
+  color: var(--m2-gold);
+  letter-spacing: 0.04em;
+}

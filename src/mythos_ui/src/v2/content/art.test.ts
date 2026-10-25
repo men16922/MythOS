@@ -40,6 +40,12 @@ test('screen art referenced by path is on disk (supply cache, shop, safehouse)',
     'v2/cutscenes/kai_rain_sound.webp',
     'v2/events/a2_refuge_night.webp',
     'v2/cutscenes/tae_o_dawn_watch.webp',
+    'v2/events/a4_loop_supper.webp',
+    'v2/districts/d4_return_desk.webp',
+    'v2/events/a5_tin_garden.webp',
+    'v2/events/a5_magnetic_lottery.webp',
+    'v2/events/a6_server_snow.webp',
+    'v2/events/a6_margin_lottery.webp',
   ]) {
     assert.ok(existsSync(join(res, f)), `${f} missing`)
   }

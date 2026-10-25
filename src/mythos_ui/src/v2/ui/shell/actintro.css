@@ -119,3 +119,11 @@
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
+
+/* Act gift (Pack 3: the Rewrite starter cards) — one quiet line under the subtitle. */
+.m2-actintro__gift {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--m2-gold, #ffd68c);
+  opacity: 0.85;
+}

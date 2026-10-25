@@ -33,6 +33,7 @@ export const STATUS_SFX: Partial<Record<string, SfxName>> = {
   focus: 'status_mark',
   rage: 'rage',
   redact: 'hack',
+  freeze: 'status_shock',
 }
 
 /** Projectile / swing travel time per FX kind. */
@@ -138,6 +139,7 @@ export function cardSignature(effects: readonly Effect[], tags: readonly string[
   if (status('focus')) return 'crit'
   if (status('burn') || has((e) => e.kind === 'ignite')) return 'ignite'
   if (status('shock') || has((e) => e.kind === 'electrify')) return 'zap'
+  if (has((e) => e.kind === 'rewrite')) return 'hack'
   if (status('mark')) return 'status_mark'
   if (has((e) => e.kind === 'heal')) return 'heal'
   if (has((e) => e.kind === 'energy' || e.kind === 'draw')) return 'energy'

@@ -160,6 +160,51 @@ export const BANTER: BanterDef[] = [
       { who: 'kai', text: t('비매품… 좋은 말이네요.', 'Not for sale… I like that.') },
     ],
   },
+  // ---------------------------------------------------------------- R7d new companions (Se-rin meets each)
+  {
+    id: 'b_serin_io_overdue',
+    pair: ['se_rin', 'io'],
+    lines: [
+      { who: 'se_rin', text: t('너 계속 나 쳐다보는 거, 그거 뭐야.', 'Why do you keep looking at me?') },
+      { who: 'io', text: t('대출 기록을 대조 중입니다. 당신은 세 번째 루프에서 반납되지 않았습니다.', 'Cross-checking loan records. You were not returned in the third loop.') },
+      { who: 'se_rin', text: t('…그럼 지금 반납된 거네.', '…Then I’m returned now.') },
+    ],
+  },
+  {
+    id: 'b_serin_miro_name',
+    pair: ['se_rin', 'miro'],
+    lines: [
+      { who: 'se_rin', text: t('야, 너. 이름이 뭐였지.', 'Hey, you. What was your name?') },
+      { who: 'miro', text: t('미로. 벌써 네 번째 물어봤어.', 'Miro. That’s the fourth time you’ve asked.') },
+      { who: 'se_rin', text: t('다섯 번째는 안 물어볼게. 약속.', 'There won’t be a fifth. Promise.') },
+    ],
+  },
+  {
+    id: 'b_serin_doyun_stand',
+    pair: ['se_rin', 'doyun'],
+    lines: [
+      { who: 'se_rin', text: t('앞에 서지 마. 맞는 건 내 일이야.', 'Don’t stand in front. Taking hits is my job.') },
+      { who: 'doyun', text: t('그럼 반씩 해요. 저도 서 있는 건 잘해요.', 'Then let’s split it. I’m good at standing too.') },
+    ],
+  },
+  {
+    id: 'b_serin_bel_redpen',
+    pair: ['se_rin', 'bel'],
+    lines: [
+      { who: 'se_rin', text: t('검열관이었다며. 내 기록도 잘랐어?', 'You were a censor. Did you cut my record too?') },
+      { who: 'bel', text: t('네 건 너무 길어서 반려했어. 지금 생각하면 잘한 거지.', 'Yours ran too long, so I sent it back. Good call, in hindsight.') },
+      { who: 'se_rin', text: t('…칭찬으로 들을게.', '…I’ll take that as a compliment.') },
+    ],
+  },
+  {
+    id: 'b_serin_rem_sleep',
+    pair: ['se_rin', 'rem'],
+    lines: [
+      { who: 'se_rin', text: t('너 잠은 자냐.', 'Do you even sleep?') },
+      { who: 'rem', text: t('아니요. 대신 당신이 잘 때 깨어 있을게요.', 'No. I’ll stay awake while you do instead.') },
+      { who: 'se_rin', text: t('그게 제일 무서운 말인 거 알지.', 'You know that’s the scariest thing you could say.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

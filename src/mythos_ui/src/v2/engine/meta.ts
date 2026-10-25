@@ -74,6 +74,7 @@ export function newProfile(name: string, settings: Partial<MetaProfile['settings
     daily: {},
     cutscenes: [],
     companionWins: {},
+    archetypeWins: {},
   }
 }
 
@@ -83,6 +84,21 @@ export const MASTERY_WINS = [2, 5] as const
 /** 0, 1 or 2: how well this companion knows you, from the victories you share. */
 export function masteryTier(wins: number): 0 | 1 | 2 {
   return wins >= MASTERY_WINS[1] ? 2 : wins >= MASTERY_WINS[0] ? 1 : 0
+}
+
+/** Victories with an archetype needed for archetype mastery I, II and III (R7c). */
+export const ARCH_MASTERY_WINS = [1, 3, 6] as const
+/** What each archetype mastery tier adds at run start (cumulative). Shown on the setup screen. */
+export const ARCH_MASTERY_TEXT = [
+  { ko: '최대 HP +4', en: '+4 max HP' },
+  { ko: '시작 카드 1장 강화', en: 'One starting card upgraded' },
+  { ko: '성장 포인트 +1', en: '+1 growth point' },
+] as const
+
+/** 0–3: archetype mastery from victories with it. */
+export function archMasteryTier(profile: Pick<MetaProfile, 'archetypeWins'>, archetype: string): number {
+  const wins = profile.archetypeWins?.[archetype] ?? 0
+  return ARCH_MASTERY_WINS.filter((w) => wins >= w).length
 }
 
 /** Mastery tier per companion for a new run (empty for a daily: it must be identical for everybody). */
@@ -207,6 +223,8 @@ export function migrateProfile(raw: unknown): MetaProfile {
     daily: migrateDaily(r.daily),
     cutscenes: strList(r.cutscenes),
     companionWins: migrateCounts(r.companionWins),
+    archetypeWins: migrateCounts(r.archetypeWins),
+    ...(Array.isArray(r.records) ? { records: strList(r.records) } : {}),
     eventsSeen: migrateCounts(r.eventsSeen),
   }
   const death = r.lastDeath
@@ -429,9 +447,11 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
       : profile.paradoxUnlocked,
     codex: union(profile.codex, run.codex),
     endingsSeen: union(profile.endingsSeen, [end.endingId]),
+    ...(run.daily ? {} : { records: union(profile.records ?? [], Object.keys(run.flags).filter((k) => k.startsWith('record_') && run.flags[k])) }),
     companionsMet: union(profile.companionsMet, [...run.party, ...(run.bench ?? [])].map((m) => m.id)),
     history: [record, ...profile.history].slice(0, HISTORY_CAP),
     companionWins: victory && !run.daily ? addWins(profile.companionWins, run.party.map((m) => m.id)) : { ...(profile.companionWins ?? {}) },
+    archetypeWins: victory && !run.daily ? addWins(profile.archetypeWins, [run.archetype]) : { ...(profile.archetypeWins ?? {}) },
     eventsSeen: addWins(profile.eventsSeen, [...new Set(run.seenEvents)]),
     settings: { ...profile.settings },
   }

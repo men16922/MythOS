@@ -31,6 +31,13 @@ BOSS_ALIASES = {
     "a4_boss_io": "io_librarian",
     "a4_boss_blank": "blank_binder",
     "a4_boss_reader": "first_reader",
+    "a5_boss_mother": "furnace_mother",
+    "a5_boss_kai_zero": "kai_zero",
+    "a5_boss_rem": "rem_executor",
+    "a6_boss_ix_origin": "ix_origin",
+    "a6_boss_omega": "omega_complete",
+    "a6_boss_loop_engine": "loop_engine",
+    "a6_secret_first_connector": "first_connector",
 }
 MUSIC_ORDER = [
     "title",

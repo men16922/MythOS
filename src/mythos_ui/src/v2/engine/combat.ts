@@ -402,7 +402,7 @@ function partyMovePaths(c: CombatState, u: UnitState): Map<string, Pos[]> {
 /** Tiles the unit may move to this turn (excluding where it stands). */
 export function legalMoves(c: CombatState, uid: string): Pos[] {
   const u = getUnit(c, uid)
-  if (!u || c.phase !== 'player' || u.side !== 'party' || u.moved || (u.statuses.shock ?? 0) > 0) return []
+  if (!u || c.phase !== 'player' || u.side !== 'party' || u.moved || (u.statuses.shock ?? 0) > 0 || (u.statuses.freeze ?? 0) > 0) return []
   const out: Pos[] = []
   for (const path of partyMovePaths(c, u).values()) {
     const end = path[path.length - 1]
@@ -829,6 +829,7 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
   for (const e of livingEnemies(c)) {
     decayStatus(e, 'shock')
     decayStatus(e, 'weak')
+    decayStatus(e, 'freeze')
   }
   growRage(c, C)
   if (enc) {
@@ -918,6 +919,7 @@ export function endTurnInPlace(c: CombatState, C: ContentRegistry): void {
   for (const u of livingParty(c)) {
     decayStatus(u, 'shock')
     decayStatus(u, 'weak')
+    decayStatus(u, 'freeze')
   }
   const x = c as CombatStateExt
   x.inEnemyPhase = true

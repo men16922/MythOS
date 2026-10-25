@@ -3,9 +3,18 @@
 
 import { portrait } from '../../common/assets.ts'
 import { tr } from '../../common/lang.ts'
-import { setMusicDuck, sfx } from '../../common/sfx.ts'
+import { setMusicDuck, sfx, type SfxName } from '../../common/sfx.ts'
 import { panOf } from './helpers.ts'
 import type { Ev, Kit, Plan } from './types.ts'
+
+/** Each archetype's Signal Burst signature cue. */
+const BURST_SFX: Record<string, SfxName> = {
+  ghost: 'burst_ghost',
+  smuggler: 'burst_smuggler',
+  echo_collector: 'burst_echo',
+  archivist: 'burst_archivist',
+  scrapborn: 'burst_scrapborn',
+}
 
 export function turnSteps(kit: Kit, plan: Plan, ev: Ev<'turn'>): void {
   const { patch, showBanner, S } = kit
@@ -114,7 +123,7 @@ export function burstSteps(kit: Kit, plan: Plan, ev: Ev<'burst'>): void {
       }
       hitStop(S(120))
       trauma(0.75)
-      const sig = ev.archetype === 'ghost' ? 'burst_ghost' : ev.archetype === 'smuggler' ? 'burst_smuggler' : ev.archetype === 'echo_collector' ? 'burst_echo' : 'shockwave'
+      const sig = BURST_SFX[ev.archetype] ?? 'shockwave'
       sfx('unlock')
       sfx(sig, { intensity: 1.4 })
     },

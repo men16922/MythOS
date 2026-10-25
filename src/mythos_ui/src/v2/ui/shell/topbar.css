@@ -323,3 +323,8 @@
 .m2-topbar__break {
   display: none;
 }
+
+/* Pack 2 salvage parts (shown only once you have some). */
+.m2-topbar__parts {
+  color: #ffd68c;
+}

@@ -234,3 +234,51 @@
 .m2-camp small {
   color: var(--m2-mute);
 }
+
+/* Pack 2 salvage: the safehouse workbench (free crafts, once each per rest). */
+.m2-rest__craft {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 190, 90, 0.35);
+  border-radius: 8px;
+  background: rgba(30, 20, 6, 0.6);
+}
+.m2-rest__craft-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #ffd68c;
+  margin-bottom: 8px;
+}
+.m2-rest__craft-head small {
+  margin-left: auto;
+  opacity: 0.7;
+  color: inherit;
+}
+.m2-rest__craft-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.m2-restcraft {
+  flex: 1 1 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 190, 90, 0.5);
+  background: rgba(60, 36, 8, 0.7);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.m2-restcraft:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.m2-restcraft span {
+  font-size: 12px;
+  opacity: 0.8;
+}

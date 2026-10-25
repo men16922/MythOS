@@ -349,6 +349,8 @@ export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause
   if (u.side === 'enemy') {
     c.stats.enemiesKilled += 1
     c.credits += C.enemies[u.defId]?.bounty ?? 0
+    const salvage = C.enemies[u.defId]?.salvage ?? 0
+    if (salvage > 0) c.parts = (c.parts ?? 0) + salvage
     const environmental = cause === 'void' || u.lastHitBy !== 'party'
     if (environmental) {
       c.stats.environmentKills += 1
@@ -764,6 +766,7 @@ function areaOf(eff: Effect): AreaShape | undefined {
     case 'electrify':
     case 'redirect':
     case 'cancel_intent':
+    case 'rewrite':
       return eff.area
     default:
       return undefined
@@ -1007,6 +1010,14 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
     case 'add_card':
       addCards(c, eff.cardId, eff.pile, eff.count ?? 1)
       return
+    case 'recall': {
+      for (let n = 0; n < eff.count && c.hand.length < HAND_MAX; n++) {
+        const i = c.exhaust.findLastIndex((card) => (C.cards[card.defId]?.cost ?? -1) >= 0)
+        if (i < 0) break
+        c.hand.push(c.exhaust.splice(i, 1)[0]!)
+      }
+      return
+    }
     case 'credits':
       c.credits += eff.amount
       return
@@ -1018,6 +1029,20 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
         if (!t || !isStandable(t) || eff.turns <= 0) continue
         t.fire = Math.max(t.fire ?? 0, turns)
         emit(c, { t: 'fire', pos: { ...p }, turns: t.fire })
+      }
+      return
+    }
+    case 'rewrite': {
+      for (const p of effectTiles(eff, res)) {
+        const t = tileAt(c, p)
+        if (!t || t.kind === eff.tile) continue
+        // Solid and empty tiles can only be written where nobody stands.
+        if ((eff.tile === 'cover' || eff.tile === 'void') && unitAt(c, p)) continue
+        t.kind = eff.tile
+        delete t.ttl
+        if (eff.tile === 'cover') t.hp = COVER_HP
+        else delete t.hp
+        emit(c, { t: 'tile', pos: { ...p }, kind: eff.tile })
       }
       return
     }

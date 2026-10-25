@@ -32,6 +32,7 @@ import {
   PASSIVE_NUMBERS,
   cardPool,
   implantPool,
+  archMasteryTier,
   masteryFor,
   newProfile,
   threadPassive,
@@ -339,6 +340,7 @@ export function raiseBond(run: RunState, id: string, amount: number, C: ContentR
 function offerable(run: RunState, C: ContentRegistry, id: string): boolean {
   const def = C.cards[id]
   if (!def) return false
+  if (def.minAct !== undefined && run.act < def.minAct) return false
   return def.owner === 'any' || def.owner === 'connector' || run.party.some((m) => m.id === def.owner)
 }
 
@@ -590,6 +592,21 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     const autonomy = autonomyLevel(profile)
     if (autonomy > 0) run.autonomy = autonomy
     if (autonomy >= 3) run.growth = (run.growth ?? 0) + 1
+    if (autonomy >= 5 && C.cards[AUTONOMY_REWRITE_CARD]) addCard(run, AUTONOMY_REWRITE_CARD, C)
+    // Archetype mastery (R7c): I +4 max HP, II one starting card upgraded, III +1 growth.
+    const archTier = archMasteryTier(profile, arch.id)
+    if (archTier > 0) run.archMastery = archTier
+    if (archTier >= 1) {
+      run.maxHp += 4
+      run.hp = run.maxHp
+    }
+    if (archTier >= 2) {
+      const card = run.deck.find((c) => !c.upgraded && canUpgrade(C.cards[c.defId]))
+      if (card) card.upgraded = true
+    }
+    if (archTier >= 3) run.growth = (run.growth ?? 0) + 1
+    // First Record shards already found stay found (events gate on `notFlag: record_N`).
+    for (const id of profile.records ?? []) if (id.startsWith(RECORD_PREFIX)) run.flags[id] = 1
     const worldEcho = worldEchoFor(profile)
     if (worldEcho) {
       run.flags[worldEcho.id] = 1
@@ -600,8 +617,9 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   run.map = generateActMap(1, mapRng(run, 1), C, { paradox })
   placeDistrict(run, run.map, C)
   log(run, 'start', daily ? t(`오늘의 시드 ${daily} 시작`, `Daily Signal ${daily} begins`) : t(`루프 ${loop} 시작`, `Loop ${loop} begins`))
-  if (thread.startRemove && run.deck.length > 0) {
-    run.screen = { kind: 'card_pick', purpose: 'remove', count: 1, returnTo: { kind: 'act_intro' } }
+  const removes = (thread.startRemove ? 1 : 0) + (!daily && (run.autonomy ?? 0) >= 4 ? 1 : 0)
+  if (removes > 0 && run.deck.length > removes) {
+    run.screen = { kind: 'card_pick', purpose: 'remove', count: removes, returnTo: { kind: 'act_intro' } }
   }
   return run
 }
@@ -822,6 +840,12 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   next.tally.cardsPlayed += combat.stats.cardsPlayed
   const name = C.encounters[combat.encounterId]?.name ?? KIND_NOTE[nodeKind]
 
+  if (combat.phase === 'lost' && combat.encounterId === SECRET_ENCOUNTER) {
+    // Losing to the First Connector does not undo the win: the record stays closed, the ending choice remains.
+    next.hp = 1
+    next.screen = { kind: 'final_choice' }
+    return next
+  }
   if (combat.phase === 'lost') {
     next.hp = 0
     next.flags[`${KILLED_BY_FLAG}${combat.encounterId}`] = 1
@@ -836,6 +860,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
     m.hp = u && u.hp > 0 ? clamp(1, m.maxHp, u.hp) : 1
   }
   next.consumables = combat.consumables.filter((id) => C.consumables[id]).slice(0, MAX_CONSUMABLES)
+  if ((combat.parts ?? 0) > 0) next.parts = (next.parts ?? 0) + (combat.parts ?? 0)
   gainTrace(next, combat.trace, C)
   advanceDirectiveOnWin(next, combat, nodeKind)
   if (nodeKind === 'elite' || nodeKind === 'boss') addAxis(next, 'resilience')
@@ -852,7 +877,16 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
     }
     // After the final boss nothing is left to spend loot on: straight to the ending choice.
     if (next.act >= lastAct(next, C) && next.mode !== 'endless') {
-      clearCurrentNode(next)
+      if (combat.encounterId === SECRET_ENCOUNTER) next.flags[SECRET_WON_FLAG] = 1
+      else clearCurrentNode(next)
+      if (secretBossGate(next, C)) {
+        // The signal does not cut out: someone is still connected. Half the missing HP back, then the last fight.
+        next.flags[SECRET_MET_FLAG] = 1
+        next.hp = clamp(1, next.maxHp, next.hp + Math.ceil((next.maxHp - next.hp) / 2))
+        log(next, 'combat', C.encounters[SECRET_ENCOUNTER]!.name)
+        next.screen = { kind: 'combat', combat: beginCombat(next, SECRET_ENCOUNTER, C), nodeKind: 'boss' }
+        return next
+      }
       next.screen = { kind: 'final_choice' }
       return next
     }
@@ -928,6 +962,7 @@ function advanceAct(run: RunState, C: ContentRegistry): void {
   run.hp = clamp(1, run.maxHp, run.hp + Math.ceil((run.maxHp - run.hp) / 2))
   for (const m of roster(run)) m.hp = clamp(1, m.maxHp, m.hp + Math.ceil((m.maxHp - m.hp) / 2))
   log(run, 'start', C.acts[run.act]?.name ?? t(`${run.act}막`, `Act ${run.act}`))
+  if ((run.lap ?? 0) === 0) for (const id of C.acts[run.act]?.gift ?? []) addCard(run, id, C)
   run.screen = { kind: 'act_intro' }
 }
 
@@ -1070,6 +1105,9 @@ export function applyImmediate(run: RunState, effects: readonly RunEffect[], C: 
         break
       case 'flag':
         run.flags[e.key] = e.value ?? 1
+        break
+      case 'axis':
+        addAxis(run, e.axis, e.amount ?? 1)
         break
       case 'codex':
         if (!run.codex.includes(e.id)) run.codex.push(e.id)
@@ -1388,6 +1426,39 @@ export function restUpgrade(run: RunState, C: ContentRegistry): RunState {
   })
 }
 
+/** Safehouse workbench (Pack 2 salvage): each recipe once per rest, free (does not use the rest action). */
+export const CRAFT_RECIPES = {
+  patch: { cost: 2, name: t('응급 패치', 'Field Patch'), text: t('HP +8', '+8 HP') },
+  assemble: { cost: 3, name: t('소모품 조립', 'Assemble'), text: t('무작위 소모품 1개', 'A random consumable') },
+  refit: { cost: 6, name: t('임플란트 개조', 'Refit'), text: t('무작위 임플란트 1개', 'A random implant') },
+} as const
+export type CraftRecipe = keyof typeof CRAFT_RECIPES
+
+export function canCraft(run: RunState, recipe: CraftRecipe): boolean {
+  if (run.screen.kind !== 'rest' || run.screen.crafted?.includes(recipe)) return false
+  if ((run.parts ?? 0) < CRAFT_RECIPES[recipe].cost) return false
+  if (recipe === 'assemble' && run.consumables.length >= MAX_CONSUMABLES) return false
+  if (recipe === 'patch' && run.hp >= run.maxHp) return false
+  return true
+}
+
+export function restCraft(run: RunState, recipe: CraftRecipe, C: ContentRegistry): RunState {
+  if (!canCraft(run, recipe)) return run
+  return onScreen(run, 'rest', (next, s) => {
+    const h = runStream(next, 'reward')
+    if (recipe === 'patch') next.hp = Math.min(next.maxHp, next.hp + 8)
+    else if (recipe === 'assemble') {
+      const id = rollConsumable(h, C)
+      if (!id || !gainConsumable(next, id, C)) return false
+    } else {
+      const id = rollImplant(h, next, C, { common: 3, uncommon: 2, rare: 1 })
+      if (!id || !gainImplant(next, id, C)) return false
+    }
+    next.parts = (next.parts ?? 0) - CRAFT_RECIPES[recipe].cost
+    s.crafted = [...(s.crafted ?? []), recipe]
+  })
+}
+
 export const restScrub: SimpleReducer = (run) =>
   onScreen(run, 'rest', (next, s) => {
     if (s.done) return false
@@ -1490,6 +1561,36 @@ export const discardConsumable: (run: RunState, index: number, C?: ContentRegist
 
 // ---------------------------------------------------------------- endings
 
+export const AXIS_NAME: Record<ChoiceAxis, Text> = {
+  humanity: t('인간성', 'Humanity'),
+  dominance: t('지배', 'Dominance'),
+  resilience: t('회복력', 'Resilience'),
+  insight: t('통찰', 'Insight'),
+}
+
+// ---------------------------------------------------------------- First Record (Pack 3 true ending)
+
+export const RECORD_PREFIX = 'record_'
+/** Autonomy 5 ("rewrite"): the Erase card from the first act. */
+const AUTONOMY_REWRITE_CARD = 'rewrite_erase'
+export const RECORDS_NEEDED = 7
+export const SECRET_ENCOUNTER = 'a6_secret_first_connector'
+export const SECRET_MET_FLAG = 'first_connector_met'
+export const SECRET_WON_FLAG = 'first_connector_won'
+/** Insight needed for the secret fight (bosses and elites feed resilience, so "leading" would be out of reach). */
+export const SECRET_INSIGHT = 5
+
+export function recordCount(run: Pick<RunState, 'flags'>): number {
+  return Object.keys(run.flags).filter((k) => k.startsWith(RECORD_PREFIX) && run.flags[k]).length
+}
+
+/** The First Connector waits after the last Deep Signal boss: all First Record shards and insight ≥ SECRET_INSIGHT. */
+export function secretBossGate(run: RunState, C: ContentRegistry): boolean {
+  if (run.mode !== 'deep' || !C.encounters[SECRET_ENCOUNTER] || run.flags[SECRET_MET_FLAG]) return false
+  if (recordCount(run) < RECORDS_NEEDED) return false
+  return (run.axes?.insight ?? 0) >= SECRET_INSIGHT
+}
+
 export interface EndingView {
   ending: EndingDef
   available: boolean
@@ -1498,8 +1599,11 @@ export interface EndingView {
 
 export function availableEndings(run: RunState, C: ContentRegistry): EndingView[] {
   const bondTotal = run.party.reduce((s, m) => s + m.bond, 0)
+  // Deep Signal's Act 6 has its own endings; the standard ones stay with Act 3. The sacrifice is always there.
+  const deepEnd = run.act > STANDARD_ACTS
   return Object.values(C.endings)
     .filter((e) => e.id !== FORCED_ERASURE)
+    .filter((e) => e.id === NOBLE_SACRIFICE || ((e.requires?.minAct ?? 0) > STANDARD_ACTS) === deepEnd)
     .map((ending) => {
       const req = ending.requires
       if (ending.id === NOBLE_SACRIFICE || !req) return { ending, available: true }
@@ -1509,8 +1613,13 @@ export function availableEndings(run: RunState, C: ContentRegistry): EndingView[
         return { ending, available: false, reason: t(`유대 합계 ${req.minBondTotal} 필요`, `Needs total bond ${req.minBondTotal}`) }
       if (req.minCodex !== undefined && run.codex.length < req.minCodex)
         return { ending, available: false, reason: t(`코덱스 기록 ${req.minCodex}개 필요`, `Needs ${req.minCodex} codex entries`) }
+      if (req.minAct !== undefined && run.act < req.minAct)
+        return { ending, available: false, reason: t(`딥 시그널 ${req.minAct}막 이후`, `Deep Signal, Act ${req.minAct} or later`) }
+      if (req.axis && (run.axes?.[req.axis.axis] ?? 0) < req.axis.min)
+        return { ending, available: false, reason: t(`${AXIS_NAME[req.axis.axis].ko} ${req.axis.min} 이상`, `${AXIS_NAME[req.axis.axis].en} ${req.axis.min}+`) }
       return { ending, available: true }
     })
+    .filter((v) => v.available || !v.ending.secret)
 }
 
 export function chooseEnding(run: RunState, endingId: string, C: ContentRegistry): RunState {

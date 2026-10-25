@@ -2,8 +2,10 @@
 // Earnings budget: a failed run ≈ 15-35 ◈, a win ≈ 80-120 ◈ → the full tree (~900 ◈) takes
 // roughly 15-25 loops; the first purchases (a companion or the first thread) land after 1-2 runs.
 import type { MetaUnlockDef } from '../engine/types.ts'
+import { NEW_COMPANION_UNLOCKS } from './packs/new_companions/index.ts'
+import { NEW_ARCHETYPE_UNLOCKS } from './packs/new_archetypes/index.ts'
 
-export const UNLOCKS: MetaUnlockDef[] = [
+const BASE_UNLOCKS: MetaUnlockDef[] = [
   // ------------------------------------------------------------ archetypes
   {
     id: 'unlock_smuggler',
@@ -228,3 +230,5 @@ export const UNLOCKS: MetaUnlockDef[] = [
     icon: 'skills/backdoor_route.png',
   },
 ]
+
+export const UNLOCKS: MetaUnlockDef[] = [...BASE_UNLOCKS, ...NEW_ARCHETYPE_UNLOCKS, ...NEW_COMPANION_UNLOCKS]

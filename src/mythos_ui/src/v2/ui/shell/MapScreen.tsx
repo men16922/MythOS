@@ -13,6 +13,7 @@ import { MapBanter } from './MapBanter.tsx'
 import { ThoughtCabinet } from './ThoughtCabinet.tsx'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import { lastAct } from '../../engine/run.ts'
 import './map.css'
 
 const W = 600
@@ -145,7 +146,7 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
       <MapBanter run={run} C={C} lang={lang} fast={settings.fastAnim} />
       <div className={`m2-map__bg${art.map(run.act) ? ' is-map-art' : ''}`} style={{ backgroundImage: `url(${art.map(run.act) || art.act(run.act, actDef?.image)})` }} />
       <aside className="m2-map__side">
-        <div className="m2-map__actnum">{lang === 'ko' ? `${run.act}막 / 3` : `Act ${run.act} of 3`}</div>
+        <div className="m2-map__actnum">{lang === 'ko' ? `${run.act}막 / ${run.mode === 'endless' ? '∞' : lastAct(run, C)}` : `Act ${run.act} of ${run.mode === 'endless' ? '∞' : lastAct(run, C)}`}</div>
         <h1 className="m2-map__title">{actDef ? tr(actDef.name, lang) : ''}</h1>
         <p className="m2-map__sub">{actDef ? tr(actDef.subtitle, lang) : ''}</p>
 

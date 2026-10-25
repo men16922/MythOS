@@ -142,8 +142,8 @@ test('quotas (design doc §5)', () => {
   assert.ok(ir('starter') >= 3 && ir('common') >= 10 && ir('uncommon') >= 9 && ir('rare') >= 6 && ir('boss') >= 3 && ir('shop') >= 3, 'implant mix')
   assert.ok(CONSUMABLES.length >= 8)
   for (const c of CONSUMABLES) assert.ok(c.price >= 35 && c.price <= 70, c.id)
-  assert.equal(COMPANIONS.length, 6)
-  assert.equal(ARCHETYPES.length, 3)
+  assert.equal(COMPANIONS.length, 11)
+  assert.equal(ARCHETYPES.length, 5)
 })
 
 // ------------------------------------------------------------------ cards & effects

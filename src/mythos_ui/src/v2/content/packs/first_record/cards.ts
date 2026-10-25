@@ -1,0 +1,75 @@
+// Pack 3 — Rewrite cards (Act 6 on: `minAct: 6`). The connector writes the board: erase a tile back to floor, write
+// a wall, a fault (hazard) or an abyss (void). Act 6 hands out Erase + Write Wall as its gift (act.ts).
+import type { CardDef, Text } from '../../../engine/types.ts'
+
+const t = (ko: string, en: string): Text => ({ ko, en })
+
+export const REWRITE_CARDS: CardDef[] = [
+  {
+    id: 'rewrite_erase',
+    name: t('지우기', 'Erase'),
+    type: 'tactic',
+    rarity: 'common',
+    owner: 'any',
+    minAct: 6,
+    cost: 0,
+    target: { mode: 'tile', range: 3 },
+    effects: [{ kind: 'rewrite', tile: 'floor' }],
+    text: t('칸 하나를 바닥으로 되돌린다(엄폐물·위험 지대·구덩이 제거).', 'Rewrite a tile back to floor (clears cover, hazard or pit).'),
+    upgrade: {
+      effects: [{ kind: 'rewrite', tile: 'floor', area: 'cross' }],
+      text: t('십자 범위를 바닥으로 되돌린다.', 'Rewrite a cross back to floor.'),
+    },
+    icon: 'v2/cards/rewrite_erase.webp',
+    tags: ['move'],
+  },
+  {
+    id: 'rewrite_wall',
+    name: t('벽 쓰기', 'Write Wall'),
+    type: 'tactic',
+    rarity: 'common',
+    owner: 'any',
+    minAct: 6,
+    cost: 1,
+    target: { mode: 'tile', range: 4, empty: true },
+    effects: [{ kind: 'rewrite', tile: 'cover' }, { kind: 'block', amount: 4, to: 'owner' }],
+    text: t('빈 칸에 벽을 써 넣는다. 방어막 4.', 'Write a wall onto an empty tile. Gain 4 block.'),
+    upgrade: { cost: 0 },
+    icon: 'v2/cards/rewrite_wall.webp',
+    tags: ['block'],
+  },
+  {
+    id: 'rewrite_fault',
+    name: t('결함 쓰기', 'Write Fault'),
+    type: 'tactic',
+    rarity: 'uncommon',
+    owner: 'any',
+    minAct: 6,
+    cost: 1,
+    target: { mode: 'lob', minRange: 1, range: 4 },
+    effects: [{ kind: 'damage', amount: 3 }, { kind: 'rewrite', tile: 'hazard', area: 'cross' }],
+    text: t('피해 3. 십자 범위를 위험 지대로 고쳐 쓴다.', 'Deal 3. Rewrite a cross into hazard.'),
+    upgrade: {
+      effects: [{ kind: 'damage', amount: 6 }, { kind: 'rewrite', tile: 'hazard', area: 'cross' }],
+      text: t('피해 6. 십자 범위를 위험 지대로 고쳐 쓴다.', 'Deal 6. Rewrite a cross into hazard.'),
+    },
+    icon: 'v2/cards/rewrite_fault.webp',
+    tags: ['hack'],
+  },
+  {
+    id: 'rewrite_abyss',
+    name: t('심연 쓰기', 'Write Abyss'),
+    type: 'tactic',
+    rarity: 'rare',
+    owner: 'any',
+    minAct: 6,
+    cost: 2,
+    exhaust: true,
+    target: { mode: 'tile', range: 4, empty: true },
+    effects: [{ kind: 'rewrite', tile: 'void', area: 'cross' }],
+    text: t('빈 칸 중심 십자 범위의 빈 칸을 구덩이로 고쳐 쓴다. 소멸.', 'Rewrite the empty tiles of a cross into pits. Exhaust.'),
+    upgrade: { cost: 1 },
+    icon: 'v2/cards/rewrite_abyss.webp',
+    tags: ['push'],
+  },
+]

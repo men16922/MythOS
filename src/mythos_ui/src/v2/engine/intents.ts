@@ -176,7 +176,7 @@ export function fireIntent(c: CombatState, C: ContentRegistry, u: UnitState): vo
     }
     return
   }
-  if (move.pattern === 'charge' && geo.dashTo && !samePos(geo.dashTo, u.pos)) {
+  if (move.pattern === 'charge' && geo.dashTo && !samePos(geo.dashTo, u.pos) && (u.statuses.freeze ?? 0) <= 0) {
     emit(c, { t: 'move', uid: u.uid, path: [{ ...u.pos }, ...geo.path.map((p) => ({ ...p }))] })
     u.pos = { ...geo.dashTo }
     tickMoveBleed(c, C, u)
@@ -515,7 +515,7 @@ export function planIntent(c: CombatState, C: ContentRegistry, u: UnitState, can
     incoming: new Set(c.incoming.map((i) => posKey(i.pos))),
     heat: presenceHeat(c, targets),
   }
-  const mobile = canMove && def.ai !== 'static' && u.move > 0 && (u.statuses.shock ?? 0) <= 0
+  const mobile = canMove && def.ai !== 'static' && u.move > 0 && (u.statuses.shock ?? 0) <= 0 && (u.statuses.freeze ?? 0) <= 0
   const spots = mobile ? enemyReach(c, u) : [{ pos: u.pos, path: [] }]
   const home = u.pos
   let best: { score: number; spot: Spot; move?: EnemyMove; o: Orientation } | undefined

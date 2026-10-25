@@ -13,9 +13,9 @@ Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank
 - `[x]` Deploy: preview `00150-qen` (`a6615b7`) verified 5/5 and promoted 2026-10-25 (`--to-latest`, production 4/4; rollback `00148-nav`). `[x]` owner fun verdict **S — keep it** (2026-10-26).
 - `[x]` Smuggler payoff card `mass_hijack` (rare, cost 1: cross-area redirect + 5₵, Codex art; run-level neutral 38.9 vs 39.3 %).
 
-## Priority 0c — DLC-scale expansion "Deep Signal" (proposal, owner decisions pending)
+## Priority 0c — DLC-scale expansion "Deep Signal" (R1–R7 built 2026-10-26)
 
-Plan: `docs/plans/2026-10-26-dlc-expansion-plan.md` — modes (Deep Signal 6 acts, Chronicle CRPG campaign, Endless + Paradox 6–10), packs (Glass Library / Dreaming Machines / First Record), +2 archetypes, +5 companions, 1.0 ports, AI A1–A10, waves E0–E6 (~20–24 weeks). `[ ]` `[owner]` decide D1–D8 (§15) before E0.
+Plan: `docs/plans/2026-10-26-dlc-expansion-plan.md` (§17.6 = status). `[ ]` `[owner]` play a Deep Signal run to Act 6 and judge fun / difficulty (sim: 6-act clear ≈ 20 %). `[ ]` `[owner]` decide preview → promotion. `[ ]` later (proposal): weekly contracts, achievements, codex completion rewards, custom anomaly mixer, Chronicle campaign mode, companion outfits.
 
 ## Priority 0 — global showcase & improvement waves (owner direction 2026-10-24)
 

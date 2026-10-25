@@ -81,6 +81,8 @@ export type SfxName =
   | 'burst_ghost'
   | 'burst_smuggler'
   | 'burst_echo'
+  | 'burst_archivist'
+  | 'burst_scrapborn'
   | 'recruit'
 
 export interface SfxOpts {
@@ -472,6 +474,22 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.thump(70, 50, 0.05, 0.25, 0.6, 0)
       v.thump(70, 50, 0.05, 0.25, 0.5, 0.32)
       v.shimmer(5, 0.08, 0.3)
+      break
+    case 'burst_archivist':
+      // The Complete Reading: pages riffling up through the air, then a bright bell as the book closes.
+      v.noise('bandpass', 2600, 0.02, 0.35, 0.14, 5200)
+      v.stutter(6, 0.05, 0.12)
+      v.tone(659, 'triangle', 0.01, 0.6, 0.12, undefined, 0.32)
+      v.tone(988, 'sine', 0.01, 0.9, 0.1, undefined, 0.36)
+      v.shimmer(5, 0.07, 0.34)
+      break
+    case 'burst_scrapborn':
+      // Junk Storm: a scrap avalanche — grinding metal, a heavy clang, debris rattling down.
+      v.noise('lowpass', 900, 0.02, 0.45, 0.3, 220)
+      v.crackle(14, 0.6, 0.2, 0.1)
+      v.thump(110, 30, 0.02, 0.5, 1, 0.2, true)
+      v.tone(180, 'square', 0.005, 0.25, 0.12, 90, 0.2)
+      duckForImpact(6, 0.4)
       break
     case 'recruit':
       // A companion joins: two warm notes resolving upward.

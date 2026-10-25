@@ -1,8 +1,9 @@
 import type { CompanionIntro, Text } from '../engine/types.ts'
+import { NEW_COMPANION_INTROS } from './packs/new_companions/index.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 
-export const COMPANION_INTROS: Record<string, CompanionIntro> = {
+const BASE_INTROS: Record<string, CompanionIntro> = {
   se_rin: {
     bio: t(
       '물거미라 불리는 데이터 밀수꾼. 비접속자들이 숨은 골목으로 물건과 소식을 나르며, 길 잃은 사람에게도 무심한 척 길을 내준다. 데려온 사람을 무사히 내보내는 것까지가 자기 일이라고 여긴다.',
@@ -466,3 +467,5 @@ export const COMPANION_INTROS: Record<string, CompanionIntro> = {
     ],
   },
 }
+
+export const COMPANION_INTROS: Record<string, CompanionIntro> = { ...BASE_INTROS, ...NEW_COMPANION_INTROS }

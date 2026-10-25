@@ -1,6 +1,7 @@
 // Mythos 2.0 — small pure UI helpers shared by shell screens (no React here).
 import type { CardDef, ContentRegistry, Lang, NodeKind, RunEffect, RunScreen, StatKey, Text } from '../../engine/types.ts'
 import { L, STAT_LABEL, tr } from '../common/lang.ts'
+import { AXIS_NAME } from '../../engine/run.ts'
 
 export type TraceTier = 'quiet' | 'alert' | 'hunted' | 'purge'
 
@@ -133,7 +134,11 @@ export function effectChips(effects: RunEffect[], C: ContentRegistry, lang: Lang
       case 'echoes':
         out.push({ text: `${sign(e.amount)} ◈`, tone: 'echo' })
         break
+      case 'axis':
+        out.push({ text: `${tr(AXIS_NAME[e.axis], lang)} +${e.amount ?? 1}`, tone: 'echo' })
+        break
       case 'flag':
+        if (e.key.startsWith('record_')) out.push({ text: s(`최초 기록 조각 ${e.key.slice(7)}/7`, `First Record shard ${e.key.slice(7)}/7`), tone: 'gold' })
         break
     }
   }

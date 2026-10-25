@@ -39,14 +39,17 @@ test('texts: bilingual, a few sentences, no mechanics numbers, titles short', ()
   }
 })
 
+const POLITE = new Set(['kai', 'io', 'doyun', 'rem'])
+
 test('each companion keeps their speech register in the dialogue', () => {
   const polite = /(요|니다|세요)[.”"?!]/
   const quotes = (ko: string): string[] => [...ko.matchAll(/“([^”]+)”/g)].map((m) => m[1] as string)
   for (const c of CUTSCENES) {
     const said = quotes(c.text.ko)
     assert.ok(said.length >= 1, `${c.id}: no spoken line`)
-    if (c.companion === 'kai') {
-      assert.ok(said.some((s) => /요|까요|니다/.test(s)), `${c.id}: Kai speaks 해요체`)
+    // Polite speakers: Kai 해요체, Io 하십시오체, Doyun and Rem 해요체 (R7d). Everyone else speaks 반말.
+    if (POLITE.has(c.companion)) {
+      assert.ok(said.some((s) => /요|까요|니다/.test(s)), `${c.id}: ${c.companion} speaks politely`)
     } else {
       for (const s of said) assert.ok(!polite.test(s + '”') && !/(습니다|세요)/.test(s), `${c.id}: ${c.companion} slipped into a polite register: ${s}`)
     }

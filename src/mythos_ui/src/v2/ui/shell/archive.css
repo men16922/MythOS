@@ -614,3 +614,61 @@
   font-size: 13px;
   font-weight: 600;
 }
+
+/* Archive floor 2 (vault tab): sections, First Record shards, music room. */
+.m2-vault__sec {
+  margin-bottom: 14px;
+}
+.m2-vault__sec h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--m2-gold, #ffd68c);
+}
+.m2-vault__tracks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.m2-vault__tracks button {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  cursor: pointer;
+}
+.m2-vault__tracks button.is-on {
+  border-color: var(--m2-gold, #ffd68c);
+  color: var(--m2-gold, #ffd68c);
+}
+.m2-vault__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  font-size: 12px;
+}
+.m2-firstrec {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 214, 140, 0.35);
+  border-radius: 8px;
+  background: rgba(24, 18, 8, 0.55);
+  font-size: 13px;
+}
+.m2-firstrec b {
+  display: block;
+  color: #ffd68c;
+  margin-bottom: 6px;
+}
+.m2-firstrec p {
+  margin: 4px 0;
+  opacity: 0.9;
+}
+.m2-firstrec p span {
+  color: #ffd68c;
+  margin-right: 4px;
+}
+.m2-firstrec p.is-hidden {
+  opacity: 0.35;
+}

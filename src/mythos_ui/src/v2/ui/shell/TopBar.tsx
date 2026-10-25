@@ -1,6 +1,6 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
 import { art } from '../components/art.ts'
-import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, MessagesSquare, ScrollText, Settings, Shuffle, Users } from 'lucide-react'
+import { BookOpen, CloudCheck, Cog, Coins, Heart, Layers, Menu, MessagesSquare, ScrollText, Settings, Shuffle, Users } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
@@ -119,6 +119,15 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSheet, onSett
           <CountUp value={run.credits} className="m2-mono" />
         </div>
       </Tooltip>
+
+      {(run.parts ?? 0) > 0 && (
+        <Tooltip content={lang === 'ko' ? '인양 부품. 은신처 제작대에서 쓴다.' : 'Salvage parts. Spend them at a safehouse workbench.'} placement="bottom">
+          <div className="m2-topbar__credits m2-topbar__parts" data-testid="parts-chip">
+            <Cog size={14} />
+            <span className="m2-mono">{run.parts}</span>
+          </div>
+        </Tooltip>
+      )}
 
       <TraceMeter trace={run.trace} lang={lang} />
 

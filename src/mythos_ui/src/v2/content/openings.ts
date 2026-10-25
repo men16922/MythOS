@@ -6,10 +6,11 @@
 // Voices follow content/companions.ts registers: Se-rin blunt 반말 · Tae-o short ~다 · Han slangy 반말 ·
 // Su-ah gentle 반말 · Kai polite 해요체 · Lin-yue lazy, knowing 반말.
 import type { Text } from '../engine/types.ts'
+import { NEW_COMPANION_OPENINGS } from './packs/new_companions/index.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 
-export const OPENINGS: Record<string, Text[]> = {
+const BASE_OPENINGS: Record<string, Text[]> = {
   se_rin: [
     t('젖은 아스팔트 냄새. 이 골목이 처음이 아니라는 걸 몸이 먼저 안다.', 'The smell of wet asphalt. Your body knows before you do: this alley is not new.'),
     t('골목 끝에서 바이크 헤드라이트가 비를 가르며 다가온다. 시간을 맞춰 오는 사람은 세린뿐이다.', 'At the alley’s end a bike’s headlight cuts the rain. Only Se-rin ever arrives on time.'),
@@ -41,6 +42,8 @@ export const OPENINGS: Record<string, Text[]> = {
     t('“일어났네. 시간 딱 맞췄지? 나는 원래 정확해.”', '“You’re up. Right on time, no? I’m always exact.”'),
   ],
 }
+
+export const OPENINGS: Record<string, Text[]> = { ...BASE_OPENINGS, ...NEW_COMPANION_OPENINGS }
 
 /** The vignette for this run's start, or [] (first loop has the prologue; the daily is identical for everyone). */
 export function openingLines(run: { loop: number; act: number; daily?: string; party: { id: string }[] }): Text[] {

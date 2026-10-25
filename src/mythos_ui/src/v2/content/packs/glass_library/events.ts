@@ -21,7 +21,7 @@ export const GLASS_EVENTS: EventDef[] = [
         check: { stat: 'obs', dc: 5 },
         success: {
           text: t('금들이 하나의 길로 이어진다. 서가를 볼 때마다 흩어진 주소가 먼저 눈에 들어온다.', 'The cracks join into a single path. Now the scattered addresses catch your eye whenever you look at a shelf.'),
-          effects: [{ kind: 'stat', stat: 'obs', amount: 1 }],
+          effects: [{ kind: 'stat', stat: 'obs', amount: 1 }, { kind: 'codex', id: 'lore_a4_shelf_marks' }],
         },
         failure: {
           text: t('잘못 맞춘 카드가 손안에서 터진다. 이오가 말없이 유리 가루를 털어 준다.', 'A mismatched card bursts in your hand. Io quietly brushes away the glass dust.'),
@@ -89,7 +89,7 @@ export const GLASS_EVENTS: EventDef[] = [
         check: { stat: 'int', dc: 5 },
         success: {
           text: t('세 번째 차단기를 먼저 내린다. 작은 열차에 불이 꺼지고, 복잡한 회로를 읽는 순서가 머릿속에 남는다.', 'You lower the third breaker first. The little train goes dark, leaving you with a method for reading complex circuits.'),
-          effects: [{ kind: 'stat', stat: 'int', amount: 1 }],
+          effects: [{ kind: 'stat', stat: 'int', amount: 1 }, { kind: 'codex', id: 'lore_a4_failed_loops' }],
         },
         failure: {
           text: t('다음 줄을 읽는 순간 물이 목까지 찬다. 책을 덮고 한참 기침한다.', 'The next line sends water up your throat. You shut the book and cough for a long time.'),
@@ -209,7 +209,7 @@ export const GLASS_EVENTS: EventDef[] = [
         check: { stat: 'obs', dc: 6 },
         success: {
           text: t('빈 띠가 가위 아래로 들어간다. 당신을 가리키던 색인 몇 줄이 함께 잘려 나간다.', 'A blank ribbon slides beneath the scissors. Several index entries pointing to you are cut away with it.'),
-          effects: [{ kind: 'trace', amount: -8 }],
+          effects: [{ kind: 'trace', amount: -8 }, { kind: 'flag', key: 'record_2' }],
         },
         failure: {
           text: t('가위가 멈추고 검열자의 손가락이 당신을 가리킨다. 이름 옆에 붉은 대조 표시가 찍힌다.', 'The scissors stop and the censor points at you. A red cross-reference mark appears beside your name.'),
@@ -294,7 +294,7 @@ export const GLASS_EVENTS: EventDef[] = [
         check: { stat: 'str', dc: 7 },
         success: {
           text: t('떨리는 틈으로 여백을 빼낸다. 손바닥에 닿자 삭제되던 동작이 끝까지 이어진다.', 'You pull the margin through the trembling gap. Against your palm, the gesture completes itself before it can be erased.'),
-          effects: [{ kind: 'card_choice', rarity: 'rare' }],
+          effects: [{ kind: 'card_choice', rarity: 'rare' }, { kind: 'codex', id: 'lore_a4_censorate' }],
         },
         failure: {
           text: t('추가 미끄러지며 압착판이 내려앉는다. 손은 빼냈지만 어깨가 뜨겁게 저린다.', 'A weight slips and the press drops. You free your hands, but your shoulder burns and tingles.'),
@@ -362,7 +362,7 @@ export const GLASS_EVENTS: EventDef[] = [
         check: { stat: 'int', dc: 6 },
         success: {
           text: t('주석 두 개가 서로 반대인 것을 찾아낸다. 한 줄을 지우자 손이 더 짧은 동작으로 움직인다.', 'Two notes contradict each other. You cross one out and your hand finds a shorter movement.'),
-          effects: [{ kind: 'upgrade_card', count: 1 }],
+          effects: [{ kind: 'upgrade_card', count: 1 }, { kind: 'flag', key: 'record_3' }, { kind: 'codex', id: 'lore_a4_first_reader' }],
         },
         failure: {
           text: t('고친 문장이 종이 밖으로 번진다. 색인 드론이 붉게 깜박이고, 제본 집행자와 페이지 늑대가 서가 사이에서 다가온다.', 'Your revision bleeds off the paper. An Index Drone flashes red as a Binding Enforcer and a Page Wolf close in between the shelves.'),

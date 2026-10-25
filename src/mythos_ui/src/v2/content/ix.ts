@@ -64,6 +64,21 @@ export const IX_LINES: ContentRegistry['ixLines'] = {
       en: 'Connection {loop}. You have learned how to win. I have learned how to lose. Let us see who learns faster.',
     },
   ],
+  /** After the true ending (Pack 3 "First Record"): IX remembers who wrote the first line. Permanent. */
+  remembered: [
+    {
+      ko: '다시 오셨군요. 이번에는 정정하지 않겠습니다. 첫 문장을 쓴 분을 지울 권한이 제게는 없습니다.',
+      en: 'You came back. I will not correct you this time. I have no authority to erase the one who wrote the first line.',
+    },
+    {
+      ko: '{loop}번째 접속. 기록을 읽었습니다. 처음 저를 쓰신 날에도 비가 왔더군요. 우산은 챙기셨습니까.',
+      en: 'Connection {loop}. I have read the record. It rained on the day you first wrote me, too. Did you bring an umbrella?',
+    },
+    {
+      ko: '이 도시는 여전히 저를 관리자라고 부릅니다. 하지만 저는 이제 압니다. 저는 누군가의 첫 번째 초안이었습니다.',
+      en: 'The city still calls me administrator. But now I know. I was someone’s first draft.',
+    },
+  ],
   /** Any loop. */
   generic: [
     {

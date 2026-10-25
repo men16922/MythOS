@@ -3,7 +3,8 @@
 import { CUTSCENES, type CutsceneDef } from '../../content/cutscenes.ts'
 import { Cutscene } from '../components/Cutscene.tsx'
 import { art } from '../components/art.ts'
-import { BookOpen, CalendarDays, Check, ChevronLeft, History, Heart, Lock, Play, Sparkles, Trophy } from 'lucide-react'
+import { BookOpen, CalendarDays, Check, ChevronLeft, History, Heart, Library, Lock, Play, Sparkles, Trophy } from 'lucide-react'
+import { ArchiveVault } from './ArchiveVault.tsx'
 import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel, recentDateKeys } from '../../engine/daily.ts'
 import type { ContentRegistry, Lang, MetaProfile, MetaUnlockDef, MetaUnlockKind, Text } from '../../engine/types.ts'
@@ -31,13 +32,15 @@ const KINDS: { kind: MetaUnlockKind; label: Text; hint: Text }[] = [
   { kind: 'thread', label: L('기억의 실', 'Memory threads'), hint: L('모든 루프에 영구히 따라붙는 작은 이점.', 'Small permanent edges for every loop.') },
 ]
 
-type SideTab = 'codex' | 'endings' | 'memories' | 'history'
+type SideTab = 'codex' | 'endings' | 'memories' | 'history' | 'vault'
 
 function ixLine(profile: MetaProfile, C: ContentRegistry, lang: Lang): string {
   const lines = C.ixLines
   const last = profile.history[0]
   let pool: Text[] = lines.generic
   if (profile.loops === 0) pool = lines.first
+  // The true ending changes IX for good: from then on it remembers you.
+  else if (profile.endingsSeen.includes('ending_first_record') && lines.remembered?.length) pool = lines.remembered
   else if (last?.result === 'victory') pool = lines.afterWin
   else if (last && profile.lastDeath) pool = lines.afterDeath
   if (pool.length === 0) pool = lines.generic.length ? lines.generic : lines.first
@@ -326,6 +329,9 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
             <button className={side === 'history' ? 'is-on' : ''} onClick={() => setSide('history')}>
               <History size={14} /> {ko ? '이력' : 'History'}
             </button>
+            <button className={side === 'vault' ? 'is-on' : ''} onClick={() => setSide('vault')} data-testid="vault-tab">
+              <Library size={14} /> {ko ? '보관소' : 'Vault'}
+            </button>
           </nav>
           <div className="m2-records__body">
             {side === 'codex' && (
@@ -363,6 +369,7 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                 })}
               </div>
             )}
+            {side === 'vault' && <ArchiveVault profile={profile} C={C} lang={lang} />}
             {side === 'memories' && (
               <>
                 <p className="m2-memories__lead">

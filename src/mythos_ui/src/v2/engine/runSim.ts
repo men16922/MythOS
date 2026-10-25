@@ -46,9 +46,9 @@ import {
   takeRewardCredits,
   takeRewardImplant,
   updateCombat,
-  MAX_CONSUMABLES,
+  MAX_CONSUMABLES, canCraft, restCraft
 } from './run.ts'
-import type { CardInstance, ContentRegistry, DialogueOutcome, MapNode, MetaProfile, Outcome, RunEffect, RunScreen, RunState, RunMode } from './types.ts'
+import type { CardInstance, ChoiceAxis, ContentRegistry, DialogueOutcome, MapNode, MetaProfile, Outcome, RunEffect, RunScreen, RunState, RunMode } from './types.ts'
 
 export type SimPolicy = 'greedy' | 'basic' | 'mixed'
 
@@ -65,6 +65,9 @@ export interface RunSimResult {
   implants: number
   credits: number
   echoes: number
+  /** Ending reached (victory or the defeat ending) and the choice axes at the end. */
+  endingId: string
+  axes: Partial<Record<ChoiceAxis, number>>
 }
 
 /** Per-fight balance telemetry (see RunSimOptions.onFight). */
@@ -175,6 +178,8 @@ function effectValue(run: RunState, e: RunEffect, C: ContentRegistry): number {
       return 0.5 * e.amount
     case 'flag':
       return 0.2
+    case 'axis':
+      return 0.3
     case 'codex':
       return 1
     case 'junk':
@@ -288,6 +293,14 @@ function decideShop(run: RunState, s: ScreenOf<'shop'>, C: ContentRegistry): Run
 
 function decideRest(run: RunState, s: ScreenOf<'rest'>, C: ContentRegistry): RunState {
   if (campScene(run, C)) return startCamp(run, C)
+  // The workbench is free (does not use the rest): craft what fits first, biggest recipe first.
+  for (const recipe of ['refit', 'assemble', 'patch'] as const) {
+    if (recipe === 'patch' && hpPct(run) >= 0.8) continue
+    if (canCraft(run, recipe)) {
+      const next = restCraft(run, recipe, C)
+      if (next !== run) return next
+    }
+  }
   if (s.done) return leaveRest(run, C)
   const tries: ((r: RunState) => RunState)[] = []
   if (hpPct(run) < 0.6) tries.push((r) => restHeal(r, C))
@@ -458,6 +471,8 @@ export function simulateRun(
     implants: run.implants.length,
     credits: run.credits,
     echoes: computeEchoes(run, C).total,
+    endingId: end.endingId,
+    axes: { ...(run.axes ?? {}) },
   }
   const killedBy = runKilledBy(run)
   if (killedBy) result.killedBy = killedBy

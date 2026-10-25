@@ -30,8 +30,11 @@ CODEX_IMG = Path.home() / ".codex" / "generated_images"
 LEDGER = Path(__file__).resolve().parent / "ledger.json"
 LOG_DIR = RAW_DIR / "logs"
 # batch 1 (bosses/archetypes/elites) was capped at 70; batches 2-3 (variants, companions) raised it; the
-# 2026-10-26 DLC batch (list-warden + listed-citizen, 6 poses + retries) starts from ledger 193.
-BUDGET = int(os.getenv("V2_SPRITE_BUDGET", "210"))
+# 2026-10-26 DLC batch (list-warden + listed-citizen, 6 poses + retries) starts from ledger 193; the act-5
+# "Dreaming Machines" batch (15 keys x 3 poses + retries) starts from ledger 199; the act-6 "First Record"
+# batch (15 keys x 3 poses + retries) starts from ledger 244; the R7d companions (5 keys x 4 poses + retries)
+# start from ledger 291.
+BUDGET = int(os.getenv("V2_SPRITE_BUDGET", "390"))
 _lock = threading.Lock()
 
 

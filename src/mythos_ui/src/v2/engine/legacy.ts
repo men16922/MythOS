@@ -8,8 +8,16 @@
 // Both are frozen into the run at newRun and never apply to a daily (it must be the same run for everyone).
 import type { ContentRegistry, EchoDef, EchoSource, MetaProfile, RunEffect, RunRecord, RunState, Text } from './types.ts'
 
-/** Lore entries (profile.codex) needed for autonomy levels 1, 2 and 3. */
-export const AUTONOMY_STEPS = [6, 12, 18] as const
+/** Lore entries (profile.codex) needed for autonomy levels 1–5 (4 and 5 need the Deep Signal lore). */
+export const AUTONOMY_STEPS = [6, 12, 18, 24, 30] as const
+/** What each autonomy level adds (1.0 verbs: observe → refuse/modify → rewrite). Shown on the setup screen. */
+export const AUTONOMY_TEXT = [
+  { ko: '관찰: 즉흥 판정 난이도 −1', en: 'Observe: Improvise DC −1' },
+  { ko: '은폐: 2막부터 막 시작 시 추적 −5', en: 'Hide: −5 Trace at the start of each act' },
+  { ko: '성장: 시작 성장 포인트 +1', en: 'Grow: +1 growth point at start' },
+  { ko: '거부: 시작할 때 카드 1장 제거', en: 'Refuse: remove a card at the start' },
+  { ko: '재작성: 시작 덱에 「지우기」', en: 'Rewrite: start with the Erase card' },
+] as const
 export const MAX_ECHO_OFFERS = 3
 /** Placeholder companion id in a 'companion' echo's bond effect (newRun swaps in the last loop's companion). */
 export const ECHO_COMPANION = '$last_companion'

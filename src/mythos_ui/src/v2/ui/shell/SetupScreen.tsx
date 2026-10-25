@@ -3,8 +3,8 @@
 import { CalendarDays, ChevronLeft, Heart, Lock, Play } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
-import { AUTONOMY_STEPS, autonomyLevel, echoOffers, nextAutonomyStep, worldEchoFor } from '../../engine/legacy.ts'
-import { MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
+import { AUTONOMY_STEPS, AUTONOMY_TEXT, autonomyLevel, echoOffers, nextAutonomyStep, worldEchoFor } from '../../engine/legacy.ts'
+import { ARCH_MASTERY_TEXT, archMasteryTier, MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
 import { deepSignalOpen, lastAct } from '../../engine/run.ts'
 import { mutatorForDate, mutatorOffersForSeed } from '../../engine/mutators.ts'
 import { MutatorCard } from '../components/MutatorCard.tsx'
@@ -160,6 +160,17 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                     <span className="m2-arch__hp">
                       <Heart size={13} /> <b className="m2-mono">{def.maxHp}</b>
                       <span className="m2-arch__cr m2-mono">{def.startingCredits} ₵</span>
+                      {archMasteryTier(profile, def.id) > 0 && (
+                        <span
+                          className="m2-arch__mastery"
+                          data-testid="arch-mastery"
+                          title={ARCH_MASTERY_TEXT.slice(0, archMasteryTier(profile, def.id))
+                            .map((x) => tr(x, lang))
+                            .join(' · ')}
+                        >
+                          {ko ? '숙련' : 'Mastery'} {'I'.repeat(archMasteryTier(profile, def.id))}
+                        </span>
+                      )}
                     </span>
                     <span className="m2-arch__stats">
                       {STATS.map((s) => (
@@ -351,7 +362,10 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
               <p className="m2-bgs__text">
                 {ko ? '하나만 새길 수 있다. 고르지 않아도 된다.' : 'You can inscribe one. Or none.'}
                 {' · '}
-                {ko ? `자율도 ${autonomy}/${AUTONOMY_STEPS.length}` : `Autonomy ${autonomy}/${AUTONOMY_STEPS.length}`}
+                <span title={AUTONOMY_TEXT.map((x, i) => `${i < autonomy ? '✓' : '·'} ${i + 1}. ${tr(x, lang)}`).join('\n')}>
+                  {ko ? `자율도 ${autonomy}/${AUTONOMY_STEPS.length}` : `Autonomy ${autonomy}/${AUTONOMY_STEPS.length}`}
+                  {autonomy > 0 && ` — ${tr(AUTONOMY_TEXT[autonomy - 1]!, lang)}`}
+                </span>
                 {nextStep !== null && (ko ? ` (기록 ${profile.codex.length}/${nextStep})` : ` (lore ${profile.codex.length}/${nextStep})`)}
                 {worldEcho && (
                   <>
@@ -403,8 +417,8 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
               <p className="m2-bgs__text">
                 {depth === 'deep'
                   ? ko
-                    ? 'IX를 쓰러뜨려도 신호는 끊기지 않는다. 4막 유리성의 사서까지 내려간다. 언제든 중단하고 이어할 수 있다.'
-                    : 'Defeating IX does not end the signal. Go on into Act 4, the Glass Librarian. Stop and resume any time.'
+                    ? 'IX를 쓰러뜨려도 신호는 끊기지 않는다. 유리성과 기계 묘역을 지나 6막 최초 접속 기록까지 내려간다. 언제든 중단하고 이어할 수 있다.'
+                    : 'Defeating IX does not end the signal. Go on through the Glass Library and the machine graveyard down to Act 6, the First Record. Stop and resume any time.'
                   : depth === 'endless'
                     ? ko
                       ? '마지막 막을 넘기면 다시 1막, 잔향 한 층 더 깊이(층마다 적 HP +60%, 피해 +3, 분노 가속). 쓰러질 때까지 내려간다.'

@@ -243,7 +243,7 @@ export function eventFightIds(C: ContentRegistry): Set<string> {
 /** Map-eligible encounters of an act and kind (event-only fights excluded). */
 export function mapEncounters(act: number, kind: EncounterDef['kind'], C: ContentRegistry): EncounterDef[] {
   const eventOnly = eventFightIds(C)
-  return Object.values(C.encounters).filter((e) => e.act === act && e.kind === kind && !eventOnly.has(e.id))
+  return Object.values(C.encounters).filter((e) => e.act === act && e.kind === kind && !e.secret && !eventOnly.has(e.id))
 }
 
 function rollEncounters(

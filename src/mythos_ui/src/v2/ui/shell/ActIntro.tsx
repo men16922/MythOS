@@ -9,6 +9,7 @@ import { narrateLine, type GmLine } from './gm.ts'
 import { logComms } from '../common/commsLog.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import { lastAct } from '../../engine/run.ts'
 import './actintro.css'
 
 export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
@@ -70,12 +71,18 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
       <div className="m2-actintro__inner">
         <div className="m2-actintro__num">
           {run.act}
-          <small>/3</small>
+          <small>/{run.mode === 'endless' ? '∞' : lastAct(run, C)}</small>
         </div>
         <div className="m2-actintro__titles">
           <div className="m2-actintro__kicker">{lang === 'ko' ? `${run.act}막` : `Act ${run.act}`}</div>
           <h1 className="m2-actintro__name">{tr(actDef?.name, lang)}</h1>
           <p className="m2-actintro__sub">{tr(actDef?.subtitle, lang)}</p>
+          {(run.lap ?? 0) === 0 && (actDef?.gift ?? []).length > 0 && (
+            <p className="m2-actintro__gift" data-testid="act-gift">
+              {lang === 'ko' ? '덱에 추가: ' : 'Added to your deck: '}
+              {(actDef?.gift ?? []).map((id) => tr(C.cards[id]?.name, lang)).join(' · ')}
+            </p>
+          )}
         </div>
         <div className="m2-actintro__lines">
           {lines.slice(0, shown).map((l, i) => (

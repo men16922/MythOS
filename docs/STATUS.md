@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 ## Current State
 
@@ -18,6 +18,8 @@ Last updated: 2026-10-25
 - **Enemy taunts, déjà-vu openings, `make gm-eval`, Gemini thinking headroom** (2026-10-17). Everything from 10-14 and 10-17 is live: production revision `00127` at 100 % since 2026-10-17 (rollback `00125` / `00123`).
 - **Party bench, random run seeds, AI toggle, IX loop memory** (2026-10-17, live in `00125`) — unlimited recruits, two deployed, swap on the map (party screen); every normal run has a random seed; Settings 'AI 대사 사용'; IX recalls earlier loops; the chronicle uses typed Improvise actions; tutorial no longer repeats.
 - **Comms log + GM model switch** (2026-10-17, live in `00125`) — per-run log of every GM / IX / boss / companion line (HUD + pause menu, AI lines flaggable); Vertex GM `gemini-3.8-flash` (3.5-flash failed 9/40 calls with 504s in an A/B, 3.8 0/40); `make deploy*` passes `.env` `MODEL`.
+
+- **DLC update R1–R7** (2026-10-26, on `mythos-2.0`/`main`, not yet deployed): Deep Signal 6 acts (Glass Library, Dreaming Machines with freeze + salvage workbench, First Record with Rewrite, 5 axis endings + secret First Connector true ending, First Record shards), Endless Signal, Paradox 6–10, CRPG districts 14 + factions + d20, action layer (Chain/Momentum/Burst/Riposte), 11 companions (+Io, Miro, Doyun, Bel, Rem), 5 archetypes (+Archivist, Scrapborn), autonomy 5, archetype mastery, Archive Vault. Plan `docs/plans/2026-10-26-dlc-expansion-plan.md` §17.6.
 
 Latest verified baseline (2026-10-25, after the Argon review & S-rank pass — `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md`): `make check` green (`node --test src/v2` 363 + Python unittest 338, 12 DB tests skipped), `make frontend-build` OK, `make playthrough-quick` OK (126 s, 5 nodes + shop/safehouse/treasure/final-choice tour), combat sandbox screenshots of the 3 new bosses + new enemy sprites (muted, headless, 0 console errors). Sim (7-row map, `CONTENT.tuning` HP +12 % / elite +20 % / boss −15 % / dmg +1 / Rage elite 3 · boss 1 from turn 3): P0 mixed **40.5 %** (5 × 150) · ghost 42 / smuggler 42 / echo 37 · elite loss 7.3 % (7.5 turns) · boss 8.9 turns · Paradox 1–5 mixed 34.7/26.0/12.7/10.7/8.7 % · greedy P0 98.9 % / P5 85.6 % · basic 0 %. **Live**: `00150-qen` (`a6615b7`) promoted 2026-10-25 (100 % `LATEST`, production URL checks 4/4; rollback `00148-nav`). Unverified: `make test-e2e-v2`, `make test-db`, phone-width check of the new art.
 

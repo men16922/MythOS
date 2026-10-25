@@ -7,6 +7,7 @@
 // Voices: Se-rin blunt 반말 · Tae-o short declaratives (~다.) · Han light slangy 반말 · Su-ah gentle 반말 ·
 // Kai polite 해요체 · Lin-yue lazy, knowing 반말.
 import type { Text } from '../engine/types.ts'
+import { NEW_COMPANION_CUTSCENES } from './packs/new_companions/index.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 
@@ -23,7 +24,7 @@ export interface CutsceneDef {
   image: string
 }
 
-export const CUTSCENES: CutsceneDef[] = [
+const BASE_CUTSCENES: CutsceneDef[] = [
   // ---------------------------------------------------------------- Se-rin
   {
     id: 'se_rin_first_light',
@@ -163,6 +164,8 @@ export const CUTSCENES: CutsceneDef[] = [
     image: 'v2/cutscenes/lin_yue_incense.webp',
   },
 ]
+
+export const CUTSCENES: CutsceneDef[] = [...BASE_CUTSCENES, ...NEW_COMPANION_CUTSCENES]
 
 /** The scenes a companion has, in tier order. */
 export function cutscenesFor(companion: string): CutsceneDef[] {

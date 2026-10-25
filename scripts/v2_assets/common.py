@@ -64,6 +64,27 @@ COMPANIONS: dict[str, tuple[str, str]] = {
         "lin-yue",
         "Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress",
     ),
+    # R7d new companions (content/packs/new_companions; art via gen_new_companions.py, Codex image only).
+    "io": (
+        "io",
+        "Io, a slender feminine librarian android of white porcelain and clear glass with a glass dome crown ringed by thin gold halo bands, dark ink-black eyes and a high glass-panel collar",
+    ),
+    "miro": (
+        "miro",
+        "Miro, a small child whose face is hidden by overlapping blank paper return cards, messy dark hair and a dark ragged hooded cloak",
+    ),
+    "doyun": (
+        "doyun",
+        "Doyun, a young Korean man with short black hair in a faded grey work jacket, a blank paper number tag on the chest and a dented riot shield",
+    ),
+    "bel": (
+        "bel",
+        "Bel, an androgynous Korean ex-censor with a black asymmetric bob, an open white-and-black Censorate coat with brass trim and rolled sleeves, and a long red pen",
+    ),
+    "rem": (
+        "rem-ally",
+        "Rem, a slender figure with long violet-black hair, a pale gentle drowsy face, a white porcelain mask pushed up on the head and dark robes with violet static veils",
+    ),
 }
 
 

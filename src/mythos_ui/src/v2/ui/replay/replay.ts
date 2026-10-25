@@ -22,7 +22,7 @@ const RUN_ACTIONS = new Set([
   'takeCredits', 'takeCard', 'takeImplant', 'takeConsumable', 'leaveReward', 'chooseCardReward',
   'chooseOption', 'improvise', 'leaveEvent',
   'buyCard', 'buyImplant', 'buyConsumable', 'shopRemove', 'shopHeal', 'shopScrub', 'leaveShop',
-  'restHeal', 'restUpgrade', 'restScrub', 'restBond', 'leaveRest',
+  'restHeal', 'restUpgrade', 'restScrub', 'restBond', 'restCraft', 'leaveRest',
   'openTreasure', 'leaveTreasure', 'pickCard', 'cancelPick', 'chooseEnding',
 ])
 

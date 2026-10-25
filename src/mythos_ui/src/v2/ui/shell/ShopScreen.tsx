@@ -21,6 +21,9 @@ const SHOP_PLACE: Record<number, { ko: string; en: string; bg: string }> = {
   1: { ko: 'C-17 뒷골목 좌판', en: 'C-17 back-alley stall', bg: 'v2/districts/d1_lamp_market.webp' },
   2: { ko: '야시장 뒷골목', en: 'Back alley, night market', bg: 'v2/events/a2_memory_stall.webp' },
   3: { ko: '첨탑 하층 · 유령 단말', en: 'Spire underlevel, ghost terminal', bg: 'v2/events/a3_control_net_ghost.webp' },
+  4: { ko: '암시장 · 유리성 반납 창구', en: 'Black market · Glass Library return desk', bg: 'v2/districts/d4_return_desk.webp' },
+  5: { ko: '암시장 · 자석 뽑기 좌판', en: 'Black market · The magnet-claw stall', bg: 'v2/events/a5_magnetic_lottery.webp' },
+  6: { ko: '암시장 · 여백의 좌판', en: 'Black market · A stall in the margins', bg: 'v2/events/a6_margin_lottery.webp' },
 }
 
 export function ShopScreen({ run, C, lang, act }: ScreenProps) {

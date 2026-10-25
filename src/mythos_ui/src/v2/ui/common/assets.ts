@@ -17,7 +17,7 @@ export function asset(path: string | undefined | null): string {
 
 export type SpritePose = 'idle' | 'attack' | 'hit' | 'guard' | 'skill' | 'cover'
 
-const CHARACTER_SPRITES = new Set(['player-noise', 'se-rin', 'han', 'kai', 'lin-yue', 'su-ah', 'tae-o'])
+const CHARACTER_SPRITES = new Set(['player-noise', 'se-rin', 'han', 'kai', 'lin-yue', 'su-ah', 'tae-o', 'io-ally', 'miro', 'doyun', 'bel', 'rem-ally'])
 
 /**
  * Combat sprite URL. Characters live in characters/combat/, enemies in enemies/combat/.
@@ -36,7 +36,7 @@ export function sprite(key: string, pose: SpritePose = 'idle'): string {
 }
 
 /** Companions have painted face art; their 2.0 sprites are full-body and read as a speck in a round portrait. */
-const FACE_ART = new Set(['se-rin', 'han', 'kai', 'lin-yue', 'su-ah', 'tae-o'])
+const FACE_ART = new Set(['se-rin', 'han', 'kai', 'lin-yue', 'su-ah', 'tae-o', 'io-ally', 'miro', 'doyun', 'bel', 'rem-ally'])
 
 export function portrait(key: string): string {
   if (FACE_ART.has(key)) return asset(`characters/${key}.png`)
@@ -52,6 +52,8 @@ export const BACKDROPS: Record<string, string> = {
   industrial: asset('combat/backdrops/industrial.png'),
   spire: asset('combat/backdrops/spire.png'),
   library: asset('combat/backdrops/library.png'),
+  scrapyard: asset('combat/backdrops/scrapyard.png'),
+  origin: asset('combat/backdrops/origin.png'),
 }
 
 export const STATUS_ICON: Record<string, string> = {
@@ -61,10 +63,11 @@ export const STATUS_ICON: Record<string, string> = {
   shock: asset('status/shock.png'),
   mark: asset('status/acid.png'),
   weak: asset('status/corrode.png'),
-  guard: asset('status/freeze.png'),
+  guard: asset('status/guard.png'),
   thorns: asset('status/hacked.png'),
   evade: asset('status/evade.png'),
   focus: asset('status/focus.png'),
   rage: asset('status/rage.png'),
   redact: asset('status/redact.png'),
+  freeze: asset('status/freeze.png'),
 }

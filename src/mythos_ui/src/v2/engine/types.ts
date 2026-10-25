@@ -76,11 +76,13 @@ export type ActId = number
  * evade   N : when hit by a direct attack, incoming damage is halved (floor(dmg / 2)) and evade decreases by 1.
  * focus   N : party only — at focus >= 4, the next direct attack critically hits (ceil(dmg * 1.5), ignores armor)
  *             and consumes 4 focus.
+ * freeze  N : the unit cannot move (it still acts; a frozen charger strikes from where it stands). Decays at the end
+ *             of its own side's phase. 1.0 status, Pack 2 (Dreaming Machines).
  * redact  N : party — the next card this unit plays costs +1 (then N − 1). The Glass Library's censors apply it.
  * rage    N : enemy — every damaging move hits for +N. Elites and bosses gain it at the end of each enemy phase
  *             from a set turn (CONTENT.tuning.rage), so a slow kill gets more dangerous every turn.
  */
-export type StatusKind = 'burn' | 'bleed' | 'corrode' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns' | 'evade' | 'focus' | 'rage' | 'redact'
+export type StatusKind = 'burn' | 'bleed' | 'corrode' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns' | 'evade' | 'focus' | 'rage' | 'redact' | 'freeze'
 export type Statuses = Partial<Record<StatusKind, number>>
 
 export interface StatScale {
@@ -151,6 +153,10 @@ export type Effect =
   | { kind: 'ignite'; turns: number; to?: EffectScope; area?: AreaShape }
   /** Electrify floor tiles into temporary hazards for `turns` enemy phases. */
   | { kind: 'electrify'; turns: number; to?: EffectScope; area?: AreaShape }
+  /** Recall (Archivist): the most recently exhausted cards (never junk) go back to the hand. */
+  | { kind: 'recall'; count: number }
+  /** Rewrite (Pack 3): turn the target tiles into `tile`. Cover and void are only written on empty tiles. */
+  | { kind: 'rewrite'; tile: 'floor' | 'cover' | 'hazard' | 'void'; area?: AreaShape }
 
 // ---------------------------------------------------------------- cards
 
@@ -208,6 +214,8 @@ export interface CardDef extends CardFace {
   pack?: string
   /** Archetype id if this is an archetype-exclusive card (only offered when playing that archetype). */
   archetype?: string
+  /** Only offered from this act on (Pack 3 Rewrite cards: Act 6). */
+  minAct?: number
 }
 
 export interface CardInstance {
@@ -297,11 +305,13 @@ export interface EnemyDef {
   phases?: { hpBelow: number; text: Text; heal?: number; effects?: Effect[] }[]
   /** Credits dropped on kill (added to the combat reward). */
   bounty?: number
+  /** Salvage parts dropped on kill (Pack 2 machines; spent on crafting at safehouses). */
+  salvage?: number
 }
 
 // ---------------------------------------------------------------- encounters
 
-export type Backdrop = 'streets' | 'undercity' | 'industrial' | 'spire' | 'library'
+export type Backdrop = 'streets' | 'undercity' | 'industrial' | 'spire' | 'library' | 'scrapyard' | 'origin'
 
 export type BonusObjective =
   | { kind: 'turn_limit'; turns: number } // win within N player turns
@@ -326,6 +336,8 @@ export interface EncounterDef {
   objective?: { kind: 'eliminate' } | { kind: 'survive'; turns: number }
   /** Short line shown on the combat intro banner. */
   intro?: Text
+  /** Never rolled onto a map (the Pack 3 secret boss: engine/run.ts secretBossGate starts it). */
+  secret?: boolean
 }
 
 // ---------------------------------------------------------------- combat state
@@ -451,6 +463,8 @@ export interface CombatState {
   burstUsed?: boolean
   /** Run archetype (picks the Signal Burst). */
   archetype?: string
+  /** Salvage parts picked up this fight (added to run.parts when it is won). */
+  parts?: number
 }
 
 export interface PlayTarget {
@@ -631,6 +645,7 @@ export type RunEffect =
   | { kind: 'junk'; cardId: string; count?: number } // add junk/curse cards
   | { kind: 'combat'; encounterId: string } // start a fight after the outcome
   | { kind: 'echoes'; amount: number } // meta currency earned this run
+  | { kind: 'axis'; axis: ChoiceAxis; amount?: number } // lean along a choice axis (Deep Signal endings)
 
 export interface Outcome {
   text: Text
@@ -723,7 +738,7 @@ export type RunScreen =
   | { kind: 'reward'; reward: RewardState }
   | { kind: 'event'; eventId: string; resolved?: { optionIndex: number; success: boolean; text: Text } | null; improvised?: Improvisation | null }
   | { kind: 'shop'; stock: ShopStock }
-  | { kind: 'rest'; done: boolean }
+  | { kind: 'rest'; done: boolean; crafted?: string[] }
   | { kind: 'treasure'; implantId: string; credits: number; opened: boolean }
   | { kind: 'card_pick'; purpose: 'remove' | 'upgrade'; count: number; returnTo: RunScreen }
   | { kind: 'card_reward'; choices: string[]; returnTo: RunScreen }
@@ -808,6 +823,10 @@ export interface RunState {
   thoughts?: ThoughtState
   /** Companions who joined and have not had their recruit scene yet (UI plays them in order; engine/run.ts resolveIntro). */
   introQueue?: string[]
+  /** Archetype mastery tier 1–3 frozen at run start (engine/meta.ts archMasteryTier). */
+  archMastery?: number
+  /** Salvage parts from machines (Pack 2): spent at safehouse workbenches (engine/run.ts restCraft). */
+  parts?: number
   /** 'deep' = Deep Signal: the run continues past Act 3 into the content packs' acts (engine/run.ts lastAct).
    *  'endless' = Endless Signal: after the last act it wraps to Act 1 one lap deeper, until the connector falls. */
   mode?: RunMode
@@ -1089,6 +1108,8 @@ export interface MetaProfile {
   endingsSeen: string[]
   companionsMet: string[]
   history: RunRecord[] // newest first, capped at 30
+  /** First Record shards ever found (`record_1`..`record_7`, content/records.ts): the true-ending key. */
+  records?: string[]
   /** Deepest Endless Signal reach: lap × acts + act (engine/meta.ts applyRunEnd). */
   endlessBest?: number
   lastDeath?: { killedBy: string; act: number; loop: number }
@@ -1100,6 +1121,8 @@ export interface MetaProfile {
   cutscenes?: string[]
   /** Normal-run victories with each companion in the party at the end (daily and abandoned runs do not count). */
   companionWins?: Record<string, number>
+  /** Victories per archetype (non-daily): archetype mastery I–III (engine/meta.ts archMasteryTier). */
+  archetypeWins?: Record<string, number>
   /** How many runs each event appeared in (any loop, daily included): lets the GM open a revisited scene on déjà vu. */
   eventsSeen?: Record<string, number>
 }
@@ -1136,13 +1159,16 @@ export interface EndingDef {
   title: Text
   image: string
   text: Text
-  /** Final-choice gate (only for victory endings). */
-  requires?: Condition & { minBondTotal?: number; minCodex?: number }
+  /** Final-choice gate (only for victory endings). `minAct`: a Deep Signal ending (reached act ≥ N);
+   *  `axis`: the connector leaned this way at least `min` (run.axes). */
+  requires?: Condition & { minBondTotal?: number; minCodex?: number; minAct?: number; axis?: { axis: ChoiceAxis; min: number } }
   /** Label on the final-choice button. */
   choice?: Text
   /** One line under the choice: what this ending costs and keeps. */
   stakes?: Text
   echoBonus: number
+  /** Hidden from the final choice until it is available (the true ending). */
+  secret?: boolean
 }
 
 export interface ActDef {
@@ -1152,6 +1178,8 @@ export interface ActDef {
   intro: Text
   backdrop: Backdrop
   image: string
+  /** Cards added to the deck when the act starts (Pack 3: the Rewrite starter). */
+  gift?: string[]
 }
 
 export interface ContentRegistry {
@@ -1169,7 +1197,7 @@ export interface ContentRegistry {
   paradox: ParadoxDef[]
   lore: Record<string, LoreEntry>
   /** IX's loop-start lines; keyed by situation. */
-  ixLines: { first: Text[]; afterDeath: Text[]; afterWin: Text[]; generic: Text[] }
+  ixLines: { first: Text[]; afterDeath: Text[]; afterWin: Text[]; generic: Text[]; remembered?: Text[] }
   /** Signal+ CRPG content (absent in test doubles that do not exercise it). */
   crpg?: CrpgContent
   /** Echoes a loop can inscribe at its start (engine/legacy.ts; absent in test doubles). */

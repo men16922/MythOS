@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import type { EventDef, Outcome, RunEffect } from '../engine/types.ts'
 import { EVENTS } from './index.ts'
-import { LORE } from './lore.ts'
+import { LORE } from './index.ts'
 import { ENDINGS } from './endings.ts'
 import { IX_LINES } from './ix.ts'
 import { ACTS } from './index.ts'
@@ -17,8 +17,8 @@ const RES = new URL('../../../../../resources/neo-seoul/', import.meta.url)
 const resExists = (rel: string): boolean => existsSync(fileURLToPath(new URL(rel, RES)))
 
 // Ids the sibling content agent guarantees (see build contract).
-const COMPANIONS = ['se_rin', 'tae_o', 'han', 'su_ah', 'kai', 'lin_yue']
-const ARCHETYPES = ['ghost', 'smuggler', 'echo_collector']
+const COMPANIONS = ['se_rin', 'tae_o', 'han', 'su_ah', 'kai', 'lin_yue', 'io', 'miro', 'doyun', 'bel', 'rem']
+const ARCHETYPES = ['ghost', 'smuggler', 'echo_collector', 'archivist', 'scrapborn']
 const JUNK = ['static', 'trace_bug', 'corrupted_echo']
 const CONSUMABLES = [
   'nanopatch',
@@ -30,7 +30,7 @@ const CONSUMABLES = [
   'restart_core',
   'stealth_cloak',
 ]
-const AMBUSH: Record<number, string> = { 1: 'a1_event_ambush', 2: 'a2_event_ambush', 3: 'a3_event_ambush', 4: 'a4_event_ambush' }
+const AMBUSH: Record<number, string> = { 1: 'a1_event_ambush', 2: 'a2_event_ambush', 3: 'a3_event_ambush', 4: 'a4_event_ambush', 5: 'a5_event_ambush', 6: 'a6_event_ambush' }
 const CARD_PACKS = ['pack_overclock', 'pack_netrunner', 'pack_bastion']
 const IMPLANT_PACKS = ['ipack_black_market', 'ipack_ark_salvage']
 /** Effects that open a picker screen; an outcome may contain at most one, and never alongside combat. */
@@ -115,9 +115,10 @@ test('quotas', () => {
   for (const [k, xs] of Object.entries(IX_LINES)) assert.ok(xs.length >= 2, `ixLines.${k}`)
   assert.ok(UNLOCKS.length >= 18)
   const kinds = (k: string) => UNLOCKS.filter((u) => u.kind === k)
-  assert.equal(kinds('archetype').length, 2)
-  // Se-rin, Tae-o and Han start unlocked (loop 1's Act 2 recruit needs real candidates); the other three are bought.
-  assert.equal(kinds('companion').length, 3)
+  assert.equal(kinds('archetype').length, 4)
+  // Se-rin, Tae-o and Han start unlocked (loop 1's Act 2 recruit needs real candidates); the other eight are bought
+  // (three base + the five R7d Deep Signal companions).
+  assert.equal(kinds('companion').length, 8)
   assert.equal(kinds('card_pack').length, 3)
   assert.equal(kinds('implant_pack').length, 2)
   assert.ok(kinds('thread').length >= 8)

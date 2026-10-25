@@ -3,9 +3,9 @@
 import { CalendarDays, ChevronLeft, Heart, Lock, Play } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
-import { AUTONOMY_STEPS, autonomyLevel, echoOffers, nextAutonomyStep } from '../../engine/legacy.ts'
+import { AUTONOMY_STEPS, autonomyLevel, echoOffers, nextAutonomyStep, worldEchoFor } from '../../engine/legacy.ts'
 import { MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
-import { mutatorForDate } from '../../engine/mutators.ts'
+import { mutatorForDate, mutatorOffersForSeed } from '../../engine/mutators.ts'
 import { MutatorCard } from '../components/MutatorCard.tsx'
 import type { ContentRegistry, MetaProfile, StatKey, Lang } from '../../engine/types.ts'
 import { asset, portrait } from '../common/assets.ts'
@@ -33,6 +33,7 @@ export interface SetupScreenProps {
     daily?: string
     crpg?: { background: string | null; trial?: boolean }
     echo?: string
+    mutator?: string
   }) => void
   onBack: () => void
   /** KST date key: set up today's daily-seed run instead of a normal loop. */
@@ -76,6 +77,9 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
   const [offer, setOffer] = useState(false)
   const echoes = useMemo(() => (daily ? [] : echoOffers(profile, C)), [daily, profile, C])
   const [echoId, setEchoId] = useState<string | null>(null)
+  const worldEcho = useMemo(() => (daily ? undefined : worldEchoFor(profile)), [daily, profile])
+  const mutatorOffers = useMemo(() => (daily || firstLoop ? [] : mutatorOffersForSeed(profile.loops + 1, 2)), [daily, firstLoop, profile.loops])
+  const [mutatorId, setMutatorId] = useState<string | null>(null)
   const autonomy = autonomyLevel(profile)
   // Signal+ with AI on: the GM says which moment of the last loop the chosen echo remembers (once per echo).
   const [echoLines, setEchoLines] = useState<Record<string, string>>({})
@@ -345,6 +349,55 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                 {' · '}
                 {ko ? `자율도 ${autonomy}/${AUTONOMY_STEPS.length}` : `Autonomy ${autonomy}/${AUTONOMY_STEPS.length}`}
                 {nextStep !== null && (ko ? ` (기록 ${profile.codex.length}/${nextStep})` : ` (lore ${profile.codex.length}/${nextStep})`)}
+                {worldEcho && (
+                  <>
+                    {' · '}
+                    <b>
+                      {worldEcho === 'world_echo_rewrite'
+                        ? ko
+                          ? '월드 잔향: 재작성된 코드 (+15₵ · IX 역방화벽)'
+                          : 'World Echo: Rewritten Code (+15₵ · IX counter-firewall)'
+                        : worldEcho === 'world_echo_refuge'
+                          ? ko
+                            ? '월드 잔향: 은신처의 유대 (시작 동료 유대 +1)'
+                            : 'World Echo: Safe Refuge (+1 starting companion bond)'
+                          : ko
+                            ? '월드 잔향: 남은 불씨 (+15₵ · 개전 방어막 +4)'
+                            : 'World Echo: Remaining Ember (+15₵ · +4 opening block)'}
+                    </b>
+                  </>
+                )}
+              </p>
+            </section>
+          )}
+          {mutatorOffers.length > 0 && (
+            <section className="m2-setup__bg-pick">
+              <div className="m2-setup__label">{ko ? '도시 이상 현상 — 선택 변칙' : 'City Anomaly — optional mutator'}</div>
+              <div className="m2-bgs" role="radiogroup">
+                {mutatorOffers.map((m) => (
+                  <button
+                    key={m.id}
+                    role="radio"
+                    aria-checked={mutatorId === m.id}
+                    className={mutatorId === m.id ? 'is-on' : ''}
+                    onClick={() => {
+                      sound('ui_click')
+                      setMutatorId(mutatorId === m.id ? null : m.id)
+                    }}
+                  >
+                    <b>{tr(m.name, lang)}</b>
+                    <small>
+                      ▲ {tr(m.boon, lang)} · ▼ {tr(m.burden, lang)}
+                    </small>
+                  </button>
+                ))}
+              </div>
+              <p className="m2-bgs__text">
+                {mutatorId
+                  ? tr(mutatorOffers.find((m) => m.id === mutatorId)?.blurb, lang)
+                  : ko
+                    ? '선택 사항. 고르지 않으면 기본 도시 환경으로 시작한다.'
+                    : 'Optional. Leave unselected for standard city conditions.'}
               </p>
             </section>
           )}
@@ -401,6 +454,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                     paradox,
                     ...(crpg ? { crpg: { background: bgId } } : C.crpg ? { crpg: { background: null, trial: true } } : {}),
                     ...(echoId ? { echo: echoId } : {}),
+                    ...(mutatorId ? { mutator: mutatorId } : {}),
                   },
             )
           }}

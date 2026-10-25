@@ -69,18 +69,41 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onM
   const CODEX_GOAL = Math.max(0, ...Object.values(C.endings).map((e) => e.requires?.minCodex ?? 0))
   return (
     <header className="m2-topbar">
-      <div className="m2-topbar__who">
-        <div className="m2-topbar__avatar">
-          <img src={portrait(archetype?.sprite ?? 'player-noise')} alt="" />
-        </div>
-        <div className="m2-topbar__hp">
-          <div className="m2-topbar__name">
-            <Heart size={13} className="m2-ico-hp" />
-            {archetype ? tr(archetype.name, lang) : ''}
+      <Tooltip
+        placement="bottom"
+        width={300}
+        content={
+          <div>
+            <div className="m2-tip__title">
+              {archetype ? tr(archetype.name, lang) : ''} · HP {run.hp}/{run.maxHp}
+            </div>
+            <div className="m2-tip__text" style={{ marginTop: 4 }}>
+              <b>STR {run.stats.str}</b> · {lang === 'ko' ? `직격 +${run.stats.str >= 8 ? 2 : run.stats.str >= 5 ? 1 : 0}, 충돌 +${run.stats.str >= 7 ? 2 : run.stats.str >= 4 ? 1 : 0}` : `Direct +${run.stats.str >= 8 ? 2 : run.stats.str >= 5 ? 1 : 0}, Bump +${run.stats.str >= 7 ? 2 : run.stats.str >= 4 ? 1 : 0}`}
+              <br />
+              <b>AGI {run.stats.agi}</b> · {lang === 'ko' ? `개전 회피 ${run.stats.agi >= 9 ? 2 : run.stats.agi >= 6 ? 1 : 0}${run.stats.agi >= 6 ? ', 3칸 질주 회피 +1' : ''}${run.stats.agi >= 8 ? ', 이동 +1' : ''}` : `Start Evade ${run.stats.agi >= 9 ? 2 : run.stats.agi >= 6 ? 1 : 0}${run.stats.agi >= 6 ? ', 3-tile sprint Evade +1' : ''}${run.stats.agi >= 8 ? ', Move +1' : ''}`}
+              <br />
+              <b>INT {run.stats.int}</b> · {lang === 'ko' ? `DoT 부여 +${run.stats.int >= 8 ? 2 : run.stats.int >= 5 ? 1 : 0}${run.stats.int >= 7 ? ', 첫 턴 드로우 +1' : ''}` : `DoT +${run.stats.int >= 8 ? 2 : run.stats.int >= 5 ? 1 : 0}${run.stats.int >= 7 ? ', Turn 1 draw +1' : ''}`}
+              <br />
+              <b>CHA {run.stats.cha}</b> · {lang === 'ko' ? `동료 개전 방어막 +${Math.max(0, Math.floor((run.stats.cha - 2) / 2))}${run.stats.cha >= 6 ? ', 첫 동료 카드 에너지 +1' : ''}` : `Companion start block +${Math.max(0, Math.floor((run.stats.cha - 2) / 2))}${run.stats.cha >= 6 ? ', 1st companion card +1 energy' : ''}`}
+              <br />
+              <b>OBS {run.stats.obs}</b> · {lang === 'ko' ? `개전 집중 ${run.stats.obs >= 8 ? 2 : run.stats.obs >= 5 ? 1 : 0}, 타격당 집중 +${run.stats.obs >= 8 ? 2 : run.stats.obs >= 5 ? 1 : 0} (4=치명타), 표식 +${run.stats.obs >= 9 ? 2 : run.stats.obs >= 6 ? 1 : 0}` : `Start Focus ${run.stats.obs >= 8 ? 2 : run.stats.obs >= 5 ? 1 : 0}, Focus/hit +${run.stats.obs >= 8 ? 2 : run.stats.obs >= 5 ? 1 : 0} (4=Crit), Mark +${run.stats.obs >= 9 ? 2 : run.stats.obs >= 6 ? 1 : 0}`}
+            </div>
           </div>
-          <HpBar hp={run.hp} max={run.maxHp} />
+        }
+      >
+        <div className="m2-topbar__who">
+          <div className="m2-topbar__avatar">
+            <img src={portrait(archetype?.sprite ?? 'player-noise')} alt="" />
+          </div>
+          <div className="m2-topbar__hp">
+            <div className="m2-topbar__name">
+              <Heart size={13} className="m2-ico-hp" />
+              {archetype ? tr(archetype.name, lang) : ''}
+            </div>
+            <HpBar hp={run.hp} max={run.maxHp} />
+          </div>
         </div>
-      </div>
+      </Tooltip>
 
       <Tooltip content={lang === 'ko' ? '크레딧. 암시장에서 쓸 수 있다.' : 'Credits. Spend them at the black market.'} placement="bottom">
         <div className="m2-topbar__credits">

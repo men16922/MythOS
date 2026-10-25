@@ -169,7 +169,10 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSheet, onSett
               </>
             )}
           </span>
-          <span className="m2-topbar__actname">{actDef ? tr(actDef.name, lang) : ''}</span>
+          <span className="m2-topbar__actname">
+            {actDef ? tr(actDef.name, lang) : ''}
+            {(run.lap ?? 0) > 0 && <small className="m2-topbar__lap">{lang === 'ko' ? ` · 잔향 ${run.lap}층` : ` · Echo ${run.lap}`}</small>}
+          </span>
           <span className="m2-topbar__floor m2-mono">{floor}/8</span>
         </div>
       </Tooltip>

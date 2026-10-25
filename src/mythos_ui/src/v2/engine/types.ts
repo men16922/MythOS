@@ -808,11 +808,17 @@ export interface RunState {
   thoughts?: ThoughtState
   /** Companions who joined and have not had their recruit scene yet (UI plays them in order; engine/run.ts resolveIntro). */
   introQueue?: string[]
-  /** 'deep' = Deep Signal: the run continues past Act 3 into the content packs' acts (engine/run.ts lastAct). */
-  mode?: 'deep'
+  /** 'deep' = Deep Signal: the run continues past Act 3 into the content packs' acts (engine/run.ts lastAct).
+   *  'endless' = Endless Signal: after the last act it wraps to Act 1 one lap deeper, until the connector falls. */
+  mode?: RunMode
+  /** Endless Signal laps completed (each lap: enemies +60 % HP, +3 damage, Rage a turn earlier and +1 stronger). */
+  lap?: number
   /** The connector's leanings this run (1.0 choice axes): dialogue intents, first impressions, hard wins. */
   axes?: Partial<Record<ChoiceAxis, number>>
 }
+
+/** Run length mode (engine/run.ts lastAct): standard (omitted), Deep Signal, Endless Signal. */
+export type RunMode = 'deep' | 'endless'
 
 /** 1.0's four choice axes: humanity (care, persuasion), dominance (force, lies), resilience (enduring), insight (reading people and systems). */
 export type ChoiceAxis = 'humanity' | 'dominance' | 'resilience' | 'insight'
@@ -823,7 +829,7 @@ export type ChoiceAxis = 'humanity' | 'dominance' | 'resilience' | 'insight'
 export type Intent = 'ask' | 'persuade' | 'deceive' | 'intimidate' | 'insight' | 'offer' | 'sneak' | 'fight' | 'leave'
 
 /** Bounded combat twists a conversation can set up (applied when the fight starts). */
-export type CombatModId = 'weaken' | 'marked' | 'intel' | 'cover'
+export type CombatModId = 'weaken' | 'marked' | 'intel' | 'cover' | 'surprise' | 'backup'
 
 export type CrpgEffect =
   | { kind: 'quest'; id: string; stage: number }
@@ -1083,6 +1089,8 @@ export interface MetaProfile {
   endingsSeen: string[]
   companionsMet: string[]
   history: RunRecord[] // newest first, capped at 30
+  /** Deepest Endless Signal reach: lap × acts + act (engine/meta.ts applyRunEnd). */
+  endlessBest?: number
   lastDeath?: { killedBy: string; act: number; loop: number }
   /** `ai`: AI-written lines (GM narration, companion replies, IX comms, Improvise judging); off = authored text only. */
   settings: { lang: Lang; sfx: boolean; bgm: boolean; fastAnim: boolean; ai: boolean }

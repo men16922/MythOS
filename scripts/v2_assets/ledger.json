@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 103,
+ "codex_image_calls": 138,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -2583,6 +2583,15 @@
    ],
    "ts": "2026-10-26T02:43:30"
   },
+  "v2/boss/a3_boss_warden.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Boss splash key art for THE LIST WARDEN, an act-3 boss of a cyberpunk Neo-Seoul tactics game: a towering, cold, bureaucratic ARK enforcer construct shaped like a robed archivist-executioner. A tall narrow figure in long layered robes of matte white enamel plates and brushed steel, a deep hood over a smooth featureless steel face-plate split by one thin horizontal slit of cold blue-white light. One long arm unrolls an endless glowing scroll-list of luminous blank lines that spills down and coils across the floor around it (the lines are abstract bars of light, NOT readable writing). The other hand grips a heavy stamp-hammer: a long steel haft whose head is a giant square seal-stamp glowing blue-white; the floor bears glowing square stamp imprints. A small kneeling citizen silhouette in the foreground at its feet for scale. Setting: a vast sterile white ARK processing hall high in a spire at night, rows of identical empty waiting chairs, rain streaking huge windows with the neon city beyond. Low dramatic angle, the figure dominating the frame, cold blue-white light with cyan rim and a faint magenta accent from the city. Match the rendering style, dramatic composition, detail level and color grade of the attached reference boss splash, but a completely different boss. NOT glass, NOT crystal, NO halo rings, NO red chest core, NOT black-and-brass. No readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/boss/a1_boss_baekho.webp"
+   ],
+   "ts": "2026-10-26T03:58:42"
+  },
   "v2/boss/a4_boss_blank.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -2744,6 +2753,78 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
    ],
    "ts": "2026-10-25T17:33:41"
+  },
+  "v2/districts/d1_list_shelter.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Interior of a welfare-capsule shelter at night: a long corridor of white sleep capsules stacked in tiers, one capsule door open a finger's width; a cold white scanning light beam sweeping across empty beds from the ceiling; a night attendant's desk with a small warm lamp and folded grey blankets; a glowing list board by the entrance (unreadable blank lines); a linen-chute hatch in the wall; heavy fire doors; at the far end silhouettes of white-armored enforcers inspecting capsules; cold cyan-white light with magenta accents. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/districts/d1_lamp_market.webp"
+   ],
+   "ts": "2026-10-26T03:58:18"
+  },
+  "v2/districts/d1_spider_debt.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). A flooded laundromat and arcade in a poor district at night: black floodwater rising to the round glass doors of rows of coin washing machines; next door an unpowered arcade where plush prizes inside dark claw machines bob in the current; a small yellow child's raincoat hanging alone on a high nail; an old door lashed to empty plastic jugs floating as a raft tied to a railing; a pump-room doorway with one dry shelf; concrete steps climbing to higher ground; rain, neon cyan and magenta reflections on the water. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/districts/d1_lamp_market.webp"
+   ],
+   "ts": "2026-10-26T03:58:34"
+  },
+  "v2/districts/d2_broker_request.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). A night-market pawnshop: brass scales swaying alone behind a glass wall; glass display cases and lockers holding small softly glowing memory vials and fragments with blank paper price tags; a reception counter with a sealed envelope marked by a small gold hairpin drawing; a heavy round vault door ajar at the back; an appraisal workbench with a loupe and fine tools; warm amber lamps with neon cyan and magenta seeping in from the market outside. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/districts/d2_memory_auction.webp"
+   ],
+   "ts": "2026-10-26T03:59:20"
+  },
+  "v2/districts/d2_runner_shortcut.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). A concrete underpass beneath a night market: thick pillars, cart rails and hand carts, the ceiling crowded with tiny red sensor dots and thin red beams, except one pillar left in shadow untouched by the red dots with a simple chalk smiley face drawn beneath it; chalk arrows and crosses on the floor; a manual relay box on the wall; a small hatch behind the pillar with stairs leading up; warm market light leaking through grates overhead, cyan and magenta rim light. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/districts/d2_subway_hub.webp"
+   ],
+   "ts": "2026-10-26T03:59:05"
+  },
+  "v2/districts/d3_old_wound.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). An enforcer barracks awaiting dissolution: a long dim hall with racks of hanging riot shields, each with a blank number plate fixed over old scratches; stripped steel bunks; a captain's desk with a blank nameplate; a closed infirmary with empty cots behind glass; a muster terminal with a camera and a red recording light; a roll-call speaker on the wall; cold blue-grey light with red accents, quiet abandonment. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/districts/d3_name_archive.webp"
+   ],
+   "ts": "2026-10-26T04:00:10"
+  },
+  "v2/districts/d3_vault_beyond.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). An ARK memory storage vault: a sterile white-and-steel corridor ending in a massive vault door with two handles, one polished, the other covered by a white cloth, and a slow robotic assistance arm beside it; glass walls behind which small glowing memory capsules blink on and off; frost and coolant pipes; a coolant workbench with white cloth over hot components; a side passage of rejected-goods crates and a scrap chute; cold white and ice-cyan light. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/districts/d3_name_archive.webp"
+   ],
+   "ts": "2026-10-26T03:59:51"
+  },
+  "v2/districts/d4_dream_stacks.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Glass Library's dream stacks: towering frosted-glass bookshelves; on one shelf an open glass book whose pages unfold into a softly glowing pre-war afternoon diorama of a small child at a footbridge railing in warm sunlight; a bookbinding frame with thread spools and long needles; an empty antique reading chair with paper bookmarks drifting above it; a catalogue cabinet of small glass-and-brass index drawers; warm gold afternoon light spilling from the book into the cold hall. The look of the Glass Library: frosted and clear glass, white porcelain, black ink, paper pages and antique brass, cold white light with ice-blue glints and a few warm gold lamps. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a4_catalog_shards.webp"
+   ],
+   "ts": "2026-10-26T04:00:37"
+  },
+  "v2/districts/d4_return_desk.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Glass Library returns desk: a long glass-and-brass returns counter piled with blank paper return slips and receipts; a slotted return chute; a brass scale for weighing empty hands; a low waiting bench where a small child sits holding a queue ticket, feet not touching the floor: the SAME child as the second reference image (messy dark hair, a face covered by overlapping cream return cards, a dark patterned hooded coat and scarf); a small reply lamp hanging from the ceiling, glowing; a great vault door closed far behind. The look of the Glass Library: frosted and clear glass, white porcelain, black ink, paper pages and antique brass, cold white light with ice-blue glints and a few warm gold lamps. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a4_catalog_shards.webp"
+   ],
+   "ts": "2026-10-26T04:01:58"
   },
   "v2/events/a1_blind_spot_relay.webp": {
    "generations": 1,
@@ -3075,6 +3156,24 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Bora, a cheerful, clever Korean kid of about twelve who collects a small toll from passers-by; oversized yellow raincoat with the hood down, a sly grin, holding a clear umbrella, warm market lights. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:10:01"
   },
+  "v2/npcs/br_gyeom.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Gyeom, a Korean pawn-vault keeper in his fifties; a waistcoat over a rolled-sleeve shirt, a heavy ring of old keys at his belt, a thick ledger under one arm, wiping dust off a glass case with the back of his hand, meticulous. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a night-market pawnshop behind them (brass scales behind glass, cases of softly glowing memory vials), warm amber lamp light with cyan and magenta rim, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:59:40"
+  },
+  "v2/npcs/br_mijin.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Mijin, a Korean memory courier woman in her thirties who never asks what is inside; a fitted rider jacket, a receipt stamp in one hand, an empty hard-shell carrying case over her shoulder, calm and professional. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a night-market pawnshop behind them (brass scales behind glass, cases of softly glowing memory vials), warm amber lamp light with cyan and magenta rim, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:59:27"
+  },
+  "v2/npcs/br_sae.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Sae, a young Korean pawnshop clerk; neat bob, a cardigan with black sleeve protectors, holding a sealed envelope with a small gold hairpin drawn on it, polite guarded smile, standing behind a glass counter. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a night-market pawnshop behind them (brass scales behind glass, cases of softly glowing memory vials), warm amber lamp light with cyan and magenta rim, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:59:36"
+  },
   "v2/npcs/citizen_mun.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3093,6 +3192,24 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Curator Baek, an 'optimized citizen' curator of a glass atrium; flawless Korean woman in a pristine white high-collar outfit, too-perfect calm face, sterile white light instead of neon. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:07:48"
   },
+  "v2/npcs/dream_binder_ol.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Ol, a censor-binder of the Glass Library: a tall figure wearing a heavy dark bookbinder's leather apron, a smooth white porcelain mask for a face, and where a body should be beneath the apron, slowly turning thread spools and long needles trailing pale thread — unsettling, quiet, not human. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:01:11"
+  },
+  "v2/npcs/dream_cataloguer_sio.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Sio, a catalogue being of the Glass Library: a library construct whose body is built from many small glass-and-brass index-card drawers, some half open, a smooth faceless head of frosted glass with a softly glowing seam, long slender fingers made of brass shelf-mark tags — a construct, not a person. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:01:17"
+  },
+  "v2/npcs/dream_reader_bom.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Bom, a forgotten reader of the Glass Library: a translucent human head-and-shoulders outline formed entirely of drifting paper bookmarks and silk ribbon markers, a gentle tired face suggested by the bookmarks, hovering above an empty antique reading chair — a ghost made of bookmarks. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:01:37"
+  },
   "v2/npcs/iseul.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3104,6 +3221,24 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Dal, an IX-licensed welfare kiosk robot: a battered public kiosk with a cracked screen face showing a glitching cartoon smile, rain dripping off its casing, stickers peeling — a machine, not a person. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:05:25"
+  },
+  "v2/npcs/ls_eunsol.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Park Eun-sol, a Korean canteen worker in her thirties hiding in a sleep capsule; hairnet pushed back, plain white canteen uniform, a name badge turned face-down in her hand, frightened but resolute eyes, seen through the narrow gap of a capsule door. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a dim welfare-capsule shelter behind them (stacked white sleep capsules, a cold scanning light sweeping overhead), muted cyan night lighting with one warm lamp, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:57:46"
+  },
+  "v2/npcs/ls_hyeon.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Hyeon, a Korean night attendant in her forties at a welfare shelter; a worn cardigan over a shelter staff uniform, a folded grey blanket held to her chest, tired kind eyes, a tiny desk lamp glow. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a dim welfare-capsule shelter behind them (stacked white sleep capsules, a cold scanning light sweeping overhead), muted cyan night lighting with one warm lamp, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:58:26"
+  },
+  "v2/npcs/ls_warden_cho.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Enforcer Cho, a Korean ARK enforcer in his thirties checking transfer lists; white-and-steel enforcer armor with the helmet visor raised, a handheld list tablet throwing cold blue-white light up onto his impassive face (the screen faces away from the viewer). Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a dim welfare-capsule shelter behind them (stacked white sleep capsules, a cold scanning light sweeping overhead), muted cyan night lighting with one warm lamp, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:58:41"
   },
   "v2/npcs/madam_ku.webp": {
    "generations": 1,
@@ -3117,6 +3252,12 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Min, a Korean delivery courier in his twenties hiding from debt collectors; hood up, scuffed rider jacket with reflective strips, a cracked helmet under one arm, nervous darting eyes. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:05:26"
   },
+  "v2/npcs/miro_reader.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Miro, a small child whose whole face is covered by overlapping cream-coloured library return cards (no visible eyes or mouth), messy dark hair, a dark patterned hooded coat and scarf, holding a small blank paper queue ticket in both hands — exactly the same child as the second reference image. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:02:10"
+  },
   "v2/npcs/mother_so.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3129,11 +3270,59 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Old Oh, an unlicensed Korean electrician in his sixties; weathered face, grease on his cheek, coveralls with rolled sleeves, a coil of cable over his shoulder, warm yellow work-lamp light. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:04:27"
   },
+  "v2/npcs/returns_apprentice_ves.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Ves, a young apprentice censor of the Glass Library; androgynous and pale, short silver-grey hair, grey-and-white censor robes with antique brass clasps, ink-stained fingers holding a large eraser, grey eraser dust drifting, a puzzled frown. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:02:14"
+  },
+  "v2/npcs/returns_clerk_tess.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Tess, the returns-clerk construct of the Glass Library: a slender porcelain-and-brass automaton with a calm porcelain face and a transparent glass chest in which a small receipt printer turns, a blank paper receipt strip feeding out, polite and mechanical. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:02:03"
+  },
+  "v2/npcs/rs_dami.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Dami, a Korean weighmaster in her forties who charges carts by the wheel; sturdy, a heavy canvas apron, several cargo seal tags wrapped around her wrist like bracelets, leaning on a cart scale, a shrewd amused look. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a concrete underpass beneath a cyberpunk night market behind them (cart rails, pillars, tiny red sensor dots in the dark ceiling), warm lantern light with cyan and magenta rim, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:58:41"
+  },
+  "v2/npcs/rs_odo.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Odo, an old Korean relay technician who listens to machines without plugging in; thick knit cap, round glasses, a paper cup pressed to an open relay box like a stethoscope, rubber caps over the sockets, no implants or ports, concentrating. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a concrete underpass beneath a cyberpunk night market behind them (cart rails, pillars, tiny red sensor dots in the dark ceiling), warm lantern light with cyan and magenta rim, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:59:08"
+  },
+  "v2/npcs/rs_yul.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Yul, a Korean courier-guide in her twenties who maintains a chalk route map; short bob haircut, chalk dust on her fingers and cheek, half a stick of white chalk in her hand, a scuffed courier backpack, alert clever eyes. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a concrete underpass beneath a cyberpunk night market behind them (cart rails, pillars, tiny red sensor dots in the dark ceiling), warm lantern light with cyan and magenta rim, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:58:38"
+  },
   "v2/npcs/scav_pyo.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Pyo, a Korean scavenger who fishes fuel cells out of flooded rail tunnels; diving mask pushed up on the forehead, wet waders, a headlamp, a dented fuel cell under one arm. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:07:20"
+  },
+  "v2/npcs/sd_bok.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Bok, a Korean laundress in her late fifties who keeps the clothes nobody came back for; cropped grey-streaked hair, a rubber apron over a faded cardigan, sleeves rolled, an empty wire hanger in her hand, a small yellow child's raincoat hanging on a high nail behind her shoulder, grief held in check. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a flooded night alley of 2070s Neo-Seoul behind them (knee-deep black water, half-sunk washing machines and dead arcade cabinets), neon cyan and magenta reflections on the water, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:58:00"
+  },
+  "v2/npcs/sd_moru.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Moru, a Korean arcade repairman in his forties standing in a flooded arcade; wiry, stubble, heavy rubber work gloves, a coil of black power cable over one shoulder, a small handheld voice recorder clipped to his work vest, dark claw machines behind him. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a flooded night alley of 2070s Neo-Seoul behind them (knee-deep black water, half-sunk washing machines and dead arcade cabinets), neon cyan and magenta reflections on the water, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:58:04"
+  },
+  "v2/npcs/sd_naru.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Naru, a Korean flood ferryman in his thirties who carries people across the water on an old door lashed to empty plastic jugs; sun-darkened skin, a wet tank top under an open rain poncho, a coil of rope over his shoulder, a long pole in his hand, a wry half-smile. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a flooded night alley of 2070s Neo-Seoul behind them (knee-deep black water, half-sunk washing machines and dead arcade cabinets), neon cyan and magenta reflections on the water, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T03:57:42"
   },
   "v2/npcs/sgt_yun.webp": {
    "generations": 1,
@@ -3152,6 +3341,42 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Boss Ma, the Korean man who owns the transfer-corridor tollgate; heavyset, gold chain, a cheap fur-collared coat, cigarette smoke, a toll scanner on his wrist, confident grin. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:07:17"
+  },
+  "v2/npcs/vault_clerk_yeon.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Clerk Yeon, a precise Korean woman ARK records clerk in her forties; immaculate high-collared white-and-grey ARK uniform, hair in a tight bun, a pen poised above two perfectly squared blank forms, composed and exacting. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a sterile white-and-steel ARK facility interior behind them (frosted panels, pipes, cold white light with ice-cyan accents), clinical and quiet, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:00:07"
+  },
+  "v2/npcs/vault_insider_naru.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Naru, a young Korean off-grid woman working inside ARK disguised as staff; short cropped hair, an ARK staff jacket with its name badge turned inward, a bare neck with no data port, a small softly glowing memory shard held between her fingers, sharp watchful eyes. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a sterile white-and-steel ARK facility interior behind them (frosted panels, pipes, cold white light with ice-cyan accents), clinical and quiet, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:00:34"
+  },
+  "v2/npcs/vault_tech_dam.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Technician Dam, a Korean ARK maintenance technician in his fifties; grey coveralls, thick heat gloves patched in three layers on the same spot, long tongs in hand, safety goggles pushed up on his forehead, steam from coolant pipes behind him. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a sterile white-and-steel ARK facility interior behind them (frosted panels, pipes, cold white light with ice-cyan accents), clinical and quiet, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:00:15"
+  },
+  "v2/npcs/wound_captain_jeok.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Captain Jeok, a Korean enforcer captain in his fifties; grey crew cut, a dark dress uniform, polishing a blank metal nameplate with a cloth, stern and unreadable. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a darkened enforcer barracks behind them (rows of numbered riot shields on racks, steel lockers), cold blue-grey light with a red roll-call light, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:00:19"
+  },
+  "v2/npcs/wound_keeper_mun.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Quartermaster Mun, a heavyset Korean quartermaster in his sixties; reading glasses low on his nose, a dark work uniform, holding up a dented old riot shield by its grip, weary and careful. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a darkened enforcer barracks behind them (rows of numbered riot shields on racks, steel lockers), cold blue-grey light with a red roll-call light, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:00:56"
+  },
+  "v2/npcs/wound_medic_ryu.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Medic Ryu, a Korean enforcer unit medic in her forties; a plain white armband with a single teal stripe (no cross, no emblem) over a dark uniform, a stethoscope, a folded white sheet over her arm, empty infirmary cots behind her, quiet steady gaze. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a darkened enforcer barracks behind them (rows of numbered riot shields on racks, steel lockers), cold blue-grey light with a red roll-call light, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "ts": "2026-10-26T04:02:32"
   },
   "v2/npcs/yeon_cleaner.webp": {
    "generations": 1,

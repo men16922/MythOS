@@ -37,4 +37,30 @@ export const PARADOX: ParadoxDef[] = [
       en: 'Safehouse rest heals only 20%. Elites and bosses build Rage from turn 2.',
     },
   },
+  // DLC update (2026-10-26): Paradox 6–10, the expert ceiling (greedy bot target ~55 % at 10).
+  {
+    level: 6,
+    name: { ko: '날 선 분노', en: 'Honed Fury' },
+    text: { ko: '정예·보스의 분노가 매번 1씩 더 쌓인다.', en: 'Elites and bosses build 1 more Rage each time.' },
+  },
+  {
+    level: 7,
+    name: { ko: '비싼 밤', en: 'Expensive Night' },
+    text: { ko: '암시장 가격 +20%.', en: 'Black-market prices +20%.' },
+  },
+  {
+    level: 8,
+    name: { ko: '두꺼운 핵', en: 'Thick Cores' },
+    text: { ko: '보스의 체력 +20%.', en: 'Bosses have +20% HP.' },
+  },
+  {
+    level: 9,
+    name: { ko: '먼저 온 추적', en: 'Tracked Ahead' },
+    text: { ko: '막이 바뀔 때마다 추적도 +10.', en: 'Trace +10 at the start of every act.' },
+  },
+  {
+    level: 10,
+    name: { ko: 'IX가 학습한다', en: 'IX Learns' },
+    text: { ko: '모든 적의 피해가 1 더 늘어난다.', en: 'All enemies deal 1 more damage.' },
+  },
 ]

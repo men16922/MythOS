@@ -310,6 +310,7 @@
 }
 .m2-paradox {
   display: flex;
+  flex-wrap: wrap; /* Paradox 0–10 (DLC update): wraps on phones */
   gap: 4px;
 }
 .m2-paradox button {
@@ -501,4 +502,12 @@
   color: var(--m2-ink);
   font-style: italic;
   animation: m2-rise 0.4s var(--m2-ease) both;
+}
+
+@media (max-width: 480px) {
+  .m2-paradox button {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
 }

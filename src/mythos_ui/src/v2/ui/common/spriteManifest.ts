@@ -265,6 +265,16 @@ export const V2_SPRITES: Record<string, Partial<Record<V2SpritePose, string>>> =
     attack: 'v2/sprites/first-reader-attack.webp',
     hit: 'v2/sprites/first-reader-hit.webp',
   },
+  'list-warden': {
+    idle: 'v2/sprites/list-warden-idle.webp',
+    attack: 'v2/sprites/list-warden-attack.webp',
+    hit: 'v2/sprites/list-warden-hit.webp',
+  },
+  'listed-citizen': {
+    idle: 'v2/sprites/listed-citizen-idle.webp',
+    attack: 'v2/sprites/listed-citizen-attack.webp',
+    hit: 'v2/sprites/listed-citizen-hit.webp',
+  },
   'se-rin': {
     idle: 'v2/sprites/se-rin-idle.webp',
     attack: 'v2/sprites/se-rin-attack.webp',
@@ -353,6 +363,7 @@ export const V2_SPRITE_FOR_ENEMY: Record<string, string> = {
   io_librarian: 'io',
   blank_binder: 'blank',
   first_reader: 'first-reader',
+  list_warden: 'list-warden',
 }
 
 /** ArchetypeDef id -> V2_SPRITES key. */

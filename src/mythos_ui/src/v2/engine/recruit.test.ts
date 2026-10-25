@@ -74,3 +74,17 @@ test('reputation (C+4): warm intents raise a faction, threats lower it; ±3 is a
   assert.equal(repTier(run, 'grid'), -1)
   for (const n of Object.values(C.crpg!.npcs)) assert.ok(n.faction, `${n.id} speaks for a faction`)
 })
+
+test('C+8: reputation reacts in fights — off-grid backup at bosses, grid patrols look away at elites', async () => {
+  const { takeCombatMods, applyCombatMods } = await import('./crpg.ts')
+  const run = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 5, now: NOW, crpg: { background: null } }, C)
+  run.crpg!.rep = { offgrid: 3, grid: 3 }
+  assert.deepEqual(takeCombatMods(run, true, C), ['backup'])
+  assert.deepEqual(takeCombatMods(run, false, C, true), ['surprise'])
+  assert.deepEqual(takeCombatMods(run, false, C, false), [])
+  const { startCombat } = await import('./combat.ts')
+  const c = startCombat(run, 'a1_n1_cover', C)
+  applyCombatMods(c, ['surprise', 'backup'])
+  assert.ok(c.units.filter((u) => u.side === 'enemy').every((u) => (u.statuses.shock ?? 0) >= 1))
+  assert.ok(c.units.filter((u) => u.side === 'party').every((u) => (u.statuses.guard ?? 0) >= 2))
+})

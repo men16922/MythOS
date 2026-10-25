@@ -13,7 +13,7 @@ import { loadPlan } from '../../net/api.ts'
 import { getAuth } from '../../net/auth.ts'
 import { flushDailyQueue } from '../../net/daily.ts'
 import { markCutsceneSeen } from '../../engine/meta.ts'
-import type { CombatState, ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/types.ts'
+import type { CombatState, ContentRegistry, Lang, MetaProfile, RunMode, RunState } from '../../engine/types.ts'
 import { configureAudio, playBgm, unlockAudio, type Bgm } from '../common/audio.ts'
 import { tr } from '../common/lang.ts'
 import { onNative, pushControl } from '../common/nativeBridge.ts'
@@ -306,7 +306,7 @@ export function GameShell() {
     crpg?: { background: string | null; trial?: boolean }
     echo?: string
     mutator?: string
-    mode?: 'deep'
+    mode?: RunMode
   }) => {
     if (game.hasRun) {
       // Never overwrite a live run silently: ask first (abandoning banks it).

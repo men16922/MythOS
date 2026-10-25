@@ -21,7 +21,7 @@ import type {
 } from './types.ts'
 
 export const HISTORY_CAP = 30
-export const MAX_PARADOX = 5
+export const MAX_PARADOX = 10
 export const NODE_ECHOES = 1
 export const ELITE_ECHOES = 4
 export const BOSS_ECHOES = 12
@@ -186,7 +186,8 @@ export function migrateProfile(raw: unknown): MetaProfile {
     totalEchoes: Math.max(echoes, int(r.totalEchoes, 0)),
     loops: int(r.loops, 0),
     wins: int(r.wins, 0),
-    bestAct: int(r.bestAct, 0, 3),
+    bestAct: int(r.bestAct, 0, 99),
+    ...(typeof r.endlessBest === 'number' ? { endlessBest: int(r.endlessBest, 0, 99999) } : {}),
     unlocks: strList(r.unlocks),
     paradoxUnlocked: int(r.paradoxUnlocked, 0, MAX_PARADOX),
     codex: strList(r.codex),
@@ -422,6 +423,7 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     loops: Math.max(profile.loops + 1, run.loop),
     wins: profile.wins + (victory ? 1 : 0),
     bestAct: Math.max(profile.bestAct, run.act),
+    ...(run.mode === 'endless' ? { endlessBest: Math.max(profile.endlessBest ?? 0, (run.lap ?? 0) * 100 + run.act) } : {}),
     paradoxUnlocked: victory
       ? Math.max(profile.paradoxUnlocked, Math.min(MAX_PARADOX, run.paradox + 1))
       : profile.paradoxUnlocked,

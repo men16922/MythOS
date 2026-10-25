@@ -66,6 +66,7 @@ import type {
   RunEffect,
   RunLogEntry,
   RunScreen,
+  RunMode,
   RunState,
   ShopStock,
   StatKey,
@@ -473,7 +474,7 @@ export interface NewRunOptions {
   /** Optional loop mutator id for a non-daily run. */
   mutator?: string
   /** Deep Signal (ignored on a daily, and until the profile may play it — see deepSignalOpen). */
-  mode?: 'deep'
+  mode?: RunMode
 }
 
 /** Stand-in profile for a daily run's content: nothing unlocked, no threads. */
@@ -547,7 +548,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   applyConcretePassive(run, thread)
   if (daily) run.mutator = mutatorForDate(daily).id
   else if (opts.mutator && mutatorById(opts.mutator)) run.mutator = opts.mutator
-  if (!daily && opts.mode === 'deep' && deepSignalOpen(profile, C)) run.mode = 'deep'
+  if (!daily && opts.mode && deepSignalOpen(profile, C)) run.mode = opts.mode
   const mut = mutatorMods(run)
   run.maxHp = Math.max(20, run.maxHp + (mut.maxHp ?? 0))
   run.hp = run.maxHp
@@ -649,7 +650,7 @@ function beginCombat(run: RunState, encounterId: string, C: ContentRegistry): Co
   if (!run.streams) rand(run) // legacy shared stream: advance so every fight gets a fresh slice of it
   const combat = startCombat(run, encounterId, C)
   // Signal+ CRPG: twists a conversation set up (and quest payoffs on a boss) apply to the fight as it starts.
-  const mods = takeCombatMods(run, C.encounters[encounterId]?.kind === 'boss', C)
+  const mods = takeCombatMods(run, C.encounters[encounterId]?.kind === 'boss', C, C.encounters[encounterId]?.kind === 'elite')
   if (mods.length > 0) applyCombatMods(combat, mods)
   return combat
 }
@@ -850,7 +851,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
       if (combat.units.some((u) => u.uid === m.id && u.side === 'party' && u.hp > 0)) raiseBond(next, m.id, 1, C)
     }
     // After the final boss nothing is left to spend loot on: straight to the ending choice.
-    if (next.act >= lastAct(next, C)) {
+    if (next.act >= lastAct(next, C) && next.mode !== 'endless') {
       clearCurrentNode(next)
       next.screen = { kind: 'final_choice' }
       return next
@@ -901,8 +902,13 @@ export const STANDARD_ACTS = 3
 
 /** The run's final act: 3 on a standard run; a Deep Signal run continues through every act the content holds. */
 export function lastAct(run: Pick<RunState, 'mode'>, C: Pick<ContentRegistry, 'acts'>): number {
-  if (run.mode !== 'deep') return STANDARD_ACTS
+  if (!run.mode) return STANDARD_ACTS
   return Math.max(STANDARD_ACTS, ...Object.keys(C.acts).map(Number))
+}
+
+/** Endless Signal depth reached: laps × acts + the current act (the record the profile keeps). */
+export function endlessDepth(run: Pick<RunState, 'mode' | 'lap' | 'act'>, C: Pick<ContentRegistry, 'acts'>): number {
+  return (run.lap ?? 0) * lastAct({ mode: 'endless' }, C) + run.act
 }
 
 /** Deep Signal is open once the profile has won a run and the content holds acts beyond the third. */
@@ -914,6 +920,7 @@ function advanceAct(run: RunState, C: ContentRegistry): void {
   run.growth = (run.growth ?? 0) + 1
   if ((run.autonomy ?? 0) >= 2) gainTrace(run, -AUTONOMY_ACT_SCRUB, C)
   run.act = run.act + 1
+  if (run.paradox >= 9) gainTrace(run, 10, C) // Paradox 9: tracked ahead
   run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents })
   placeDistrict(run, run.map, C)
   run.nodeId = null
@@ -931,7 +938,12 @@ export function leaveReward(run: RunState, C: ContentRegistry): RunState {
     if (next.nodeId !== null && next.nodeId === next.map.bossId) {
       clearCurrentNode(next)
       if (next.act < lastAct(next, C)) advanceAct(next, C)
-      else next.screen = { kind: 'final_choice' }
+      else if (next.mode === 'endless') {
+        // Endless Signal: one lap deeper, back to Act 1.
+        next.lap = (next.lap ?? 0) + 1
+        next.act = 0
+        advanceAct(next, C)
+      } else next.screen = { kind: 'final_choice' }
     } else {
       next.screen = { kind: 'map' }
     }
@@ -1248,7 +1260,7 @@ function priceBase(base: number, discount: number): number {
 export function generateShop(run: RunState, C: ContentRegistry): ShopStock {
   const h = runStream(run, 'shop')
   const discount = runPassive(run, C, 'shopDiscount')
-  const mult = 1 + ((mutatorMods(run).shopPct ?? 0) - 10 * repTier(run, 'market')) / 100
+  const mult = 1 + ((mutatorMods(run).shopPct ?? 0) - 10 * repTier(run, 'market') + (run.paradox >= 7 ? 20 : 0)) / 100
   const price = (base: number, off: number): number => priceBase(base * mult, off)
   const jitter = (base: number): number => price(base * (1 + (randInt(h, -10, 10) / 100)), discount)
   const cards: ShopStock['cards'] = []

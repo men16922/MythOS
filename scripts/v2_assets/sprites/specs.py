@@ -49,7 +49,7 @@ PARTY_POSES = {
 @dataclass(frozen=True)
 class Sprite:
     key: str
-    kind: str  # boss | party | elite | enemy (normal/minion variant)
+    kind: str  # boss | party | elite | enemy (normal/minion variant) | neutral (encounter hostage, faces RIGHT)
     subject: str  # who/what (idle prompt)
     size: str = "1024x1536"  # codex canvas (WxH)
     idle_ref: str | None = None  # optional reference image (repo-relative) for the idle generation
@@ -62,7 +62,7 @@ class Sprite:
 
     @property
     def facing(self) -> str:
-        return "right" if self.kind == "party" else "left"
+        return "right" if self.kind in ("party", "neutral") else "left"
 
     @property
     def canvas(self) -> tuple[int, int]:
@@ -898,6 +898,47 @@ SPRITES: list[Sprite] = [
             "into loose scribbles and splatters, pages scattering",
         ),
         enemy_ids=("first_reader",),
+    ),
+    # DLC update (2026-10-26): act-3 boss "명단 관리관 / THE LIST WARDEN" and its protect-bonus hostage.
+    Sprite(
+        key="list-warden",
+        kind="boss",
+        idle_ref="resources/neo-seoul/v2/boss/a3_boss_warden.webp",
+        idle_ref_note=GLASS_SPLASH_NOTE,
+        subject="THE LIST WARDEN, the act-3 boss: a towering cold bureaucratic ARK enforcer construct shaped like a "
+        "robed archivist-executioner — long layered robes of matte white enamel plates and brushed steel, a deep "
+        "hood over a smooth featureless steel face-plate with one thin horizontal slit of cold blue-white light, one "
+        "long arm holding an endless glowing scroll-list of luminous blank lines (abstract bars of light, not "
+        "writing) that coils around its feet, the other hand gripping a heavy stamp-hammer whose head is a giant "
+        "square seal-stamp glowing blue-white. Palette white, steel grey and cold blue-white light; NOT glass, NOT "
+        "crystal, NO halo rings, NO red chest core, NOT black-and-brass",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: swinging the stamp-hammer down in a heavy overhead arc toward the "
+            "left, the square seal-head flaring blue-white with a compact shockwave of light at the impact, the "
+            "glowing scroll-list whipping out behind it",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, white enamel robe plates cracked "
+            "and sparking, the face-slit flickering, the glowing scroll-list tearing and scattering fragments of "
+            "light",
+        ),
+        enemy_ids=("list_warden",),
+    ),
+    Sprite(
+        key="listed-citizen",
+        kind="neutral",
+        idle_ref="resources/neo-seoul/v2/sprites/se-rin-idle.webp",
+        idle_ref_note="The reference image is another character sprite from this game: use it ONLY for the "
+        "rendering style (painterly detail, rim light, proportions, transparent isolation) — draw a completely NEW, "
+        "different person.",
+        subject="a LISTED CITIZEN, a frightened ordinary Neo-Seoul citizen marked for erasure: a thin tired Korean "
+        "man in his forties in worn, patched everyday clothes (a faded grey work jacket over a stretched sweater, "
+        "baggy trousers, scuffed sneakers), unarmed and unarmoured, a glowing cold blue-white barcode tag band "
+        "fastened around one wrist, hunched shoulders, scared eyes — a civilian, not a fighter",
+        poses={
+            "attack": "now FLINCHING: cowering and turning half away with both forearms raised to shield his face, "
+            "knees bent, the barcode tag on his wrist glowing brighter",
+            "hit": "now in a HIT-REACTION pose: knocked back and stumbling toward the left, one arm thrown out for "
+            "balance, wincing in pain, a few small sparks",
+        },
     ),
     # ------------------------------------------------------------------ companions (face RIGHT)
     # Same key names as the classic sprites (resources/neo-seoul/characters/combat/<key>-<pose>.png), so the

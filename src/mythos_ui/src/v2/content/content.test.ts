@@ -291,7 +291,9 @@ test('encounter boards are legal', () => {
     if (enc.neutral) {
       place(enc.neutral.pos, 'neutral')
       assert.ok(
-        exists(`characters/combat/${enc.neutral.sprite}-idle.png`) || exists(`enemies/combat/${enc.neutral.sprite}-idle.png`),
+        exists(`characters/combat/${enc.neutral.sprite}-idle.png`) ||
+          exists(`enemies/combat/${enc.neutral.sprite}-idle.png`) ||
+          !!V2_SPRITES[enc.neutral.sprite]?.idle,
         `${enc.id} neutral sprite`,
       )
     }

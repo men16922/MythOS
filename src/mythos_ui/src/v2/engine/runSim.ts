@@ -48,7 +48,7 @@ import {
   updateCombat,
   MAX_CONSUMABLES,
 } from './run.ts'
-import type { CardInstance, ContentRegistry, DialogueOutcome, MapNode, MetaProfile, Outcome, RunEffect, RunScreen, RunState } from './types.ts'
+import type { CardInstance, ContentRegistry, DialogueOutcome, MapNode, MetaProfile, Outcome, RunEffect, RunScreen, RunState, RunMode } from './types.ts'
 
 export type SimPolicy = 'greedy' | 'basic' | 'mixed'
 
@@ -92,7 +92,7 @@ export interface RunSimOptions {
   /** Starting companion for a non-daily run after loop 1 (default: none, as before). */
   companion?: string
   /** Deep Signal run (acts 4+): the sim profile counts as having won once, which opens the mode. */
-  mode?: 'deep'
+  mode?: RunMode
   /** Implants to hold from the start (balance experiments, e.g. a full set). */
   startImplants?: string[]
   /** Play with the Signal+ CRPG layer (districts, dialogue, camp) and this background. */
@@ -437,7 +437,7 @@ export function simulateRun(
   policy: SimPolicy,
   opts: RunSimOptions = {},
 ): RunSimResult {
-  const profile = opts.profile ?? (opts.mode === 'deep' ? { ...newProfile('sim'), wins: 1 } : newProfile('sim'))
+  const profile = opts.profile ?? (opts.mode ? { ...newProfile('sim'), wins: 1 } : newProfile('sim'))
   const maxTurns = opts.maxTurns ?? 30
   let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily, companion: opts.companion, crpg: opts.crpg, mode: opts.mode }, C)
   for (const id of opts.startImplants ?? []) run = grantImplant(run, id, C)

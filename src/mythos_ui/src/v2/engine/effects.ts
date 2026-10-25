@@ -110,6 +110,8 @@ export interface CombatScaling {
   bossPct?: number
   /** Turn from which elites/bosses build Rage (CONTENT.tuning.rage; Paradox 5 starts it a turn earlier). */
   rageFrom?: number
+  /** Paradox 6: elites/bosses build this much more Rage each time. */
+  rageExtra?: number
 }
 export type CombatStateExt = CombatState & {
   scaling?: CombatScaling

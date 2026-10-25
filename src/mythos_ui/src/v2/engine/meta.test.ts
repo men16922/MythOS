@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  MAX_PARADOX,
   HISTORY_CAP,
   KILLED_BY_FLAG,
   applyRunEnd,
@@ -75,7 +76,7 @@ test('newProfile and migrateProfile tolerate garbage', () => {
     echoes: 12.7,
     totalEchoes: 3,
     loops: -4,
-    bestAct: 9,
+    bestAct: 999,
     unlocks: ['a', 'a', 3, 'b'],
     paradoxUnlocked: 99,
     history: [{ id: 'r1', result: 'victory', act: 3, party: ['se_rin', 5] }, { nope: true }, ...Array.from({ length: 40 }, (_, i) => ({ id: `h${i}` }))],
@@ -86,9 +87,9 @@ test('newProfile and migrateProfile tolerate garbage', () => {
   assert.equal(m.echoes, 12)
   assert.equal(m.totalEchoes, 12, 'total never below spendable')
   assert.equal(m.loops, 0)
-  assert.equal(m.bestAct, 3)
+  assert.equal(m.bestAct, 99, 'Deep Signal acts go past 3; garbage is still capped')
   assert.deepEqual(m.unlocks, ['a', 'b'])
-  assert.equal(m.paradoxUnlocked, 5)
+  assert.equal(m.paradoxUnlocked, MAX_PARADOX)
   assert.equal(m.history.length, HISTORY_CAP)
   assert.equal(m.history[0]?.result, 'victory')
   assert.deepEqual(m.history[0]?.party, ['se_rin'])
@@ -188,7 +189,7 @@ test('applyRunEnd banks a victory: bonuses, wins, paradox unlock (capped), histo
   assert.equal(p.lastDeath, undefined)
   assert.equal(p.history.length, HISTORY_CAP)
   assert.equal(p.history[0]?.id, 'run-x')
-  assert.equal(applyRunEnd({ ...start, paradoxUnlocked: 5 }, { ...run, id: 'r2', paradox: 5 }, C).paradoxUnlocked, 5)
+  assert.equal(applyRunEnd({ ...start, paradoxUnlocked: MAX_PARADOX }, { ...run, id: 'r2', paradox: MAX_PARADOX }, C).paradoxUnlocked, MAX_PARADOX)
 
   const abandoned = endedRun({ id: 'ab', flags: { abandoned: 1 } })
   const q = applyRunEnd(newProfile('p'), abandoned, C)

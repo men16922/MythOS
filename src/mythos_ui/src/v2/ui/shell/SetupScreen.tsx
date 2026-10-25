@@ -8,7 +8,7 @@ import { MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
 import { deepSignalOpen, lastAct } from '../../engine/run.ts'
 import { mutatorForDate, mutatorOffersForSeed } from '../../engine/mutators.ts'
 import { MutatorCard } from '../components/MutatorCard.tsx'
-import type { ContentRegistry, MetaProfile, StatKey, Lang } from '../../engine/types.ts'
+import type { ContentRegistry, MetaProfile, StatKey, Lang, RunMode } from '../../engine/types.ts'
 import { asset, portrait } from '../common/assets.ts'
 import { STAT_LABEL, tr } from '../common/lang.ts'
 import { CardView } from '../components/CardView.tsx'
@@ -35,7 +35,7 @@ export interface SetupScreenProps {
     crpg?: { background: string | null; trial?: boolean }
     echo?: string
     mutator?: string
-    mode?: 'deep'
+    mode?: RunMode
   }) => void
   onBack: () => void
   /** KST date key: set up today's daily-seed run instead of a normal loop. */
@@ -83,7 +83,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
   const mutatorOffers = useMemo(() => (daily || firstLoop ? [] : mutatorOffersForSeed(profile.loops + 1, 2)), [daily, firstLoop, profile.loops])
   const [mutatorId, setMutatorId] = useState<string | null>(null)
   const deepOpen = !daily && deepSignalOpen(profile, C)
-  const [deep, setDeep] = useState(false)
+  const [depth, setDepth] = useState<RunMode | undefined>(undefined)
   const autonomy = autonomyLevel(profile)
   // Signal+ with AI on: the GM says which moment of the last loop the chosen echo remembers (once per echo).
   const [echoLines, setEchoLines] = useState<Record<string, string>>({})
@@ -296,7 +296,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
           <section className="m2-setup__paradox">
             <div className="m2-setup__label">{ko ? '패러독스' : 'Paradox'}</div>
             <div className="m2-paradox">
-              {[0, 1, 2, 3, 4, 5].map((lv) => {
+              {[0, ...C.paradox.map((p) => p.level)].map((lv) => {
                 const locked = lv > profile.paradoxUnlocked
                 return (
                   <button
@@ -368,39 +368,50 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
             <section className="m2-setup__bg-pick">
               <div className="m2-setup__label">{ko ? '깊이' : 'Depth'}</div>
               <div className="m2-bgs" role="radiogroup">
-                <button
-                  role="radio"
-                  aria-checked={!deep}
-                  className={!deep ? 'is-on' : ''}
-                  onClick={() => {
-                    sound('ui_click')
-                    setDeep(false)
-                  }}
-                >
-                  <b>{ko ? '표준 접속' : 'Standard'}</b>
-                  <small>{ko ? '3막 · 약 30~40분' : '3 acts · ~30–40 min'}</small>
-                </button>
-                <button
-                  role="radio"
-                  aria-checked={deep}
-                  className={deep ? 'is-on' : ''}
-                  onClick={() => {
-                    sound('ui_click')
-                    setDeep(true)
-                  }}
-                >
-                  <b>{ko ? '딥 시그널' : 'Deep Signal'}</b>
-                  <small>{ko ? `${lastAct({ mode: 'deep' }, C)}막 · 막마다 저장 · 에코 보상 증가` : `${lastAct({ mode: 'deep' }, C)} acts · saved each act · more Echoes`}</small>
-                </button>
+                {(
+                  [
+                    [undefined, ko ? '표준 접속' : 'Standard', ko ? '3막 · 약 30~40분' : '3 acts · ~30–40 min'],
+                    ['deep', ko ? '딥 시그널' : 'Deep Signal', ko ? `${lastAct({ mode: 'deep' }, C)}막 · 막마다 저장` : `${lastAct({ mode: 'deep' }, C)} acts · saved each act`],
+                    [
+                      'endless',
+                      ko ? '무한 신호' : 'Endless Signal',
+                      profile.endlessBest
+                        ? ko
+                          ? `최고 기록 잔향 ${Math.floor(profile.endlessBest / 100)}층 · ${profile.endlessBest % 100}막`
+                          : `Best: echo layer ${Math.floor(profile.endlessBest / 100)}, Act ${profile.endlessBest % 100}`
+                        : ko
+                          ? '쓰러질 때까지 · 바퀴마다 더 깊게'
+                          : 'Until you fall · deeper each lap',
+                    ],
+                  ] as const
+                ).map(([m, name, sub]) => (
+                  <button
+                    key={m ?? 'standard'}
+                    role="radio"
+                    aria-checked={depth === m}
+                    className={depth === m ? 'is-on' : ''}
+                    onClick={() => {
+                      sound('ui_click')
+                      setDepth(m)
+                    }}
+                  >
+                    <b>{name}</b>
+                    <small>{sub}</small>
+                  </button>
+                ))}
               </div>
               <p className="m2-bgs__text">
-                {deep
+                {depth === 'deep'
                   ? ko
                     ? 'IX를 쓰러뜨려도 신호는 끊기지 않는다. 4막 유리성의 사서까지 내려간다. 언제든 중단하고 이어할 수 있다.'
                     : 'Defeating IX does not end the signal. Go on into Act 4, the Glass Librarian. Stop and resume any time.'
-                  : ko
-                    ? '익숙한 3막 접속.'
-                    : 'The familiar three-act run.'}
+                  : depth === 'endless'
+                    ? ko
+                      ? '마지막 막을 넘기면 다시 1막, 잔향 한 층 더 깊이(층마다 적 HP +60%, 피해 +3, 분노 가속). 쓰러질 때까지 내려간다.'
+                      : 'Past the last act it starts over at Act 1, one echo layer deeper (each layer: enemies +60 % HP, +3 damage, faster Rage). Go until you fall.'
+                    : ko
+                      ? '익숙한 3막 접속.'
+                      : 'The familiar three-act run.'}
               </p>
             </section>
           )}
@@ -489,7 +500,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                     ...(crpg ? { crpg: { background: bgId } } : C.crpg ? { crpg: { background: null, trial: true } } : {}),
                     ...(echoId ? { echo: echoId } : {}),
                     ...(mutatorId ? { mutator: mutatorId } : {}),
-                    ...(deep && deepOpen ? { mode: 'deep' as const } : {}),
+                    ...(depth && deepOpen ? { mode: depth } : {}),
                   },
             )
           }}

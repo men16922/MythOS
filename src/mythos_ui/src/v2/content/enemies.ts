@@ -1560,6 +1560,40 @@ const ACT3: EnemyDef[] = [
     ),
     bounty: 0,
   },
+  // DLC update (2026-10-26): Act 3's third boss — 1.0 side arc "버려진 자들의 신호" (the signal of the abandoned).
+  {
+    id: 'list_warden',
+    name: t('명단 관리관', 'THE LIST WARDEN'),
+    sprite: 'list-warden',
+    tier: 'boss',
+    hp: 115,
+    armor: 1,
+    move: 2,
+    ai: 'boss',
+    moves: [
+      { id: 'roll_call', name: t('호명', 'Roll Call'), pattern: 'line', damage: 11, range: 7, effects: [{ kind: 'status', status: 'mark', amount: 2 }] },
+      { id: 'optimization_stamp', name: t('최적화 날인', 'Optimization Stamp'), pattern: 'melee', area: 'row', damage: 12 },
+      { id: 'summon_auditors', name: t('감사관 소집', 'Summon Auditors'), pattern: 'summon', summon: { enemyId: 'ark_warden', count: 1 }, cooldown: 3 },
+      { id: 'final_line', name: t('마지막 줄', 'The Last Line'), pattern: 'beam', damage: 14, range: 7, windup: 1, cooldown: 2, minPhase: 1, effects: [{ kind: 'status', status: 'weak', amount: 1 }] },
+    ],
+    phases: [
+      {
+        hpBelow: 0.5,
+        text: t(
+          '관리관이 명단을 펼친다. 마지막 줄의 빈칸이 당신의 신호와 동기화된다.',
+          'The Warden unrolls the list. The blank last line syncs to your signal.',
+        ),
+        effects: [
+          { kind: 'block', amount: 12, to: 'owner' },
+          { kind: 'status', status: 'thorns', amount: 2, to: 'owner' },
+        ],
+      },
+    ],
+    passive: t(
+      '최적화 명단을 집행한다. 인질로 잡힌 시민이 쓰러지면 보너스 목표 실패. 절반에서 한 턴 모아 마지막 줄(관통)을 쓴다.',
+      'Executes the optimization list. Lose the hostage and the bonus fails. At half HP it winds up The Last Line (pierce).',
+    ),
+  },
 ]
 
 export const ENEMIES: EnemyDef[] = [...ACT1, ...ACT2, ...ACT3]

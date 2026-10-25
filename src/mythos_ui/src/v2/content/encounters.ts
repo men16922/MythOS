@@ -682,6 +682,21 @@ const ACT3: EncounterDef[] = [
       'Architect Omega, executive combat core of IX. Erases anomalies with dimensional blades and entropy.',
     ),
   },
+  {
+    id: 'a3_boss_warden',
+    act: 3,
+    kind: 'boss',
+    name: t('명단 관리관', 'The List Warden'),
+    backdrop: 'spire',
+    enemies: [foe('list_warden', 5, 2), foe('ark_warden', 6, 0)],
+    terrain: [...tiles('cover', [2, 0], [2, 4]), ...tiles('hazard', [4, 1], [4, 3])],
+    neutral: { name: t('명단의 시민', 'The Listed Citizen'), sprite: 'listed-citizen', hp: 14, pos: at(1, 2) },
+    bonus: { kind: 'protect' },
+    intro: t(
+      '최적화 명단의 마지막 줄에 오른 시민이 묶여 있다. 관리관은 그 이름을 지금 읽으려 한다.',
+      'A citizen on the last line of the optimization list is held here. The Warden means to read the name aloud now.',
+    ),
+  },
 ]
 
 export const ENCOUNTERS: EncounterDef[] = [...ACT1, ...ACT2, ...ACT3]

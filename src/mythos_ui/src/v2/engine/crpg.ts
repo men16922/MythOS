@@ -424,11 +424,14 @@ export function startCamp(run: RunState, C: ContentRegistry): RunState {
 // ---------------------------------------------------------------- combat twists
 
 /** Mods for the fight about to start: the pending ones, plus quest payoffs on a boss fight. Consumes them. */
-export function takeCombatMods(next: RunState, boss: boolean, C: ContentRegistry): CombatModId[] {
+export function takeCombatMods(next: RunState, boss: boolean, C: ContentRegistry, elite = false): CombatModId[] {
   const s = next.crpg
   if (!s) return []
   const mods = s.nextCombat.slice()
   s.nextCombat = []
+  // Reputation reacts (C+4/C+8): the off-grid send help to the big fights, the grid's patrols look away at elites.
+  if (boss && repTier(next, 'offgrid') > 0 && !mods.includes('backup')) mods.push('backup')
+  if (elite && repTier(next, 'grid') > 0 && !mods.includes('surprise')) mods.push('surprise')
   if (boss) {
     for (const q of Object.values(C.crpg?.quests ?? {})) {
       // Exactly the payoff stage: a later stage can be a different ending of the quest (e.g. a betrayal).
@@ -455,6 +458,12 @@ export function applyCombatMods(c: CombatState, mods: readonly CombatModId[]): v
       case 'intel':
         c.energy += 1
         break
+      case 'surprise':
+        for (const u of enemies) u.statuses.shock = Math.max(u.statuses.shock ?? 0, 1)
+        break
+      case 'backup':
+        for (const u of c.units) if (u.side === 'party' && u.hp > 0) u.statuses.guard = (u.statuses.guard ?? 0) + 2
+        break
       case 'cover': {
         let placed = 0
         for (const p of [{ x: 2, y: 1 }, { x: 2, y: 3 }, { x: 2, y: 2 }, { x: 2, y: 0 }, { x: 2, y: 4 }]) {
@@ -477,6 +486,8 @@ export const COMBAT_MOD_TEXT: Record<CombatModId, Text> = {
   marked: t('적이 표식을 단 채로 시작한다', 'Enemies start Marked'),
   intel: t('첫 턴 에너지 +1', '+1 energy on the first turn'),
   cover: t('아군 앞에 엄폐물 2개', 'Two pieces of cover in front of you'),
+  surprise: t('기습: 적의 첫 공격이 불발된다', 'Ambush turned: the enemies’ first attacks fizzle'),
+  backup: t('세력 지원: 아군 모두 매 턴 방어막 2', 'Faction backup: every ally gains 2 block each turn'),
 }
 
 export function approvalOf(run: RunState, companionId: string): number {

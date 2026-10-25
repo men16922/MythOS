@@ -146,19 +146,25 @@ function requirePlayer(c: CombatState): void {
 
 // ---------------------------------------------------------------- setup
 
+/** Endless Signal escalation per lap (the expert ceiling: greedy bot measured to fall within a few laps). */
+export const ENDLESS_HP_PER_LAP = 60
+export const ENDLESS_DMG_PER_LAP = 3
+
 function scalingFor(run: RunState, C: ContentRegistry): CombatScaling {
   const hunted = run.trace >= 66
   const alert = run.trace >= 33
   const mut = mutatorMods(run)
   const tune = C.tuning
   const actTune = tune?.acts?.[run.act]
+  const lap = run.lap ?? 0 // Endless Signal laps: +40 % HP, +2 damage, Rage a turn earlier and +1 stronger each
   return {
-    hpPct: (tune?.enemyHpPct ?? 0) + (actTune?.hpPct ?? 0) + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
+    hpPct: (tune?.enemyHpPct ?? 0) + (actTune?.hpPct ?? 0) + ENDLESS_HP_PER_LAP * lap + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
     elitePct: (tune?.eliteHpPct ?? 0) + (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
-    dmg: (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (actTune?.dmg ?? 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0),
+    dmg: (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (actTune?.dmg ?? 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0) + (run.paradox >= 10 ? 1 : 0) + ENDLESS_DMG_PER_LAP * lap,
     ...(tune?.eliteDmg ? { eliteDmg: tune.eliteDmg } : {}),
-    ...(tune?.bossHpPct ? { bossPct: tune.bossHpPct } : {}),
-    ...(tune?.rage ? { rageFrom: Math.max(1, tune.rage.fromTurn - (run.paradox >= 5 ? 1 : 0)) } : {}),
+    ...(tune?.bossHpPct || run.paradox >= 8 ? { bossPct: (tune?.bossHpPct ?? 0) + (run.paradox >= 8 ? 20 : 0) } : {}),
+    ...(run.paradox >= 6 || lap > 0 ? { rageExtra: (run.paradox >= 6 ? 1 : 0) + lap } : {}),
+    ...(tune?.rage ? { rageFrom: Math.max(1, tune.rage.fromTurn - (run.paradox >= 5 ? 1 : 0) - lap) } : {}),
   }
 }
 
@@ -204,7 +210,8 @@ function growRage(c: CombatState, C: ContentRegistry): void {
   if (!rage || c.turn < from) return
   for (const e of livingEnemies(c).sort(byUid)) {
     const tier = C.enemies[e.defId]?.tier
-    const n = tier === 'boss' ? rage.boss : tier === 'elite' ? rage.elite : 0
+    const extra = (c as CombatStateExt).scaling?.rageExtra ?? 0
+    const n = tier === 'boss' ? rage.boss + extra : tier === 'elite' ? rage.elite + extra : 0
     if (n > 0) addStatus(c, e, 'rage', n)
   }
 }

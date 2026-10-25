@@ -123,7 +123,7 @@ test('quotas', () => {
   assert.ok(kinds('thread').length >= 8)
   assert.deepEqual(
     PARADOX.map((p) => p.level),
-    [1, 2, 3, 4, 5],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   )
 })
 

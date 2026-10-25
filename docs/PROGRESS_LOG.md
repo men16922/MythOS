@@ -2,6 +2,16 @@
 
 Last updated: 2026-10-25
 
+## 2026-10-26 — DLC update R5+R6: CRPG districts 6 → 14, faction reactions, List Warden, Paradox 6–10, Endless Signal (Claude Opus 5.5)
+
+- **Districts (C+7)**: 8 new districts from 1.0 side arcs (`d1_spider_debt`, `d1_list_shelter`, `d2_runner_shortcut`, `d2_broker_request`, `d3_vault_beyond`, `d3_old_wound`, `d4_dream_stacks`, `d4_return_desk`), 24 NPCs with factions + server AI personas (`src/mythos_v2/npcs/`), 8 quests — written by two parallel Codex jobs (`outputs/briefs/districts_*.md`), registered and passing `crpg.test.ts` (reachability, budgets, quests, personas). Art: 8 district scenes + 24 portraits (Codex, 34 calls).
+- **C+8**: combat mods `surprise` (enemies start Shocked) and `backup` (allies Guard 2); reputation reacts — off-grid +3 → backup at bosses, grid +3 → surprise at elites.
+- **Act 3 third boss** "명단 관리관 / THE LIST WARDEN" (`a3_boss_warden`, protect-the-hostage bonus, 1.0 "버려진 자들의 신호"), tuned by damage not HP: loss 15.2 % at 9.7 turns (IX 28 %, Omega 36 %); key art + sprites + hostage sprite (Codex).
+- **Paradox 6–10** (`MAX_PARADOX` 10): rage +1, shop +20 %, boss HP +20 %, trace +10 per act, enemy dmg +1; setup row wraps on phones.
+- **Endless Signal** (`run.mode 'endless'`, `run.lap`): after the last act → Act 1 one echo layer deeper (+60 % HP, +3 dmg, Rage earlier/stronger per lap), death only; `profile.endlessBest`; top bar shows the layer. Mixed bot falls in lap 0, greedy at 13–18 layers.
+- **Fixes**: `migrateProfile` no longer clamps `bestAct` to 3 (Deep Signal records); content test accepts 2.0 neutral sprites.
+- **Verified**: `make check` (383 + 338), `make playthrough-quick` OK, sandbox screenshot of the List Warden fight; standard P0 mixed 3 × 150 36.7/32.7/40.0 %. **Unverified**: real-UI Endless lap transition (engine-tested).
+
 ## 2026-10-26 — DLC update R3+R4: Deep Signal mode + Pack 1 "The Glass Librarian" (Act 4) (Claude Opus 5.5)
 
 - **R3 foundation**: `ActId = number` (no `1 | 2 | 3`), `lastAct` (3 standard / every content act on Deep Signal), `deepSignalOpen` (after a win), `run.mode = 'deep'`, setup "깊이" toggle, reward/chronicle/music read the act count; `content/index.ts` merges packs into the exported arrays so every integrity/art test covers them.

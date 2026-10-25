@@ -1,12 +1,19 @@
 # Completed Summary
 
-최종 갱신: 2026-10-11
+최종 갱신: 2026-10-25
 
 완료된 milestone의 압축 요약. 최신 짧은 로그는 `PROGRESS_LOG.md`에 있다.
 
 ## M0–M90 — Mythos 1.x (2026-05 … 2026-09) — archived
 
 The AI-narrated loop TRPG: Python runtime (loop engine, Narrative Director on Ollama/Gemini, PostgreSQL memory, FLUX/Imagen visuals), React SPA + Streamlit + CLI, tactical combat, CBT on Cloud Run (`00090`), the overnight agent harness and Dev Graph experiments. Full milestone table, verification records and plans are on branch **`1.0`** (`docs/COMPLETED_SUMMARY.md` there).
+
+## M96 — 5-Stat Combat, 3-DoT, Content/Volume Expansion, BGM Overhaul & Global Showcase Kit (2026-10-14..25)
+
+- **Purpose**: owner — expand tactical depth (`STR/AGI/INT/CHA/OBS` in combat, `evade`/`focus` crit, `burn`/`bleed`/`corrode`), physical run volume (stages, enemies, bosses, encounters, cards, events), replace default BGM with modern dark cyberpunk synthwave & electronic, and complete the Global Showcase 2026 kit (`W0–W3`).
+- **Output**: 5-stat combat hooks + 3-DoT engine (`combat.ts`/`effects.ts`/`stats.ts`), 41 enemies (10 bosses across 3 acts), 54 encounters, 8+1 floors/act (27 floors/run), 104 cards, 79 narrative events, 48 implants, 12 mutators, World Echoes (`worldEchoFor`), 10 new dark synthwave `.m4a` loops (`gen_music.py`), Signal+ CRPG layer (6 districts, d20 dialogue, camp nights), named RNG streams (`streams.ts`), replay-verified daily board (`replay_verify.mjs`), Architect HUD (`?hud=1`), 82 s English showcase video + Devpost/CFP/README kit, live on Cloud Run `00148-nav` (`34a6c75`).
+- **Evidence**: `make check` (`node --test` 363/363, Python unittest 338/338), `make test-e2e-v2`, `make playthrough-quick`, `make gm-eval` (Ollama 100 % usable, Vertex 13/13 verified), `verify_preview.py` 5/5 + live URL 4/4.
+- **Open (owner)**: feel check (`docs/test/mythos2_fun_check.md`), public-repo shape decision, contest submission when announced.
 
 ## M95 — Google sign-in, daily-seed leaderboard, Android daily push (2026-10-11)
 

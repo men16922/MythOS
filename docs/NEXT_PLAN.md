@@ -8,10 +8,10 @@ Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (pau
 
 Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank = 7 axes; agent roles §5).
 
-- `[x]` Review + refactor + rebalance + unique art (2026-10-25): `engine/statPerks.ts` single source (engine + HUD), mutator combat rules as data (`MutatorDef.combat`, text = code), `WORLD_ECHOES` table, `CONTENT.tuning`; map 8 → 7 rows; P0 mixed ~75 → ~45 %; bleed = movement-only; 68 Codex images replace every reused asset. `[ ]` `[owner]` deploy (production still ~75 % build).
-- `[ ]` `[auto:claude]` **S1 Data Smuggler kit** — hack success pays off (block/energy), 1–2 credit→power cards (text via Astra). Done: archetype gap ≤ 10 pts on 3 × 120 mixed.
-- `[ ]` `[auto:claude]` **S2 Elite threat** — one sharper gimmick per elite, no HP padding. Done: elite loss 6–12 %, ≤ 8 turns.
-- `[ ]` `[auto:claude]` **S3 Paradox ladder** — target table P0 45 → P5 ~12 with even steps (P3 ≈ P5 today).
+- `[x]` Review + refactor + rebalance + unique art (2026-10-25): `engine/statPerks.ts` single source (engine + HUD), mutator combat rules as data (`MutatorDef.combat`, text = code), `WORLD_ECHOES` table, `CONTENT.tuning`; map 8 → 7 rows; P0 mixed ~75 → ~46 % (Paradox 1/3/5 31/27/16 %); bleed = movement-only; smuggler block 2/turn; 68 Codex images replace every reused asset. `[ ]` `[owner]` deploy (production still ~75 % build).
+- `[ ]` `[auto:claude]` **S1 Data Smuggler kit** — gap 37 → 17 pts so far (block 2/turn); hack success payoff + 1–2 credit→power cards (text via Astra). Done: gap ≤ 10 pts on 3 × 150 mixed.
+- `[ ]` `[auto:claude]` **S2 Elite threat** — one sharper gimmick per elite (flat elite dmg +1/+2 did not move loss ~3 %). Done: elite loss 6–12 %, ≤ 8 turns.
+- `[ ]` `[auto:claude]` **S3 Paradox ladder + boss length** — now 46/31/27/16 % (P0/1/3/5); measure P2/P4, move boss toughness from HP to damage. Done: even steps, boss ≤ 9 turns.
 - `[ ]` **S4 greedy ≤ 97 %** — more hazard/void angles in Act 2–3 encounters (Argon drafts, Claude measures).
 - `[ ]` **S5 new-art UI check** — sandbox/event/boss intro screenshots incl. phone widths; regenerate weak cuts (Argon QA, Astra images).
 

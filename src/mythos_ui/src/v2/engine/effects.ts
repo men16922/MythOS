@@ -69,6 +69,8 @@ export interface CombatScaling {
   elitePct: number
   /** Flat +damage on every enemy move (Hunted tier, Paradox 4). */
   dmg: number
+  /** Extra flat +damage on elite moves (CONTENT.tuning). */
+  eliteDmg?: number
 }
 export type CombatStateExt = CombatState & {
   scaling?: CombatScaling
@@ -233,7 +235,8 @@ export function spawnEnemy(c: CombatState, C: ContentRegistry, enemyId: string, 
     phase: 0,
   }
   if (def.flying) u.flying = true
-  const bonus = (c as CombatStateExt).scaling?.dmg ?? 0
+  const s = (c as CombatStateExt).scaling
+  const bonus = (s?.dmg ?? 0) + (def.tier === 'elite' ? (s?.eliteDmg ?? 0) : 0)
   if (bonus) u.dmgBonus = bonus
   c.units.push(u)
   return u

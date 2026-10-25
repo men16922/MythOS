@@ -151,6 +151,7 @@ function scalingFor(run: RunState, C: ContentRegistry): CombatScaling {
     hpPct: (tune?.enemyHpPct ?? 0) + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
     elitePct: (tune?.eliteHpPct ?? 0) + (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
     dmg: (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0),
+    ...(tune?.eliteDmg ? { eliteDmg: tune.eliteDmg } : {}),
   }
 }
 

@@ -1109,4 +1109,6 @@ export interface EnemyTuning {
   eliteHpPct: number
   /** From this act on, every enemy move deals +1 (shown in its telegraph). */
   dmgFromAct: number
+  /** Extra damage on every elite move (shown in its telegraph). */
+  eliteDmg?: number
 }

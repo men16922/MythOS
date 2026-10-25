@@ -29,11 +29,15 @@ const STARTER: ImplantDef[] = [
   {
     id: 'overclocked_deck',
     name: t('오버클럭 덱', 'Overclocked Deck'),
-    text: t('전투 첫 턴 에너지 +1. 크레딧 획득 +25%.', 'First turn of each combat: +1 energy. Credits gained +25%.'),
+    text: t('매 턴 시작 시 방어막 2. 전투 첫 턴 에너지 +1. 크레딧 획득 +25%.', 'Each turn: gain 2 block. First turn of each combat: +1 energy. Credits gained +25%.'),
     rarity: 'starter',
     icon: 'v2/implants/overclocked_deck.webp',
     passive: { creditMult: 0.25 },
-    triggers: [{ on: 'turn_start', effects: [{ kind: 'energy', amount: 1 }], limit: 'combat' }],
+    triggers: [
+      { on: 'turn_start', effects: [{ kind: 'energy', amount: 1 }], limit: 'combat' },
+      // Balance 2026-10-25: the smuggler had no sustained defence (~30 % vs ghost ~53 %); +2 block a turn → ~46 %.
+      { on: 'turn_start', effects: [{ kind: 'block', amount: 2, to: 'connector' }] },
+    ],
   },
   {
     id: 'cracked_cube',

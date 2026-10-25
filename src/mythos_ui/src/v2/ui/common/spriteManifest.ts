@@ -190,6 +190,81 @@ export const V2_SPRITES: Record<string, Partial<Record<V2SpritePose, string>>> =
     attack: 'v2/sprites/eclipse-valkyrie-attack.webp',
     hit: 'v2/sprites/eclipse-valkyrie-hit.webp',
   },
+  'lost-reader': {
+    idle: 'v2/sprites/lost-reader-idle.webp',
+    attack: 'v2/sprites/lost-reader-attack.webp',
+    hit: 'v2/sprites/lost-reader-hit.webp',
+  },
+  'index-drone': {
+    idle: 'v2/sprites/index-drone-idle.webp',
+    attack: 'v2/sprites/index-drone-attack.webp',
+    hit: 'v2/sprites/index-drone-hit.webp',
+  },
+  'binding-enforcer': {
+    idle: 'v2/sprites/binding-enforcer-idle.webp',
+    attack: 'v2/sprites/binding-enforcer-attack.webp',
+    hit: 'v2/sprites/binding-enforcer-hit.webp',
+  },
+  'silent-librarian': {
+    idle: 'v2/sprites/silent-librarian-idle.webp',
+    attack: 'v2/sprites/silent-librarian-attack.webp',
+    hit: 'v2/sprites/silent-librarian-hit.webp',
+  },
+  'page-wolf': {
+    idle: 'v2/sprites/page-wolf-idle.webp',
+    attack: 'v2/sprites/page-wolf-attack.webp',
+    hit: 'v2/sprites/page-wolf-hit.webp',
+  },
+  'footnote-turret': {
+    idle: 'v2/sprites/footnote-turret-idle.webp',
+    attack: 'v2/sprites/footnote-turret-attack.webp',
+    hit: 'v2/sprites/footnote-turret-hit.webp',
+  },
+  'return-collector': {
+    idle: 'v2/sprites/return-collector-idle.webp',
+    attack: 'v2/sprites/return-collector-attack.webp',
+    hit: 'v2/sprites/return-collector-hit.webp',
+  },
+  'ink-wraith': {
+    idle: 'v2/sprites/ink-wraith-idle.webp',
+    attack: 'v2/sprites/ink-wraith-attack.webp',
+    hit: 'v2/sprites/ink-wraith-hit.webp',
+  },
+  'binding-giant': {
+    idle: 'v2/sprites/binding-giant-idle.webp',
+    attack: 'v2/sprites/binding-giant-attack.webp',
+    hit: 'v2/sprites/binding-giant-hit.webp',
+  },
+  'chief-censor': {
+    idle: 'v2/sprites/chief-censor-idle.webp',
+    attack: 'v2/sprites/chief-censor-attack.webp',
+    hit: 'v2/sprites/chief-censor-hit.webp',
+  },
+  'sentence-cutter': {
+    idle: 'v2/sprites/sentence-cutter-idle.webp',
+    attack: 'v2/sprites/sentence-cutter-attack.webp',
+    hit: 'v2/sprites/sentence-cutter-hit.webp',
+  },
+  'void-librarian': {
+    idle: 'v2/sprites/void-librarian-idle.webp',
+    attack: 'v2/sprites/void-librarian-attack.webp',
+    hit: 'v2/sprites/void-librarian-hit.webp',
+  },
+  io: {
+    idle: 'v2/sprites/io-idle.webp',
+    attack: 'v2/sprites/io-attack.webp',
+    hit: 'v2/sprites/io-hit.webp',
+  },
+  blank: {
+    idle: 'v2/sprites/blank-idle.webp',
+    attack: 'v2/sprites/blank-attack.webp',
+    hit: 'v2/sprites/blank-hit.webp',
+  },
+  'first-reader': {
+    idle: 'v2/sprites/first-reader-idle.webp',
+    attack: 'v2/sprites/first-reader-attack.webp',
+    hit: 'v2/sprites/first-reader-hit.webp',
+  },
   'se-rin': {
     idle: 'v2/sprites/se-rin-idle.webp',
     attack: 'v2/sprites/se-rin-attack.webp',
@@ -263,6 +338,21 @@ export const V2_SPRITE_FOR_ENEMY: Record<string, string> = {
   phantom_assassin: 'phantom-assassin',
   bio_purger: 'bio-purger',
   eclipse_valkyrie: 'eclipse-valkyrie',
+  lost_reader: 'lost-reader',
+  index_drone: 'index-drone',
+  binding_enforcer: 'binding-enforcer',
+  silent_librarian: 'silent-librarian',
+  page_wolf: 'page-wolf',
+  footnote_turret: 'footnote-turret',
+  return_collector: 'return-collector',
+  ink_wraith: 'ink-wraith',
+  binding_giant: 'binding-giant',
+  chief_censor: 'chief-censor',
+  sentence_cutter: 'sentence-cutter',
+  void_librarian: 'void-librarian',
+  io_librarian: 'io',
+  blank_binder: 'blank',
+  first_reader: 'first-reader',
 }
 
 /** ArchetypeDef id -> V2_SPRITES key. */

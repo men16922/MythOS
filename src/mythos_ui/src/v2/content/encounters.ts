@@ -692,4 +692,4 @@ export function encountersFor(act: ActId, kind: EncounterDef['kind'], includeEve
 }
 
 /** Fights that only start from an event outcome (never rolled onto the map). */
-export const EVENT_FIGHTS: ReadonlySet<string> = new Set(['a1_event_ambush', 'a2_event_ambush', 'a3_event_ambush'])
+export const EVENT_FIGHTS: ReadonlySet<string> = new Set(['a1_event_ambush', 'a2_event_ambush', 'a3_event_ambush', 'a4_event_ambush'])

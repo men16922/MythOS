@@ -51,6 +51,7 @@ export const BACKDROPS: Record<string, string> = {
   undercity: asset('combat/backdrops/undercity.png'),
   industrial: asset('combat/backdrops/industrial.png'),
   spire: asset('combat/backdrops/spire.png'),
+  library: asset('combat/backdrops/library.png'),
 }
 
 export const STATUS_ICON: Record<string, string> = {
@@ -65,4 +66,5 @@ export const STATUS_ICON: Record<string, string> = {
   evade: asset('status/evade.png'),
   focus: asset('status/focus.png'),
   rage: asset('status/rage.png'),
+  redact: asset('status/redact.png'),
 }

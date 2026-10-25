@@ -15,6 +15,7 @@ export const STATUS_NAME: Record<StatusKind, Text> = {
   evade: L('회피', 'Evade'),
   focus: L('집중', 'Focus'),
   rage: L('분노', 'Rage'),
+  redact: L('검열', 'Redacted'),
 }
 
 export const STATUS_TEXT: Record<StatusKind, Text> = {
@@ -27,6 +28,7 @@ export const STATUS_TEXT: Record<StatusKind, Text> = {
   guard: L('매 턴 시작 시 수치만큼 방어막을 얻는다.', 'Gains N block at the start of each turn.'),
   thorns: L('근접·돌진으로 공격한 상대는 수치만큼 피해를 받는다.', 'Melee/charge attackers take N damage.'),
   evade: L('직격 공격을 받을 때 피해량을 절반으로 줄이고(스침) 1 줄어든다.', 'Halves incoming direct attack damage (grazed), then N − 1.'),
+  redact: L('이 유닛이 다음에 쓰는 카드의 비용 +1 (쓰면 1 줄어든다).', 'The next card this unit plays costs +1 (then N − 1).'),
   rage: L('모든 공격 피해 +N. 엘리트·보스는 전투가 길어지면 매 턴 쌓인다.', 'Every attack deals +N. Elites and bosses build it each turn once a fight drags on.'),
   focus: L('4 이상 모이면 다음 직접 공격이 치명타(피해 1.5배 + 장갑 무시)로 적중하고 4 소모된다.', 'At 4+, the next direct attack critically hits (1.5× damage, ignores armor) and consumes 4.'),
 }

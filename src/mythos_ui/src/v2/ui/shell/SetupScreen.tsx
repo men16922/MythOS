@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
 import { AUTONOMY_STEPS, autonomyLevel, echoOffers, nextAutonomyStep, worldEchoFor } from '../../engine/legacy.ts'
 import { MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
+import { deepSignalOpen, lastAct } from '../../engine/run.ts'
 import { mutatorForDate, mutatorOffersForSeed } from '../../engine/mutators.ts'
 import { MutatorCard } from '../components/MutatorCard.tsx'
 import type { ContentRegistry, MetaProfile, StatKey, Lang } from '../../engine/types.ts'
@@ -34,6 +35,7 @@ export interface SetupScreenProps {
     crpg?: { background: string | null; trial?: boolean }
     echo?: string
     mutator?: string
+    mode?: 'deep'
   }) => void
   onBack: () => void
   /** KST date key: set up today's daily-seed run instead of a normal loop. */
@@ -80,6 +82,8 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
   const worldEcho = useMemo(() => (daily ? undefined : worldEchoFor(profile)), [daily, profile])
   const mutatorOffers = useMemo(() => (daily || firstLoop ? [] : mutatorOffersForSeed(profile.loops + 1, 2)), [daily, firstLoop, profile.loops])
   const [mutatorId, setMutatorId] = useState<string | null>(null)
+  const deepOpen = !daily && deepSignalOpen(profile, C)
+  const [deep, setDeep] = useState(false)
   const autonomy = autonomyLevel(profile)
   // Signal+ with AI on: the GM says which moment of the last loop the chosen echo remembers (once per echo).
   const [echoLines, setEchoLines] = useState<Record<string, string>>({})
@@ -360,6 +364,46 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
               </p>
             </section>
           )}
+          {deepOpen && (
+            <section className="m2-setup__bg-pick">
+              <div className="m2-setup__label">{ko ? '깊이' : 'Depth'}</div>
+              <div className="m2-bgs" role="radiogroup">
+                <button
+                  role="radio"
+                  aria-checked={!deep}
+                  className={!deep ? 'is-on' : ''}
+                  onClick={() => {
+                    sound('ui_click')
+                    setDeep(false)
+                  }}
+                >
+                  <b>{ko ? '표준 접속' : 'Standard'}</b>
+                  <small>{ko ? '3막 · 약 30~40분' : '3 acts · ~30–40 min'}</small>
+                </button>
+                <button
+                  role="radio"
+                  aria-checked={deep}
+                  className={deep ? 'is-on' : ''}
+                  onClick={() => {
+                    sound('ui_click')
+                    setDeep(true)
+                  }}
+                >
+                  <b>{ko ? '딥 시그널' : 'Deep Signal'}</b>
+                  <small>{ko ? `${lastAct({ mode: 'deep' }, C)}막 · 막마다 저장 · 에코 보상 증가` : `${lastAct({ mode: 'deep' }, C)} acts · saved each act · more Echoes`}</small>
+                </button>
+              </div>
+              <p className="m2-bgs__text">
+                {deep
+                  ? ko
+                    ? 'IX를 쓰러뜨려도 신호는 끊기지 않는다. 4막 유리성의 사서까지 내려간다. 언제든 중단하고 이어할 수 있다.'
+                    : 'Defeating IX does not end the signal. Go on into Act 4, the Glass Librarian. Stop and resume any time.'
+                  : ko
+                    ? '익숙한 3막 접속.'
+                    : 'The familiar three-act run.'}
+              </p>
+            </section>
+          )}
           {mutatorOffers.length > 0 && (
             <section className="m2-setup__bg-pick">
               <div className="m2-setup__label">{ko ? '도시 이상 현상 — 선택 변칙' : 'City Anomaly — optional mutator'}</div>
@@ -445,6 +489,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                     ...(crpg ? { crpg: { background: bgId } } : C.crpg ? { crpg: { background: null, trial: true } } : {}),
                     ...(echoId ? { echo: echoId } : {}),
                     ...(mutatorId ? { mutator: mutatorId } : {}),
+                    ...(deep && deepOpen ? { mode: 'deep' as const } : {}),
                   },
             )
           }}

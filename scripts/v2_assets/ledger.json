@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 75,
+ "codex_image_calls": 103,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -987,6 +987,16 @@
    "refs": [],
    "seed": 1729991014,
    "ts": "2026-10-11T00:25:03"
+  },
+  "combat/backdrops/library.png": {
+   "generations": 1,
+   "model": "codex-image",
+   "note": "generated as webp, converted to PNG",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). A combat BACKDROP for a tactics game, matching the composition of the reference image exactly: the top ~40% is a distant, misty silhouette skyline — here an endless crystal library: towering glass bookshelves and tall glass stacks receding into white haze, soft cold white light and faint ice-blue glints, a few drifting pages; the lower ~60% is a broad, plain, dark reading-room floor (dark polished glass/stone with faint reflections and soft mist) with NO objects, NO furniture, NO characters, kept low-contrast and darkish so a 7x5 tactical grid can be drawn on top. Overall darker and muted like the reference, but cooler and whiter in the distance. Painterly, atmospheric. 16:10 landscape. Absolutely NO text, letters, numbers, readable writing, book titles, logos, signatures, watermark, UI or frame anywhere; any pages or book spines are blank or carry only faint illegible abstract scribble marks.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/combat/backdrops/spire.png"
+   ],
+   "ts": "2026-10-26T03:14:34"
   },
   "consumables/cryo_grenade.webp": {
    "generations": 1,
@@ -2317,6 +2327,15 @@
    ],
    "ts": "2026-10-25T18:23:40"
   },
+  "status/redact.png": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). A minimal game status-effect icon: a page with three lines of text where the middle line is covered by a thick censor bar. Drawn as thin, clean WHITE outline strokes only (no fill, no color, no shading, no text), centered with generous margin, on a perfectly flat solid pure green (#00FF00) background. Match the line style of the reference icon (a white outline flame).",
+   "refs": [
+    "resources/neo-seoul/status/burn.png"
+   ],
+   "ts": "2026-10-26T03:13:35"
+  },
   "trailer/stills/blackout.png": {
    "art": "art/act1.webp",
    "generations": 2,
@@ -2501,6 +2520,24 @@
    "seconds": 8,
    "ts": "2026-10-13T03:12:27"
   },
+  "v2/arena/library.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Isometric 3/4 top-down view of a tactical battle arena inside an endless crystalline glass library, matching the reference arena's camera angle and composition exactly: a large empty rectangular reading-room floor of pale polished glass tiles in the centre (clear and uncluttered, it will hold a 7x5 game board), faint thin pale-teal grid seams on the floor, surrounded on all sides by tall glass bookshelves filled with glowing memory books, reading lamps, card-catalogue cabinets and drifting loose pages, white light falling from above, ink-black shadows, faint amber and teal accents. Painterly digital art, moody, no characters, no text, no letters, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/arena/spire.webp"
+   ],
+   "ts": "2026-10-26T03:30:11"
+  },
+  "v2/art/act4.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Act title art 'The Glass Librarian': an endless library of crystal glass bookshelves stretching into infinity in every direction under blinding soft white light. The books on the shelves are glowing memory volumes — faintly luminous glass-bound tomes holding tiny flickering scenes of lives and cities inside them; some shelves are broken, shards and loose pages floating in the air. In the centre a long glass staircase climbs up and on past a brilliant whiteout where everything dissolves into white. A tiny lone figure in a dark coat (the Connector) stands at the foot of the stair, seen from behind, for scale. Reflective glass floor, motes of light, drifting pages. Compose like the reference: deep central perspective, symmetrical grandeur. 16:9 landscape. Painterly cinematic digital concept art in the same rendering style as the reference image (rich painterly detail, dramatic volumetric light, the game's Neo-Seoul cyberpunk painting style), here meeting a crystalline Y2K-fantasy palette: pale glass, cold white light, ice-blue and pearl highlights, deep ink-black, touches of antique brass and faint cyan/magenta circuit glints. Mood: quiet wonder and archival horror. Absolutely NO text, letters, numbers, readable writing, book titles, logos, signatures, watermark, UI or frame anywhere; any pages or book spines are blank or carry only faint illegible abstract scribble marks.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/art/act3.webp"
+   ],
+   "ts": "2026-10-26T03:14:53"
+  },
   "v2/boss/a1_boss_baekho.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -2545,6 +2582,33 @@
     "resources/neo-seoul/v2/boss/a2_boss_hyeonmu.webp"
    ],
    "ts": "2026-10-26T02:43:30"
+  },
+  "v2/boss/a4_boss_blank.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Boss key art for 'THE BLANK', a towering bookbinding construct: a colossal faceless golem built from thousands of stacked BLANK white pages bound together by huge antique brass clamps, screw presses, bookbinding rivets, and taut black binding wire, a giant book-spine for a backbone, two massive brass press-plate hands. It has no face — only a smooth empty page where a face should be, a pale void. Enormous unwritten white pages unfold from its body like wings and sheets, spreading across the floor and shelves, covering and erasing everything they touch into whiteness. Setting: a cavernous crystal library hall; the far shelves are being swallowed by blank white paper. Low dramatic angle, the construct looming huge, centred-right. 16:9 landscape. Painterly cinematic digital concept art in the same rendering style as the reference image (rich painterly detail, dramatic volumetric light, the game's Neo-Seoul cyberpunk painting style), here meeting a crystalline Y2K-fantasy palette: pale glass, cold white light, ice-blue and pearl highlights, deep ink-black, touches of antique brass and faint cyan/magenta circuit glints. Mood: quiet wonder and archival horror. Absolutely NO text, letters, numbers, readable writing, book titles, logos, signatures, watermark, UI or frame anywhere; any pages or book spines are blank or carry only faint illegible abstract scribble marks.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/boss/a2_boss_hyeonmu.webp"
+   ],
+   "ts": "2026-10-26T03:14:37"
+  },
+  "v2/boss/a4_boss_io.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Boss key art for 'IO', the librarian AI of an endless crystal memory-archive library. IO is a tall, slender, elegant humanoid android librarian made of clear and frosted glass and white porcelain, posed with polite composure — hands folded, head slightly inclined, like a courteous but unyielding gatekeeper. Its glass joints (neck, shoulders, elbows, fingers) are visibly cracked with fine fracture lines leaking soft white light. Its eyes are pools of dark liquid ink, a thin trickle of ink like a tear. A long high-collared archivist's coat of layered translucent glass panels flows like turning pages; loose pages swirl around it in a slow spiral as if a voice were turning them. Behind it, a towering sealed vault door of glass shelves with a closed-stacks barrier of faint light. Setting: a vast reading hall of glass bookshelves under hard white light, polished floor reflecting it. Low hero angle, IO centred-right, large in frame. 16:9 landscape. Painterly cinematic digital concept art in the same rendering style as the reference image (rich painterly detail, dramatic volumetric light, the game's Neo-Seoul cyberpunk painting style), here meeting a crystalline Y2K-fantasy palette: pale glass, cold white light, ice-blue and pearl highlights, deep ink-black, touches of antique brass and faint cyan/magenta circuit glints. Mood: quiet wonder and archival horror. Absolutely NO text, letters, numbers, readable writing, book titles, logos, signatures, watermark, UI or frame anywhere; any pages or book spines are blank or carry only faint illegible abstract scribble marks.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/boss/a2_boss_hyeonmu.webp"
+   ],
+   "ts": "2026-10-26T03:14:49"
+  },
+  "v2/boss/a4_boss_reader.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Boss key art for 'THE FIRST READER': a tall hooded human figure whose whole body and long hooded cloak are made of flowing dark-ink handwriting strokes, crossed-out lines and margin scribbles (abstract illegible calligraphic marks, NOT readable letters), as if a person were drawn entirely out of someone's marginalia. Under the hood, a dim face with a black face mask echoing a young cyberpunk hacker (the Connector) — a mirror of him, an echo of the very first connector. Two faint glowing white eyes. Torn pages and ink droplets drift from the hem of the cloak. It stands on a glass floor facing a cracked mirror-like glass pane in which its reflection is a living young man in a dark jacket — mirror symmetry. Setting: an ancient innermost reading room of a crystal library, a single shaft of white light. Melancholic, uncanny, quiet. Low angle, figure centred-right. 16:9 landscape. Painterly cinematic digital concept art in the same rendering style as the reference image (rich painterly detail, dramatic volumetric light, the game's Neo-Seoul cyberpunk painting style), here meeting a crystalline Y2K-fantasy palette: pale glass, cold white light, ice-blue and pearl highlights, deep ink-black, touches of antique brass and faint cyan/magenta circuit glints. Mood: quiet wonder and archival horror. Absolutely NO text, letters, numbers, readable writing, book titles, logos, signatures, watermark, UI or frame anywhere; any pages or book spines are blank or carry only faint illegible abstract scribble marks.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/boss/a2_boss_hyeonmu.webp"
+   ],
+   "ts": "2026-10-26T03:14:58"
   },
   "v2/cards/artery_rip.webp": {
    "generations": 1,
@@ -2762,6 +2826,186 @@
    ],
    "ts": "2026-10-25T17:39:00"
   },
+  "v2/events/a4_bindery_offcut.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Margin Under the Press. In a corner of the censors’ bindery, a huge press bears down on a white book. Severed margins show hand movements from deleted tactics. A censor adds another weight to erase even those gestures. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:22:22"
+  },
+  "v2/events/a4_blank_impression.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: Where the Blank Passed. A long white impression cuts across shelves and floor. THE BLANK has passed here, pressing even the book titles flat. At its edge, a thin membrane bulges like a palm around a tactic caught just before erasure. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:22:57"
+  },
+  "v2/events/a4_catalog_shards.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: Scattered Shelf Marks. Glass index cards hang from the ceiling of the broken catalogue. Io holds up an empty drawer. “The records remain. Only their addresses have broken.” One card is cracked along the same lines as your palm. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:21:37"
+  },
+  "v2/events/a4_censor_name_ribbons.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: Scissors for Names. A censor in a white apron cuts long ribbons of names with scissors. The severed letters gather into the shapes of mouths in a bin below. At the table’s edge hangs the first letter of your name, still uncut. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:21:31"
+  },
+  "v2/events/a4_first_reader_errata.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The First Reader’s Errata. On a table outside the first record vault lies a sheet covered in red corrections. It is signed “The First Reader.” Beneath “Use the left hand first,” a note marks the error in a movement you have not made yet. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:22:28"
+  },
+  "v2/events/a4_io_mending_tray.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Librarian’s Mending Tray. Io arranges needles and sealed preservation supplies on a silver tray. Old readers’ bandages hang between glass fingers. “Books and readers both need mending. A treatment record will be kept, however.” No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:22:27"
+  },
+  "v2/events/a4_io_silent_petition.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Silent Petition. Beyond the reading room’s glass partition, Io’s lips move without sound. The form below the window has a palm-shaped hollow instead of a space for questions. “Would you show me your reason for reading?” appears on the glass. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:21:31"
+  },
+  "v2/events/a4_io_vault_lamp.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Lamp Before the Vault. Before the closed first record vault, Io polishes a small lamp. In its light, the shadow of your hand moves a beat ahead. “That record exists. Its existence does not, however, make it available to read.” Io offers the lamp instead of opening the door. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:23:50"
+  },
+  "v2/events/a4_loop_barricade.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Door That Held. A miniature iron door is wedged into a book wrapped in red cloth. It is a defence journal from a past loop. The last page bears the hands of the reader who braced the door; reading those impressions loads weight onto your arms. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:21:25"
+  },
+  "v2/events/a4_loop_flood_manual.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: Manual from a Drowned Loop. A palm-sized subway floods above an open maintenance manual. Along the page edge, someone in a failed loop has written the shutdown sequence. Reading the first line brings the sensation of cold water filling your lungs. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:21:33"
+  },
+  "v2/events/a4_loop_rooftop_atlas.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: Atlas Before the Fall. Rain-soaked rooftops rise like steps from a black atlas. A dotted line traces an escape through a failed loop. As you read, the old height opens beneath your toes; the final rooftop has no landing marks. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:22:19"
+  },
+  "v2/events/a4_loop_supper.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: Supper Still Warm. A supper table for two floats above a worn cookbook, one chair empty. It is the evening just before a discarded loop ended. One line of the recipe brings the smell of sesame oil and a spoon’s clink from the empty chair. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:23:16"
+  },
+  "v2/events/a4_miro_high_shelf.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Smallest Reader’s Book. Below a leaning ladder, a child with a face of overlapping return cards looks up at the highest shelf. Miro takes the edge of your sleeve. “I borrowed that book. When I was taller.” Tiny footprints spill down its spine. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:21:34"
+  },
+  "v2/events/a4_miro_pocket_sun.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: Miro’s Pocket Sun. A button-sized sun shines inside Miro’s transparent pocket. The child pauses before the dark children’s shelves, then steps in ahead of you. “I know how to turn this one on.” The return-card face turns gold. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:23:14"
+  },
+  "v2/events/a4_miro_return_faces.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: Return Slips on a Face. At a low mirror, Miro lifts a return slip from their face. There is another beneath it. “Can I take off the ones that aren’t mine?” The slip the child offers shows a movement you have wanted to leave behind. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:22:25"
+  },
+  "v2/events/a4_overdue_voice.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Unreturned Voice. At the end of the unreturned corridor, a red telephone hangs with its receiver dangling. “I’ll be home soon” repeats from the earpiece. The return slip’s date has been rewritten hundreds of times, but the call’s end time is blank. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:22:17"
+  },
+  "v2/events/a4_red_thread_bookmark.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Red Thread Bookmark. A red thread runs between closed books and knots at wrist height. Each knot holds a scene of the same reader moving in a different sequence. The loose end pulls toward the shortest movement when you take hold of it. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:23:13"
+  },
+  "v2/events/a4_star_moths.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: Star Moths in the Stacks. Beneath the glass dome, white moths circle with luminous punctuation on their wings. They are stars escaped from a discarded world’s night-sky chart. One lands on your knee, and tiny moons light up along the shelves. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:23:03"
+  },
+  "v2/events/a4_unmade_door.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Undrawn Exit. A lone doorknob sits on the wall of the unreturned corridor. Erased pencil marks show where its frame should be. When you take hold, a familiar movement tries to pass through before your body does. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:23:41"
+  },
+  "v2/events/a4_unwritten_aquarium.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape, painterly digital art. Setting: the Glass Library — an endless crystalline memory archive of glass shelves under white light where books are made of memory; quiet wonder and archival unease, accents of ink black, pale glass, faint teal and amber. Scene: The Unwritten Sea. Blue fish swim inside an empty glass book. This sea has not yet been written into any world. A shell-shaped storage box rests in the stone beneath the book, and the fish do not scatter as you approach. No text, no letters, no writing on pages, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
+   ],
+   "ts": "2026-10-26T03:23:00"
+  },
   "v2/implants/acid_injector.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -2797,6 +3041,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
    ],
    "ts": "2026-10-25T17:37:35"
+  },
+  "v2/map/act4.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). A route-map BACKGROUND for a game, portrait 9:16: a dark top-down architectural floor plan of an endless library — long parallel aisles of bookshelves, rectangular reading rooms, a few circular rotunda reading halls, connecting corridors and stairwells, drawn as faint thin glowing pale ice-blue and white lines on a very dark ink-blue/near-black ground, like a blueprint traced in light, with a subtle glassy sheen and a faint white glow at the very top edge. Like the reference: very dark overall, low contrast, quiet. Keep the MIDDLE area especially low-detail and empty-ish so game icons and path lines can be drawn over it; detail is denser only at the edges. No characters. Absolutely NO text, letters, numbers, readable writing, book titles, logos, signatures, watermark, UI or frame anywhere; any pages or book spines are blank or carry only faint illegible abstract scribble marks.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/map/act3.webp"
+   ],
+   "ts": "2026-10-26T03:14:46"
   },
   "v2/npcs/archivist_07.webp": {
    "generations": 1,

@@ -5,11 +5,11 @@ import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import type { EventDef, Outcome, RunEffect } from '../engine/types.ts'
-import { EVENTS } from './events.ts'
+import { EVENTS } from './index.ts'
 import { LORE } from './lore.ts'
 import { ENDINGS } from './endings.ts'
 import { IX_LINES } from './ix.ts'
-import { ACTS } from './acts.ts'
+import { ACTS } from './index.ts'
 import { UNLOCKS } from './unlocks.ts'
 import { PARADOX } from './paradox.ts'
 
@@ -30,7 +30,7 @@ const CONSUMABLES = [
   'restart_core',
   'stealth_cloak',
 ]
-const AMBUSH: Record<number, string> = { 1: 'a1_event_ambush', 2: 'a2_event_ambush', 3: 'a3_event_ambush' }
+const AMBUSH: Record<number, string> = { 1: 'a1_event_ambush', 2: 'a2_event_ambush', 3: 'a3_event_ambush', 4: 'a4_event_ambush' }
 const CARD_PACKS = ['pack_overclock', 'pack_netrunner', 'pack_bastion']
 const IMPLANT_PACKS = ['ipack_black_market', 'ipack_ark_salvage']
 /** Effects that open a picker screen; an outcome may contain at most one, and never alongside combat. */
@@ -406,7 +406,7 @@ test('unlocks: requires resolve, grants are known, threads have passives, costs 
 
 test('variety: every act has a gamble, a companion conflict, an IX contact and an uncanny event', () => {
   const TAGS = ['gamble', 'companion conflict', 'IX contact', 'uncanny']
-  for (const act of [1, 2, 3] as const) {
+  for (const act of [1, 2, 3, 4] as const) {
     for (const tag of TAGS) {
       const hits = EVENTS.filter((e) => !SCRIPTED.has(e.id) && e.acts.includes(act) && e.gmHints?.[0] === tag)
       assert.ok(hits.length >= 1, `act ${act} lacks a '${tag}' event`)

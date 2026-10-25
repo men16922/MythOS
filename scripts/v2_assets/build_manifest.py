@@ -27,6 +27,9 @@ BOSS_ALIASES = {
     "a2_boss_arachne": "arachne_queen",
     "a3_boss_ix": "administrator_ix",
     "a3_boss_architect": "architect_omega",
+    "a4_boss_io": "io_librarian",
+    "a4_boss_blank": "blank_binder",
+    "a4_boss_reader": "first_reader",
 }
 MUSIC_ORDER = [
     "title",

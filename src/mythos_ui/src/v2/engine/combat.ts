@@ -151,10 +151,11 @@ function scalingFor(run: RunState, C: ContentRegistry): CombatScaling {
   const alert = run.trace >= 33
   const mut = mutatorMods(run)
   const tune = C.tuning
+  const actTune = tune?.acts?.[run.act]
   return {
-    hpPct: (tune?.enemyHpPct ?? 0) + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
+    hpPct: (tune?.enemyHpPct ?? 0) + (actTune?.hpPct ?? 0) + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
     elitePct: (tune?.eliteHpPct ?? 0) + (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
-    dmg: (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0),
+    dmg: (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (actTune?.dmg ?? 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0),
     ...(tune?.eliteDmg ? { eliteDmg: tune.eliteDmg } : {}),
     ...(tune?.bossHpPct ? { bossPct: tune.bossHpPct } : {}),
     ...(tune?.rage ? { rageFrom: Math.max(1, tune.rage.fromTurn - (run.paradox >= 5 ? 1 : 0)) } : {}),
@@ -589,6 +590,11 @@ function ownerCheck(c: CombatState, def: CardDef, originUid: string): Text | und
   return undefined
 }
 
+/** Redact (Glass Library censors): a redacted unit's next card costs +1. */
+export function redactTax(c: CombatState, originUid: string): number {
+  return (getUnit(c, originUid)?.statuses.redact ?? 0) > 0 ? 1 : 0
+}
+
 export function canPlay(c: CombatState, C: ContentRegistry, cardUid: string, originUid: string): { ok: boolean; reason?: Text } {
   if (c.phase !== 'player') return { ok: false, reason: REASON.over }
   const card = findCard(c, cardUid)
@@ -598,7 +604,7 @@ export function canPlay(c: CombatState, C: ContentRegistry, cardUid: string, ori
   if (face.cost < 0 || def.type === 'junk') return { ok: false, reason: REASON.junk }
   const bad = ownerCheck(c, def, originUid)
   if (bad) return { ok: false, reason: bad }
-  if (face.cost > c.energy) return { ok: false, reason: REASON.energy }
+  if (face.cost + redactTax(c, originUid) > c.energy) return { ok: false, reason: REASON.energy }
   const origin = getUnit(c, originUid) as UnitState
   if (rawOptions(c, origin, face.target).length === 0) return { ok: false, reason: REASON.noTarget }
   return { ok: true }
@@ -658,7 +664,9 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
   if (!opt) throw new Error(`illegal target for ${def.id}`)
 
   c.undo = null
-  c.energy -= face.cost
+  const tax = redactTax(c, originUid)
+  c.energy -= face.cost + tax
+  if (tax > 0) decayStatus(origin, 'redact')
   c.hand = c.hand.filter((k) => k !== card)
   const res = resolutionFor(origin, face.target, opt)
   faceTarget(origin, res.dir, opt.impact ?? opt.pos)

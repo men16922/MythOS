@@ -76,10 +76,11 @@ export type ActId = number
  * evade   N : when hit by a direct attack, incoming damage is halved (floor(dmg / 2)) and evade decreases by 1.
  * focus   N : party only — at focus >= 4, the next direct attack critically hits (ceil(dmg * 1.5), ignores armor)
  *             and consumes 4 focus.
+ * redact  N : party — the next card this unit plays costs +1 (then N − 1). The Glass Library's censors apply it.
  * rage    N : enemy — every damaging move hits for +N. Elites and bosses gain it at the end of each enemy phase
  *             from a set turn (CONTENT.tuning.rage), so a slow kill gets more dangerous every turn.
  */
-export type StatusKind = 'burn' | 'bleed' | 'corrode' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns' | 'evade' | 'focus' | 'rage'
+export type StatusKind = 'burn' | 'bleed' | 'corrode' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns' | 'evade' | 'focus' | 'rage' | 'redact'
 export type Statuses = Partial<Record<StatusKind, number>>
 
 export interface StatScale {
@@ -300,7 +301,7 @@ export interface EnemyDef {
 
 // ---------------------------------------------------------------- encounters
 
-export type Backdrop = 'streets' | 'undercity' | 'industrial' | 'spire'
+export type Backdrop = 'streets' | 'undercity' | 'industrial' | 'spire' | 'library'
 
 export type BonusObjective =
   | { kind: 'turn_limit'; turns: number } // win within N player turns
@@ -1186,4 +1187,6 @@ export interface EnemyTuning {
   rage?: { elite: number; boss: number; fromTurn: number }
   /** Extra +% max HP for bosses only (on top of eliteHpPct). */
   bossHpPct?: number
+  /** Per-act extras for the Deep Signal acts (4+): every enemy +hpPct % HP and +dmg damage in that act. */
+  acts?: Record<number, { hpPct?: number; dmg?: number }>
 }

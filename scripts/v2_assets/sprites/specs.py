@@ -109,6 +109,17 @@ ARK_NOTE = (
     "ceramic, black joints, red accents), but draw a completely NEW, different unit."
 )
 
+GLASS_NOTE = (
+    "The reference image is an enemy from an earlier act: use it ONLY for the rendering style (painterly "
+    "detail, line quality, rim light) — draw a completely NEW, different design from the act-4 Glass Library "
+    "Censorate: a crystalline memory-archive library whose materials are frosted and clear glass, white "
+    "porcelain, black ink, paper pages and antique brass, lit by cold white light with ice-blue glints."
+)
+GLASS_SPLASH_NOTE = (
+    "The reference image is this boss's splash art. Draw the SAME figure (same design, materials, silhouette "
+    "and colours) as a clean full-body combat sprite, isolated with no background, no floor and no scenery."
+)
+
 SPRITES: list[Sprite] = [
     # ------------------------------------------------------------------ bosses (face LEFT)
     Sprite(
@@ -645,6 +656,248 @@ SPRITES: list[Sprite] = [
             "a compact burst of blue-white light at the lance tip",
         ),
         enemy_ids=("eclipse_valkyrie",),
+    ),
+    # ------------------------------------------------------------------ act 4 "The Glass Librarian" (face LEFT)
+    # Deep Signal pack (content/packs/glass_library). Bosses take identity from their splash art.
+    Sprite(
+        key="lost-reader",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/glitch-reaver-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the LOST READER: a small, gaunt, half-faded ghost of a library reader, translucent like frosted "
+        "glass with faint memory-light flickering inside, hunched and hollow-eyed (two dim white eyes), clutching "
+        "a blank glowing book to its chest with one arm, the other long thin hand reaching out to grasp, its lower "
+        "body trailing off into wisps of loose blank pages — clearly a weak minion",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: lurching forward with the long thin hand outstretched to grab, "
+            "fingers clawing, a faint grey strength-sapping mist curling from the grip",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, its glassy body cracking and "
+            "flickering, loose pages scattering off it",
+        ),
+        enemy_ids=("lost_reader",),
+    ),
+    Sprite(
+        key="index-drone",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/purge-seraph-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the INDEX DRONE: a hovering catalogue drone — a floating frosted-glass card-catalogue drawer "
+        "cabinet with brass handles and corners, a single large ice-blue scanning lens on its front, small brass "
+        "rotor fins on its sides, several blank paper index tags dangling on thin brass threads beneath it, and a "
+        "small brass tagging arm, hovering in the air",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: the lens firing a short thin ice-blue catalogue ray toward the "
+            "left, the tagging arm flicking out a blank paper tag, body tilted forward",
+            hit="now in a HIT-REACTION pose: knocked backward toward the right, glass cracked, a drawer jolted "
+            "open with blank cards spilling out, small sparks",
+        ),
+        enemy_ids=("index_drone",),
+    ),
+    Sprite(
+        key="binding-enforcer",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/enforcer-elite-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the BINDING ENFORCER: a hulking armoured censor soldier in white porcelain plate armour with "
+        "riveted antique-brass trim, a helmet shaped like a closed hardcover book (the spine forms the crest) with "
+        "a narrow white visor slit, black binding wire wound tightly around its arms, its right hand a heavy "
+        "brass needle-and-wire stitching gauntlet, holding a massive maul made of a thick bound book spine",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: swinging the heavy book-spine maul down toward the left while "
+            "the stitching gauntlet lashes out a taut black wire, a compact white impact flash",
+        ),
+        enemy_ids=("binding_enforcer",),
+    ),
+    Sprite(
+        key="silent-librarian",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/trooper-captain-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the SILENT LIBRARIAN: a tall, thin robed librarian automaton in long layered white and pale-grey "
+        "robes, its face a smooth mouthless white porcelain mask, one long finger raised to where lips would be "
+        "in a 'shush' gesture, the other hand holding a tall brass reading-lamp staff with a cold white glass lamp, "
+        "a few small glass books orbiting it like a protective ring",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: raising the lamp staff and lobbing a compact orb of pale "
+            "silencing white light in an arc toward the left, robes billowing, the shush hand extended",
+        ),
+        enemy_ids=("silent_librarian",),
+    ),
+    Sprite(
+        key="page-wolf",
+        kind="enemy",
+        size="1536x1024",
+        idle_ref="resources/neo-seoul/v2/sprites/ripper-hound-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the PAGE WOLF: a lean prowling wolf assembled from torn book pages and crumpled paper scraps "
+        "stitched together with black thread, layered paper-edge fur, sharp paper-blade fangs and claws, "
+        "ink-stained jaws dripping black ink, two glowing white eyes, loose pages fluttering off its back",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: charging and leaping forward with jaws open and paper-blade "
+            "claws slashing, a thin crimson cut-streak and torn paper scraps trailing",
+            hit="now in a HIT-REACTION pose: knocked backward toward the right, pages tearing off its flank and "
+            "scattering, ink splattering",
+        ),
+        enemy_ids=("page_wolf",),
+    ),
+    Sprite(
+        key="footnote-turret",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/sentinel-overseer-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the FOOTNOTE TURRET: a heavy stationary turret shaped like an ornate antique-brass reading lectern "
+        "on a squat armoured stone-and-porcelain pedestal (no legs, clearly immovable), a thick open crystal book "
+        "resting on it, and from the book a long cannon barrel made of stacked glass lenses pointing LEFT, tiny "
+        "glowing white footnote-marker motes orbiting it, heavy bolted armour plates",
+        poses=_enemy_poses(
+            attack="now FIRING toward the LEFT: the lens barrel discharging a compact, intense straight white beam "
+            "flash at its muzzle, the crystal book's pages blazing with light, pedestal braced",
+            hit="now in a HIT-REACTION pose: the whole turret jolted and tilted slightly to the right, glass "
+            "lenses cracked, sparks and glass shards flying",
+        ),
+        enemy_ids=("footnote_turret",),
+    ),
+    Sprite(
+        key="return-collector",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/rust-hulk-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the RETURN COLLECTOR: a squat, stocky book-return robot — its body a brass-and-frosted-glass "
+        "return bin with a dark slot mouth, short sturdy legs, one long arm ending in a big curved shepherd's-crook "
+        "hook on a chain, the other arm a heavy rubber-stamp fist with a brass handle, an amber warning lamp on "
+        "its head",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: hurling the curved hook forward on its chain toward the left to "
+            "drag a target in, the stamp fist raised, leaning forward",
+        ),
+        enemy_ids=("return_collector",),
+    ),
+    Sprite(
+        key="ink-wraith",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/glitch-reaver-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the INK WRAITH: a tall ghost made of bleeding, running black ink — a smeared spectral silhouette "
+        "with blurred, feathered outlines like ink soaking into wet paper, long dripping ink claws, a pale white "
+        "smudged face-mask with empty eyes, ink droplets and blots drifting around it, its lower body a puddle-"
+        "less trailing smear, hovering",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: lunging forward with a dripping ink claw raking toward the "
+            "left, a splash of black ink flung from the claw",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, its inky body splattering and "
+            "smearing apart, droplets flying",
+        ),
+        enemy_ids=("ink_wraith",),
+    ),
+    Sprite(
+        key="binding-giant",
+        kind="elite",
+        idle_ref="resources/neo-seoul/v2/sprites/rust-hulk-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the BINDING GIANT: a huge hulking bookbinding-press colossus — its torso a cast-iron and antique-"
+        "brass book press with a big threaded screw and wheel on top, white porcelain armour plates, huge arms "
+        "ending in flat press-plate hands with brass clamps, thick legs made of stacked bound tomes wrapped in "
+        "black binding wire, a cluster of small white lens eyes in a recessed head",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: slamming both press-plate hands down together, a compact ring "
+            "shockwave of white light and blank pages bursting at the impact",
+        ),
+        enemy_ids=("binding_giant",),
+    ),
+    Sprite(
+        key="chief-censor",
+        kind="elite",
+        idle_ref="resources/neo-seoul/v2/sprites/trooper-captain-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the CHIEF CENSOR: a regal high-ranking censor official, a tall figure in heavy white and black "
+        "ceremonial robes trimmed with antique brass, a tall stiff mitre-like headdress, the face hidden behind a "
+        "thick solid black redaction bar across the eyes, holding a giant brass seal-stamp in one hand and a long "
+        "black-ink quill sceptre in the other, a few floating solid black redaction bars hovering around it",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: thrusting the quill sceptre forward, launching a solid black "
+            "redaction bar like a bolt toward the left, robes sweeping",
+        ),
+        enemy_ids=("chief_censor",),
+    ),
+    Sprite(
+        key="sentence-cutter",
+        kind="elite",
+        idle_ref="resources/neo-seoul/v2/sprites/blade-dancer-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the SENTENCE CUTTER: a sleek bladed mantis-like machine of polished clear glass and steel, long "
+        "scissor/guillotine blade forearms, a paper-guillotine blade arched over its back, thin jointed legs, a "
+        "narrow head with a single horizontal white light-slit eye, thin strips of cut paper drifting down around it",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: lunging forward with both guillotine blades scissoring, a thin "
+            "straight horizontal white cutting beam flaring from the slit eye, cut paper strips flying",
+        ),
+        enemy_ids=("sentence_cutter",),
+    ),
+    Sprite(
+        key="void-librarian",
+        kind="elite",
+        idle_ref="resources/neo-seoul/v2/sprites/glitch-reaver-idle.webp",
+        idle_ref_note=GLASS_NOTE,
+        subject="the VOID LIBRARIAN: a tall hovering robed librarian whose hooded robe of frosted glass panels and "
+        "grey cloth opens onto an empty starless void where the body should be, two long pale porcelain arms "
+        "holding a large grey eraser slab, a swirling storm of grey eraser crumbs and dissolving page fragments "
+        "orbiting it, faint corrosive grey-green glow",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: hurling a compact swirling ball of corrosive grey eraser dust "
+            "forward in an arc toward the left, robe flaring",
+        ),
+        enemy_ids=("void_librarian",),
+    ),
+    Sprite(
+        key="io",
+        kind="boss",
+        idle_ref="resources/neo-seoul/v2/boss/a4_boss_io.webp",
+        idle_ref_note=GLASS_SPLASH_NOTE,
+        subject="IO, the act-4 boss, the librarian AI of the Glass Library: a tall slender elegant android of "
+        "clear and frosted glass and white porcelain, cracked glass joints leaking white light, eyes of dark "
+        "liquid ink, a long high-collared archivist's coat of translucent glass panels like pages, hands folded "
+        "politely, loose pages swirling around it — courteous but an unyielding gatekeeper",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: one hand extended toward the left, palm out, projecting a "
+            "compact barrier-beam of white light that slams shut like a closed book, pages whirling",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, the cracks in its glass joints "
+            "spreading and flaring, ink leaking from its eyes, glass shards and pages flying",
+        ),
+        enemy_ids=("io_librarian",),
+    ),
+    Sprite(
+        key="blank",
+        kind="boss",
+        idle_ref="resources/neo-seoul/v2/boss/a4_boss_blank.webp",
+        idle_ref_note=GLASS_SPLASH_NOTE,
+        subject="THE BLANK, the act-4 boss: a towering faceless bookbinding construct built of thousands of "
+        "stacked blank white pages bound by huge antique-brass clamps, screw presses, rivets and taut black "
+        "binding wire, a giant book spine as its backbone, two massive brass press-plate hands, an empty page "
+        "where its face should be, unwritten white pages unfolding from its body like wings",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: lunging forward and clapping a massive brass press-plate hand "
+            "down toward the left, a storm of blank white pages bursting out, binding wires whipping",
+            hit="now in a HIT-REACTION pose: rocking backward toward the right, brass clamps snapping open, "
+            "pages tearing loose and scattering, sparks",
+        ),
+        enemy_ids=("blank_binder",),
+    ),
+    Sprite(
+        key="first-reader",
+        kind="boss",
+        idle_ref="resources/neo-seoul/v2/boss/a4_boss_reader.webp",
+        idle_ref_note=GLASS_SPLASH_NOTE,
+        subject="THE FIRST READER, the act-4 boss: a tall hooded figure whose body and long hooded cloak are made "
+        "of flowing dark-ink handwriting strokes and margin scribbles (abstract and illegible), a dim face with a "
+        "black face mask under the hood (an echo of the young Connector), two faint glowing white eyes, torn "
+        "pages and ink droplets drifting from the cloak hem",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: dashing forward low with one arm sweeping a long whip-like "
+            "stroke of black ink toward the left, cloak streaming behind, ink spray",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, its ink-stroke body unravelling "
+            "into loose scribbles and splatters, pages scattering",
+        ),
+        enemy_ids=("first_reader",),
     ),
     # ------------------------------------------------------------------ companions (face RIGHT)
     # Same key names as the classic sprites (resources/neo-seoul/characters/combat/<key>-<pose>.png), so the

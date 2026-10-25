@@ -306,6 +306,7 @@ export function GameShell() {
     crpg?: { background: string | null; trial?: boolean }
     echo?: string
     mutator?: string
+    mode?: 'deep'
   }) => {
     if (game.hasRun) {
       // Never overwrite a live run silently: ask first (abandoning banks it).

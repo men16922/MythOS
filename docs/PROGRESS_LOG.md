@@ -2,6 +2,14 @@
 
 Last updated: 2026-10-25
 
+## 2026-10-26 — DLC update R3+R4: Deep Signal mode + Pack 1 "The Glass Librarian" (Act 4) (Claude Opus 5.5)
+
+- **R3 foundation**: `ActId = number` (no `1 | 2 | 3`), `lastAct` (3 standard / every content act on Deep Signal), `deepSignalOpen` (after a win), `run.mode = 'deep'`, setup "깊이" toggle, reward/chronicle/music read the act count; `content/index.ts` merges packs into the exported arrays so every integrity/art test covers them.
+- **Pack 1 (Act 4)** `content/packs/glass_library/`: Censorate enemies 8 + elites 4 + bosses 3 (IO, THE BLANK, THE FIRST READER), 13 encounters + `a4_event_ambush`, act def, 20 events (Codex/Astra, `outputs/briefs/glass_events*.md`), new status **redact** (next card +1 cost; `redactTax` in `canPlay`/play), backdrop `library`, `tuning.acts[4] = { hpPct: 45, dmg: 3 }` + boss moves +2.
+- **Art (Codex, 0 GCP)**: 45 sprites, 3 boss key arts, act4 + map act4 + `v2/arena/library.webp` + legacy backdrop, 20 event scenes, redact icon (~80 calls). New art test: every encounter backdrop has 2.0 arena art (caught the missing library arena).
+- **Sim (Deep Signal, 3 × 150 mixed)**: 30.7/28.7/28.7 % clear (standard 39 %), ~20 % of runs entering Act 4 die there, Act 4 boss loss 10.2 % (9.1 turns), greedy deep 90 %.
+- **Verified**: `make check` (379 + 338), `make playthrough-quick` OK, sandbox screenshots of `a4_boss_io` / `a4_n2_footnotes` / `a4_boss_reader` (0 console errors). **Unverified**: a full Deep Signal run through the real UI (Act 3 → 4 transition is engine/sim-verified only).
+
 ## 2026-10-26 — DLC update R2b: CRPG for everyone, 2 districts/act, factions, d20 roll, ground jolt, Architect Omega art (Claude Opus 5.5)
 
 - **CRPG free (D2)**: "Signal+" tags gone from setup/district; `DISTRICTS_PER_ACT = 2` (two event nodes on different rows; 28/30 seeds get 2 in Act 1).

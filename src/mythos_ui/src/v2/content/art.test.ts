@@ -20,7 +20,7 @@ test('every card, implant and consumable has generated art', () => {
 
 test('every event, act and ending has generated art', () => {
   assert.deepEqual(missing(Object.keys(C.events), ART.events), [])
-  assert.deepEqual(missing(['1', '2', '3'], ART.acts), [])
+  assert.deepEqual(missing(Object.keys(C.acts), ART.acts), [])
   assert.deepEqual(missing(Object.keys(C.endings), ART.endings), [])
 })
 
@@ -54,4 +54,9 @@ test('every combat status has its own icon file (no borrowed glyphs)', async () 
     assert.ok(url.endsWith(`status/${k}.png`), `${k} → ${url}`)
     assert.ok(existsSync(join(res, `status/${k}.png`)), `status/${k}.png missing`)
   }
+})
+
+test('every encounter backdrop has 2.0 arena art (a pack act must not fall back to the 1.x backdrop)', () => {
+  const used = new Set(Object.values(C.encounters).map((e) => e.backdrop))
+  assert.deepEqual(missing([...used], ART.arenas), [])
 })

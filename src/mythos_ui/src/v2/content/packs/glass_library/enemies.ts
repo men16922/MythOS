@@ -1,0 +1,261 @@
+// Pack 1 — "The Glass Librarian" (Act 4, Deep Signal). The Censorate: index drones, binders and silent
+// librarians that redact what the connector can do (status `redact`: the next card costs +1), page wolves and the
+// echoes of lost readers. Bosses: Io the librarian AI, the Blank binder, and the First Reader.
+// Numbers are tuned against Act 3 (tier-up: ~+20 % HP / +1 damage) and measured with the Deep Signal sim.
+import type { EnemyDef, Text } from '../../../engine/types.ts'
+
+const t = (ko: string, en: string): Text => ({ ko, en })
+
+export const GLASS_ENEMIES: EnemyDef[] = [
+  // ---------------------------------------------------------------- minion
+  {
+    id: 'lost_reader',
+    name: t('잊힌 독자', 'Lost Reader'),
+    sprite: 'lost-reader',
+    tier: 'minion',
+    hp: 7,
+    move: 3,
+    ai: 'brawler',
+    moves: [{ id: 'grasp', name: t('붙잡기', 'Grasp'), pattern: 'melee', damage: 3, effects: [{ kind: 'status', status: 'weak', amount: 1 }] }],
+    passive: t('반납되지 않은 기억의 잔향. 붙잡힌 쪽은 힘이 빠진다.', 'An echo of a memory never returned. Its grip saps strength.'),
+  },
+  // ---------------------------------------------------------------- normal
+  {
+    id: 'index_drone',
+    name: t('색인 드론', 'Index Drone'),
+    sprite: 'index-drone',
+    tier: 'normal',
+    hp: 14,
+    move: 3,
+    flying: true,
+    ai: 'shooter',
+    moves: [
+      { id: 'catalog_ray', name: t('분류 광선', 'Catalog Ray'), pattern: 'line', damage: 4, range: 5, effects: [{ kind: 'status', status: 'mark', amount: 1 }] },
+      { id: 'tag', name: t('색인 꼬리표', 'Index Tag'), pattern: 'line', damage: 2, range: 5, cooldown: 1, effects: [{ kind: 'status', status: 'redact', amount: 1 }] },
+    ],
+    passive: t('공중을 떠다닌다. 꼬리표가 붙은 쪽은 다음 카드가 비싸진다(검열).', 'Flies. Its tag redacts — your next card costs +1.'),
+  },
+  {
+    id: 'binding_enforcer',
+    name: t('제본 집행자', 'Binding Enforcer'),
+    sprite: 'binding-enforcer',
+    tier: 'normal',
+    hp: 24,
+    armor: 1,
+    move: 3,
+    ai: 'brawler',
+    moves: [
+      { id: 'stitch', name: t('철사 꿰매기', 'Wire Stitch'), pattern: 'melee', damage: 5, effects: [{ kind: 'status', status: 'redact', amount: 1 }] },
+      { id: 'spine_slam', name: t('책등 내려찍기', 'Spine Slam'), pattern: 'melee', damage: 7, windup: 1, cooldown: 2, effects: [{ kind: 'push', dir: 'away', distance: 1 }] },
+    ],
+    passive: t('장갑 1. 꿰맨 상대를 검열한다.', 'Armor 1. Whoever it stitches is redacted.'),
+  },
+  {
+    id: 'silent_librarian',
+    name: t('무음 사서', 'Silent Librarian'),
+    sprite: 'silent-librarian',
+    tier: 'normal',
+    hp: 17,
+    move: 2,
+    ai: 'artillery',
+    moves: [
+      { id: 'hush', name: t('정숙', 'Hush'), pattern: 'lob', damage: 3, range: 5, area: 'cross', effects: [{ kind: 'status', status: 'redact', amount: 1 }] },
+      { id: 'reshelve', name: t('재배치', 'Reshelve'), pattern: 'buff', cooldown: 2, effects: [{ kind: 'block', amount: 6, to: 'all_allies' }] },
+    ],
+    passive: t('십자 범위를 침묵시킨다(검열). 동료들에게 방어막을 건다.', 'Silences a cross (redact) and shields its allies.'),
+  },
+  {
+    id: 'page_wolf',
+    name: t('페이지 늑대', 'Page Wolf'),
+    sprite: 'page-wolf',
+    tier: 'normal',
+    hp: 15,
+    move: 4,
+    ai: 'brawler',
+    moves: [
+      { id: 'paper_cut', name: t('종이 베기', 'Paper Cut'), pattern: 'charge', damage: 4, effects: [{ kind: 'status', status: 'bleed', amount: 2 }] },
+      { id: 'tear_page', name: t('찢어 물기', 'Tear Out'), pattern: 'melee', damage: 5 },
+    ],
+    passive: t('찢긴 문장으로 짜인 늑대. 돌진이 출혈을 남긴다.', 'A wolf stitched from torn sentences. Its charge leaves Bleed.'),
+  },
+  {
+    id: 'footnote_turret',
+    name: t('각주 포탑', 'Footnote Turret'),
+    sprite: 'footnote-turret',
+    tier: 'normal',
+    hp: 19,
+    armor: 2,
+    move: 0,
+    ai: 'static',
+    moves: [{ id: 'annotate', name: t('주석 광선', 'Annotation Beam'), pattern: 'beam', damage: 5, range: 6, windup: 1, cooldown: 1 }],
+    passive: t('장갑 2, 움직이지 않는다. 한 턴 충전한 뒤 줄 전체를 꿰뚫는다.', 'Armor 2, never moves. Charges a turn, then pierces the whole line.'),
+  },
+  {
+    id: 'return_collector',
+    name: t('반납 수거기', 'Return Collector'),
+    sprite: 'return-collector',
+    tier: 'normal',
+    hp: 21,
+    move: 2,
+    ai: 'shooter',
+    moves: [
+      { id: 'overdue_hook', name: t('연체 갈고리', 'Overdue Hook'), pattern: 'line', damage: 3, range: 5, effects: [{ kind: 'push', dir: 'toward', distance: 2 }] },
+      { id: 'stamp', name: t('반납 도장', 'Return Stamp'), pattern: 'melee', damage: 5, effects: [{ kind: 'status', status: 'mark', amount: 2 }] },
+    ],
+    passive: t('갈고리로 끌어당긴다. 끌려가는 길의 장판을 조심.', 'Hooks you in — mind the ground you get dragged across.'),
+  },
+  {
+    id: 'ink_wraith',
+    name: t('먹물 망령', 'Ink Wraith'),
+    sprite: 'ink-wraith',
+    tier: 'normal',
+    hp: 16,
+    move: 3,
+    ai: 'brawler',
+    moves: [
+      { id: 'blot', name: t('번짐', 'Blot'), pattern: 'melee', damage: 4, effects: [{ kind: 'status', status: 'weak', amount: 1 }] },
+      { id: 'smear', name: t('얼룩 잠행', 'Smear'), pattern: 'buff', cooldown: 2, effects: [{ kind: 'status', status: 'evade', amount: 1, to: 'owner' }] },
+    ],
+    passive: t('번진 글자의 망령. 맞히기 어렵고, 닿으면 약해진다.', 'A ghost of bled ink. Hard to hit; its touch weakens.'),
+  },
+  // ---------------------------------------------------------------- elite
+  {
+    id: 'binding_giant',
+    name: t('제본 거인', 'Binding Giant'),
+    sprite: 'binding-giant',
+    tier: 'elite',
+    hp: 52,
+    armor: 2,
+    move: 2,
+    ai: 'brawler',
+    moves: [
+      { id: 'press', name: t('압착 제본', 'Press Binding'), pattern: 'nova', damage: 7, windup: 1, cooldown: 2, effects: [{ kind: 'status', status: 'redact', amount: 1 }] },
+      { id: 'clamp', name: t('죔쇠', 'Clamp'), pattern: 'melee', damage: 7, effects: [{ kind: 'status', status: 'redact', amount: 2 }] },
+      { id: 'summon_readers', name: t('독자 소환', 'Summon Readers'), pattern: 'summon', summon: { enemyId: 'lost_reader', count: 2 }, cooldown: 3 },
+    ],
+    passive: t('장갑 2. 한 턴 모아 주변을 짓누른다. 잊힌 독자를 불러낸다.', 'Armor 2. Winds up a crushing nova; calls Lost Readers.'),
+  },
+  {
+    id: 'chief_censor',
+    name: t('수석 검열관', 'Chief Censor'),
+    sprite: 'chief-censor',
+    tier: 'elite',
+    hp: 44,
+    move: 3,
+    ai: 'support',
+    moves: [
+      { id: 'black_bar', name: t('검은 줄', 'Black Bar'), pattern: 'track', damage: 6, effects: [{ kind: 'status', status: 'redact', amount: 2 }] },
+      { id: 'decree', name: t('검열 칙령', 'Decree'), pattern: 'line', damage: 5, range: 6 },
+      { id: 'approve', name: t('승인 도장', 'Seal of Approval'), pattern: 'buff', cooldown: 2, effects: [{ kind: 'block', amount: 7, to: 'all_allies' }] },
+    ],
+    passive: t('피할 수 없는 추적 조준으로 검열 2를 건다. 동료를 승인(방어막)한다.', 'An unavoidable lock-on that redacts 2. Seals its allies with block.'),
+  },
+  {
+    id: 'sentence_cutter',
+    name: t('문장 절단기', 'Sentence Cutter'),
+    sprite: 'sentence-cutter',
+    tier: 'elite',
+    hp: 46,
+    move: 3,
+    ai: 'shooter',
+    moves: [
+      { id: 'excise', name: t('삭제 광선', 'Excise'), pattern: 'beam', damage: 7, range: 6, windup: 1, cooldown: 1, effects: [{ kind: 'status', status: 'bleed', amount: 2 }] },
+      { id: 'margin_dash', name: t('여백 돌진', 'Margin Dash'), pattern: 'charge', damage: 6 },
+    ],
+    passive: t('줄을 통째로 잘라낸다. 정렬해서 서지 마.', 'Cuts whole lines out. Never line up.'),
+  },
+  {
+    id: 'void_librarian',
+    name: t('공허 사서', 'Void Librarian'),
+    sprite: 'void-librarian',
+    tier: 'elite',
+    hp: 42,
+    move: 2,
+    ai: 'artillery',
+    moves: [
+      { id: 'erase', name: t('지우개 폭풍', 'Eraser Storm'), pattern: 'lob', damage: 5, range: 5, area: 'cross', effects: [{ kind: 'status', status: 'corrode', amount: 2 }] },
+      { id: 'unshelve', name: t('늑대 풀기', 'Unshelve'), pattern: 'summon', summon: { enemyId: 'page_wolf', count: 1 }, cooldown: 3 },
+    ],
+    passive: t('십자 범위를 부식시킨다. 페이지 늑대를 풀어놓는다.', 'Corrodes a cross; lets Page Wolves loose.'),
+  },
+  // ---------------------------------------------------------------- bosses
+  {
+    id: 'io_librarian',
+    name: t('이오', 'IO'),
+    sprite: 'io',
+    tier: 'boss',
+    hp: 88,
+    move: 3,
+    ai: 'boss',
+    moves: [
+      { id: 'closed_stacks', name: t('폐가 열람 금지', 'Closed Stacks'), pattern: 'beam', damage: 9, range: 6, windup: 1, cooldown: 1, effects: [{ kind: 'status', status: 'redact', amount: 2 }] },
+      { id: 'quiet_please', name: t('정숙해 주세요', 'Quiet, Please'), pattern: 'nova', damage: 8, effects: [{ kind: 'status', status: 'weak', amount: 1 }] },
+      { id: 'shelving', name: t('서가 정리', 'Shelving'), pattern: 'summon', summon: { enemyId: 'lost_reader', count: 2 }, cooldown: 3 },
+      { id: 'catalogue', name: t('목록 대조', 'Cross-Reference'), pattern: 'track', damage: 10, cooldown: 2, minPhase: 1, effects: [{ kind: 'status', status: 'mark', amount: 2 }] },
+    ],
+    phases: [
+      {
+        hpBelow: 0.5,
+        text: t('이오의 유리 관절에 금이 간다. "그 기록은 존재합니다. 다만, 열람은 허락되지 않습니다."', 'Cracks run through IO\'s glass joints. "That record exists. Access, however, is not granted."'),
+        effects: [
+          { kind: 'block', amount: 10, to: 'owner' },
+          { kind: 'status', status: 'evade', amount: 2, to: 'owner' },
+        ],
+      },
+    ],
+    passive: t('유리성의 사서 AI. 열람 금지 광선이 검열 2를 건다. 절반에서 목록 대조(추적 조준)를 쓴다.', 'The Glass Library\'s librarian AI. Closed Stacks redacts 2; at half HP it cross-references (lock-on).'),
+  },
+  {
+    id: 'blank_binder',
+    name: t('백지', 'THE BLANK'),
+    sprite: 'blank',
+    tier: 'boss',
+    hp: 96,
+    armor: 2,
+    move: 2,
+    ai: 'boss',
+    moves: [
+      { id: 'bind', name: t('결박 제본', 'Bind'), pattern: 'track', damage: 9, cooldown: 1, effects: [{ kind: 'status', status: 'redact', amount: 3 }] },
+      { id: 'press_row', name: t('행 압착', 'Row Press'), pattern: 'melee', area: 'row', damage: 10 },
+      { id: 'gather_pages', name: t('빈 장 모으기', 'Gather Pages'), pattern: 'summon', summon: { enemyId: 'lost_reader', count: 2 }, cooldown: 3 },
+      { id: 'paper_storm', name: t('종이 폭풍', 'Paper Storm'), pattern: 'lob', damage: 7, range: 6, area: 'square', windup: 1, cooldown: 2, effects: [{ kind: 'status', status: 'mark', amount: 2 }] },
+    ],
+    phases: [
+      {
+        hpBelow: 0.5,
+        text: t('백지가 스스로를 펼친다. 아무것도 쓰이지 않은 면이 보드를 덮는다.', 'THE BLANK unfolds itself. Unwritten pages cover the board.'),
+        effects: [
+          { kind: 'block', amount: 12, to: 'owner' },
+          { kind: 'status', status: 'thorns', amount: 2, to: 'owner' },
+        ],
+      },
+    ],
+    passive: t('장갑 2. 결박(추적 조준)이 검열 3을 건다 — 카드를 아껴 쓰게 만든다.', 'Armor 2. Bind (lock-on) redacts 3 — it makes every card count.'),
+  },
+  {
+    id: 'first_reader',
+    name: t('첫 번째 독자', 'THE FIRST READER'),
+    sprite: 'first-reader',
+    tier: 'boss',
+    hp: 90,
+    move: 4,
+    ai: 'boss',
+    moves: [
+      { id: 'echo_charge', name: t('잔향 돌진', 'Echo Charge'), pattern: 'charge', damage: 9, cooldown: 1, effects: [{ kind: 'status', status: 'bleed', amount: 2 }] },
+      { id: 'recall', name: t('회상', 'Recall'), pattern: 'summon', summon: { enemyId: 'ink_wraith', count: 1 }, cooldown: 3 },
+      { id: 'margin_note', name: t('여백 메모', 'Margin Note'), pattern: 'line', damage: 8, range: 6, effects: [{ kind: 'status', status: 'redact', amount: 1 }] },
+      { id: 'last_page', name: t('마지막 장', 'Last Page'), pattern: 'nova', damage: 11, windup: 1, cooldown: 2, minPhase: 1 },
+    ],
+    phases: [
+      {
+        hpBelow: 0.5,
+        text: t('첫 번째 독자가 당신의 걸음을 그대로 흉내 낸다. "이 다음 문장, 나는 이미 읽었어."', 'THE FIRST READER mirrors your steps exactly. "I have already read the next sentence."'),
+        effects: [
+          { kind: 'status', status: 'evade', amount: 2, to: 'owner' },
+          { kind: 'block', amount: 8, to: 'owner' },
+        ],
+      },
+    ],
+    passive: t('최초의 접속자가 남긴 잔향. 절반에서 한 턴 모아 마지막 장(주변 폭발)을 쓴다.', 'The echo the first connector left. At half HP it winds up Last Page (nova).'),
+  },
+]

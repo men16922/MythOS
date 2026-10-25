@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 61,
+ "codex_image_calls": 65,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -2280,6 +2280,42 @@
    "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Triumphant victory, bright uplifting synthwave, 100 bpm: heroic synth brass melody with gayageum, warm steady groove, relieved and proud.",
    "seed": 635895762,
    "ts": "2026-10-10T23:26:37"
+  },
+  "status/bleed.png": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). A minimal game status-effect icon: a single blood drop with a small slash mark through it. Drawn as thin, clean WHITE outline strokes only (no fill, no color, no shading, no text), centered with generous margin, on a perfectly flat solid pure green (#00FF00) background. Match the line style of the reference icon (a white outline flame).",
+   "refs": [
+    "resources/neo-seoul/status/burn.png"
+   ],
+   "ts": "2026-10-25T18:23:27"
+  },
+  "status/evade.png": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). A minimal game status-effect icon: a running silhouette dissolving into three motion afterimage lines (dodge). Drawn as thin, clean WHITE outline strokes only (no fill, no color, no shading, no text), centered with generous margin, on a perfectly flat solid pure green (#00FF00) background. Match the line style of the reference icon (a white outline flame).",
+   "refs": [
+    "resources/neo-seoul/status/burn.png"
+   ],
+   "ts": "2026-10-25T18:23:28"
+  },
+  "status/focus.png": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). A minimal game status-effect icon: a sniper crosshair reticle with a small dot at the center. Drawn as thin, clean WHITE outline strokes only (no fill, no color, no shading, no text), centered with generous margin, on a perfectly flat solid pure green (#00FF00) background. Match the line style of the reference icon (a white outline flame).",
+   "refs": [
+    "resources/neo-seoul/status/burn.png"
+   ],
+   "ts": "2026-10-25T18:23:29"
+  },
+  "status/rage.png": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). A minimal game status-effect icon: an angry glowing eye with two sharp angled brow strokes above it (fury). Drawn as thin, clean WHITE outline strokes only (no fill, no color, no shading, no text), centered with generous margin, on a perfectly flat solid pure green (#00FF00) background. Match the line style of the reference icon (a white outline flame).",
+   "refs": [
+    "resources/neo-seoul/status/burn.png"
+   ],
+   "ts": "2026-10-25T18:23:40"
   },
   "trailer/stills/blackout.png": {
    "art": "art/act1.webp",

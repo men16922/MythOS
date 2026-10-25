@@ -55,13 +55,14 @@ export const BACKDROPS: Record<string, string> = {
 
 export const STATUS_ICON: Record<string, string> = {
   burn: asset('status/burn.png'),
-  bleed: asset('status/burn.png'),
+  bleed: asset('status/bleed.png'),
   corrode: asset('status/corrode.png'),
   shock: asset('status/shock.png'),
   mark: asset('status/acid.png'),
   weak: asset('status/corrode.png'),
   guard: asset('status/freeze.png'),
   thorns: asset('status/hacked.png'),
-  evade: asset('status/freeze.png'),
-  focus: asset('status/acid.png'),
+  evade: asset('status/evade.png'),
+  focus: asset('status/focus.png'),
+  rage: asset('status/rage.png'),
 }

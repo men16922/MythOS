@@ -71,6 +71,10 @@ export interface CombatScaling {
   dmg: number
   /** Extra flat +damage on elite moves (CONTENT.tuning). */
   eliteDmg?: number
+  /** Extra +% max HP for bosses only. */
+  bossPct?: number
+  /** Turn from which elites/bosses build Rage (CONTENT.tuning.rage; Paradox 5 starts it a turn earlier). */
+  rageFrom?: number
 }
 export type CombatStateExt = CombatState & {
   scaling?: CombatScaling
@@ -84,7 +88,7 @@ export type CombatStateExt = CombatState & {
 export type UnitStateExt = UnitState & { dmgBonus?: number }
 
 export function dmgBonusOf(u: UnitState): number {
-  return (u as UnitStateExt).dmgBonus ?? 0
+  return ((u as UnitStateExt).dmgBonus ?? 0) + (u.statuses.rage ?? 0)
 }
 
 // ---------------------------------------------------------------- lookups
@@ -205,7 +209,7 @@ export function nearestFreeTile(c: CombatState, from: Pos, reserved: Set<string>
 export function scaledHp(c: CombatState, def: EnemyDef): number {
   const s = (c as CombatStateExt).scaling
   if (!s) return def.hp
-  const pct = s.hpPct + (def.tier === 'elite' || def.tier === 'boss' ? s.elitePct : 0)
+  const pct = s.hpPct + (def.tier === 'elite' || def.tier === 'boss' ? s.elitePct : 0) + (def.tier === 'boss' ? (s.bossPct ?? 0) : 0)
   return Math.max(1, Math.round(def.hp * (1 + pct / 100)))
 }
 

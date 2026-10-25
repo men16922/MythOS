@@ -44,3 +44,14 @@ test('screen art referenced by path is on disk (supply cache, shop, safehouse)',
     assert.ok(existsSync(join(res, f)), `${f} missing`)
   }
 })
+
+test('every combat status has its own icon file (no borrowed glyphs)', async () => {
+  const { STATUS_ICON } = await import('../ui/common/assets.ts')
+  const res = join(dirname(fileURLToPath(import.meta.url)), '../../../../../resources/neo-seoul')
+  const own = ['burn', 'bleed', 'corrode', 'shock', 'evade', 'focus', 'rage']
+  for (const k of own) {
+    const url = STATUS_ICON[k] ?? ''
+    assert.ok(url.endsWith(`status/${k}.png`), `${k} → ${url}`)
+    assert.ok(existsSync(join(res, `status/${k}.png`)), `status/${k}.png missing`)
+  }
+})

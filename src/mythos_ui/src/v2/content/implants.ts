@@ -29,25 +29,25 @@ const STARTER: ImplantDef[] = [
   {
     id: 'overclocked_deck',
     name: t('오버클럭 덱', 'Overclocked Deck'),
-    text: t('매 턴 시작 시 방어막 2. 전투 첫 턴 에너지 +1. 크레딧 획득 +25%.', 'Each turn: gain 2 block. First turn of each combat: +1 energy. Credits gained +25%.'),
+    text: t('매 턴 시작 시 방어막 3. 전투 첫 턴 에너지 +1. 크레딧 획득 +25%.', 'Each turn: gain 3 block. First turn of each combat: +1 energy. Credits gained +25%.'),
     rarity: 'starter',
     icon: 'v2/implants/overclocked_deck.webp',
     passive: { creditMult: 0.25 },
     triggers: [
       { on: 'turn_start', effects: [{ kind: 'energy', amount: 1 }], limit: 'combat' },
-      // Balance 2026-10-25: the smuggler had no sustained defence (~30 % vs ghost ~53 %); +2 block a turn → ~46 %.
-      { on: 'turn_start', effects: [{ kind: 'block', amount: 2, to: 'connector' }] },
+      // Balance 2026-10-25: the smuggler had no sustained defence (~30 % vs ghost ~53 %); block every turn closes it.
+      { on: 'turn_start', effects: [{ kind: 'block', amount: 3, to: 'connector' }] },
     ],
   },
   {
     id: 'cracked_cube',
     name: t('금 간 데이터 큐브', 'Cracked Data Cube'),
-    text: t('전투 첫 턴, 모든 아군 방어막 5. 승리하면 모든 아군 회복 2.', 'First turn of each combat: all allies gain 5 block. On victory, all allies heal 2.'),
+    text: t('전투 첫 턴, 모든 아군 방어막 5. 승리하면 모든 아군 회복 5.', 'First turn of each combat: all allies gain 5 block. On victory, all allies heal 5.'),
     rarity: 'starter',
     icon: 'v2/implants/cracked_cube.webp',
     triggers: [
       { on: 'turn_start', effects: [{ kind: 'block', amount: 5, to: 'all_allies' }], limit: 'combat' },
-      { on: 'combat_won', effects: [{ kind: 'heal', amount: 2, to: 'all_allies' }] },
+      { on: 'combat_won', effects: [{ kind: 'heal', amount: 5, to: 'all_allies' }] },
     ],
   },
 ]

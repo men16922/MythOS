@@ -73,8 +73,10 @@ export interface Tile {
  * evade   N : when hit by a direct attack, incoming damage is halved (floor(dmg / 2)) and evade decreases by 1.
  * focus   N : party only — at focus >= 4, the next direct attack critically hits (ceil(dmg * 1.5), ignores armor)
  *             and consumes 4 focus.
+ * rage    N : enemy — every damaging move hits for +N. Elites and bosses gain it at the end of each enemy phase
+ *             from a set turn (CONTENT.tuning.rage), so a slow kill gets more dangerous every turn.
  */
-export type StatusKind = 'burn' | 'bleed' | 'corrode' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns' | 'evade' | 'focus'
+export type StatusKind = 'burn' | 'bleed' | 'corrode' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns' | 'evade' | 'focus' | 'rage'
 export type Statuses = Partial<Record<StatusKind, number>>
 
 export interface StatScale {
@@ -1111,4 +1113,8 @@ export interface EnemyTuning {
   dmgFromAct: number
   /** Extra damage on every elite move (shown in its telegraph). */
   eliteDmg?: number
+  /** Elites / bosses gain this much Rage at the end of each enemy phase from `fromTurn` on. */
+  rage?: { elite: number; boss: number; fromTurn: number }
+  /** Extra +% max HP for bosses only (on top of eliteHpPct). */
+  bossHpPct?: number
 }

@@ -152,6 +152,8 @@ function scalingFor(run: RunState, C: ContentRegistry): CombatScaling {
     elitePct: (tune?.eliteHpPct ?? 0) + (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
     dmg: (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0),
     ...(tune?.eliteDmg ? { eliteDmg: tune.eliteDmg } : {}),
+    ...(tune?.bossHpPct ? { bossPct: tune.bossHpPct } : {}),
+    ...(tune?.rage ? { rageFrom: Math.max(1, tune.rage.fromTurn - (run.paradox >= 5 ? 1 : 0)) } : {}),
   }
 }
 
@@ -188,6 +190,18 @@ function wavesArrivingAfter(enc: EncounterDef, playerTurn: number): { id: string
 
 function announceIncoming(c: CombatState, enc: EncounterDef): void {
   c.incoming = wavesArrivingAfter(enc, c.turn).map((e) => ({ pos: { ...e.pos }, enemyId: e.id }))
+}
+
+/** Elites and bosses grow Rage each enemy phase once the fight drags on (CONTENT.tuning.rage). */
+function growRage(c: CombatState, C: ContentRegistry): void {
+  const rage = C.tuning?.rage
+  const from = (c as CombatStateExt).scaling?.rageFrom ?? rage?.fromTurn ?? Infinity
+  if (!rage || c.turn < from) return
+  for (const e of livingEnemies(c).sort(byUid)) {
+    const tier = C.enemies[e.defId]?.tier
+    const n = tier === 'boss' ? rage.boss : tier === 'elite' ? rage.elite : 0
+    if (n > 0) addStatus(c, e, 'rage', n)
+  }
 }
 
 /** Block every party unit gets on turn 1 (a world echo); stored as a combat-scoped trigger key. */
@@ -795,6 +809,7 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
     decayStatus(e, 'shock')
     decayStatus(e, 'weak')
   }
+  growRage(c, C)
   if (enc) {
     const arriving = wavesArrivingAfter(enc, c.turn)
     c.incoming = []

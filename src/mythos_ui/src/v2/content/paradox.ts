@@ -33,8 +33,8 @@ export const PARADOX: ParadoxDef[] = [
     level: 5,
     name: { ko: '식은 밥', en: 'Cold Rice' },
     text: {
-      ko: '은신처 휴식은 체력을 20%만 회복한다.',
-      en: 'Safehouse rest heals only 20%.',
+      ko: '은신처 휴식은 체력을 20%만 회복한다. 정예·보스의 분노가 2턴부터 쌓인다.',
+      en: 'Safehouse rest heals only 20%. Elites and bosses build Rage from turn 2.',
     },
   },
 ]

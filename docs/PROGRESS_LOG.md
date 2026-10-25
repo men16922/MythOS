@@ -2,6 +2,14 @@
 
 Last updated: 2026-10-25
 
+## 2026-10-25 — S-rank pass 2: Rage, archetype parity, Paradox 5 ceiling, status icons (Claude Opus 5.5)
+
+- **Rage** (`StatusKind 'rage'`, `dmgBonusOf` adds it, `growRage` in the enemy phase, `CONTENT.tuning.rage` elite 3 / boss 1 from turn 3, Paradox 5 one turn earlier via `CombatScaling.rageFrom`; `bossHpPct` −15). Flat elite damage +1/+2 had left elite loss at ~3 % (rejected). `engine/tuning.test.ts` (5 tests).
+- **Parity**: ghost evade perks AGI 7 → 8 (Se-rin's +1 made them free), `cracked_cube` victory heal 2 → 5, `overclocked_deck` block 3/turn.
+- **Art**: Codex status icons `status/{bleed,evade,focus,rage}.png` (chroma-keyed, 4 calls); `art.test.ts` asserts every status has its own file.
+- **Sim** (5 × 150 P0): mixed 40.5 % (39.3/40.7/38.7/49.3/34.7), ghost 42 / smuggler 42 / echo 37, elite loss 7.3 % (7.5 t), boss 8.9 t, Paradox 1–5 34.7/26.0/12.7/10.7/8.7 %, greedy P0 98.9 / P5 85.6 %, basic 0 %.
+- **Verified**: `make check`, `make frontend-build`, `make playthrough-quick`, sandbox screenshot of an elite at turn 4 (Rage 3 pill, telegraph 9). **Unverified**: human feel of Rage, deploy.
+
 ## 2026-10-25 — Argon review: refactor, rebalance (~75 → ~45 %), unique art (Claude Opus 5.5)
 
 - **Review** (`docs/plans/2026-10-25-argon-review-and-s-rank-plan.md`): Argon's `0699ace..491f071` raised P0 mixed win 30.8 → ~75 % (greedy 100 %) unmeasured — the log entry below still quoted 30.9 %. Same-block sims: `1f97f84` (stats/evade/crit/DoT) 61.7 %, `491f071` 70.8–77.5 %; all stat perks off 51.7 %; 7-row map −16 pts. Hidden mutator rules (`overclocked_grid` per-turn refund + DoT ×1.5, `magnetic_storm` bump/push, `acid_rain` first-2-enemies + hazard ×2), `ripper_hound` text, English-only CRIT/EVADE popups, reused art (3 bosses, 14 cards, 4 implants, 9 events, 12 sprites).

@@ -46,8 +46,8 @@ export function statPerks(s: Partial<Stats> | undefined): StatPerks {
   return {
     attack: step(str, 6, 9),
     bump: step(str, 5, 8),
-    openEvade: step(agi, 7, 10),
-    sprintEvade: agi >= 7,
+    openEvade: step(agi, 8, 10),
+    sprintEvade: agi >= 8,
     move: agi >= 9 ? 1 : 0,
     dot: step(int, 6, 9),
     openDraw: int >= 8 ? 1 : 0,

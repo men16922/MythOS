@@ -8,7 +8,8 @@ Last updated: 2026-10-25
 - **Parity**: ghost evade perks AGI 7 → 8 (Se-rin's +1 made them free), `cracked_cube` victory heal 2 → 5, `overclocked_deck` block 3/turn.
 - **Art**: Codex status icons `status/{bleed,evade,focus,rage}.png` (chroma-keyed, 4 calls); `art.test.ts` asserts every status has its own file.
 - **Sim** (5 × 150 P0): mixed 40.5 % (39.3/40.7/38.7/49.3/34.7), ghost 42 / smuggler 42 / echo 37, elite loss 7.3 % (7.5 t), boss 8.9 t, Paradox 1–5 34.7/26.0/12.7/10.7/8.7 %, greedy P0 98.9 / P5 85.6 %, basic 0 %.
-- **Verified**: `make check`, `make frontend-build`, `make playthrough-quick`, sandbox screenshot of an elite at turn 4 (Rage 3 pill, telegraph 9). **Unverified**: human feel of Rage, deploy.
+- **Smuggler payoff card** `mass_hijack` (rare, cost 1/0: redirect every intent in a cross + 5₵; Codex art): smuggler-only 3 × 150 with 38.9 % vs without 39.3 % (neutral, identity not power); mechanics test in `tuning.test.ts`.
+- **Verified**: `make check` (370 + 338), `make frontend-build`, `make playthrough-quick`, sandbox screenshot of an elite at turn 4 (Rage 3 pill, telegraph 9). **Unverified**: human feel of Rage.
 
 ## 2026-10-25 — Argon review: refactor, rebalance (~75 → ~45 %), unique art (Claude Opus 5.5)
 

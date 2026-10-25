@@ -209,6 +209,7 @@ export const CARD_ART: Record<string, string> = {
   linyue_gold_hairpin: 'v2/cards/linyue_gold_hairpin.webp',
   linyue_precision_emp: 'v2/cards/linyue_precision_emp.webp',
   magnetic_pull: 'v2/cards/magnetic_pull.webp',
+  mass_hijack: 'v2/cards/mass_hijack.webp',
   meltdown: 'v2/cards/meltdown.webp',
   memory_resonance: 'v2/cards/memory_resonance.webp',
   mirror_code: 'v2/cards/mirror_code.webp',

@@ -61,3 +61,25 @@ test('every in-combat mutator rule is a real dial and the opening statuses land 
   for (const e of acid.units.filter((u) => u.side === 'enemy')) assert.equal(e.statuses.corrode, 2, 'acid rain corrodes every enemy')
   assert.equal(acid.units.find((u) => u.uid === 'connector')!.statuses.corrode, 1)
 })
+
+test('Mass Hijack flips every enemy intent in its cross (smuggler payoff card)', async () => {
+  const { CONTENT: C } = await import('../content/index.ts')
+  const { playCard } = await import('./combat.ts')
+  const c = startCombat(makeRun({ deck: [] }), 'a1_n2_pack_hunt', C)
+  const foes = c.units.filter((u) => u.side === 'enemy' && u.intent)
+  assert.ok(foes.length >= 2, 'fixture fight has two telegraphing enemies')
+  const [a, b] = foes as [(typeof foes)[number], (typeof foes)[number]]
+  b.pos = { x: a.pos.x, y: a.pos.y === 0 ? 1 : a.pos.y - 1 } // adjacent = inside the cross around `a`
+  const before = [JSON.stringify(a.intent), JSON.stringify(b.intent)]
+  const conn = c.units.find((u) => u.uid === 'connector')!
+  conn.pos = { x: Math.max(0, a.pos.x - 3), y: a.pos.y }
+  c.hand = [{ uid: 'mh', defId: 'mass_hijack', upgraded: false }]
+  c.energy = 3
+  const credits = c.credits ?? 0
+  const after = playCard(c, C, 'mh', 'connector', { pos: { ...a.pos } })
+  const a2 = after.units.find((u) => u.uid === a.uid)!
+  const b2 = after.units.find((u) => u.uid === b.uid)!
+  assert.notEqual(JSON.stringify(a2.intent), before[0], 'centre enemy flipped')
+  assert.notEqual(JSON.stringify(b2.intent), before[1], 'neighbour in the cross flipped too')
+  assert.equal((after.credits ?? 0) - credits, 5)
+})

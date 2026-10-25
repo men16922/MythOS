@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 65,
+ "codex_image_calls": 66,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -2599,6 +2599,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
    ],
    "ts": "2026-10-25T17:34:30"
+  },
+  "v2/cards/mass_hijack.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics card game, portrait 3:4. A black-market hacker in a hooded jacket kneels on a rain-soaked Neo-Seoul rooftop, holographic code streams from her wrist deck into four hovering security drones arranged in a cross formation; their red targeting lasers swing around to aim at each other. Neon magenta and cyan, cinematic lighting, painterly digital art, no text, no letters, no logos. Match the style of the reference card art.",
+   "refs": [
+    "resources/neo-seoul/v2/cards/zero_day.webp"
+   ],
+   "ts": "2026-10-25T18:31:11"
   },
   "v2/cards/pandemic_pulse.webp": {
    "generations": 1,

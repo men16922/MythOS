@@ -1294,6 +1294,25 @@ const POOL_SMUGGLER: CardDef[] = [
     icon: 'v2/cards/insider_trading.webp',
     tags: ['draw', 'energy', 'credits'],
   },
+  {
+    // The smuggler's payoff turn: flip a whole cluster so they shoot each other (S-rank pass 2026-10-25).
+    id: 'mass_hijack',
+    name: t('집단 탈취', 'Mass Hijack'),
+    type: 'tactic',
+    rarity: 'rare',
+    owner: 'any',
+    archetype: 'smuggler',
+    cost: 1,
+    target: { mode: 'lob', minRange: 1, range: 5 },
+    effects: [
+      { kind: 'redirect', area: 'cross' },
+      { kind: 'credits', amount: 5 },
+    ],
+    text: t('십자 범위 적들의 공격 방향을 모두 뒤집는다. 5₵ 획득.', "Turn around every enemy attack in a cross. Gain 5₵."),
+    upgrade: { cost: 0 },
+    icon: 'v2/cards/mass_hijack.webp',
+    tags: ['hack', 'credits'],
+  },
 ]
 
 const POOL_ECHO: CardDef[] = [

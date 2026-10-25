@@ -251,7 +251,7 @@ test('bonus objective, elite and boss rewards, act transition and recruit event'
   // Boss of act 1 → 3 boss implants, act 2 with half the missing HP healed.
   const p = unlocked('comp_tae_o', 'comp_han')
   run = atMap(77, p)
-  const sixth = Object.values(run.map.nodes).find((n) => n.row === 6) as MapNode
+  const sixth = Object.values(run.map.nodes).find((n) => n.row === run.map.rows - 2) as MapNode
   run = { ...structuredClone(run), nodeId: sixth.id }
   run = enterNode(run, run.map.bossId, C)
   assert.equal(screen(run, 'combat').nodeKind, 'boss')

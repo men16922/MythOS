@@ -51,87 +51,87 @@ from common import (
 
 SR = 48000
 FADE_S = 3.0
-NEGATIVE = "vocals, singing, sung lyrics, speech, spoken words, rap, narration"
+NEGATIVE = "vocals, singing, sung lyrics, speech, spoken words, rap, narration, traditional folk instruments, gayageum, haegeum, acoustic folk, country, jazz"
 IDENTITY = (
     "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy "
-    "from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed "
-    "lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. "
+    "from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, "
+    "crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. "
 )
 CALM, MID, HOT = -17.0, -16.0, -15.0
 
 # key -> (brief, target integrated loudness LUFS)
 TRACKS: dict[str, tuple[str, float]] = {
     "title": (
-        "Melancholic and majestic main theme, slow 72 bpm: wide warm analog synth pads, a lonely gayageum melody motif, deep sub bass swells, distant rain ambience, cinematic and emotional.",
-        CALM,
+        "Iconic dark cyberpunk main theme, driving 96 bpm: deep resonant Reese bass swells, sleek hypnotic synth arpeggio motif, lush cinematic analog pads, crisp modern electronic slow-burn groove, cool, mysterious, and futuristic.",
+        MID,
     ),
     "hub": (
-        "Warm underground refuge, gentle lo-fi 80 bpm: dusty electric piano chords, soft muted beat with vinyl crackle, mellow haegeum phrases, cozy and safe.",
+        "Stylish cyberpunk underground safehouse groove, 92 bpm: warm deep synth bassline, crisp tight electronic chillhop beat, Rhodes-style neon synth chords, smooth atmospheric synth lead, sleek and immersive.",
         CALM,
     ),
     "map1": (
-        "Tense dark ambient exploration, 90 bpm: rain texture, sparse pulsing sub bass, ticking hi-hats, low drones, distant janggu taps, uneasy and watchful.",
-        CALM,
+        "Tactical cyberpunk infiltration groove, 104 bpm: driving muted bassline, tight crisp hi-hats and electronic snare, dark atmospheric synth pulses, subtle radar-like synth plucks, focused and propulsive.",
+        MID,
     ),
     "map2": (
-        "Mysterious night market, low groove 95 bpm: plucked gayageum and synth plucks, round groovy bass line, soft hand percussion, smoky and curious.",
-        CALM,
+        "Neon undercity night market electronic groove, 108 bpm: deep funky analog synth bass, syncopated electronic percussion, glossy cyberpunk synth leads, dark neon club atmosphere, stylish and energetic.",
+        MID,
     ),
     "map3": (
-        "Cold sterile cathedral of glass, 84 bpm: glassy synth arpeggios, wordless choir-like synth pads, deep reverb, clinical and awe-inspiring.",
-        CALM,
+        "High-tech megacorp spire infiltration, 110 bpm: crystalline digital synth arpeggios, deep pulsing sub-bass, tight precision electronic beat, cold futuristic pads, sleek and high-stakes.",
+        MID,
     ),
     "event": (
-        "Introspective story moment, 70 bpm: sparse felt piano notes over warm evolving pads, faint haegeum, quiet and thoughtful.",
+        "Atmospheric cyberpunk narrative tension, 88 bpm: deep warm pulsing bass, subtle minimal electronic beat, evolving dark neon synth pads, clean hypnotic synth pluck melody, immersive and mysterious.",
         CALM,
     ),
     "shop": (
-        "Laid-back smuggler groove, 92 bpm: muted fingered bass, brushed drums, plucked gayageum riffs, dusty keys, cool and relaxed.",
+        "Cool black-market cyber-broker beat, 98 bpm: bouncy deep synth bassline, tight snappy electronic drums, sleek retro-futuristic synth chords, confident and stylish.",
         CALM,
     ),
     "rest": (
-        "Soft hopeful safehouse rest, 66 bpm: warm gentle pads, delicate gayageum harmonics, soft piano, quiet and comforting.",
+        "Calm neon rain safehouse synth chill, 84 bpm: warm lush analog synth pads, gentle deep bass pulse, soft muted electronic rhythm, dreamy cyberpunk melody, restorative and modern.",
         CALM,
     ),
     "combat1": (
-        "Driving dark synthwave battle, 120 bpm: punchy gated electronic drums, pulsing analog bass, aggressive arpeggios, janggu fills, tense and focused.",
+        "High-energy dark synthwave tactical battle, 126 bpm: hard-hitting punchy electronic drums, relentless driving 16th-note analog bassline, razor-sharp cyberpunk synth lead, energetic arpeggios, adrenaline-fueled.",
         HOT,
     ),
     "combat2": (
-        "Glitchy industrial breakbeat battle, 128 bpm: chopped distorted breakbeats, metallic percussion, gritty bass, glitch stutters, relentless.",
+        "Aggressive cyberpunk midtempo electro-industrial battle, 130 bpm: heavy gritty synth bass, punchy breakbeat electronic drums, sharp aggressive synth stabs, high-momentum futuristic combat.",
         HOT,
     ),
     "combat3": (
-        "Relentless cyber-orchestral battle, 132 bpm: staccato strings, heavy synth bass, big taiko and janggu drums, brass stabs, urgent.",
+        "Relentless high-tech cyber-tactical battle, 134 bpm: fast driving synth bass, pounding electronic drums, soaring dark synthwave lead melody, intense futuristic arpeggios, urgent and powerful.",
         HOT,
     ),
     "elite": (
-        "Aggressive elite battle, 130 bpm: distorted reese bass, pounding drums, screeching haegeum lead, dark and menacing.",
+        "Deadly cyberpunk elite boss encounter, 132 bpm: massive distorted Reese bass, heavy industrial electronic drums, menacing dark synth lead, relentless driving rhythm, dangerous and thrilling.",
         HOT,
     ),
     "boss1": (
-        "Heavy mechanical boss battle, 125 bpm: thundering war drums, brassy synth horns, industrial metal clanks, ominous low riffs, a giant machine approaches.",
+        "Heavy mechanical boss battle, 128 bpm: thundering industrial electronic drums, brassy cyberpunk synth horns, massive sub-bass riffs, relentless dark synthwave energy.",
         HOT,
     ),
     "boss2": (
-        "Chaotic glitch horror boss battle, 135 bpm: detuned synth stabs, stuttering broken beats, eerie haegeum, dissonant textures, unsettling and fast.",
+        "Chaotic glitch-synth cyberpunk boss battle, 136 bpm: aggressive detuned synth leads, hard-hitting fast breakbeats, heavy distorted bassline, intense and futuristic.",
         HOT,
     ),
     "boss_ix": (
-        "Epic final boss battle, 140 bpm: wordless choir-like pads with an orchestral and synth hybrid, thundering janggu rhythms, soaring haegeum melody, huge and decisive.",
+        "Epic final AI boss battle, 140 bpm: grand cinematic synth-orchestral hybrid, driving fast electronic drums, massive pulsing bass, soaring dark synth lead melody, climactic and decisive.",
         HOT,
     ),
     "victory": (
-        "Triumphant victory, bright uplifting synthwave, 100 bpm: heroic synth brass melody with gayageum, warm steady groove, relieved and proud.",
+        "Triumphant cyberpunk victory groove, 110 bpm: bright heroic synthwave lead melody, punchy upbeat electronic drums, warm driving analog bass, satisfying and victorious.",
         MID,
     ),
     "defeat": (
-        "Somber defeat, slow 60 bpm: low mournful pads, lonely haegeum, a few sparse piano notes, quiet and heavy, soft but continuous.",
+        "Dark cyberpunk game over, 72 bpm: deep low analog synth drone, slow minimal electronic pulse, melancholic fading synth melody, clean and atmospheric.",
         CALM,
     ),
     "ending": (
-        "Bittersweet hopeful finale, 76 bpm: swelling warm pads, gentle gayageum melody, soft drums, strings rising, tender and hopeful.",
-        CALM,
+        "Cinematic cyberpunk credits theme, 94 bpm: sweeping warm analog synth pads, emotional arpeggiated synth melody, steady modern electronic beat, deep bass, bittersweet and memorable.",
+        MID,
     ),
 }
 

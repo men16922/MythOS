@@ -181,6 +181,18 @@ export const V2_SPRITE_FOR_ENEMY: Record<string, string> = {
   ark_warden: 'ark-warden',
   ark_assaulter: 'ark-assaulter',
   ark_executor: 'ark-executor',
+  ripper_hound: 'hunter-spider',
+  stalker_drone: 'ark-sentry',
+  rust_hulk: 'incinerator',
+  baekho_stalker: 'hunter-spider',
+  blade_dancer: 'glitch-reaver',
+  acid_alchemist: 'ark-assaulter',
+  crimson_executioner: 'enforcer-elite',
+  hyeonmu_bastion: 'haetae',
+  phantom_assassin: 'ark-warden',
+  bio_purger: 'ark-assaulter',
+  eclipse_valkyrie: 'purge-seraph',
+  architect_omega: 'ix_avatar',
 }
 
 /** ArchetypeDef id -> V2_SPRITES key. */

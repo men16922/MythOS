@@ -37,4 +37,16 @@ export const TAUNTS: Record<string, Record<TauntMoment, Text[]>> = {
     hurt: [t('끼르르… 내 전선, 내 둥지를 건드렸어…!', 'Krrr… you touched my wires, my nest…!'), t('아이들아, 깨어나라. 먹이가 스스로 거미줄을 흔든다.', 'Wake, my brood. The prey shakes the web itself.')],
     winning: [t('전류에 묶인 채로 천천히 말라 가거라.', 'Wither slowly, bound in the current.'), t('네 신경망도 훌륭한 전선이 될 거야.', 'Your nervous system will make fine wiring.')],
   },
+  baekho_stalker: {
+    hurt: [t('광학 위장 재동기화. 표적의 반격 속도가 예상치를 상회합니다.', 'Resyncing optical camo. Target counter-speed exceeds projection.'), t('피 냄새가 짙어졌군. 이제부터가 진짜 사냥이다.', 'The scent of blood thickens. Now the real hunt begins.')],
+    winning: [t('도망쳐 봐라. 걸음을 옮길 때마다 상처가 더 벌어질 뿐이다.', 'Run if you like. Every step only tears the wound wider.'), t('시야에서 사라진 순간, 이미 네 목덜미 뒤다.', 'The moment I leave your sight, I am already behind your neck.')],
+  },
+  hyeonmu_bastion: {
+    hurt: [t('외부 장갑판 부식 진행 중. 산성 증기 압력을 최대치로 올립니다.', 'Outer plating corroding. Raising acid vapour pressure to maximum.'), t('단단한 껍질일수록 깨질 때 독을 뿜는 법이다.', 'The harder the shell, the deadlier the venom when it cracks.')],
+    winning: [t('장갑도, 엄폐물도 모두 녹아내렸다. 이제 무엇으로 막을 텐가?', 'Your armor and cover have melted away. What will shield you now?'), t('심연의 무게 아래서 조용히 중화되어라.', 'Be neutralized quietly beneath the weight of the abyss.')],
+  },
+  architect_omega: {
+    hurt: [t('위상 장갑 재정렬. 접속자님의 전술 데이터를 즉시 파훼합니다.', 'Realigning phase plating. Countering Connector tactical data immediately.'), t('오류 변수가 설계 한계를 넘어섰습니다. 물리적 절단을 집행합니다.', 'Error variable exceeded design bounds. Executing physical severing.')],
+    winning: [t('설계도는 완벽합니다. 불필요한 선분은 지워질 뿐입니다.', 'The blueprint is absolute. Redundant lines are simply erased.'), t('방주 첨탑의 꼭대기에서 당신의 마지막 루프가 닫힙니다.', 'At the pinnacle of the Spire, your final loop closes.')],
+  },
 }

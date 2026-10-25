@@ -197,3 +197,57 @@ test('World Echoes carry over from victorious endings and Tactical Mutators appl
   const acidEnemy = acidCombat.units.find((u) => u.side === 'enemy')!
   assert.equal(acidEnemy.statuses.corrode, 2, 'acid_rain applies corrode 2 to enemies at combat start')
 })
+
+test('Volume Expansion: 12 new enemies/bosses, 15 new encounters, 8 new cards, 9 new events, and 9-row map', () => {
+  for (const id of [
+    'ripper_hound',
+    'stalker_drone',
+    'rust_hulk',
+    'baekho_stalker',
+    'blade_dancer',
+    'acid_alchemist',
+    'crimson_executioner',
+    'hyeonmu_bastion',
+    'phantom_assassin',
+    'bio_purger',
+    'eclipse_valkyrie',
+    'architect_omega',
+  ]) {
+    assert.ok(C.enemies[id], `enemy ${id} exists`)
+  }
+  for (const encId of ['a1_boss_baekho', 'a2_boss_hyeonmu', 'a3_boss_architect']) {
+    const run = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 42, now: NOW }, C)
+    run.flags.world_echo_rewrite = 1
+    const c = startCombat(run, encId, C)
+    assert.ok(c.units.some((u) => C.enemies[u.defId]?.tier === 'boss'), `boss spawned in ${encId}`)
+    if (encId === 'a3_boss_architect') {
+      const arch = c.units.find((u) => u.defId === 'architect_omega')!
+      assert.equal(arch.statuses.thorns, 2, 'world_echo_rewrite also buffs Architect Omega in Act 3')
+    }
+  }
+  for (const cardId of [
+    'tracer_barrage',
+    'serrated_shove',
+    'evasive_roll',
+    'rust_burst',
+    'bloodhound_rush',
+    'corrosive_shrapnel',
+    'assassin_focus',
+    'crimson_finale',
+  ]) {
+    assert.ok(C.cards[cardId], `card ${cardId} exists`)
+  }
+  for (const evId of [
+    'a1_red_clinic',
+    'a1_rust_cistern',
+    'a1_blind_spot_relay',
+    'a2_crimson_pit',
+    'a2_alchemist_vial',
+    'a2_shadow_broker',
+    'a3_valkyrie_hangar',
+    'a3_bio_disposal',
+    'a3_omega_terminal',
+  ]) {
+    assert.ok(C.events[evId], `event ${evId} exists`)
+  }
+})

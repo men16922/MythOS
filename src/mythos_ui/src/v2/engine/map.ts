@@ -17,7 +17,7 @@ import type { RngHolder } from './rng.ts'
 import type { ActMap, ContentRegistry, EncounterDef, EventDef, MapNode, NodeKind } from './types.ts'
 
 /** Regular rows (0..MAP_ROWS-1); the boss sits on row MAP_ROWS. */
-export const MAP_ROWS = 7
+export const MAP_ROWS = 8
 export const MAP_COLS = 4
 export const BOSS_ROW = MAP_ROWS
 
@@ -190,12 +190,13 @@ function assignKinds(rng: RngHolder, nodes: Record<string, MapNode>, parents: Re
     }
   }
 
-  // Mandatory: a treasure on row 3 and a shop somewhere in rows 2-5.
+  const maxMid = MAP_ROWS - 2
+  // Mandatory: a treasure on row 3 and a shop somewhere in rows 2..maxMid.
   place('treasure', 1, 3, 3)
-  place('shop', quotas.shop, 2, 5)
-  place('elite', quotas.elite, 2, 5)
-  place('treasure', quotas.treasure - 1, 1, 5)
-  place('event', quotas.event, 1, 5)
+  place('shop', quotas.shop, 2, maxMid)
+  place('elite', quotas.elite, 2, maxMid)
+  place('treasure', quotas.treasure - 1, 1, maxMid)
+  place('event', quotas.event, 1, maxMid)
   for (const n of middle) if (!assigned.has(n.id)) n.kind = 'combat'
 }
 

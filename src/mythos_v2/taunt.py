@@ -99,6 +99,33 @@ ENEMY_PERSONAS: dict[str, EnemyPersona] = {
             "wires, electric webs, and her brood feeding on the connector.",
         },
     ),
+    "baekho_stalker": EnemyPersona(
+        {"ko": "백호", "en": "BAEKHO"},
+        {
+            "ko": "C-17 구역 초고속 광학 위장 강습기. 차갑고 날카로운 사냥꾼의 반말로 피 냄새, 은신, 추격과 "
+            "목덜미를 노리는 일격을 말한다.",
+            "en": "C-17's high-speed optical-camo interceptor. Speaks like a cold, razor-sharp predator "
+            "about the scent of blood, stealth, and striking from behind.",
+        },
+    ),
+    "hyeonmu_bastion": EnemyPersona(
+        {"ko": "현무", "en": "HYEONMU"},
+        {
+            "ko": "하층 심연의 중장갑 방벽 기체. 묵직하고 위압적인 어조로 산성 안개, 부식되는 장갑, 깨지지 않는 "
+            "껍질과 중화를 선고한다.",
+            "en": "The Undercity's heavy toxic bastion. Speaks with crushing weight about acid mist, "
+            "melting armor, its unbreakable shell, and neutralization.",
+        },
+    ),
+    "architect_omega": EnemyPersona(
+        {"ko": "설계자 오메가", "en": "Architect Omega"},
+        {
+            "ko": "관리자 IX의 무력 집행 코어 아바타. 감정이 배제된 정밀한 존댓말('~합니다')로 불필요한 변수의 "
+            "물리적 절단과 설계도의 완성을 통보한다.",
+            "en": "Executive combat avatar of Administrator IX. Speaks with emotionless precision about "
+            "physically severing redundant variables and completing the blueprint.",
+        },
+    ),
 }
 
 _SITUATION: dict[TauntTrigger, dict[Lang, str]] = {

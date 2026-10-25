@@ -3,7 +3,7 @@
  "codex_image_failed": 1,
  "image_calls": 317,
  "image_failed": 401,
- "lyria_calls": 21,
+ "lyria_calls": 34,
  "lyria_failed": 0,
  "outputs": {
   "arena/industrial.webp": {
@@ -2192,16 +2192,16 @@
    "ts": "2026-10-10T23:26:15"
   },
   "music/combat1.m4a": {
-   "generations": 2,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Driving dark synthwave battle, 120 bpm: punchy gated electronic drums, pulsing analog bass, aggressive arpeggios, janggu fills, tense and focused.",
-   "seed": 658481581,
-   "ts": "2026-10-10T23:22:06"
+   "generations": 3,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. High-energy dark synthwave tactical battle, 126 bpm: hard-hitting punchy electronic drums, relentless driving 16th-note analog bassline, razor-sharp cyberpunk synth lead, energetic arpeggios, adrenaline-fueled.",
+   "seed": 94852087,
+   "ts": "2026-10-25T17:02:41"
   },
   "music/combat2.m4a": {
-   "generations": 1,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Glitchy industrial breakbeat battle, 128 bpm: chopped distorted breakbeats, metallic percussion, gritty bass, glitch stutters, relentless.",
-   "seed": 219662018,
-   "ts": "2026-10-10T23:25:39"
+   "generations": 2,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. Aggressive cyberpunk midtempo electro-industrial battle, 130 bpm: heavy gritty synth bass, punchy breakbeat electronic drums, sharp aggressive synth stabs, high-momentum futuristic combat.",
+   "seed": 604446981,
+   "ts": "2026-10-25T17:03:06"
   },
   "music/combat3.m4a": {
    "generations": 1,
@@ -2216,10 +2216,10 @@
    "ts": "2026-10-10T23:26:39"
   },
   "music/elite.m4a": {
-   "generations": 1,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Aggressive elite battle, 130 bpm: distorted reese bass, pounding drums, screeching haegeum lead, dark and menacing.",
-   "seed": 854992753,
-   "ts": "2026-10-10T23:25:46"
+   "generations": 3,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. Deadly cyberpunk elite boss encounter, 132 bpm: massive distorted Reese bass, heavy industrial electronic drums, menacing dark synth lead, relentless driving rhythm, dangerous and thrilling.",
+   "seed": 621392116,
+   "ts": "2026-10-25T17:03:43"
   },
   "music/ending.m4a": {
    "generations": 2,
@@ -2228,28 +2228,28 @@
    "ts": "2026-10-10T23:27:10"
   },
   "music/event.m4a": {
-   "generations": 1,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Introspective story moment, 70 bpm: sparse felt piano notes over warm evolving pads, faint haegeum, quiet and thoughtful.",
-   "seed": 825502439,
-   "ts": "2026-10-10T23:24:42"
+   "generations": 3,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. Atmospheric cyberpunk narrative tension, 88 bpm: deep warm pulsing bass, subtle minimal electronic beat, evolving dark neon synth pads, clean hypnotic synth pluck melody, immersive and mysterious.",
+   "seed": 373523120,
+   "ts": "2026-10-25T17:02:06"
   },
   "music/hub.m4a": {
-   "generations": 1,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Warm underground refuge, gentle lo-fi 80 bpm: dusty electric piano chords, soft muted beat with vinyl crackle, mellow haegeum phrases, cozy and safe.",
-   "seed": 480254028,
-   "ts": "2026-10-10T23:24:14"
+   "generations": 2,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. Stylish cyberpunk underground safehouse groove, 92 bpm: warm deep synth bassline, crisp tight electronic chillhop beat, Rhodes-style neon synth chords, smooth atmospheric synth lead, sleek and immersive.",
+   "seed": 798074615,
+   "ts": "2026-10-25T17:00:41"
   },
   "music/map1.m4a": {
-   "generations": 1,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Tense dark ambient exploration, 90 bpm: rain texture, sparse pulsing sub bass, ticking hi-hats, low drones, distant janggu taps, uneasy and watchful.",
-   "seed": 585989278,
-   "ts": "2026-10-10T23:24:14"
+   "generations": 2,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. Tactical cyberpunk infiltration groove, 104 bpm: driving muted bassline, tight crisp hi-hats and electronic snare, dark atmospheric synth pulses, subtle radar-like synth plucks, focused and propulsive.",
+   "seed": 943470440,
+   "ts": "2026-10-25T17:01:11"
   },
   "music/map2.m4a": {
-   "generations": 1,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Mysterious night market, low groove 95 bpm: plucked gayageum and synth plucks, round groovy bass line, soft hand percussion, smoky and curious.",
-   "seed": 570916861,
-   "ts": "2026-10-10T23:24:44"
+   "generations": 2,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. Neon undercity night market electronic groove, 108 bpm: deep funky analog synth bass, syncopated electronic percussion, glossy cyberpunk synth leads, dark neon club atmosphere, stylish and energetic.",
+   "seed": 423185221,
+   "ts": "2026-10-25T17:01:10"
   },
   "music/map3.m4a": {
    "generations": 2,
@@ -2258,22 +2258,22 @@
    "ts": "2026-10-10T23:25:13"
   },
   "music/rest.m4a": {
-   "generations": 1,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Soft hopeful safehouse rest, 66 bpm: warm gentle pads, delicate gayageum harmonics, soft piano, quiet and comforting.",
-   "seed": 885462315,
-   "ts": "2026-10-10T23:25:12"
+   "generations": 2,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. Calm neon rain safehouse synth chill, 84 bpm: warm lush analog synth pads, gentle deep bass pulse, soft muted electronic rhythm, dreamy cyberpunk melody, restorative and modern.",
+   "seed": 228192928,
+   "ts": "2026-10-25T17:02:34"
   },
   "music/shop.m4a": {
-   "generations": 1,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Laid-back smuggler groove, 92 bpm: muted fingered bass, brushed drums, plucked gayageum riffs, dusty keys, cool and relaxed.",
-   "seed": 472143253,
-   "ts": "2026-10-10T23:25:11"
+   "generations": 3,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. Cool black-market cyber-broker beat, 98 bpm: bouncy deep synth bassline, tight snappy electronic drums, sleek retro-futuristic synth chords, confident and stylish.",
+   "seed": 650740305,
+   "ts": "2026-10-25T17:02:12"
   },
   "music/title.m4a": {
-   "generations": 1,
-   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Melancholic and majestic main theme, slow 72 bpm: wide warm analog synth pads, a lonely gayageum melody motif, deep sub bass swells, distant rain ambience, cinematic and emotional.",
-   "seed": 51708516,
-   "ts": "2026-10-10T23:24:14"
+   "generations": 2,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Sleek modern dark cyberpunk synthwave and electronic music with deep pulsing analog sub-bass, crisp punchy electronic drums, atmospheric neo-noir synth pads, and sharp arpeggiated synthesizers. Iconic dark cyberpunk main theme, driving 96 bpm: deep resonant Reese bass swells, sleek hypnotic synth arpeggio motif, lush cinematic analog pads, crisp modern electronic slow-burn groove, cool, mysterious, and futuristic.",
+   "seed": 13897890,
+   "ts": "2026-10-25T17:00:41"
   },
   "music/victory.m4a": {
    "generations": 1,

@@ -96,7 +96,7 @@ for (const set of IMPLANT_SETS) for (const id of set.members) BY_MEMBER[id] = se
 const BY_ID: Record<string, ImplantSetDef> = Object.fromEntries(IMPLANT_SETS.map((s) => [s.id, s]))
 
 /** Weight multiplier for a reward implant that belongs to a set the player already holds a piece of. */
-export const SET_PULL = 1.6
+export const SET_PULL = 1.7
 
 export function implantSetOf(implantId: string): ImplantSetDef | undefined {
   const id = BY_MEMBER[implantId]

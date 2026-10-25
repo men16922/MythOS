@@ -280,8 +280,8 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
   if (run.flags.world_echo_noble) {
     c.triggered['c:world_echo_noble'] = 1
   }
-  if (encounterId === 'a3_boss_ix') {
-    const ix = livingEnemies(c).find((e) => e.defId === 'administrator_ix' || e.defId === 'ix_avatar')
+  if (encounterId === 'a3_boss_ix' || encounterId === 'a3_boss_architect') {
+    const ix = livingEnemies(c).find((e) => e.defId === 'administrator_ix' || e.defId === 'architect_omega' || e.defId === 'ix_avatar')
     if (ix && run.flags.world_echo_rewrite) {
       ix.armor += 1
       addStatus(c, ix, 'thorns', 2)

@@ -260,9 +260,9 @@ export function CombatScreen(props: CombatScreenProps) {
   const highTrace = (props.run?.trace ?? 0) >= 55
   const bgm: Bgm =
     enc?.kind === 'boss'
-      ? combat.encounterId === 'a1_boss_jujak' || combat.encounterId === 'a2_boss_echo_eater'
+      ? combat.encounterId === 'a1_boss_jujak' || combat.encounterId === 'a1_boss_baekho' || combat.encounterId === 'a2_boss_echo_eater'
         ? 'boss2'
-        : act === 1 || combat.encounterId === 'a2_boss_arachne'
+        : act === 1 || combat.encounterId === 'a2_boss_arachne' || combat.encounterId === 'a2_boss_hyeonmu'
           ? 'boss1'
           : 'boss_ix'
       : enc?.kind === 'elite' || crisis || highTrace

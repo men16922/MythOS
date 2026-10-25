@@ -77,9 +77,9 @@ test('node kinds follow the row rules', () => {
     const nodes = nodesOf(map)
     for (const n of nodes) {
       if (n.row === 0) assert.equal(n.kind, 'combat', 'row 0 is all combat')
-      if (n.row === MAP_ROWS - 1) assert.equal(n.kind, 'rest', 'row 6 is all rest')
+      if (n.row === MAP_ROWS - 1) assert.equal(n.kind, 'rest', 'last regular row is all rest')
       if (n.kind === 'elite') {
-        assert.ok(n.row >= 2 && n.row <= 5, 'elites only on rows 2-5')
+        assert.ok(n.row >= 2 && n.row <= MAP_ROWS - 2, 'elites only on middle rows')
         for (const id of n.next) assert.notEqual(map.nodes[id]?.kind, 'elite', 'no elite → elite')
       }
       if (n.kind === 'rest') assert.equal(n.row, MAP_ROWS - 1, 'no mid-map rests')
@@ -98,7 +98,7 @@ test('node kinds follow the row rules', () => {
       }
     }
     assert.ok(nodes.some((n) => n.row === 3 && n.kind === 'treasure'), 'row 3 has a treasure')
-    assert.ok(nodes.some((n) => n.kind === 'shop' && n.row >= 2 && n.row <= 5), 'a shop on rows 2-5')
+    assert.ok(nodes.some((n) => n.kind === 'shop' && n.row >= 2 && n.row <= MAP_ROWS - 2), 'a shop on middle rows')
     const events = nodes.filter((n) => n.kind === 'event').map((n) => n.eventId)
     assert.equal(new Set(events).size, events.length, 'pre-rolled events are unique within the act')
   }

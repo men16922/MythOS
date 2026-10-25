@@ -1057,4 +1057,541 @@ export const SUAH_ARC: EventDef[] = [
     ],
     gmHints: ['su_ah', 'last pour', 'portable furnace', 'memory chip'],
   },
+  // ------------------------------------------------------------------ Volume Expansion: 9 tactical / stat / DoT events
+  {
+    id: 'a1_red_clinic',
+    acts: [1],
+    title: t('무허가 봉합소', 'Back-Alley Stitchery'),
+    image: 'v2/events/a1_welfare_capsule.webp',
+    text: t(
+      '정전된 상가 지하에서 붉은 십자 네온 하나가 깜빡인다. 낡은 수술대 옆에서 무면허 외과의가 피 묻은 장갑을 벗으며 묻는다.\n“봉합할 건가, 아니면 남는 신경 가속제를 가져갈 건가?”',
+      'Beneath a dark arcade, a single red neon cross flickers. Beside a rusted operating table, an unlicensed surgeon peels off bloodstained gloves.\n“Here for stitches, or taking the spare neural accelerant?”',
+    ),
+    options: [
+      {
+        label: t('신경 반사 가속 시술을 받는다', 'Take the reflex acceleration graft'),
+        hint: t('민첩 +1 · 카드 1장 선택 · 실패 시 HP −4', '+1 AGI · pick a card · fail: −4 HP'),
+        check: { stat: 'agi', dc: 5 },
+        success: {
+          text: t(
+            '차가운 바늘이 목덜미를 스치자 시야가 한 박자 빨라진다. 외과의가 남은 전술 칩 하나를 덤으로 던져 준다.',
+            'A cold needle grazes your neck and the world slows a beat. The surgeon tosses you a spare tactical chip.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'agi', amount: 1 },
+            { kind: 'card_choice' },
+          ],
+        },
+        failure: {
+          text: t(
+            '전류가 과하게 튀며 근육이 경련한다. 급히 단자를 뽑아냈지만 욱신거림이 남는다.',
+            'Current spikes too hard and your muscles spasm. You yank the lead out, aching.',
+          ),
+          effects: [{ kind: 'hp', amount: -4 }],
+        },
+      },
+      {
+        label: t('상처를 응급 봉합한다', 'Get emergency stitches'),
+        hint: t('HP +8 · 추적 +2', '+8 HP · +2 Trace'),
+        success: {
+          text: t(
+            '거친 봉합사가 살갗을 당기며 지혈제가 스며든다. 통증은 가라앉았지만 진료 기록이 암시장 망에 남았다.',
+            'Rough sutures pull tight as coagulant sinks in. The pain fades, though a trace lingers on the clinic net.',
+          ),
+          effects: [
+            { kind: 'hp', amount: 8 },
+            { kind: 'trace', amount: 2 },
+          ],
+        },
+      },
+      {
+        label: t('수술대 밑 의료품을 챙겨 나온다', 'Pocket the surgical supplies'),
+        hint: t('소모품 1개 · 크레딧 +15', '+1 consumable · +15 ₵'),
+        success: {
+          text: t(
+            '외과의가 등 돌린 틈에 밀봉된 패치와 현금 뭉치를 챙겨 계단을 빠져나온다.',
+            'While the surgeon turns away, you pocket a sealed patch and a roll of bills.',
+          ),
+          effects: [
+            { kind: 'consumable' },
+            { kind: 'credits', amount: 15 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['back-alley clinic', 'neural graft', 'bloodstained gloves'],
+  },
+  {
+    id: 'a1_rust_cistern',
+    acts: [1],
+    title: t('부식된 폐수 저장조', 'Corroded Cistern'),
+    image: 'v2/events/a1_dead_substation.webp',
+    text: t(
+      '산업 구역 바닥 아래로 노란 산성 증기가 피어오른다. 반쯤 녹아내린 정비 드론 한 기가 저장조 난간에 걸린 채 고농축 부식제 탄창을 품고 있다.',
+      'Yellow acid vapour curls up from beneath the industrial grating. A half-melted maintenance drone hangs on the cistern rail, clutching a canister of concentrated corrosive.',
+    ),
+    options: [
+      {
+        label: t('부식제 탄창을 정밀 분해해 회수한다', 'Carefully extract the corrosive canister'),
+        hint: t('지능 +1 · 카드 1장 선택 · 실패 시 HP −4', '+1 INT · pick a card · fail: −4 HP'),
+        check: { stat: 'int', dc: 5 },
+        success: {
+          text: t(
+            '압력 밸브를 잠그고 탄창을 깔끔하게 분리한다. 장갑을 녹이는 산성 배합 데이터가 고스란히 담겨 있다.',
+            'You seal the valve and detach the canister cleanly, securing its armor-melting formula.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'int', amount: 1 },
+            { kind: 'card_choice' },
+          ],
+        },
+        failure: {
+          text: t(
+            '밸브가 터지며 산성 물방울이 소매 위로 튄다. 살갗이 타들어 가는 듯 쓰라리다.',
+            'The valve hisses open and acid droplets splash your sleeve, searing skin.',
+          ),
+          effects: [{ kind: 'hp', amount: -4 }],
+        },
+      },
+      {
+        label: t('난간째로 힘껏 뜯어낸다', 'Rip the whole assembly loose'),
+        hint: t('근력 +1 · 크레딧 +25 · 실패 시 HP −5', '+1 STR · +25 ₵ · fail: −5 HP'),
+        check: { stat: 'str', dc: 5 },
+        success: {
+          text: t(
+            '녹슨 철골이 비명을 지르며 뜯겨 나온다. 드론 동체 안쪽의 고가 부품까지 통째로 건졌다.',
+            'Rusted steel shrieks and gives way. You salvage both the canister and the drone core.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'str', amount: 1 },
+            { kind: 'credits', amount: 25 },
+          ],
+        },
+        failure: {
+          text: t(
+            '발판이 미끄러지며 정강이를 철골에 강하게 부딪힌다.',
+            'Your footing slips on the slick grate and your shin slams into the beam.',
+          ),
+          effects: [{ kind: 'hp', amount: -5 }],
+        },
+      },
+      {
+        label: t('안전하게 바닥에 떨어진 부품만 줍는다', 'Gather only the safe scrap on the floor'),
+        hint: t('크레딧 +20', '+20 ₵'),
+        success: {
+          text: t(
+            '증기가 닿지 않는 가장자리에서 쓸 만한 합금 조각들을 챙긴다.',
+            'From the dry edge of the grate, you collect intact alloy plates.',
+          ),
+          effects: [{ kind: 'credits', amount: 20 }],
+        },
+      },
+    ],
+    gmHints: ['acid cistern', 'melted drone', 'corrosive canister'],
+  },
+  {
+    id: 'a1_blind_spot_relay',
+    acts: [1],
+    title: t('사각지대 중계기', 'Blind-Spot Relay'),
+    image: 'v2/events/a1_bus_stop_scan.webp',
+    text: t(
+      '고가도로 교각 뒤에 감시 드론들의 주파수를 중계하는 무인 안테나 함이 열려 있다. 표적 조준 로그가 실시간으로 흘러간다.',
+      'Behind an overpass pillar sits an open relay box routing sentinel drone frequencies. Live targeting telemetry scrolls across its screen.',
+    ),
+    options: [
+      {
+        label: t('조준 알고리즘을 역추적해 흡수한다', 'Reverse-engineer the targeting feed'),
+        hint: t('관찰 +1 · 카드 1장 강화 · 실패 시 추적 +5', '+1 OBS · upgrade 1 card · fail: +5 Trace'),
+        check: { stat: 'obs', dc: 5 },
+        success: {
+          text: t(
+            '드론들이 사각지대를 메우는 방식을 읽었다. 이제 놈들의 빈틈이 손바닥 보듯 선명하다.',
+            'You read how the drones cover their blind spots. Their openings now stand out in sharp relief.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'obs', amount: 1 },
+            { kind: 'upgrade_card', count: 1, random: true },
+          ],
+        },
+        failure: {
+          text: t(
+            '보안 핑이 되돌아오며 경보등이 짧게 깜빡인다. 서둘러 자리를 뜬다.',
+            'A security ping bounces back and the warning LED flashes. You slip away quickly.',
+          ),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('더미 신호를 흘려 추적망을 교란한다', 'Inject a dummy signal to scrub Trace'),
+        hint: t('추적 −8 · ◈ +2', '−8 Trace · +2 ◈'),
+        success: {
+          text: t(
+            '유령 좌표를 수십 개 복제해 중계기에 흘려보낸다. 당신을 뒤쫓던 감시 시선이 엉뚱한 골목으로 쏠린다.',
+            'You flood the relay with phantom coordinates, pulling the grid’s gaze toward an empty alley.',
+          ),
+          effects: [
+            { kind: 'trace', amount: -8 },
+            { kind: 'echoes', amount: 2 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['overpass relay', 'targeting feed', 'blind spot'],
+  },
+  {
+    id: 'a2_crimson_pit',
+    acts: [2],
+    title: t('하층 철창 투기장', 'The Crimson Cage'),
+    image: 'v2/events/a2_debt_collectors.webp',
+    text: t(
+      '배수 터널 끝 공터에 녹슨 철망이 쳐져 있고 구경꾼들이 크레딧 칩을 흔들며 함성을 지른다. 진행자가 마이크를 내민다.\n“단 한 합! 피를 먼저 보는 쪽이 판돈을 다 가져간다!”',
+      'At the end of a drain tunnel, a rusted cage ring roars with spectators waving credit chips. The announcer thrusts out a mic.\n“One exchange! First blood takes the whole pot!”',
+    ),
+    options: [
+      {
+        label: t('링에 올라 정면으로 격파한다', 'Step into the cage and strike first'),
+        hint: t('크레딧 +45 · 근력 +1 · 실패 시 HP −6', '+45 ₵ · +1 STR · fail: −6 HP'),
+        check: { stat: 'str', dc: 6 },
+        success: {
+          text: t(
+            '상대가 칼을 뽑기도 전에 어깨를 들이받아 철망에 꽂아 넣는다. 구경꾼들이 환호하며 칩을 던진다.',
+            'Before your opponent clears their blade, you slam them into the chain-link. Chips rain into the ring.',
+          ),
+          effects: [
+            { kind: 'credits', amount: 45 },
+            { kind: 'stat', stat: 'str', amount: 1 },
+          ],
+        },
+        failure: {
+          text: t(
+            '톱날 단검이 옆구리를 스치고 지나간다. 판돈은 놓쳤지만 목숨은 건졌다.',
+            'A serrated blade grazes your ribs. You lose the pot, but walk out on your own feet.',
+          ),
+          effects: [{ kind: 'hp', amount: -6 }],
+        },
+      },
+      {
+        label: t('승부 조작의 틈을 노려 배당금을 챙긴다', 'Spot the rigged tell and bet smart'),
+        hint: t('관찰 +1 · 크레딧 +30 · 실패 시 크레딧 −10', '+1 OBS · +30 ₵ · fail: −10 ₵'),
+        requires: { minCredits: 10 },
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t(
+            '왼쪽 투사의 발목에 채워진 전류 족쇄를 간파했다. 정확히 반대쪽에 걸어 쏠쏠한 배당을 챙긴다.',
+            'You spot the shock cuff on the left fighter’s ankle and bet the other way for an easy payout.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'obs', amount: 1 },
+            { kind: 'credits', amount: 30 },
+          ],
+        },
+        failure: {
+          text: t(
+            '진행자가 눈치를 채고 배당판을 뒤집어 버린다. 판돈 일부만 날렸다.',
+            'The house catches your eye and flips the odds board. You lose your stake.',
+          ),
+          effects: [{ kind: 'credits', amount: -10 }],
+        },
+      },
+      {
+        label: t('구경꾼들의 전술을 눈여겨본 뒤 자리를 뜬다', 'Study the fighters’ footwork and leave'),
+        hint: t('카드 1장 선택', 'Pick a card'),
+        success: {
+          text: t(
+            '철창 안에서 오가는 잔혹한 발놀림과 출혈 연계를 눈에 새기고 조용히 발길을 돌린다.',
+            'You commit the cage fighters’ vicious footwork and bleed combos to memory before moving on.',
+          ),
+          effects: [{ kind: 'card_choice' }],
+        },
+      },
+    ],
+    gmHints: ['cage fight', 'blood sport', 'undercity bets'],
+  },
+  {
+    id: 'a2_alchemist_vial',
+    acts: [2],
+    title: t('연금술사의 시약 가판대', "The Alchemist's Stall"),
+    image: 'v2/events/a2_memory_stall.webp',
+    text: t(
+      '야시장 구석, 방독면을 쓴 노인이 형광 녹색 액체가 끓는 유리병들을 늘어놓고 있다.\n“ARK 중장갑도 한 방울이면 종이장처럼 삭아 내리지. 대신 다룰 줄 아는 손이어야 해.”',
+      'In a corner of the night market, an old chemist in a respirator lines up flasks of boiling green fluid.\n“One drop turns ARK plate to wet paper. Provided your hands don’t shake.”',
+    ),
+    options: [
+      {
+        label: t('고농축 산성 촉매를 직접 배합한다', 'Synthesize a concentrated acid catalyst'),
+        hint: t('지능 +1 · 임플란트 1개 · 실패 시 HP −5', '+1 INT · +1 implant · fail: −5 HP'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t(
+            '정확한 비율로 중화제를 섞어 안정화에 성공한다. 노인이 감탄하며 특제 주입기를 건넨다.',
+            'You balance the stabilizer to the drop. Impressed, the chemist hands over a custom injector.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'int', amount: 1 },
+            { kind: 'implant' },
+          ],
+        },
+        failure: {
+          text: t(
+            '플라스크가 과열되며 매캐한 산성 연기가 뿜어져 나온다. 기침을 하며 물러선다.',
+            'The flask overheats in a burst of acrid fumes, forcing you back coughing.',
+          ),
+          effects: [{ kind: 'hp', amount: -5 }],
+        },
+      },
+      {
+        label: t('말솜씨로 시제품 탄약을 흥정한다', 'Bargain for prototype corrosive rounds'),
+        hint: t('매력 +1 · 카드 1장 선택 · 실패 시 추적 +4', '+1 CHA · pick a card · fail: +4 Trace'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t(
+            '상층 순찰대의 이동 경로 정보를 넘기는 조건으로 부식 전술 데이터와 시약을 받아낸다.',
+            'Trading patrol route intel, you walk away with corrosive combat schematics and vials.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'cha', amount: 1 },
+            { kind: 'card_choice' },
+          ],
+        },
+        failure: {
+          text: t(
+            '노인이 의심스러운 눈초리로 경비 드론 호출기를 만지작거린다. 빈손으로 물러난다.',
+            'The chemist eyes you suspiciously and reaches for a guard buzzer. You back off.',
+          ),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('표준 소이 수류탄 하나를 챙긴다', 'Take a standard incendiary grenade'),
+        hint: t('소이 수류탄 1개', '+1 Incendiary Grenade'),
+        success: {
+          text: t(
+            '가장 안전한 기성품 수류탄 하나를 집어 벨트에 채운다.',
+            'You clip a reliable off-the-shelf incendiary grenade to your belt.',
+          ),
+          effects: [{ kind: 'consumable', id: 'incendiary_grenade' }],
+        },
+      },
+    ],
+    gmHints: ['acid chemist', 'green vials', 'armor corrosion'],
+  },
+  {
+    id: 'a2_shadow_broker',
+    acts: [2],
+    title: t('그림자 사격장', 'Shadow Firing Range'),
+    image: 'v2/events/a2_face_stall.webp',
+    text: t(
+      '버려진 지하철 역사 안쪽에서 홀로그램 표적지들이 빠르게 점멸한다. 전직 저격수 브로커가 총열을 닦으며 말한다.\n“움직이는 표적의 급소를 한 발에 꿰뚫어 봐. 합격하면 내 비기를 넘기지.”',
+      'Inside an abandoned subway platform, holographic targets flicker at high speed. An ex-sniper broker wipes down a barrel.\n“Put one through the vital point of a moving target. Pass, and my technique is yours.”',
+    ),
+    options: [
+      {
+        label: t('호흡을 멈추고 급소를 정밀 저격한다', 'Hold your breath and snipe the vital core'),
+        hint: t('관찰 +1 · 카드 1장 강화 · 실패 시 HP −4', '+1 OBS · upgrade 1 card · fail: −4 HP'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t(
+            '표적이 꺾이는 찰나 방아쇠를 당겨 정중앙을 꿰뚫는다. 브로커가 고개를 끄덕이며 조준 보정 칩을 건넨다.',
+            'You fire at the exact inflection point and pierce dead center. The broker nods and hands over a calibration chip.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'obs', amount: 1 },
+            { kind: 'upgrade_card', count: 1, random: true },
+          ],
+        },
+        failure: {
+          text: t(
+            '반동 제어에 실패해 총구 열기가 손등을 스친다.',
+            'Recoil kicks harder than expected, scorching the back of your hand.',
+          ),
+          effects: [{ kind: 'hp', amount: -4 }],
+        },
+      },
+      {
+        label: t('도약하며 연속 사격으로 표적을 부순다', 'Vault and shatter the targets on the move'),
+        hint: t('민첩 +1 · 카드 1장 선택 · 실패 시 추적 +5', '+1 AGI · pick a card · fail: +5 Trace'),
+        check: { stat: 'agi', dc: 6 },
+        success: {
+          text: t(
+            '엄폐물을 뛰어넘으며 연타로 홀로그램 세 개를 동시에 지운다. 기동 사격의 감각이 손끝에 남는다.',
+            'Vaulting cover, you clear three holograms in a single fluid burst.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'agi', amount: 1 },
+            { kind: 'card_choice' },
+          ],
+        },
+        failure: {
+          text: t(
+            '유탄 소음이 통로를 타고 울려 퍼져 순찰망의 주의를 끈다.',
+            'The gunfire echoes down the tunnel, drawing patrol attention.',
+          ),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('남은 탄약 상자만 수거한다', 'Collect the spare ammo crate'),
+        hint: t('크레딧 +25 · 추적 −4', '+25 ₵ · −4 Trace'),
+        success: {
+          text: t(
+            '사격장 구석의 미개봉 탄약과 교란 핀을 챙겨 조용히 플랫폼을 떠난다.',
+            'You pack up an unopened ammo case and jammer pins before slipping out.',
+          ),
+          effects: [
+            { kind: 'credits', amount: 25 },
+            { kind: 'trace', amount: -4 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['subway firing range', 'ex-sniper broker', 'vital point'],
+  },
+  {
+    id: 'a3_valkyrie_hangar',
+    acts: [3],
+    title: t('발키리 주기장', 'Valkyrie Hangar'),
+    image: 'v2/events/a3_sleeping_frames.webp',
+    text: t(
+      '첨탑 외벽 격납고에 출격 대기 중인 이클립스 발키리 기체들이 매달려 있다. 위상 회피 모듈의 푸른 코어가 충전 중이다.',
+      'Along the outer Spire hangar, Eclipse Valkyrie frames hang on launch rails, their blue phase-evasion cores humming at full charge.',
+    ),
+    options: [
+      {
+        label: t('위상 회피 코어를 해킹해 추출한다', 'Hack and extract a phase-evasion core'),
+        hint: t('민첩 +1 · 임플란트 1개 · 실패 시 HP −6', '+1 AGI · +1 implant · fail: −6 HP'),
+        check: { stat: 'int', dc: 7 },
+        success: {
+          text: t(
+            '안전 잠금을 우회해 따뜻한 위상 코어를 뽑아낸다. 몸이 반 박자 먼저 허공을 미끄러진다.',
+            'Bypassing the interlock, you pull a warm phase core free. Your steps immediately feel weightless.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'agi', amount: 1 },
+            { kind: 'implant' },
+          ],
+        },
+        failure: {
+          text: t(
+            '방전 스파크가 손목을 때리며 격납고 크레인이 덜컹거린다.',
+            'An arc discharge lashes your wrist as the hangar crane shudders.',
+          ),
+          effects: [{ kind: 'hp', amount: -6 }],
+        },
+      },
+      {
+        label: t('발키리 무장창에서 전술 데이터를 다운로드한다', 'Download weapon bay tactical data'),
+        hint: t('카드 1장 선택 · 카드 1장 강화', 'Pick a card · upgrade 1 card'),
+        success: {
+          text: t(
+            '출격 직전 기체의 급습 기동 로그와 정밀 타격 프로토콜을 덱에 동기화한다.',
+            'You sync the Valkyrie dive-assault logs and precision strike protocols into your deck.',
+          ),
+          effects: [
+            { kind: 'card_choice' },
+            { kind: 'upgrade_card', count: 1, random: true },
+          ],
+        },
+      },
+    ],
+    gmHints: ['valkyrie hangar', 'phase core', 'launch rail'],
+  },
+  {
+    id: 'a3_bio_disposal',
+    acts: [3],
+    title: t('생체 폐기 수로', 'Bio-Disposal Chute'),
+    image: 'v2/events/a3_data_incinerator.webp',
+    text: t(
+      '첨탑 중층의 무균 복도 아래로 불량 생체 부품과 산성 정화액이 흐르는 폐기 수로가 지나간다. 유리 격벽 너머에 미개봉 전술 슈트 보관함이 보인다.',
+      'Beneath a sterile mid-Spire corridor runs a chute of rejected bio-parts and acid purge fluid. Beyond the glass sits an unopened tactical suit locker.',
+    ),
+    options: [
+      {
+        label: t('격벽을 부수고 보관함을 통째로 끌어낸다', 'Smash the partition and haul the locker out'),
+        hint: t('근력 +1 · 최대 HP +6 · 실패 시 HP −6', '+1 STR · +6 max HP · fail: −6 HP'),
+        check: { stat: 'str', dc: 7 },
+        success: {
+          text: t(
+            '강화 유리를 단숨에 깨뜨리고 방호 장갑판과 고출력 액추에이터를 장착한다.',
+            'You shatter the reinforced glass and fit the heavy hazard plating and actuators.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'str', amount: 1 },
+            { kind: 'maxHp', amount: 6 },
+            { kind: 'hp', amount: 6 },
+          ],
+        },
+        failure: {
+          text: t(
+            '깨진 유리 파편과 산성 김이 팔뚝을 스친다.',
+            'Jagged glass and acid mist nick your forearm as you pull back.',
+          ),
+          effects: [{ kind: 'hp', amount: -6 }],
+        },
+      },
+      {
+        label: t('정화 밸브를 역류시켜 경비망을 마비시킨다', 'Reverse the purge valve to blind security'),
+        hint: t('추적 −10 · 카드 1장 선택', '−10 Trace · pick a card'),
+        success: {
+          text: t(
+            '복도 끝 감시 센서들이 산성 증기에 가려 먹통이 된다. 여유롭게 전술 모듈을 챙겨 지나간다.',
+            'Acid steam fogs the corridor sensors blind, letting you claim a tactical module in peace.',
+          ),
+          effects: [
+            { kind: 'trace', amount: -10 },
+            { kind: 'card_choice' },
+          ],
+        },
+      },
+    ],
+    gmHints: ['bio-disposal chute', 'acid steam', 'sterile corridor'],
+  },
+  {
+    id: 'a3_omega_terminal',
+    acts: [3],
+    title: t('오메가 백업 터미널', 'Omega Backup Terminal'),
+    image: 'v2/events/a3_control_net_ghost.webp',
+    text: t(
+      '최상층 직전, 관리자 IX의 무력 집행 서브루틴인 ‘설계자 오메가’의 백업 콘솔이 고요히 맥동하고 있다. 당신이 거쳐 온 모든 전투 기록이 화면에 떠 있다.',
+      'Just below the apex, a backup console for Architect Omega — IX’s executive combat subroutine — pulses quietly. Every fight of your run is indexed on its glass.',
+    ),
+    options: [
+      {
+        label: t('오메가의 전술 예측 모델을 역이용한다', 'Turn Omega’s predictive model inside out'),
+        hint: t('관찰 +1 · 매력 +1 · 실패 시 정크 1장', '+1 OBS · +1 CHA · fail: +1 junk'),
+        check: { stat: 'obs', dc: 7 },
+        success: {
+          text: t(
+            '집행 코어가 당신의 다음 수를 읽는 공식을 역산했다. 이제 치명타를 꽂아 넣을 각도가 선명히 보인다.',
+            'You invert the executive core’s prediction matrix. Every critical angle now gleams in plain sight.',
+          ),
+          effects: [
+            { kind: 'stat', stat: 'obs', amount: 1 },
+            { kind: 'stat', stat: 'cha', amount: 1 },
+          ],
+        },
+        failure: {
+          text: t(
+            '역산 도중 방어 논리가 신경망에 역류해 추적 버그를 남긴다.',
+            'Counter-logic surges back through the link, planting a trace bug in your deck.',
+          ),
+          effects: [{ kind: 'junk', cardId: 'trace_bug' }],
+        },
+      },
+      {
+        label: t('콘솔의 예비 에너지를 파티 전원에 주입한다', 'Channel reserve power into the party'),
+        hint: t('파티 HP +10 · ◈ +3', 'Party +10 HP · +3 ◈'),
+        success: {
+          text: t(
+            '백업 커패시터의 순수한 전력을 끌어와 당신과 동료들의 장비를 완충한다.',
+            'You drain the backup capacitor into your party’s rigs, restoring everyone for the final ascent.',
+          ),
+          effects: [
+            { kind: 'heal_party', amount: 10 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['omega terminal', 'prediction matrix', 'final ascent'],
+  },
 ]

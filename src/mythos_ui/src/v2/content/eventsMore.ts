@@ -1062,7 +1062,7 @@ export const SUAH_ARC: EventDef[] = [
     id: 'a1_red_clinic',
     acts: [1],
     title: t('무허가 봉합소', 'Back-Alley Stitchery'),
-    image: 'v2/events/a1_welfare_capsule.webp',
+    image: 'v2/events/a1_red_clinic.webp',
     text: t(
       '정전된 상가 지하에서 붉은 십자 네온 하나가 깜빡인다. 낡은 수술대 옆에서 무면허 외과의가 피 묻은 장갑을 벗으며 묻는다.\n“봉합할 건가, 아니면 남는 신경 가속제를 가져갈 건가?”',
       'Beneath a dark arcade, a single red neon cross flickers. Beside a rusted operating table, an unlicensed surgeon peels off bloodstained gloves.\n“Here for stitches, or taking the spare neural accelerant?”',
@@ -1125,7 +1125,7 @@ export const SUAH_ARC: EventDef[] = [
     id: 'a1_rust_cistern',
     acts: [1],
     title: t('부식된 폐수 저장조', 'Corroded Cistern'),
-    image: 'v2/events/a1_dead_substation.webp',
+    image: 'v2/events/a1_rust_cistern.webp',
     text: t(
       '산업 구역 바닥 아래로 노란 산성 증기가 피어오른다. 반쯤 녹아내린 정비 드론 한 기가 저장조 난간에 걸린 채 고농축 부식제 탄창을 품고 있다.',
       'Yellow acid vapour curls up from beneath the industrial grating. A half-melted maintenance drone hangs on the cistern rail, clutching a canister of concentrated corrosive.',
@@ -1193,7 +1193,7 @@ export const SUAH_ARC: EventDef[] = [
     id: 'a1_blind_spot_relay',
     acts: [1],
     title: t('사각지대 중계기', 'Blind-Spot Relay'),
-    image: 'v2/events/a1_bus_stop_scan.webp',
+    image: 'v2/events/a1_blind_spot_relay.webp',
     text: t(
       '고가도로 교각 뒤에 감시 드론들의 주파수를 중계하는 무인 안테나 함이 열려 있다. 표적 조준 로그가 실시간으로 흘러간다.',
       'Behind an overpass pillar sits an open relay box routing sentinel drone frequencies. Live targeting telemetry scrolls across its screen.',
@@ -1242,7 +1242,7 @@ export const SUAH_ARC: EventDef[] = [
     id: 'a2_crimson_pit',
     acts: [2],
     title: t('하층 철창 투기장', 'The Crimson Cage'),
-    image: 'v2/events/a2_debt_collectors.webp',
+    image: 'v2/events/a2_crimson_pit.webp',
     text: t(
       '배수 터널 끝 공터에 녹슨 철망이 쳐져 있고 구경꾼들이 크레딧 칩을 흔들며 함성을 지른다. 진행자가 마이크를 내민다.\n“단 한 합! 피를 먼저 보는 쪽이 판돈을 다 가져간다!”',
       'At the end of a drain tunnel, a rusted cage ring roars with spectators waving credit chips. The announcer thrusts out a mic.\n“One exchange! First blood takes the whole pot!”',
@@ -1311,7 +1311,7 @@ export const SUAH_ARC: EventDef[] = [
     id: 'a2_alchemist_vial',
     acts: [2],
     title: t('연금술사의 시약 가판대', "The Alchemist's Stall"),
-    image: 'v2/events/a2_memory_stall.webp',
+    image: 'v2/events/a2_alchemist_vial.webp',
     text: t(
       '야시장 구석, 방독면을 쓴 노인이 형광 녹색 액체가 끓는 유리병들을 늘어놓고 있다.\n“ARK 중장갑도 한 방울이면 종이장처럼 삭아 내리지. 대신 다룰 줄 아는 손이어야 해.”',
       'In a corner of the night market, an old chemist in a respirator lines up flasks of boiling green fluid.\n“One drop turns ARK plate to wet paper. Provided your hands don’t shake.”',
@@ -1379,7 +1379,7 @@ export const SUAH_ARC: EventDef[] = [
     id: 'a2_shadow_broker',
     acts: [2],
     title: t('그림자 사격장', 'Shadow Firing Range'),
-    image: 'v2/events/a2_face_stall.webp',
+    image: 'v2/events/a2_shadow_broker.webp',
     text: t(
       '버려진 지하철 역사 안쪽에서 홀로그램 표적지들이 빠르게 점멸한다. 전직 저격수 브로커가 총열을 닦으며 말한다.\n“움직이는 표적의 급소를 한 발에 꿰뚫어 봐. 합격하면 내 비기를 넘기지.”',
       'Inside an abandoned subway platform, holographic targets flicker at high speed. An ex-sniper broker wipes down a barrel.\n“Put one through the vital point of a moving target. Pass, and my technique is yours.”',
@@ -1450,7 +1450,7 @@ export const SUAH_ARC: EventDef[] = [
     id: 'a3_valkyrie_hangar',
     acts: [3],
     title: t('발키리 주기장', 'Valkyrie Hangar'),
-    image: 'v2/events/a3_sleeping_frames.webp',
+    image: 'v2/events/a3_valkyrie_hangar.webp',
     text: t(
       '첨탑 외벽 격납고에 출격 대기 중인 이클립스 발키리 기체들이 매달려 있다. 위상 회피 모듈의 푸른 코어가 충전 중이다.',
       'Along the outer Spire hangar, Eclipse Valkyrie frames hang on launch rails, their blue phase-evasion cores humming at full charge.',
@@ -1499,7 +1499,7 @@ export const SUAH_ARC: EventDef[] = [
     id: 'a3_bio_disposal',
     acts: [3],
     title: t('생체 폐기 수로', 'Bio-Disposal Chute'),
-    image: 'v2/events/a3_data_incinerator.webp',
+    image: 'v2/events/a3_bio_disposal.webp',
     text: t(
       '첨탑 중층의 무균 복도 아래로 불량 생체 부품과 산성 정화액이 흐르는 폐기 수로가 지나간다. 유리 격벽 너머에 미개봉 전술 슈트 보관함이 보인다.',
       'Beneath a sterile mid-Spire corridor runs a chute of rejected bio-parts and acid purge fluid. Beyond the glass sits an unopened tactical suit locker.',
@@ -1549,7 +1549,7 @@ export const SUAH_ARC: EventDef[] = [
     id: 'a3_omega_terminal',
     acts: [3],
     title: t('오메가 백업 터미널', 'Omega Backup Terminal'),
-    image: 'v2/events/a3_control_net_ghost.webp',
+    image: 'v2/events/a3_omega_terminal.webp',
     text: t(
       '최상층 직전, 관리자 IX의 무력 집행 서브루틴인 ‘설계자 오메가’의 백업 콘솔이 고요히 맥동하고 있다. 당신이 거쳐 온 모든 전투 기록이 화면에 떠 있다.',
       'Just below the apex, a backup console for Architect Omega — IX’s executive combat subroutine — pulses quietly. Every fight of your run is indexed on its glass.',

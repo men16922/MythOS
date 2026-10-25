@@ -1,6 +1,6 @@
 {
- "codex_image_calls": 30,
- "codex_image_failed": 1,
+ "codex_image_calls": 61,
+ "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
  "lyria_calls": 34,
@@ -2464,6 +2464,276 @@
    "prompt": "Cinematic slow push-in on a lone figure in a long coat standing on the edge of a wet rooftop in a rain-soaked cyberpunk Seoul at night. Heavy rain streaks through cyan and magenta neon. Far away a white spire rises into storm clouds, a single red eye at its top slowly brightens. Small drones drift past with blinking red lights. The coat moves in the wind. Photorealistic live-action film footage, real camera, natural motion blur; keep the exact composition, faces, costumes and lighting of the reference frame. Audio: ambient sound effects only (rain, distant city hum, machinery) — no music, no speech, no voices.",
    "seconds": 8,
    "ts": "2026-10-13T03:12:27"
+  },
+  "v2/boss/a1_boss_baekho.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Boss splash art: BAEKHO, the White Tiger guardian of Korean myth reimagined as a lethal high-speed assault machine: a sleek, lean quadruped tiger-mech in white ceramic armour with black stripe-shaped plate seams, long mono-edged blade claws glowing with crimson edge-light, a tiger-skull helm with ice-blue eye slits, jet vents along its spine leaving faint afterimage trails. It prowls low across a rain-soaked rooftop of the blacked-out lower city, mid-stalk, seen from a low dramatic angle. The boss fills the right two thirds of the frame; the left side is darker for the boss name. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/boss/a1_boss_haetae.webp"
+   ],
+   "ts": "2026-10-25T17:31:42"
+  },
+  "v2/boss/a2_boss_hyeonmu.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Boss splash art: HYEONMU, the Black Tortoise guardian of Korean myth reimagined as a colossal armoured siege fortress machine: a huge black-iron tortoise tank with a domed hexagonal-plated shell bristling with mortar tubes leaking corrosive green vapour, a heavy cannon jaw, and a long armoured serpent-like cable tail coiling around it ending in a snake-head sensor, dim green and teal running lights. It wades through the flooded undercity canal under the night market, water cascading off its shell, seen from a low dramatic angle. The boss fills the right two thirds of the frame; the left side is darker for the boss name. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/boss/a2_boss_echo_eater.webp"
+   ],
+   "ts": "2026-10-25T17:31:36"
+  },
+  "v2/boss/a3_boss_architect.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Final-act boss splash art: ARCHITECT OMEGA, the executive combat form of the administrator AI IX (shown in the reference image): the same white-glass faction and blood-red chest core, but a clearly different, more geometric and angular construct — a tall floating figure of white glass and black obsidian monolith plates in perfect symmetry, translucent cyan blueprint grid lines and wireframe lattices folding around it, two long ruler-straight blade arms cutting glowing red seams in the air, small fractured cubes of debris orbiting it. It hovers in a white-lit apex chamber of the Spire as architectural wall panels rearrange behind it. Overwhelming scale, cold precision. The boss fills the right two thirds of the frame; the left side is darker for the boss name.  Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/boss/a3_boss_ix.webp"
+   ],
+   "ts": "2026-10-25T17:31:27"
+  },
+  "v2/cards/artery_rip.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) slashing past an enemy with a short monoblade, a bright crimson arc of light and red sparks trailing the cut. Mood: a dynamic action moment, strong motion and impact. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:32:40"
+  },
+  "v2/cards/assassin_focus.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a close-up of the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset)'s masked face half in shadow, eyes glowing with focused red targeting light, breath steaming in the cold rain, raindrops frozen mid-air as time slows. Mood: a defensive moment: shields, barriers, protective light. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:35:52"
+  },
+  "v2/cards/bloodhound_rush.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) charging forward in a straight line at full speed, blade held low, red motion streaks behind him shaped like a hunting hound's afterimage. Mood: a dynamic action moment, strong motion and impact. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:35:25"
+  },
+  "v2/cards/corrosive_rain.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a canister bursting overhead and raining glowing yellow-green acid droplets in a cross-shaped pattern onto armoured robots whose plating hisses and smokes. Mood: a tactical moment: hacking, movement, repositioning, holographic light. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:32:48"
+  },
+  "v2/cards/corrosive_shrapnel.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a grenade bursting into a cross-shaped spray of glowing yellow-green acid shrapnel shards, armoured enemies on both sides hit and smoking. Mood: a dynamic action moment, strong motion and impact. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:35:16"
+  },
+  "v2/cards/crimson_finale.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) driving a long glowing crimson blade straight through an armoured enforcer, a huge burst of red light and sparks, the enemy flung backward. Mood: a dynamic action moment, strong motion and impact. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:36:03"
+  },
+  "v2/cards/crimson_hook.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) firing a barbed grapple hook on a glowing chain from his wrist, snagging an armoured enemy and yanking it toward him, crimson sparks. Mood: a tactical moment: hacking, movement, repositioning, holographic light. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:32:44"
+  },
+  "v2/cards/evasive_roll.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) mid dive-roll across wet pavement, a hexagonal cyan barrier flaring behind him as bullets strike it. Mood: a defensive moment: shields, barriers, protective light. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:34:30"
+  },
+  "v2/cards/pandemic_pulse.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a toxic square shockwave of sickly green and crimson energy expanding from a cracked bio-canister on wet pavement, corroding the armour of the enemies caught in it. Mood: a tactical moment: hacking, movement, repositioning, holographic light. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:33:33"
+  },
+  "v2/cards/phantom_feint.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) splitting into translucent cyan ghost afterimages, an enemy blade passing harmlessly through a decoy while the real figure watches with focused eyes. Mood: a defensive moment: shields, barriers, protective light. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:33:33"
+  },
+  "v2/cards/rust_burst.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a glowing data spike piercing a thick armour plate, the plate flaking apart into glowing orange rust and corroded fragments around the impact. Mood: a tactical moment: hacking, movement, repositioning, holographic light. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:35:08"
+  },
+  "v2/cards/serrated_shove.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) kicking an armoured enemy backward while raking it with a serrated forearm blade, blood-red sparks spraying. Mood: a dynamic action moment, strong motion and impact. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:34:26"
+  },
+  "v2/cards/tracer_barrage.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) firing a pistol twice in rapid succession, two streaks of bright orange tracer rounds, the first shattering a shimmering translucent evade-field around a target. Mood: a dynamic action moment, strong motion and impact. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:34:22"
+  },
+  "v2/cards/vital_snipe.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) aiming a long sniper rifle, a red holographic reticle locked onto the glowing weak point of a distant armoured robot's neck joint, a single bright piercing tracer line. Mood: a dynamic action moment, strong motion and impact. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
+   ],
+   "ts": "2026-10-25T17:33:41"
+  },
+  "v2/events/a1_blind_spot_relay.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Behind a concrete overpass pillar at night, an open grey relay junction box is wired into the city grid, its small screen glowing with abstract red targeting telemetry (shapes and lines only, nothing readable); thin red scanning lasers of sentinel drones sweep the overpass far above, rain falling. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a1_welfare_capsule.webp"
+   ],
+   "ts": "2026-10-25T17:38:17"
+  },
+  "v2/events/a1_red_clinic.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Beneath a dark arcade a single red neon cross flickers over the doorway of a cramped back-alley clinic. Inside, under a bare hanging lamp beside a rusted reclining treatment chair, an unlicensed street medic with chrome cybernetic hands pulls off rubber gloves; small glass vials of glowing blue neural accelerant lined up on a steel tray, coiled tubing, rain dripping past the doorway. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a1_welfare_capsule.webp"
+   ],
+   "ts": "2026-10-25T17:40:38"
+  },
+  "v2/events/a1_rust_cistern.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Yellow acid vapour curls up through an industrial floor grating above a huge corroded waste-water cistern. A half-melted maintenance drone hangs from the cistern rail, still clutching a canister of glowing yellow-green concentrated corrosive. Rusted pipes, dripping sludge, dim sodium lamps. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a1_welfare_capsule.webp"
+   ],
+   "ts": "2026-10-25T17:37:36"
+  },
+  "v2/events/a2_alchemist_vial.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. In a corner of the undercity night market, an old chemist in a brass respirator mask lines up glass flasks of boiling luminous green fluid on a cluttered stall; coils of glass tubing, a small burner flame, green vapour rising, blurred lanterns behind. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a2_memory_stall.webp"
+   ],
+   "ts": "2026-10-25T17:38:36"
+  },
+  "v2/events/a2_crimson_pit.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. At the end of a drain tunnel, a rusted cage-fighting ring lit by harsh red floodlights; crowds of silhouetted spectators press against the chain-link waving glowing credit chips; an announcer with a chrome jaw thrusts a microphone toward the viewer; steam and blood-red light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a2_memory_stall.webp"
+   ],
+   "ts": "2026-10-25T17:38:21"
+  },
+  "v2/events/a2_shadow_broker.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Inside an abandoned subway platform, translucent holographic humanoid targets flicker and dart at high speed along the tracks; in the foreground a grizzled ex-sniper broker in a long coat wipes down the barrel of a long rifle resting on a crate; cyan hologram light on dripping tiles. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a2_memory_stall.webp"
+   ],
+   "ts": "2026-10-25T17:39:07"
+  },
+  "v2/events/a3_bio_disposal.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Beneath a sterile white mid-Spire corridor, a glass-walled chute carries rejected bio-parts and glowing green acid purge fluid; on the far side of the glass stands an unopened tactical suit locker with a single green status light. Clinical white and toxic green light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a3_sleeping_frames.webp"
+   ],
+   "ts": "2026-10-25T17:39:19"
+  },
+  "v2/events/a3_omega_terminal.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Just below the apex of the Spire, a monolithic backup console of white glass and black obsidian pulses quietly with red light in a cold white chamber; its glass surface shows a cascading grid of small abstract battle-replay images (pictures only, nothing readable); a lone hooded figure stands before it. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a3_sleeping_frames.webp"
+   ],
+   "ts": "2026-10-25T17:39:39"
+  },
+  "v2/events/a3_valkyrie_hangar.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Along a vast clean white outer hangar of the Spire, rows of sleek winged valkyrie-shaped combat frames hang dormant on launch rails, each with a humming blue core glowing in its chest; cold white light, a huge window onto the night city far below. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a3_sleeping_frames.webp"
+   ],
+   "ts": "2026-10-25T17:39:00"
+  },
+  "v2/implants/acid_injector.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a pneumatic injector implant with a glass vial of glowing yellow-green acid and a fine needle tip dripping corrosive, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-25T17:37:00"
+  },
+  "v2/implants/hawkeye_lens.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a cybernetic eye implant with a telescopic multi-ring hawk-like lens and a fine targeting reticle etched in light, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-25T17:36:54"
+  },
+  "v2/implants/reflex_gyro.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a small spinal-mount reflex stabiliser: a spherical gyroscope inside a cage of thin carbon struts, nerve-fibre cables trailing from it, faint motion-blur arcs, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-25T17:36:50"
+  },
+  "v2/implants/serrated_wire.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a coil of razor monofilament wire with tiny saw-tooth serrations wound around a wrist spool, a single red droplet at its edge, a cybernetic artifact with glowing teal circuitry and teal glow. The attached reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-25T17:37:35"
   },
   "v2/npcs/archivist_07.webp": {
    "generations": 1,

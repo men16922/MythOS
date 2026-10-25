@@ -94,6 +94,21 @@ COMPANION_NOTE = (
     "below, turned to face RIGHT."
 )
 
+SPLASH_NOTE = (
+    "The reference image is this boss's splash art. Draw the SAME machine (same design, armour, silhouette and "
+    "colours) as a clean full-body combat sprite, isolated with no background."
+)
+
+STYLE_ONLY_NOTE = (
+    "The reference image is another enemy from the same faction: use it ONLY for the rendering style and "
+    "design language (materials, colours, line quality) — draw a completely NEW, different creature/machine."
+)
+
+ARK_NOTE = (
+    "The reference image is another act-3 ARK unit: match its rendering style and white ARK livery (white "
+    "ceramic, black joints, red accents), but draw a completely NEW, different unit."
+)
+
 SPRITES: list[Sprite] = [
     # ------------------------------------------------------------------ bosses (face LEFT)
     Sprite(
@@ -410,6 +425,185 @@ SPRITES: list[Sprite] = [
         "a featureless helmet with a red visor, a tall white tower shield, a crackling high-voltage shock baton",
         poses=_enemy_poses(),
         enemy_ids=("ark_executor",),
+    ),
+    # ------------------------------------------------------------------ content-expansion bosses (face LEFT)
+    # Identity comes from each boss's splash art (resources/neo-seoul/v2/boss/), generated first.
+    Sprite(
+        key="baekho",
+        kind="boss",
+        size="1536x1024",
+        idle_ref="resources/neo-seoul/v2/boss/a1_boss_baekho.webp",
+        idle_ref_note=SPLASH_NOTE,
+        subject="BAEKHO, the act-1 boss: the White Tiger guardian of Korean myth rebuilt as a lean high-speed "
+        "assault machine — a sleek quadruped tiger-mech in white ceramic armour with black stripe-shaped plate "
+        "seams, long mono-edged blade claws with crimson edge-light, a tiger-skull helm with ice-blue eye slits, "
+        "jet vents along its spine",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: pouncing forward low and fast, one blade-clawed forepaw "
+            "slashing, a compact crimson arc of light trailing the claws, spine jets flaring",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, white armour plates cracked "
+            "and sparking, head jolted aside, small shards and sparks flying",
+        ),
+        enemy_ids=("baekho_stalker",),
+    ),
+    Sprite(
+        key="hyeonmu",
+        kind="boss",
+        size="1536x1024",
+        idle_ref="resources/neo-seoul/v2/boss/a2_boss_hyeonmu.webp",
+        idle_ref_note=SPLASH_NOTE,
+        subject="HYEONMU, the act-2 boss: the Black Tortoise guardian of Korean myth rebuilt as a colossal siege "
+        "fortress — a huge black-iron tortoise tank with a domed hexagonal-plated shell bristling with mortar "
+        "tubes leaking corrosive green vapour, a heavy cannon jaw, and an armoured serpent-like cable tail "
+        "with a snake-head sensor coiled around it, dim green and teal running lights",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: the cannon jaw firing a compact blast of dark teal energy, "
+            "shell mortars venting green smoke, the serpent tail reared up",
+            hit="now in a HIT-REACTION pose: rocking backward toward the right, shell plates cracked and "
+            "sparking, green fluid spraying from a ruptured tube, small debris flying",
+        ),
+        enemy_ids=("hyeonmu_bastion",),
+    ),
+    Sprite(
+        key="architect-omega",
+        kind="boss",
+        idle_ref="resources/neo-seoul/v2/boss/a3_boss_architect.webp",
+        idle_ref_note=SPLASH_NOTE,
+        subject="ARCHITECT OMEGA, the executive combat form of administrator IX: a tall floating geometric "
+        "construct of white glass and black obsidian monolith plates in perfect symmetry, translucent cyan "
+        "blueprint wireframe lattices folding around it, two long ruler-straight blade arms, a blood-red core "
+        "in its chest, small fractured cubes orbiting it, hovering above the ground",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: one blade arm sweeping forward and cutting a compact glowing "
+            "red seam through the air, red core blazing, wireframe lattices flaring",
+            hit="now in a HIT-REACTION pose: recoiling backward toward the right, glass and obsidian plates "
+            "cracking apart, wireframe lattices glitching, red core flaring, shards flying",
+        ),
+        enemy_ids=("architect_omega",),
+    ),
+    # ------------------------------------------------------------------ content-expansion enemies (face LEFT)
+    Sprite(
+        key="ripper-hound",
+        kind="enemy",
+        size="1536x1024",
+        idle_ref="resources/neo-seoul/v2/sprites/scrap-drone-idle.webp",
+        idle_ref_note=STYLE_ONLY_NOTE,
+        subject="the RIPPER HOUND: a lean rusted robotic attack dog of the act-1 lower city, exposed hydraulic "
+        "leg pistons, a long jaw of jagged saw-tooth steel fangs, a single red sensor eye, frayed cables along "
+        "its spine, orange rust and dark gunmetal",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: leaping forward with its saw-tooth jaws wide open, a small "
+            "spray of red sparks at the fangs",
+        ),
+        enemy_ids=("ripper_hound",),
+    ),
+    Sprite(
+        key="stalker-drone",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/sentinel-overseer-idle.webp",
+        idle_ref_note=STYLE_ONLY_NOTE,
+        subject="the STALKER DRONE: a small sleek black assassin drone with a narrow arrowhead body, two tilted "
+        "quiet rotors, a long needle-laser barrel underneath, a thin red sensor slit, parts of its hull "
+        "shimmering half-transparent with optical camouflage, hovering",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: firing a thin bright red needle laser from its barrel, body "
+            "tilted forward",
+        ),
+        enemy_ids=("stalker_drone",),
+    ),
+    Sprite(
+        key="rust-hulk",
+        kind="elite",
+        idle_ref="resources/neo-seoul/v2/sprites/incinerator-idle.webp",
+        idle_ref_note=STYLE_ONLY_NOTE,
+        subject="the RUST HULK: a hulking corroded waste-processing machine on thick piston legs, a hunched "
+        "riveted body with a glass tank of glowing yellow-green acid sludge on its back, one huge rusted "
+        "hydraulic crusher claw and one sludge-lobbing mortar arm, dripping acid, a dim amber sensor eye",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: hurling a compact glob of glowing yellow-green acid sludge "
+            "from its mortar arm while the crusher claw swings forward",
+        ),
+        enemy_ids=("rust_hulk",),
+    ),
+    Sprite(
+        key="blade-dancer",
+        kind="enemy",
+        subject="the BLADE DANCER: a lithe undercity cyber-assassin in a flowing dark crimson-and-black "
+        "hanbok-inspired combat coat with long trailing sashes, a smooth chrome mask with a single magenta eye "
+        "slit, a curved monoblade in each hand, light dancer's stance on the balls of the feet",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: dashing forward in a low spinning slash, both curved blades "
+            "extended, a compact crimson arc of light, sashes whipping",
+        ),
+        enemy_ids=("blade_dancer",),
+    ),
+    Sprite(
+        key="acid-alchemist",
+        kind="enemy",
+        subject="the ACID ALCHEMIST: a hunched undercity chemist in a stained patched hazmat coat and a brass "
+        "respirator mask with round green lenses, a bandolier of glass flasks of glowing yellow-green acid "
+        "across the chest, rubber gloves, one hand holding a fuming flask",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: hurling a glowing green acid flask forward in an overhand "
+            "throw, a small splash of acid vapour around the flask",
+        ),
+        enemy_ids=("acid_alchemist",),
+    ),
+    Sprite(
+        key="crimson-executioner",
+        kind="elite",
+        subject="the CRIMSON EXECUTIONER: a towering undercity executioner in heavy blood-red and black "
+        "armour plates over a stained leather apron, a hooded steel helm with a glowing red visor, wielding a "
+        "huge hooked cleaver-glaive on a chain, red light dripping along the blade",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: swinging the hooked cleaver-glaive forward in a wide arc, a "
+            "compact crimson slash trail",
+        ),
+        enemy_ids=("crimson_executioner",),
+    ),
+    Sprite(
+        key="phantom-assassin",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/ark-assaulter-idle.webp",
+        idle_ref_note=ARK_NOTE,
+        subject="the PHANTOM ASSASSIN: a slim ARK assassin in a form-fitting white-and-black stealth suit "
+        "with thin cyan seams, a smooth featureless white helmet with a narrow red visor, a short phase dagger "
+        "glowing cyan in one hand, a holster of tracking darts at the thigh, parts of the body flickering "
+        "translucent with a phase cloak",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: lunging forward with the cyan phase dagger in a quick "
+            "slicing thrust, a compact red-and-cyan cut arc",
+        ),
+        enemy_ids=("phantom_assassin",),
+    ),
+    Sprite(
+        key="bio-purger",
+        kind="enemy",
+        idle_ref="resources/neo-seoul/v2/sprites/ark-assaulter-idle.webp",
+        idle_ref_note=ARK_NOTE,
+        subject="the BIO-PURGER: an ARK sanitation trooper in bulky sealed white hazmat armour with black "
+        "joints, a domed helmet with a green-lit visor, twin canisters of glowing green purge fluid on the "
+        "back connected by hoses to a heavy dissolve-beam projector held in both hands",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: firing the projector, a compact bright green dissolve beam "
+            "burst at the nozzle, braced stance",
+        ),
+        enemy_ids=("bio_purger",),
+    ),
+    Sprite(
+        key="eclipse-valkyrie",
+        kind="elite",
+        idle_ref="resources/neo-seoul/v2/sprites/ark-warden-idle.webp",
+        idle_ref_note=ARK_NOTE,
+        subject="the ECLIPSE VALKYRIE: a flying ARK combat frame shaped like an armoured valkyrie — a slender "
+        "white-and-dark-steel humanoid war machine with a winged helm, four swept blade-like thruster wings, "
+        "a long lance, a humming blue phase-evasion core in its chest and a dark eclipse-ring halo behind its "
+        "head, hovering",
+        poses=_enemy_poses(
+            attack="now ATTACKING toward the LEFT: diving forward with the lance thrust out, wings swept back, "
+            "a compact burst of blue-white light at the lance tip",
+        ),
+        enemy_ids=("eclipse_valkyrie",),
     ),
     # ------------------------------------------------------------------ companions (face RIGHT)
     # Same key names as the classic sprites (resources/neo-seoul/characters/combat/<key>-<pose>.png), so the

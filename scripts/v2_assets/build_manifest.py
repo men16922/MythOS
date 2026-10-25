@@ -20,8 +20,19 @@ TARGET = ROOT / "src" / "mythos_ui" / "src" / "v2" / "ui" / "common" / "artManif
 # Boss splash files are named by encounter id; the enemy ids resolve to the same art.
 BOSS_ALIASES = {
     "a1_boss_haetae": "haetae",
+    "a1_boss_baekho": "baekho_stalker",
     "a2_boss_echo_eater": "echo_eater",
+    "a2_boss_hyeonmu": "hyeonmu_bastion",
     "a3_boss_ix": "administrator_ix",
+    "a3_boss_architect": "architect_omega",
+}
+# Bosses without their own splash yet borrow a sibling's (key -> source file stem). Used only while the
+# key's own file is missing, so generating the art later replaces the borrow automatically.
+BOSS_BORROW = {
+    "a1_boss_jujak": "a1_boss_haetae",
+    "jujak_core": "a1_boss_haetae",
+    "a2_boss_arachne": "a2_boss_echo_eater",
+    "arachne_queen": "a2_boss_echo_eater",
 }
 MUSIC_ORDER = [
     "title",
@@ -81,6 +92,9 @@ def build() -> tuple[str, dict[str, int]]:
     for enc, enemy in BOSS_ALIASES.items():
         if enc in bosses:
             bosses[enemy] = bosses[enc]
+    for key, src in BOSS_BORROW.items():
+        if key not in bosses and src in bosses:
+            bosses[key] = bosses[src]
     music_files = _files("music", ".m4a")
     music = {k: music_files[k] for k in MUSIC_ORDER if k in music_files}
     music.update({k: v for k, v in music_files.items() if k not in music})

@@ -1,7 +1,8 @@
 # MYTHOS 2.0 — Signal Run · architecture
 
-*English, judge- and reader-facing. Facts as of 2026-10-24; every number points to the file or log that measured it.
-Game summary and AI feature list: `docs/contest/pitch-en.md`. Source for the Devpost text, a blog post and a README.*
+*English, judge- and reader-facing. Facts as of 2026-10-25; every number points to the file or log that measured it.
+Game summary and AI feature list: `docs/contest/pitch-en.md`; Devpost text: `docs/contest/devpost-en.md`; technical blog
+post & conference CFP: `docs/contest/blog-and-cfp-en.md`.*
 
 ## The problem this design answers
 

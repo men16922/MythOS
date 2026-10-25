@@ -4,6 +4,7 @@
 
 - **Architecture Deep Dive (English):** [`docs/contest/architecture-en.md`](docs/contest/architecture-en.md)
 - **Devpost Submission Write-Up (English):** [`docs/contest/devpost-en.md`](docs/contest/devpost-en.md)
+- **Technical Blog Post & Conference CFP (English):** [`docs/contest/blog-and-cfp-en.md`](docs/contest/blog-and-cfp-en.md)
 - **Judge Pitch Summary (English):** [`docs/contest/pitch-en.md`](docs/contest/pitch-en.md)
 - **Gameplay & Rules:** [`docs/GAMEPLAY.md`](docs/GAMEPLAY.md) · **Android (Capacitor):** [`docs/android.md`](docs/android.md)
 

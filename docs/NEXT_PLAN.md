@@ -13,6 +13,10 @@ Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank
 - `[x]` Deploy: preview `00150-qen` (`a6615b7`) verified 5/5 and promoted 2026-10-25 (`--to-latest`, production 4/4; rollback `00148-nav`). `[x]` owner fun verdict **S — keep it** (2026-10-26).
 - `[x]` Smuggler payoff card `mass_hijack` (rare, cost 1: cross-area redirect + 5₵, Codex art; run-level neutral 38.9 vs 39.3 %).
 
+## Priority 0c — DLC-scale expansion "Deep Signal" (proposal, owner decisions pending)
+
+Plan: `docs/plans/2026-10-26-dlc-expansion-plan.md` — modes (Deep Signal 6 acts, Chronicle CRPG campaign, Endless + Paradox 6–10), packs (Glass Library / Dreaming Machines / First Record), +2 archetypes, +5 companions, 1.0 ports, AI A1–A10, waves E0–E6 (~20–24 weeks). `[ ]` `[owner]` decide D1–D8 (§15) before E0.
+
 ## Priority 0 — global showcase & improvement waves (owner direction 2026-10-24)
 
 Plans: `docs/plans/2026-10-24-improvement-and-direction-plan.md` (Waves 1–4 + data-backed recommendations) · `docs/plans/2026-10-24-global-showcase-2026.md` (rest-of-2026 roadmap). Go global, framed as the owner's cloud-architect portfolio; target = the next Google Gemini / Cloud developer challenge on Devpost (expected Dec–Mar, unannounced), fallback = public write-up + talk CFPs. Korean contests move to 2027 spring.

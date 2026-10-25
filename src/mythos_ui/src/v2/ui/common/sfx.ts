@@ -67,6 +67,21 @@ export type SfxName =
   | 'zap'
   | 'wall_slam'
   | 'passive'
+  // DLC update (2026-10-26): per-skill signatures, action layer, recruit scenes.
+  | 'slice'
+  | 'acid'
+  | 'whoosh'
+  | 'crit'
+  | 'hack'
+  | 'blink'
+  | 'riposte'
+  | 'rage'
+  | 'chain'
+  | 'momentum_full'
+  | 'burst_ghost'
+  | 'burst_smuggler'
+  | 'burst_echo'
+  | 'recruit'
 
 export interface SfxOpts {
   /** 0.3 … 2 — scales loudness, pitch drop and body of impact sounds. Default 1. */
@@ -365,6 +380,104 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.zap(0.16 + 0.08 * k, 0.24)
       v.thump(190, 60, 0.04, 0.1 + 0.04 * k, 0.55 * k, 0, true)
       v.crackle(5, 0.22, 0.2, 0.02, 5200)
+      break
+    case 'slice':
+      // Bleed: a thin blade drawn fast + a wet tear underneath.
+      v.noise('highpass', 5200, 0.001, 0.07, 0.5, 9000)
+      v.tone(2600, 'sawtooth', 0.001, 0.06, 0.08, 900)
+      v.noise('bandpass', 700, 0.004, 0.12, 0.3, 300, 0.03)
+      break
+    case 'acid':
+      // Corrode: a fizzing hiss that bubbles down.
+      v.noise('bandpass', 3800, 0.02, 0.5, 0.32, 1400)
+      v.crackle(9, 0.42, 0.12, 0.02, 3600)
+      v.tone(240, 'triangle', 0.01, 0.3, 0.08, 120, 0.05)
+      break
+    case 'whoosh':
+      // Evade / dodge: an airy pass-by sweeping across.
+      v.noise('bandpass', 600, 0.03, 0.26, 0.5, 3400)
+      v.noise('highpass', 4000, 0.04, 0.18, 0.12)
+      break
+    case 'crit':
+      // Critical hit: a struck-metal ring over a hard transient.
+      v.click(0.7, 3600)
+      v.thump(210, 52, 0.05, 0.2, 0.8, 0, true)
+      v.tone(1046, 'sine', 0.001, 0.55, 0.16)
+      v.tone(1568, 'sine', 0.001, 0.42, 0.11)
+      v.tone(2489, 'sine', 0.001, 0.3, 0.07)
+      v.crunch(0.12, 0.35)
+      duckForImpact(3, 0.14)
+      break
+    case 'hack':
+      // Hack / redirect: bit-crushed chirps that wind up and invert.
+      v.stutter(5, 0.028, 0.18)
+      v.tone(1800, 'square', 0.002, 0.08, 0.08, 600)
+      v.tone(600, 'square', 0.002, 0.08, 0.08, 1800, 0.09)
+      v.sample('glitch', 0.3)
+      break
+    case 'blink':
+      // Teleport: a reversed shimmer that snaps shut.
+      v.tone(440, 'sine', 0.06, 0.12, 0.12, 2200)
+      v.shimmer(3, 0.06, 0.05)
+      v.click(0.35, 5200, 0.15)
+      break
+    case 'riposte':
+      // Riposte: a quick metal clash and a counter-cut.
+      v.click(0.6, 4200)
+      v.tone(1320, 'triangle', 0.001, 0.16, 0.14, 990)
+      v.noise('highpass', 4800, 0.001, 0.06, 0.4, 8000, 0.05)
+      break
+    case 'rage':
+      // Rage builds: a low distorted growl swelling under the board.
+      v.tone(58, 'sawtooth', 0.08, 0.6, 0.28, 74)
+      v.tone(87, 'square', 0.1, 0.5, 0.1, 110)
+      v.noise('lowpass', 300, 0.06, 0.5, 0.25)
+      break
+    case 'chain':
+      // Chain: a bright rising arpeggio — intensity climbs with the chain length.
+      v.tone(523 * k, 'triangle', 0.002, 0.14, 0.13)
+      v.tone(659 * k, 'triangle', 0.002, 0.14, 0.12, undefined, 0.06)
+      v.tone(784 * k, 'triangle', 0.002, 0.2, 0.12, undefined, 0.12)
+      v.shimmer(2, 0.05, 0.14)
+      break
+    case 'momentum_full':
+      // Momentum full: a charged chime rising to a held note.
+      v.tone(392, 'sine', 0.02, 0.5, 0.12, 784)
+      v.tone(1175, 'sine', 0.01, 0.6, 0.08, undefined, 0.18)
+      v.shimmer(4, 0.06, 0.2)
+      break
+    case 'burst_ghost':
+      // Void Collapse: an implosion — air pulled inward, then a deep displacement boom.
+      v.noise('bandpass', 3200, 0.25, 0.08, 0.5, 300)
+      v.thump(90, 22, 0.3, 0.8, 1, 0.28, true)
+      v.tone(220, 'sawtooth', 0.01, 0.7, 0.2, 40, 0.28)
+      v.crackle(10, 0.5, 0.18, 0.3)
+      duckForImpact(6, 0.4)
+      break
+    case 'burst_smuggler':
+      // Total Hijack: a cascading data storm — glitches everywhere, then a hard lock-in.
+      v.stutter(10, 0.035, 0.22)
+      v.tone(2400, 'square', 0.002, 0.4, 0.07, 300)
+      v.tone(300, 'square', 0.002, 0.4, 0.07, 2400, 0.12)
+      v.sample('glitch', 0.6)
+      v.thump(160, 48, 0.06, 0.3, 0.8, 0.42, true)
+      duckForImpact(5, 0.35)
+      break
+    case 'burst_echo':
+      // The Road We Walked: a warm choir pad swelling over a heartbeat.
+      v.tone(262, 'sine', 0.12, 1.1, 0.14)
+      v.tone(330, 'sine', 0.14, 1.1, 0.12)
+      v.tone(392, 'sine', 0.16, 1.1, 0.12)
+      v.tone(523, 'sine', 0.2, 1.2, 0.09)
+      v.thump(70, 50, 0.05, 0.25, 0.6, 0)
+      v.thump(70, 50, 0.05, 0.25, 0.5, 0.32)
+      v.shimmer(5, 0.08, 0.3)
+      break
+    case 'recruit':
+      // A companion joins: two warm notes resolving upward.
+      v.tone(440, 'triangle', 0.01, 0.4, 0.12)
+      v.tone(659, 'triangle', 0.01, 0.6, 0.12, undefined, 0.14)
+      v.shimmer(3, 0.05, 0.2)
       break
     case 'passive':
       v.tone(784, 'sine', 0.004, 0.32, 0.12)

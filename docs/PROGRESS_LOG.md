@@ -2,6 +2,14 @@
 
 Last updated: 2026-10-25
 
+## 2026-10-26 — DLC update R2a: companion recruit scenes, character sheet, choice axes, skill SFX (Claude Opus 5.5)
+
+- **Recruit scenes** (owner: "동료 소개·성격·대화 같은 RPG 요소가 너무 없다"): `CompanionIntro` (bio, 3 traits, likes/dislikes, quote, 4–6 beats, 3 first-impression choices with replies, liked tone, reunion lines) for all 6 companions — text by Codex/Astra (`content/companionIntros.ts`, brief `scratch/brief_companion_intros.md`), 6 meeting stills `v2/recruit/*.webp` (Codex). Engine: `joinCompanion` queues `run.introQueue`; `resolveIntro` (liked tone → +1 bond on normal runs, leans an axis). UI `RecruitScene` on the map (full first meeting / one-line reunion via `profile.companionsMet`). `ui_playthrough.py` reads scenes through.
+- **Character sheet** (`CharacterSheet`, top-bar portrait): stats + live perks (`statPerkLines` shared with the tooltip), background, growth, the 4 axes, Signal Burst, crew with bond/approval/traits/first impression.
+- **Choice axes** (1.0 port): `run.axes` humanity/dominance/resilience/insight — dialogue intents (`intentAxis`), first impressions, elite/boss wins.
+- **SFX**: 14 new procedural cues (slice, acid, whoosh, crit, hack, blink, riposte, rage, chain, momentum_full, burst ×3 per archetype, recruit); per-card signature sound from effects/tags (`cardSignature`), distinct bleed/corrode ticks, burst-ready call-out.
+- **Verified**: `make check` (376 + 338), `make playthrough-quick` OK (210 s, scenes read through), real-UI screenshots desktop + phone (scene beats/choice/reply, sheet). **Unverified**: human listen check of the new SFX.
+
 ## 2026-10-26 — DLC update R1: action layer + visuals, Jujak/Arachne unique art (Claude Opus 5.5)
 
 - **Plan**: `docs/plans/2026-10-26-dlc-expansion-plan.md` §17 (owner: DLC-scale free update, CRPG/action/visual boost; execution R1–R7).

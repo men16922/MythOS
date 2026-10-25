@@ -5,7 +5,7 @@ import { cardFace } from '../../../engine/combat.ts'
 import { DIR_VEC, dirToward } from '../../../engine/grid.ts'
 import { GRID_H, GRID_W } from '../../../engine/types.ts'
 import { sfx } from '../../common/sfx.ts'
-import { DIR_PCT, TURN_MS, needsTurn, nextOfKind, panOf, sideOf, travel } from './helpers.ts'
+import { DIR_PCT, TURN_MS, cardSignature, needsTurn, nextOfKind, panOf, sideOf, travel } from './helpers.ts'
 import type { Ev, Kit, Plan } from './types.ts'
 
 export function cardSteps(kit: Kit, plan: Plan, ev: Ev<'card'>, evIdx: number): void {
@@ -33,6 +33,8 @@ export function cardSteps(kit: Kit, plan: Plan, ev: Ev<'card'>, evIdx: number): 
       if (cardDef && info && tgt) addFx({ kind: 'card', cardId: cardDef.id, upgraded: info.upgraded, rect: info.rect, to: tgt, ms: S(620) })
       sfx('card_play', { pan: u ? panOf(u.pos.x) : 0 })
       if (!def || !u || !face) return
+      const sig = cardSignature(face.effects, 'tags' in def ? def.tags : undefined)
+      if (sig) later(() => sfx(sig, { pan: panOf(u.pos.x), volume: 0.8 }), S(90))
       const hasBlock = face.effects.some((e) => e.kind === 'block')
       const isAttack = def.type === 'attack'
       const d = ev.dir ?? (ev.target ? dirToward(u.pos, ev.target) : undefined)

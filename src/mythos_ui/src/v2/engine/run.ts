@@ -45,9 +45,12 @@ import { mapRng, resetNodeStreams, runStream } from './streams.ts'
 import type {
   CardDef,
   CardInstance,
+  ChoiceAxis,
   CombatState,
   Condition,
   ContentRegistry,
+  FirstImpression,
+  Intent,
   EndingDef,
   EventDef,
   EventOption,
@@ -259,6 +262,7 @@ function joinCompanion(run: RunState, id: string, C: ContentRegistry): boolean {
   else (run.bench ??= []).push(member)
   for (const card of def.cards) addCard(run, card, C)
   applyConcretePassive(run, def.passive)
+  if (C.intros?.[id]) (run.introQueue ??= []).push(id)
   // Mastery I: their signature card starts upgraded (what bond 3 would otherwise earn).
   if (tier >= 1 && def.cards[0]) {
     const sig = run.deck.find((c) => c.defId === def.cards[0] && !c.upgraded)
@@ -268,6 +272,50 @@ function joinCompanion(run: RunState, id: string, C: ContentRegistry): boolean {
 }
 
 /** Raise a companion's bond; level 2 adds their bond card, level 3 upgrades their signature card. */
+/** Lean the connector one step along a choice axis (character sheet, IX's read of you, endings). */
+export function addAxis(run: RunState, axis: ChoiceAxis | undefined, n = 1): void {
+  if (!axis || n <= 0) return
+  run.axes = { ...(run.axes ?? {}), [axis]: (run.axes?.[axis] ?? 0) + n }
+}
+
+/** Which axis a dialogue intent leans on (none for neutral asks, sneaking and leaving). */
+export function intentAxis(intent: Intent): ChoiceAxis | undefined {
+  switch (intent) {
+    case 'persuade':
+    case 'offer':
+      return 'humanity'
+    case 'intimidate':
+    case 'deceive':
+    case 'fight':
+      return 'dominance'
+    case 'insight':
+      return 'insight'
+    default:
+      return undefined
+  }
+}
+
+const IMPRESSION_AXIS: Record<FirstImpression, ChoiceAxis> = { trust: 'humanity', guard: 'resilience', wit: 'insight' }
+
+/**
+ * Close the next recruit scene in the queue. `tone` is the first-impression choice (null = skipped / reunion):
+ * the tone the companion likes gives +1 bond on a normal run (never on a daily — it must be the same for everyone).
+ */
+export function resolveIntro(run0: RunState, C: ContentRegistry, tone: FirstImpression | null): RunState {
+  const id = run0.introQueue?.[0]
+  if (!id) return run0
+  const run = clone(run0)
+  run.introQueue = (run.introQueue ?? []).slice(1)
+  if (run.introQueue.length === 0) delete run.introQueue
+  const intro = C.intros?.[id]
+  if (tone && intro) {
+    run.flags[`impress_${id}`] = ['trust', 'guard', 'wit'].indexOf(tone) + 1
+    addAxis(run, IMPRESSION_AXIS[tone])
+    if (!run.daily && tone === intro.likesTone) raiseBond(run, id, 1, C)
+  }
+  return run
+}
+
 export function raiseBond(run: RunState, id: string, amount: number, C: ContentRegistry): boolean {
   const m = roster(run).find((p) => p.id === id)
   const def = C.companions[id]
@@ -785,6 +833,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   next.consumables = combat.consumables.filter((id) => C.consumables[id]).slice(0, MAX_CONSUMABLES)
   gainTrace(next, combat.trace, C)
   advanceDirectiveOnWin(next, combat, nodeKind)
+  if (nodeKind === 'elite' || nodeKind === 'boss') addAxis(next, 'resilience')
   if (nodeKind === 'elite') {
     next.tally.elites += 1
     next.growth = (next.growth ?? 0) + 1

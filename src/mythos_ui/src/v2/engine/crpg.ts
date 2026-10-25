@@ -10,7 +10,7 @@
 // Outcome rewards stay inside an event node's budget: a district replaces one event node per act.
 
 import { COVER_HP, tileAt, unitAt } from './effects.ts'
-import { applyImmediate, conditionMet, log, openFollowUps, raiseBond, roster } from './run.ts'
+import { addAxis, applyImmediate, conditionMet, intentAxis, log, openFollowUps, raiseBond, roster } from './run.ts'
 import { hashSeed, rand } from './rng.ts'
 import { runStream } from './streams.ts'
 import { offerThought } from './thoughts.ts'
@@ -312,6 +312,7 @@ export function chooseDialogue(run: RunState, index: number, C: ContentRegistry)
   if (!view?.available) return run
   const next = clone(run)
   if (next.screen.kind !== 'dialogue') return run
+  addAxis(next, intentAxis(view.option.intent))
   const check = view.option.check
   if (!check) {
     resolve(next, view.option, true, undefined, C)

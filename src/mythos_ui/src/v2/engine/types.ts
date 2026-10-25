@@ -533,6 +533,34 @@ export interface CompanionDef {
   startUnlocked?: boolean
 }
 
+/** First-impression tones of a recruit scene's closing choice. */
+export type FirstImpression = 'trust' | 'guard' | 'wit'
+
+/**
+ * A companion's recruit scene (RPG introduction): who they are, how they talk, and one first-impression choice.
+ * Played in full the first time the player ever meets them, as a short reunion on later runs.
+ */
+export interface CompanionIntro {
+  /** 2–3 sentences: who they are and what they want. */
+  bio: Text
+  /** Three personality tags. */
+  traits: Text[]
+  likes: Text
+  dislikes: Text
+  /** Their signature line (profile header). */
+  quote: Text
+  /** First-meeting scene still (resources path, 1600×900). */
+  image: string
+  /** The meeting, 4–6 beats. */
+  beats: { who: 'companion' | 'connector' | 'narration'; text: Text }[]
+  /** Exactly three closing choices, one per tone, each with the companion's reply. */
+  choices: { tone: FirstImpression; label: Text; reply: Text }[]
+  /** The tone this companion warms to: +1 bond on a normal run. */
+  likesTone: FirstImpression
+  /** 2–3 short lines for later runs (they remember the connector, not this loop). */
+  reunion: Text[]
+}
+
 export interface ArchetypeDef {
   id: string
   name: Text
@@ -774,7 +802,14 @@ export interface RunState {
   autonomy?: number
   /** Thought cabinet (engine/thoughts.ts). */
   thoughts?: ThoughtState
+  /** Companions who joined and have not had their recruit scene yet (UI plays them in order; engine/run.ts resolveIntro). */
+  introQueue?: string[]
+  /** The connector's leanings this run (1.0 choice axes): dialogue intents, first impressions, hard wins. */
+  axes?: Partial<Record<ChoiceAxis, number>>
 }
+
+/** 1.0's four choice axes: humanity (care, persuasion), dominance (force, lies), resilience (enduring), insight (reading people and systems). */
+export type ChoiceAxis = 'humanity' | 'dominance' | 'resilience' | 'insight'
 
 // ---------------------------------------------------------------- CRPG layer (Signal+, engine/crpg.ts)
 
@@ -1118,6 +1153,8 @@ export interface ContentRegistry {
   crpg?: CrpgContent
   /** Echoes a loop can inscribe at its start (engine/legacy.ts; absent in test doubles). */
   echoes?: EchoDef[]
+  /** Companion first-meeting scenes by companion id (content/companionIntros.ts; absent in test doubles). */
+  intros?: Record<string, CompanionIntro>
   /** Thoughts the stat voices offer after checks (engine/thoughts.ts; absent in test doubles). */
   thoughts?: ThoughtDef[]
   /** Global enemy toughness on top of the authored numbers (absent in test doubles = authored numbers). */

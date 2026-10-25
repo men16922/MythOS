@@ -1,7 +1,7 @@
 // Pure helpers for the combat timeline: pacing constants, stereo pan, facing / turn beats, event-run
 // queries, FX lifetimes, and the small view edits several event builders share.
 
-import type { CombatEvent, CombatState, Dir, Pos, Tile } from '../../../engine/types.ts'
+import type { CombatEvent, CombatState, Dir, Effect, Pos, Tile } from '../../../engine/types.ts'
 import type { SfxName } from '../../common/sfx.ts'
 import type { BPt, FxItem, ViewState } from './types.ts'
 
@@ -24,13 +24,14 @@ export const panOf = (x: number): number => (x / 6) * 1.6 - 0.8
 
 export const STATUS_SFX: Partial<Record<string, SfxName>> = {
   burn: 'status_burn',
-  bleed: 'status_burn',
-  corrode: 'status_shock',
+  bleed: 'slice',
+  corrode: 'acid',
+  evade: 'whoosh',
   shock: 'status_shock',
   mark: 'status_mark',
   weak: 'status_mark',
   focus: 'status_mark',
-  rage: 'status_shock',
+  rage: 'rage',
 }
 
 /** Projectile / swing travel time per FX kind. */
@@ -119,4 +120,25 @@ export function edgeOf(p: Pos, d: Dir): [BPt, BPt] {
         { x: p.x + 1, y: p.y + 1 },
       ]
   }
+}
+
+/**
+ * A card's signature sound (played under the generic card sound): what the skill *is*, read from its effects
+ * and tags — so a bleed cut, an acid lob, a hack and a heal never sound alike. Undefined = generic only.
+ */
+export function cardSignature(effects: readonly Effect[], tags: readonly string[] | undefined): SfxName | undefined {
+  const has = (f: (e: Effect) => boolean) => effects.some(f)
+  const status = (s: string) => has((e) => e.kind === 'status' && e.status === s)
+  if (has((e) => e.kind === 'redirect' || e.kind === 'cancel_intent') || tags?.includes('hack')) return 'hack'
+  if (has((e) => e.kind === 'teleport' || e.kind === 'swap')) return 'blink'
+  if (status('bleed')) return 'slice'
+  if (status('corrode')) return 'acid'
+  if (status('evade')) return 'whoosh'
+  if (status('focus')) return 'crit'
+  if (status('burn') || has((e) => e.kind === 'ignite')) return 'ignite'
+  if (status('shock') || has((e) => e.kind === 'electrify')) return 'zap'
+  if (status('mark')) return 'status_mark'
+  if (has((e) => e.kind === 'heal')) return 'heal'
+  if (has((e) => e.kind === 'energy' || e.kind === 'draw')) return 'energy'
+  return undefined
 }

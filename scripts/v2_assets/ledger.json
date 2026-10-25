@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 68,
+ "codex_image_calls": 75,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -2538,13 +2538,13 @@
    "ts": "2026-10-25T17:31:36"
   },
   "v2/boss/a3_boss_architect.webp": {
-   "generations": 1,
+   "generations": 2,
    "model": "codex-image",
-   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Final-act boss splash art: ARCHITECT OMEGA, the executive combat form of the administrator AI IX (shown in the reference image): the same white-glass faction and blood-red chest core, but a clearly different, more geometric and angular construct — a tall floating figure of white glass and black obsidian monolith plates in perfect symmetry, translucent cyan blueprint grid lines and wireframe lattices folding around it, two long ruler-straight blade arms cutting glowing red seams in the air, small fractured cubes of debris orbiting it. It hovers in a white-lit apex chamber of the Spire as architectural wall panels rearrange behind it. Overwhelming scale, cold precision. The boss fills the right two thirds of the frame; the left side is darker for the boss name.  Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Final-act boss splash art: ARCHITECT OMEGA, the enforcement engine of the city's administrator AI, reimagined as a colossal drafting machine that redraws the city: a towering skeletal construct of matte black iron and polished antique brass, like a giant draftsman's instrument come alive, with a narrow mechanical spine and SIX long many-jointed articulated arms spread wide like a mechanical spider-crane — one arm holding a giant brass drafting compass, one a long straight steel ruler / T-square, others ending in laser-cutting heads firing thin amber cutting beams. Its head is a large brass lens-and-projector assembly with a single glowing amber aperture that projects sweeping amber and deep-violet blueprint grid lines across the rain-soaked night city below. Around it, whole city blocks have been sliced out of the ground and float in the air as cut-out chunks of buildings, their cut faces glowing amber, partially re-drawn as violet wireframe outlines. Palette: black, warm amber and gold, deep violet, with dark navy shadows. It is NOT white, NOT crystal or glass, has NO glowing chest core and NO halo or concentric rings behind it. Seen from a low dramatic angle above the city skyline. The boss fills the right two thirds of the frame; the left side is darker for the boss name. The attached reference image is ONLY a style guide: match its painterly rendering and lighting quality, but draw a completely new subject, palette and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no numbers, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
    "refs": [
-    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/boss/a3_boss_ix.webp"
+    "resources/neo-seoul/v2/boss/a2_boss_hyeonmu.webp"
    ],
-   "ts": "2026-10-25T17:31:27"
+   "ts": "2026-10-26T02:43:30"
   },
   "v2/cards/artery_rip.webp": {
    "generations": 1,
@@ -2905,6 +2905,60 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Yeon, a Korean window cleaner who hangs from the outer wall of a spire; climbing harness, safety rope, wind-whipped hair, squeegee in hand, the city's lights far below. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:07:30"
+  },
+  "v2/recruit/han.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic first-meeting scene still for a cyberpunk RPG, 16:9 landscape, painterly digital art matching the reference character portrait. Han, a young man in his early 20s with messy black hair in high-collar techwear with cabling, sits among a nest of salvaged monitors in an off-grid hideout under a highway, screens of scrolling glitch code lighting his face blue and magenta. The character looks toward the viewer as if meeting someone for the first time. Neo-Seoul night, rain, neon, moody lighting, no text, no letters, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "ts": "2026-10-26T02:30:29"
+  },
+  "v2/recruit/kai.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic first-meeting scene still for a cyberpunk RPG, 16:9 landscape, painterly digital art matching the reference character portrait. Kai (RX-09), a sleek white-and-silver android with a pale faceplate and soft glowing eyes, sits awake in an android scrapyard among discarded machine bodies, looking up at the rain-streaked sky as if dreaming, rain glistening on its seams. The character looks toward the viewer as if meeting someone for the first time. Neo-Seoul night, rain, neon, moody lighting, no text, no letters, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "ts": "2026-10-26T02:30:26"
+  },
+  "v2/recruit/lin_yue.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic first-meeting scene still for a cyberpunk RPG, 16:9 landscape, painterly digital art matching the reference character portrait. Lin Yue, an elegant woman with ornate gold hairpins in a dark-teal hanbok embroidered with glowing gold circuitry, sits behind a lacquered exchange counter in a bustling night market stall, abacus of light and coins before her, lanterns and neon around. The character looks toward the viewer as if meeting someone for the first time. Neo-Seoul night, rain, neon, moody lighting, no text, no letters, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "ts": "2026-10-26T02:30:37"
+  },
+  "v2/recruit/se_rin.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic first-meeting scene still for a cyberpunk RPG, 16:9 landscape, painterly digital art matching the reference character portrait. Jung Se-rin, a young Korean woman with long black hair and blunt bangs in a black leather jacket, crouches on the rusted edge of a flooded blackout alley in district C-17, one hand offering a hand down to the viewer, a smuggler's waterproof bag on her shoulder, drone searchlights sweeping above. The character looks toward the viewer as if meeting someone for the first time. Neo-Seoul night, rain, neon, moody lighting, no text, no letters, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "ts": "2026-10-26T02:30:39"
+  },
+  "v2/recruit/su_ah.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic first-meeting scene still for a cyberpunk RPG, 16:9 landscape, painterly digital art matching the reference character portrait. Su-ah, a young woman with glasses and a loose messy bun in black techwear with purple accents, works at a forge-like workbench where glowing memory crystals are hammered into tools, sparks of light floating up, a cluttered night-market workshop. The character looks toward the viewer as if meeting someone for the first time. Neo-Seoul night, rain, neon, moody lighting, no text, no letters, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "ts": "2026-10-26T02:30:49"
+  },
+  "v2/recruit/tae_o.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic first-meeting scene still for a cyberpunk RPG, 16:9 landscape, painterly digital art matching the reference character portrait. Tae-o, a weathered man in his 40s with a scar across his right cheek in a black tactical jacket, stands under a broken enforcement checkpoint sign, a heavy riot shield lowered at his side, cautious and tired, red patrol lights behind him. The character looks toward the viewer as if meeting someone for the first time. Neo-Seoul night, rain, neon, moody lighting, no text, no letters, no logos, no UI.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "ts": "2026-10-26T02:30:35"
   },
   "v2/ui/cache_closed.webp": {
    "generations": 1,

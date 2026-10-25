@@ -231,6 +231,11 @@ def act_once(page: Page, state: dict) -> bool:
             return True
         return False
     if kind == "map":
+        # A companion's recruit scene covers the map: read it through, answer, move out (like a player).
+        if page.locator('[data-testid="recruit-scene"]').count():
+            if click_first(page, ".m2-recruit__choice", timeout=300):
+                return True
+            return click_first(page, ".m2-recruit__actions .m2-btn", timeout=500)
         # Thoughts on offer and growth points first (both sit in the map's side panel), then a node.
         if click_first(page, ".m2-thought .m2-btn--primary:not([disabled])", timeout=300):
             return True

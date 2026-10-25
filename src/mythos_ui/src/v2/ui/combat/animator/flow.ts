@@ -92,7 +92,7 @@ export function chainSteps(kit: Kit, plan: Plan, ev: Ev<'chain'>): void {
     run: () => {
       addFx({ kind: 'text', at: { x: 3, y: -0.35 }, text: `${ev.n} ${k ? '연쇄!' : 'CHAIN!'} · ${reward}`, tone: 'crit', ms: S(1300) })
       trauma(0.18 + 0.08 * Math.min(4, ev.n))
-      sfx('success', { intensity: 0.8 + 0.25 * Math.min(4, ev.n) })
+      sfx('chain', { intensity: 0.9 + 0.15 * Math.min(5, ev.n) })
     },
   })
 }
@@ -114,8 +114,26 @@ export function burstSteps(kit: Kit, plan: Plan, ev: Ev<'burst'>): void {
       }
       hitStop(S(120))
       trauma(0.75)
+      const sig = ev.archetype === 'ghost' ? 'burst_ghost' : ev.archetype === 'smuggler' ? 'burst_smuggler' : ev.archetype === 'echo_collector' ? 'burst_echo' : 'shockwave'
       sfx('unlock')
-      sfx('shockwave', { intensity: 1.4 })
+      sfx(sig, { intensity: 1.4 })
+    },
+  })
+}
+
+/** X2: the gauge just filled — a charged chime and a small call-out over the connector. */
+export function momentumSteps(kit: Kit, plan: Plan, ev: Ev<'momentum'>): void {
+  if (ev.total < 100 || ev.total - ev.amount >= 100) return
+  const { addFx, unitOf, S } = kit
+  plan.steps.push({
+    dur: 120,
+    run: () => {
+      const u = unitOf('connector')
+      if (u) {
+        addFx({ kind: 'text', at: { x: u.pos.x, y: u.pos.y - 0.6 }, text: plan.k ? '필살기 준비!' : 'BURST READY!', tone: 'passive', ms: S(1400) })
+        addFx({ kind: 'ring', at: u.pos, tone: 'gold', ms: S(700) })
+      }
+      sfx('momentum_full')
     },
   })
 }

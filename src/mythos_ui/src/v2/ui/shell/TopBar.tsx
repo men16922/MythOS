@@ -2,7 +2,7 @@
 import { art } from '../components/art.ts'
 import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, MessagesSquare, ScrollText, Settings, Shuffle, Users } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import type { ContentRegistry, Lang, RunState, Stats } from '../../engine/types.ts'
+import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
 import { CountUp } from '../components/CountUp.tsx'
@@ -10,7 +10,7 @@ import { companionSprite, savedAgo } from '../components/format.ts'
 import { HpBar } from '../components/HpBar.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { mutatorById } from '../../engine/mutators.ts'
-import { statPerks } from '../../engine/statPerks.ts'
+import { statPerkLines } from '../components/statPerkLines.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
 import { TraceMeter } from '../components/TraceMeter.tsx'
 import { QuestLog } from './QuestLog.tsx'
@@ -29,6 +29,8 @@ export interface TopBarProps {
   onComms: () => void
   /** The party screen (deployed + bench; swaps on the map). */
   onParty: () => void
+  /** Opens the character sheet (portrait click). */
+  onSheet?: () => void
   onSettings: () => void
   /** Pause menu: save & quit / settings / abandon. */
   onMenu: () => void
@@ -38,7 +40,7 @@ export interface TopBarProps {
   onDiscard?: (index: number) => void
 }
 
-export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onMenu, savedAt, onDiscard }: TopBarProps) {
+export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSheet, onSettings, onMenu, savedAt, onDiscard }: TopBarProps) {
   const [journal, setJournal] = useState(false)
   // Mark implants as seen after their pulse has played.
   const implantKey = run.implants.join('|')
@@ -88,7 +90,16 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onM
           </div>
         }
       >
-        <div className="m2-topbar__who">
+        <div
+          className="m2-topbar__who"
+          role={onSheet ? 'button' : undefined}
+          tabIndex={onSheet ? 0 : undefined}
+          onClick={onSheet}
+          onKeyDown={(e) => {
+            if (onSheet && (e.key === 'Enter' || e.key === ' ')) onSheet()
+          }}
+          style={onSheet ? { cursor: 'pointer' } : undefined}
+        >
           <div className="m2-topbar__avatar">
             <img src={portrait(archetype?.sprite ?? 'player-noise')} alt="" />
           </div>
@@ -311,36 +322,3 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSettings, onM
   )
 }
 
-/** One line per stat: what it does in a fight right now (engine/statPerks.ts is the single source). */
-function statPerkLines(stats: Stats, lang: Lang): [string, string][] {
-  const p = statPerks(stats)
-  const ko = lang === 'ko'
-  const parts = (xs: (string | false)[]) => xs.filter(Boolean).join(', ') || (ko ? '효과 없음' : 'no bonus yet')
-  return [
-    [`STR ${stats.str}`, parts([p.attack > 0 && (ko ? `직격 +${p.attack}` : `Direct +${p.attack}`), p.bump > 0 && (ko ? `충돌 +${p.bump}` : `Bump +${p.bump}`)])],
-    [
-      `AGI ${stats.agi}`,
-      parts([
-        p.openEvade > 0 && (ko ? `개전 회피 ${p.openEvade}` : `Start Evade ${p.openEvade}`),
-        p.sprintEvade && (ko ? '3칸 질주 시 회피 +1' : '3-tile sprint: Evade +1'),
-        p.move > 0 && (ko ? `이동 +${p.move}` : `Move +${p.move}`),
-      ]),
-    ],
-    [`INT ${stats.int}`, parts([p.dot > 0 && (ko ? `지속 피해 부여 +${p.dot}` : `DoT +${p.dot}`), p.openDraw > 0 && (ko ? `첫 턴 드로우 +${p.openDraw}` : `Turn 1 draw +${p.openDraw}`)])],
-    [
-      `CHA ${stats.cha}`,
-      parts([
-        p.companionBlock > 0 && (ko ? `동료 개전 방어막 +${p.companionBlock}` : `Companion start block +${p.companionBlock}`),
-        p.companionRefund && (ko ? '첫 동료 카드 에너지 +1' : '1st companion card +1 energy'),
-      ]),
-    ],
-    [
-      `OBS ${stats.obs}`,
-      parts([
-        p.openFocus > 0 && (ko ? `개전 집중 ${p.openFocus}` : `Start Focus ${p.openFocus}`),
-        p.focusPerHit > 0 && (ko ? `타격당 집중 +${p.focusPerHit} (4=치명타)` : `Focus/hit +${p.focusPerHit} (4 = crit)`),
-        p.mark > 0 && (ko ? `표식 +${p.mark}` : `Mark +${p.mark}`),
-      ]),
-    ],
-  ]
-}

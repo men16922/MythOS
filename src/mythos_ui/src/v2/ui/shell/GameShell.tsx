@@ -21,6 +21,9 @@ import { DailyBoard } from '../components/DailyBoard.tsx'
 import { CommsLogModal } from '../components/CommsLogModal.tsx'
 import { DeckModal } from '../components/DeckModal.tsx'
 import { PartyModal } from '../components/PartyModal.tsx'
+import { RecruitScene } from '../components/RecruitScene.tsx'
+import { CharacterSheet } from '../components/CharacterSheet.tsx'
+import { resolveIntro } from '../../engine/run.ts'
 import { setCommsRun } from '../common/commsLog.ts'
 import { setAiEnabled } from './gm.ts'
 import { EnemyTaunt } from './EnemyTaunt.tsx'
@@ -150,6 +153,7 @@ export function GameShell() {
   const [deckOpen, setDeckOpen] = useState(false)
   const [commsOpen, setCommsOpen] = useState(false)
   const [partyOpen, setPartyOpen] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   // 'newloop' / 'daily': a run is live and the player asked for a new one (abandon first, then go on).
   const [confirm, setConfirm] = useState<null | 'abandon' | 'newloop' | 'daily'>(null)
@@ -274,7 +278,7 @@ export function GameShell() {
   }, [run?.id])
 
   const openMenu = useCallback(() => setMenuOpen(true), [])
-  const modalOpen = deckOpen || commsOpen || partyOpen || settingsOpen || menuOpen || board !== null || confirm !== null || discardIdx !== null
+  const modalOpen = deckOpen || commsOpen || partyOpen || sheetOpen || settingsOpen || menuOpen || board !== null || confirm !== null || discardIdx !== null
   useEffect(() => {
     duckMusic(modalOpen)
   }, [modalOpen])
@@ -493,6 +497,7 @@ export function GameShell() {
             onDeck={() => setDeckOpen(true)}
             onComms={() => setCommsOpen(true)}
             onParty={() => setPartyOpen(true)}
+            onSheet={() => setSheetOpen(true)}
             onSettings={() => setSettingsOpen(true)}
             onMenu={() => setMenuOpen(true)}
             savedAt={game.savedAt}
@@ -552,6 +557,19 @@ export function GameShell() {
           />
         )}
         {commsOpen && run && <CommsLogModal C={C} lang={lang} onClose={() => setCommsOpen(false)} />}
+        {view === 'run' && run && run.screen.kind === 'map' && run.introQueue?.[0] && C.companions[run.introQueue[0]] && C.intros?.[run.introQueue[0]] && (
+          <RecruitScene
+            key={run.introQueue[0]}
+            def={C.companions[run.introQueue[0]]!}
+            intro={C.intros[run.introQueue[0]]!}
+            lang={lang}
+            reunion={profile.companionsMet.includes(run.introQueue[0])}
+            seed={run.seed + run.loop}
+            fast={profile.settings.fastAnim}
+            onDone={(tone) => setRun(resolveIntro(run, C, tone))}
+          />
+        )}
+        {sheetOpen && run && <CharacterSheet run={run} C={C} lang={lang} onClose={() => setSheetOpen(false)} />}
         {partyOpen && run && <PartyModal run={run} C={C} lang={lang} onChange={setRun} onClose={() => setPartyOpen(false)} />}
         {discardIdx !== null && run && run.consumables[discardIdx] && (
           <Modal

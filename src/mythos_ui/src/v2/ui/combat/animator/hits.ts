@@ -51,14 +51,27 @@ export function damageSteps(kit: Kit, plan: Plan, ev: Ev<'damage'>, evIdx: numbe
           addFx({ kind: 'text', at, text: isCrit ? `${plan.k ? '치명타' : 'CRIT'} ${amt}` : `${amt}`, tone: numTone, ms: S(isCrit || big ? 1250 : 1000) })
           if (ev.evaded && ev.evaded > 0) {
             addFx({ kind: 'text', at: { x: at.x - 0.28, y: at.y - 0.22 }, text: `${plan.k ? '회피' : 'EVADE'} −${ev.evaded}`, tone: 'block', ms: S(950) })
+            sfx('whoosh', { pan })
           }
-          if (cause === 'burn' || cause === 'bleed') {
-            // Burn / bleed tick: flare up.
+          if (isCrit) sfx('crit', { pan })
+          if (cause === 'burn') {
+            // Burn tick: flare up.
             squash(uid)
             addFx({ kind: 'flame', at, tone: 'fire', ms: S(720) })
             trauma(Math.min(0.4, 0.12 + amt * 0.03))
             sfx('fire_tick', { pan, intensity: Math.min(2, 0.7 + amt / 5) })
-          } else if (cause === 'hazard' || cause === 'corrode') {
+          } else if (cause === 'bleed') {
+            // Bleed tick (it only hurts on the move): a sharp tear.
+            squash(uid)
+            addFx({ kind: 'slash', at, tone: 'enemy', ms: S(420) })
+            trauma(Math.min(0.35, 0.1 + amt * 0.03))
+            sfx('slice', { pan })
+          } else if (cause === 'corrode') {
+            squash(uid)
+            addFx({ kind: 'smoke', at, tone: 'heal', ms: S(700) })
+            trauma(0.15)
+            sfx('acid', { pan })
+          } else if (cause === 'hazard') {
             squash(uid)
             addFx({ kind: 'zap', at, tone: 'shock', ms: S(560) })
             trauma(0.2)

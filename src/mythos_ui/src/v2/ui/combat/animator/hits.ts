@@ -40,10 +40,10 @@ export function damageSteps(kit: Kit, plan: Plan, ev: Ev<'damage'>, evIdx: numbe
           whiteFlash(uid, isConnector || u.side === 'party')
           pose(uid, 'hit', S(420))
           const isCrit = !!ev.crit
-          const numTone: TextTone = cause === 'burn' || cause === 'bleed' ? 'burn' : cause === 'hazard' || cause === 'corrode' ? 'zap' : isCrit || big ? 'crit' : 'dmg'
-          addFx({ kind: 'text', at, text: isCrit ? `CRIT! ${amt}` : `${amt}`, tone: numTone, ms: S(isCrit || big ? 1250 : 1000) })
+          const numTone: TextTone = cause === 'burn' || cause === 'bleed' || cause === 'corrode' ? cause : cause === 'hazard' ? 'zap' : isCrit || big ? 'crit' : 'dmg'
+          addFx({ kind: 'text', at, text: isCrit ? `${plan.k ? '치명타' : 'CRIT'} ${amt}` : `${amt}`, tone: numTone, ms: S(isCrit || big ? 1250 : 1000) })
           if (ev.evaded && ev.evaded > 0) {
-            addFx({ kind: 'text', at: { x: at.x - 0.28, y: at.y - 0.22 }, text: `EVADE −${ev.evaded}`, tone: 'block', ms: S(950) })
+            addFx({ kind: 'text', at: { x: at.x - 0.28, y: at.y - 0.22 }, text: `${plan.k ? '회피' : 'EVADE'} −${ev.evaded}`, tone: 'block', ms: S(950) })
           }
           if (cause === 'burn' || cause === 'bleed') {
             // Burn / bleed tick: flare up.

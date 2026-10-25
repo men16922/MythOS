@@ -48,7 +48,7 @@ export interface BPt {
 }
 
 export type FxTone = 'party' | 'enemy' | 'env' | 'heal' | 'block' | 'warn' | 'neutral' | 'fire' | 'shock' | 'gold'
-export type TextTone = 'dmg' | 'crit' | 'heal' | 'block' | 'word' | 'kill' | 'status' | 'fizzle' | 'burn' | 'zap' | 'slam' | 'passive'
+export type TextTone = 'dmg' | 'crit' | 'heal' | 'block' | 'word' | 'kill' | 'status' | 'fizzle' | 'burn' | 'bleed' | 'corrode' | 'zap' | 'slam' | 'passive'
 export type AreaElement = Extract<CombatEvent, { t: 'area' }>['element']
 export type ImpactSurface = 'wall' | 'cover' | 'unit'
 

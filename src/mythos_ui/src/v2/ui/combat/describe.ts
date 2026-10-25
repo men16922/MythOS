@@ -18,7 +18,7 @@ export const STATUS_NAME: Record<StatusKind, Text> = {
 
 export const STATUS_TEXT: Record<StatusKind, Text> = {
   burn: L('적 페이즈가 끝날 때 수치만큼 피해(방어막 무시). 그 뒤 1 줄어든다.', 'Takes N damage at the end of each enemy phase (ignores block), then N − 1.'),
-  bleed: L('이동하거나 밀려날 때, 그리고 적 페이즈 종료 시 수치만큼 피해(방어막 무시). 이동 시 1 감소, 턴 종료 시 절반으로 감소.', 'Takes N damage (ignores block) when moving/pushed and at enemy phase end. −1 on move, halved at turn end.'),
+  bleed: L('움직이거나 밀려날 때마다 수치만큼 피해(방어막 무시) 후 1 감소. 가만히 있으면 적 페이즈 종료 시 절반으로 줄어든다.', 'Takes N damage (ignores block) each time it moves or is pushed, then N − 1. Standing still halves it at enemy phase end.'),
   corrode: L('적 페이즈 종료 시 수치만큼 피해(방어막 무시) 및 장갑 −1. 사망 시 인접 적에게 전염된다.', 'Takes N damage (ignores block) and loses 1 armor at enemy phase end. Spreads to adjacent enemies on death.'),
   shock: L('적: 공격이 불발되고 움직이지 못한다. 아군: 이동할 수 없다.', 'Enemy: its attack fizzles and it does not move. Party: cannot move.'),
   mark: L('다음에 받는 피해가 수치만큼 늘어난다.', 'The next hit taken deals N extra damage.'),

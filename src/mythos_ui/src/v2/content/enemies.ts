@@ -302,7 +302,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'ripper_hound',
     name: t('절단견', 'Ripper Hound'),
-    sprite: 'tracker-spider',
+    sprite: 'ripper-hound',
     tier: 'normal',
     hp: 15,
     move: 4,
@@ -328,15 +328,15 @@ const ACT1: EnemyDef[] = [
       },
     ],
     passive: t(
-      '톱니 엄니는 출혈을 남긴다. 출혈 상태에서 이동하거나 밀쳐지면 이동한 칸마다 추가 피해를 입는다.',
-      'Jagged Fang inflicts Bleed. Moving or being pushed while bleeding deals extra damage per tile.',
+      '톱니 엄니는 출혈을 남긴다. 출혈 상태로 움직이거나 밀쳐지면 그때마다 출혈만큼 피해를 입는다.',
+      'Jagged Fang inflicts Bleed. Every move or push while bleeding deals the Bleed amount as damage.',
     ),
     bounty: 2,
   },
   {
     id: 'stalker_drone',
     name: t('암살 드론', 'Stalker Drone'),
-    sprite: 'sentinel-drone',
+    sprite: 'stalker-drone',
     tier: 'normal',
     hp: 12,
     move: 4,
@@ -371,7 +371,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'rust_hulk',
     name: t('부식 처리기', 'Rust Hulk'),
-    sprite: 'incinerator',
+    sprite: 'rust-hulk',
     tier: 'elite',
     hp: 38,
     armor: 1,
@@ -415,7 +415,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'baekho_stalker',
     name: t('백호', 'BAEKHO'),
-    sprite: 'hunter-spider',
+    sprite: 'baekho',
     tier: 'boss',
     hp: 60,
     move: 4,
@@ -858,7 +858,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'blade_dancer',
     name: t('칼춤꾼', 'Blade Dancer'),
-    sprite: 'glitch-reaver',
+    sprite: 'blade-dancer',
     tier: 'normal',
     hp: 20,
     move: 4,
@@ -892,7 +892,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'acid_alchemist',
     name: t('폐수 연금술사', 'Acid Alchemist'),
-    sprite: 'shock-trooper',
+    sprite: 'acid-alchemist',
     tier: 'normal',
     hp: 18,
     move: 3,
@@ -925,7 +925,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'crimson_executioner',
     name: t('혈흔 집행자', 'Crimson Executioner'),
-    sprite: 'enforcer-elite',
+    sprite: 'crimson-executioner',
     tier: 'elite',
     hp: 45,
     armor: 1,
@@ -971,7 +971,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'hyeonmu_bastion',
     name: t('현무', 'HYEONMU'),
-    sprite: 'suppression-mech',
+    sprite: 'hyeonmu',
     tier: 'boss',
     hp: 74,
     armor: 2,
@@ -1338,7 +1338,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'phantom_assassin',
     name: t('팬텀 암살병', 'Phantom Assassin'),
-    sprite: 'ark-warden',
+    sprite: 'phantom-assassin',
     tier: 'normal',
     hp: 22,
     move: 4,
@@ -1380,7 +1380,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'bio_purger',
     name: t('생체 정화병', 'Bio-Purger'),
-    sprite: 'ark-assaulter',
+    sprite: 'bio-purger',
     tier: 'normal',
     hp: 26,
     armor: 1,
@@ -1416,7 +1416,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'eclipse_valkyrie',
     name: t('이클립스 발키리', 'Eclipse Valkyrie'),
-    sprite: 'purge-seraph',
+    sprite: 'eclipse-valkyrie',
     tier: 'elite',
     hp: 48,
     armor: 2,
@@ -1462,7 +1462,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'architect_omega',
     name: t('설계자 오메가', 'Architect Omega'),
-    sprite: 'ix_avatar',
+    sprite: 'architect-omega',
     tier: 'boss',
     hp: 104,
     armor: 1,

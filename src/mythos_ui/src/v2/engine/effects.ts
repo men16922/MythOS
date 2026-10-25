@@ -8,6 +8,8 @@
 // are not evented — the UI reads the resulting numbers from state.
 
 import { setPassives } from './implantSets.ts'
+import { mutatorCombat } from './mutators.ts'
+import { type StatPerks, statPerks } from './statPerks.ts'
 import type {
   AreaShape,
   CardInstance,
@@ -44,29 +46,9 @@ export const BLOCKED_ARRIVAL_DAMAGE = 2
 export const FOCUS_CRIT_THRESHOLD = 4
 export const BASE_CRIT_MULT = 1.5
 
-export function strAttackBonus(c: CombatState): number {
-  const s = c.runStats?.str ?? 0
-  return s >= 8 ? 2 : s >= 5 ? 1 : 0
-}
-
-export function strBumpBonus(c: CombatState): number {
-  const s = c.runStats?.str ?? 0
-  return s >= 7 ? 2 : s >= 4 ? 1 : 0
-}
-
-export function intDotBonus(c: CombatState): number {
-  const s = c.runStats?.int ?? 0
-  return s >= 8 ? 2 : s >= 5 ? 1 : 0
-}
-
-export function obsMarkBonus(c: CombatState): number {
-  const s = c.runStats?.obs ?? 0
-  return s >= 9 ? 2 : s >= 6 ? 1 : 0
-}
-
-export function obsFocusGain(c: CombatState): number {
-  const s = c.runStats?.obs ?? 0
-  return s >= 8 ? 2 : s >= 5 ? 1 : 0
+/** The run's stat perks frozen into this fight (engine/statPerks.ts). */
+export function perksOf(c: CombatState): StatPerks {
+  return statPerks(c.runStats)
 }
 
 export function statBonus(c: CombatState, scale: StatScale | undefined): number {
@@ -381,11 +363,11 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
   let evaded = 0
   if (o.attack) {
     if (o.attacker?.uid === 'connector' && o.source === 'party') {
-      dmg += strAttackBonus(c)
+      dmg += perksOf(c).attack
     }
     const mark = victim.statuses.mark ?? 0
     if (mark > 0) {
-      dmg += mark + (o.bonusVsMarked ?? 0) + (o.source === 'party' ? obsMarkBonus(c) : 0)
+      dmg += mark + (o.bonusVsMarked ?? 0) + (o.source === 'party' ? perksOf(c).mark : 0)
       delete victim.statuses.mark
     }
     if (o.attacker && (o.attacker.statuses.weak ?? 0) > 0) dmg -= WEAK_PENALTY
@@ -395,7 +377,7 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
       dmg = Math.ceil(dmg * mult)
       addStatus(c, o.attacker, 'focus', -FOCUS_CRIT_THRESHOLD)
     } else if (o.attacker && o.source === 'party' && dmg > 0) {
-      const fg = obsFocusGain(c)
+      const fg = perksOf(c).focusPerHit
       if (fg > 0) addStatus(c, o.attacker, 'focus', fg)
     }
     if (!o.pierce && !crit) dmg -= victim.armor
@@ -525,7 +507,7 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
   if (!moved && !bumped) return
   emit(c, bumped ? { t: 'push', uid: u.uid, from, to: { ...u.pos }, dir, bumped } : { t: 'push', uid: u.uid, from, to: { ...u.pos }, dir })
   if (bumped) {
-    const extra = activePassive(c, C, 'bumpDamage') + strBumpBonus(c) + (c.mutator === 'magnetic_storm' ? 2 : 0)
+    const extra = activePassive(c, C, 'bumpDamage') + perksOf(c).bump
     dealDamage(c, C, u, BUMP_DAMAGE + slam + (u.side === 'party' ? 0 : extra), { source: 'environment', cause: 'bump' })
     if (bumped === 'cover' && bumpPos) damageCover(c, bumpPos, 1)
     else if (bumped !== 'wall') {
@@ -538,10 +520,23 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
     tickMoveBleed(c, C, u)
   }
   if (moved && u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') {
-    const hazDmg = c.mutator === 'acid_rain' ? HAZARD_DAMAGE * 2 : HAZARD_DAMAGE
-    dealDamage(c, C, u, hazDmg, { source: 'environment', cause: 'hazard' })
+    dealDamage(c, C, u, hazardDamage(c), { source: 'environment', cause: 'hazard' })
   }
   if (moved) enterGround(c, u)
+}
+
+/** Damage a hazard tile deals this fight (a mutator can multiply it). */
+export function hazardDamage(c: CombatState): number {
+  return HAZARD_DAMAGE * (mutatorCombat(c.mutator).hazardMult ?? 1)
+}
+
+/** AGI perk: the connector's first 3+ tile move each turn grants Evade 1. */
+export function sprintEvade(c: CombatState, u: UnitState, tiles: number): void {
+  if (u.uid !== 'connector' || tiles < 3 || !perksOf(c).sprintEvade) return
+  const key = `t${c.turn}:sprint_evade`
+  if (c.triggered[key]) return
+  c.triggered[key] = 1
+  addStatus(c, u, 'evade', 1)
 }
 
 /** Movement / forced movement triggers bleed immediately (ignores block) and decays it by 1. */
@@ -846,7 +841,7 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       }
       plans.sort((a, b) => lead(b) - lead(a))
       const stopBefore = eff.dir === 'toward' ? res.origin?.uid : undefined
-      const dist = (eff.distance ?? 1) + (c.mutator === 'magnetic_storm' && res.side === 'party' ? 1 : 0)
+      const dist = (eff.distance ?? 1) + (res.side === 'party' ? (mutatorCombat(c.mutator).pushBonus ?? 0) : 0)
       for (const { u, d } of plans) pushUnit(c, C, u, d, dist, stopBefore, eff.slam ?? 0)
       return
     }
@@ -861,8 +856,7 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
     case 'status': {
       const isDot = eff.status === 'burn' || eff.status === 'bleed' || eff.status === 'corrode'
       let stAmt = eff.amount + statBonus(c, eff.statScale)
-      if (isDot && res.side === 'party' && stAmt > 0) stAmt += intDotBonus(c)
-      if (isDot && c.mutator === 'overclocked_grid' && stAmt > 0) stAmt = Math.ceil(stAmt * 1.5)
+      if (isDot && res.side === 'party' && stAmt > 0) stAmt += perksOf(c).dot
       for (const u of effectTargets(c, eff, res)) addStatus(c, u, eff.status, stAmt)
       return
     }

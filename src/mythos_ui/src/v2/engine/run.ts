@@ -540,13 +540,9 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     if (autonomy >= 3) run.growth = (run.growth ?? 0) + 1
     const worldEcho = worldEchoFor(profile)
     if (worldEcho) {
-      run.flags[worldEcho] = 1
-      if (worldEcho === 'world_echo_rewrite') run.credits += 15
-      else if (worldEcho === 'world_echo_refuge') {
-        for (const m of run.party) raiseBond(run, m.id, 1, C)
-      } else if (worldEcho === 'world_echo_noble') {
-        run.credits += 15
-      }
+      run.flags[worldEcho.id] = 1
+      run.credits += worldEcho.credits ?? 0
+      if (worldEcho.bond) for (const m of run.party) raiseBond(run, m.id, worldEcho.bond, C)
     }
   }
   run.map = generateActMap(1, mapRng(run, 1), C, { paradox })

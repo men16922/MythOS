@@ -4,6 +4,17 @@ Last updated: 2026-10-25
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
+## Priority 0 — S-rank pass (Argon review, 2026-10-25)
+
+Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank = 7 axes; agent roles §5).
+
+- `[x]` Review + refactor + rebalance + unique art (2026-10-25): `engine/statPerks.ts` single source (engine + HUD), mutator combat rules as data (`MutatorDef.combat`, text = code), `WORLD_ECHOES` table, `CONTENT.tuning`; map 8 → 7 rows; P0 mixed ~75 → ~45 %; bleed = movement-only; 68 Codex images replace every reused asset. `[ ]` `[owner]` deploy (production still ~75 % build).
+- `[ ]` `[auto:claude]` **S1 Data Smuggler kit** — hack success pays off (block/energy), 1–2 credit→power cards (text via Astra). Done: archetype gap ≤ 10 pts on 3 × 120 mixed.
+- `[ ]` `[auto:claude]` **S2 Elite threat** — one sharper gimmick per elite, no HP padding. Done: elite loss 6–12 %, ≤ 8 turns.
+- `[ ]` `[auto:claude]` **S3 Paradox ladder** — target table P0 45 → P5 ~12 with even steps (P3 ≈ P5 today).
+- `[ ]` **S4 greedy ≤ 97 %** — more hazard/void angles in Act 2–3 encounters (Argon drafts, Claude measures).
+- `[ ]` **S5 new-art UI check** — sandbox/event/boss intro screenshots incl. phone widths; regenerate weak cuts (Argon QA, Astra images).
+
 ## Priority 0 — global showcase & improvement waves (owner direction 2026-10-24)
 
 Plans: `docs/plans/2026-10-24-improvement-and-direction-plan.md` (Waves 1–4 + data-backed recommendations) · `docs/plans/2026-10-24-global-showcase-2026.md` (rest-of-2026 roadmap). Go global, framed as the owner's cloud-architect portfolio; target = the next Google Gemini / Cloud developer challenge on Devpost (expected Dec–Mar, unannounced), fallback = public write-up + talk CFPs. Korean contests move to 2027 spring.

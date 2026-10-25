@@ -37,7 +37,7 @@ export const ARCHETYPES: ArchetypeDef[] = [
       'A black-market hacker. Flips enemy attacks onto their own side and pockets credits mid-fight.',
     ),
     stats: { str: 3, agi: 3, int: 6, cha: 5, obs: 3 },
-    maxHp: 32,
+    maxHp: 35,
     startingDeck: [...BASICS, 'system_hack', 'skim', 'overclock'],
     startingImplant: 'overclocked_deck',
     startingCredits: 99,

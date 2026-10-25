@@ -10,7 +10,8 @@
 //   c. enemies without a pending windup move and telegraph (and next reinforcements are announced)
 //   d. win/lose → next player turn (party block clears, guard, energy, draw, turn_start triggers)
 
-import { mutatorMods } from './mutators.ts'
+import { mutatorCombat, mutatorMods } from './mutators.ts'
+import { worldEchoOf } from './legacy.ts'
 import type {
   CardDef,
   CardFace,
@@ -24,6 +25,7 @@ import type {
   PlayTarget,
   Pos,
   RunState,
+  StatusKind,
   TargetMode,
   Text,
   Tile,
@@ -42,6 +44,9 @@ import {
   type Resolution,
   activePassive,
   addStatus,
+  hazardDamage,
+  perksOf,
+  sprintEvade,
   applyEffects,
   byUid,
   checkEnd,
@@ -137,14 +142,15 @@ function requirePlayer(c: CombatState): void {
 
 // ---------------------------------------------------------------- setup
 
-function scalingFor(run: RunState): CombatScaling {
+function scalingFor(run: RunState, C: ContentRegistry): CombatScaling {
   const hunted = run.trace >= 66
   const alert = run.trace >= 33
   const mut = mutatorMods(run)
+  const tune = C.tuning
   return {
-    hpPct: (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
-    elitePct: (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
-    dmg: (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0),
+    hpPct: (tune?.enemyHpPct ?? 0) + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
+    elitePct: (tune?.eliteHpPct ?? 0) + (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
+    dmg: (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0),
   }
 }
 
@@ -181,6 +187,40 @@ function wavesArrivingAfter(enc: EncounterDef, playerTurn: number): { id: string
 
 function announceIncoming(c: CombatState, enc: EncounterDef): void {
   c.incoming = wavesArrivingAfter(enc, c.turn).map((e) => ({ pos: { ...e.pos }, enemyId: e.id }))
+}
+
+/** Block every party unit gets on turn 1 (a world echo); stored as a combat-scoped trigger key. */
+const OPENING_BLOCK_KEY = 'c:opening_block'
+
+/**
+ * Fight-start effects of the run's stats, mutator and world echo (all frozen on the run, so a fight is a
+ * pure function of the run state). The opening board is already placed.
+ */
+function applyOpeningPerks(c: CombatState, run: RunState, enc: EncounterDef, C: ContentRegistry): void {
+  const conn = connectorOf(c)
+  const perks = perksOf(c)
+  if (conn) {
+    conn.move += perks.move
+    if (perks.openEvade > 0) addStatus(c, conn, 'evade', perks.openEvade)
+    if (perks.openFocus > 0) addStatus(c, conn, 'focus', perks.openFocus)
+  }
+  const x = c as CombatStateExt
+  if (perks.openDraw > 0) x.pendingDraw = (x.pendingDraw ?? 0) + perks.openDraw
+  const mut = mutatorCombat(run.mutator)
+  for (const [k, n] of Object.entries(mut.openEnemies ?? {}) as [StatusKind, number][]) {
+    for (const e of livingEnemies(c)) addStatus(c, e, k, n)
+  }
+  if (conn) for (const [k, n] of Object.entries(mut.openConnector ?? {}) as [StatusKind, number][]) addStatus(c, conn, k, n)
+  const echo = worldEchoOf(run)
+  if (echo?.combat?.openingBlock) c.triggered[OPENING_BLOCK_KEY] = echo.combat.openingBlock
+  const finalBoss = echo?.combat?.finalBoss
+  if (finalBoss && enc.act === 3) {
+    for (const e of livingEnemies(c)) {
+      if (C.enemies[e.defId]?.tier !== 'boss') continue
+      e.armor += finalBoss.armor ?? 0
+      if (finalBoss.thorns) addStatus(c, e, 'thorns', finalBoss.thorns)
+    }
+  }
 }
 
 export function startCombat(run: RunState, encounterId: string, C: ContentRegistry): CombatState {
@@ -221,7 +261,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     uidCounter: 0,
     triggered: {},
     stats: { enemiesKilled: 0, environmentKills: 0, damageDealt: 0, damageTaken: 0, cardsPlayed: 0 },
-    scaling: scalingFor(run),
+    scaling: scalingFor(run, C),
     runStats: { ...run.stats },
     ...(run.mutator ? { mutator: run.mutator } : {}),
   }
@@ -261,36 +301,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
   const thread = (key: string): number => run.flags[`thread_${key}`] ?? 0
   const extraMove = activePassive(c, C, 'move') + thread('move')
   for (const u of livingParty(c)) u.move += extraMove
-  const connUnit = connectorOf(c)
-  const agi = run.stats?.agi ?? 0
-  const obs = run.stats?.obs ?? 0
-  const intStat = run.stats?.int ?? 0
-  if (connUnit && agi >= 8) connUnit.move += 1
-  if (connUnit && agi >= 6) addStatus(c, connUnit, 'evade', agi >= 9 ? 2 : 1)
-  if (connUnit && obs >= 5) addStatus(c, connUnit, 'focus', obs >= 8 ? 2 : 1)
-  if (intStat >= 7) c.pendingDraw = (c.pendingDraw ?? 0) + 1
-  if (run.mutator === 'acid_rain') {
-    for (const e of livingEnemies(c).slice(0, 2)) addStatus(c, e, 'corrode', 2)
-    if (connUnit) addStatus(c, connUnit, 'corrode', 1)
-  } else if (run.mutator === 'magnetic_storm') {
-    if (connUnit) addStatus(c, connUnit, 'evade', 1)
-  } else if (run.mutator === 'bounty_hunters') {
-    if (connUnit) addStatus(c, connUnit, 'focus', 2)
-  }
-  if (run.flags.world_echo_noble) {
-    c.triggered['c:world_echo_noble'] = 1
-  }
-  if (encounterId === 'a3_boss_ix' || encounterId === 'a3_boss_architect') {
-    const ix = livingEnemies(c).find((e) => e.defId === 'administrator_ix' || e.defId === 'architect_omega' || e.defId === 'ix_avatar')
-    if (ix && run.flags.world_echo_rewrite) {
-      ix.armor += 1
-      addStatus(c, ix, 'thorns', 2)
-    }
-    if (connUnit && run.flags.world_echo_throne) {
-      addStatus(c, connUnit, 'mark', 2)
-      addStatus(c, connUnit, 'focus', 2)
-    }
-  }
+  applyOpeningPerks(c, run, enc, C)
   c.maxEnergy = 3 + activePassive(c, C, 'energy') + thread('energy')
   c.handSize = 5 + activePassive(c, C, 'handSize') + thread('handSize')
   if (thread('bumpDamage')) c.threadBump = thread('bumpDamage')
@@ -315,13 +326,12 @@ function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): vo
     if (guard > 0) gainBlock(c, u, guard)
   }
   if (first) {
-    const chaBlock = Math.floor(((c.runStats?.cha ?? 0) - 2) / 2)
+    const chaBlock = perksOf(c).companionBlock
     if (chaBlock > 0) {
       for (const u of livingParty(c)) if (u.uid !== 'connector') gainBlock(c, u, chaBlock)
     }
-    if (c.triggered['c:world_echo_noble']) {
-      for (const u of livingParty(c)) gainBlock(c, u, 4)
-    }
+    const echoBlock = c.triggered[OPENING_BLOCK_KEY] ?? 0
+    if (echoBlock > 0) for (const u of livingParty(c)) gainBlock(c, u, echoBlock)
   }
   // Unspent energy was dropped at end of turn; anything gained off-turn (e.g. on damage taken) carries over.
   c.energy += c.maxEnergy
@@ -384,13 +394,7 @@ export function moveUnit(c0: CombatState, C: ContentRegistry, uid: string, to: P
   const dir = dirToward(path[path.length - 2] ?? path[0] ?? to, to)
   if (dir) u.facing = dir
   emit(c, { t: 'move', uid, path })
-  if (u.uid === 'connector' && (c.runStats?.agi ?? 0) >= 6 && path.length - 1 >= 3) {
-    const key = `t${c.turn}:sprint_evade`
-    if (!c.triggered[key]) {
-      c.triggered[key] = 1
-      addStatus(c, u, 'evade', 1)
-    }
-  }
+  sprintEvade(c, u, path.length - 1)
   tickMoveBleed(c, C, u)
   if (u.hp > 0) enterGround(c, u)
   return c
@@ -651,17 +655,16 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
   const key = `t${c.turn}:__cards`
   c.triggered[key] = (c.triggered[key] ?? 0) + 1
   if (c.phase === 'lost') return
-  if (def.owner !== 'any' && def.owner !== 'connector' && (c.runStats?.cha ?? 0) >= 6 && !c.triggered['c:cha_refund']) {
+  if (def.owner !== 'any' && def.owner !== 'connector' && perksOf(c).companionRefund && !c.triggered['c:cha_refund']) {
     c.triggered['c:cha_refund'] = 1
     c.energy += 1
     emit(c, { t: 'energy', amount: 1 })
   }
-  if (def.type === 'tactic' && c.mutator === 'overclocked_grid' && !c.triggered[`t${c.turn}:oc_tactic`]) {
+  const refund = mutatorCombat(c.mutator).tacticRefund ?? 0
+  if (refund > 0 && def.type === 'tactic' && face.cost > 0 && !c.triggered[`t${c.turn}:oc_tactic`]) {
     c.triggered[`t${c.turn}:oc_tactic`] = 1
-    if (face.cost > 0) {
-      c.energy += 1
-      emit(c, { t: 'energy', amount: 1 })
-    }
+    c.energy += refund
+    emit(c, { t: 'energy', amount: refund })
   }
   if (cardsPlayedThisTurn(c) === 1) fireTrigger(c, C, 'first_card', undefined, origin.uid)
   if (def.type === 'attack') fireTrigger(c, C, 'play_attack', undefined, origin.uid)
@@ -766,15 +769,12 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
     if (c.phase !== 'player') return
   }
   for (const u of c.units.slice().sort(byUid)) {
+    // Bleed only hurts on movement (tickMoveBleed); standing still lets it clot to half each enemy phase.
     const bleed = u.statuses.bleed ?? 0
     if (bleed <= 0 || u.hp <= 0) continue
-    dealDamage(c, C, u, bleed, { source: u.side === 'enemy' ? 'party' : 'enemy', ignoreBlock: true, cause: 'bleed' })
-    if (u.hp > 0) {
-      const nextBleed = Math.floor(bleed / 2)
-      if (nextBleed > 0) u.statuses.bleed = nextBleed
-      else delete u.statuses.bleed
-    }
-    if (c.phase !== 'player') return
+    const nextBleed = Math.floor(bleed / 2)
+    if (nextBleed > 0) u.statuses.bleed = nextBleed
+    else delete u.statuses.bleed
   }
   for (const u of c.units.slice().sort(byUid)) {
     const corrode = u.statuses.corrode ?? 0
@@ -784,7 +784,7 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
     if (u.hp > 0) decayStatus(u, 'corrode')
     if (c.phase !== 'player') return
   }
-  const hazDmg = c.mutator === 'acid_rain' ? HAZARD_DAMAGE * 2 : HAZARD_DAMAGE
+  const hazDmg = hazardDamage(c)
   for (const u of c.units.slice().sort(byUid)) {
     if (u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') dealDamage(c, C, u, hazDmg, { source: 'environment', cause: 'hazard' })
     if (c.phase !== 'player') return

@@ -4,13 +4,14 @@
 // it just stops being the same run every day. A mutator is a small, readable trade (a boon and a burden) made
 // only of dials the engine already has (trace per node, shop prices, fight credits, enemy HP, start resources,
 // safehouse heal), so there is no new rule to learn and nothing hidden: the setup screen and the HUD show the
-// two clauses in plain words.
+// two clauses in plain words. A few mutators also bend a fight (`combat`: opening statuses, hazard damage, push
+// distance, a tactic refund); every such rule is spelled out in its boon/burden text.
 //
 // Picked by `mutatorForDate(dateKey)`; frozen on the run as `run.mutator` at `newRun` (so a run in progress
 // never changes if the table is retuned). Non-daily runs never have one.
 
 import { hashSeed } from './rng.ts'
-import type { RunState, Text } from './types.ts'
+import type { RunState, StatusKind, Text } from './types.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 
@@ -37,6 +38,20 @@ export interface MutatorMods {
   startConsumable?: number
 }
 
+/** In-combat rules (read through `mutatorCombat`). Each one must appear in the boon/burden text. */
+export interface MutatorCombat {
+  /** Statuses put on every enemy on the opening board. */
+  openEnemies?: Partial<Record<StatusKind, number>>
+  /** Statuses put on the connector at the start of a fight. */
+  openConnector?: Partial<Record<StatusKind, number>>
+  /** Hazard tile damage multiplier. */
+  hazardMult?: number
+  /** Extra tiles on every push the party causes. */
+  pushBonus?: number
+  /** Energy refunded by the first tactic (cost ≥ 1) played each turn. */
+  tacticRefund?: number
+}
+
 export interface MutatorDef {
   id: string
   name: Text
@@ -47,6 +62,7 @@ export interface MutatorDef {
   /** What costs. */
   burden: Text
   mods: MutatorMods
+  combat?: MutatorCombat
 }
 
 export const MUTATORS: MutatorDef[] = [
@@ -119,24 +135,27 @@ export const MUTATORS: MutatorDef[] = [
     name: t('산성비 주의보', 'Acid Rain Advisory'),
     blurb: t('하늘에서 녹슨 빗물이 떨어진다. 장갑판이 먼저 삭는다.', 'Corrosive rain falls from the smog. Armor rots first.'),
     boon: t('전투 시작 시 모든 적 부식 2 · 전투 크레딧 +20%', 'Combat start: Corrode 2 on all enemies · fight credits +20 %'),
-    burden: t('전투 시작 시 접속자 부식 1 · 최대 HP −4', 'Combat start: Corrode 1 on connector · max HP −4'),
+    burden: t('전투 시작 시 접속자 부식 1 · 위험 지대 피해 2배 · 최대 HP −4', 'Combat start: Corrode 1 on you · hazard tiles deal double · max HP −4'),
     mods: { rewardCreditsPct: 20, maxHp: -4 },
+    combat: { openEnemies: { corrode: 2 }, openConnector: { corrode: 1 }, hazardMult: 2 },
   },
   {
     id: 'magnetic_storm',
     name: t('자기 폭풍', 'Magnetic Storm'),
     blurb: t('전선이 윙윙거린다. 발걸음은 가볍지만 경보망이 예민하다.', 'Power lines hum. Steps feel lighter, but the grid is jumpy.'),
-    boon: t('전투 시작 시 접속자 회피 1 · 휴식 회복 +10%p', 'Combat start: Evade 1 on connector · safehouse heal +10 pts'),
+    boon: t('전투 시작 시 회피 1 · 아군의 밀치기 +1칸', 'Combat start: Evade 1 · your pushes go 1 tile further'),
     burden: t('노드마다 추적도 +4', 'Trace +4 per node'),
-    mods: { restHeal: 10, traceStep: 4 },
+    mods: { traceStep: 4 },
+    combat: { openConnector: { evade: 1 }, pushBonus: 1 },
   },
   {
     id: 'overclocked_grid',
     name: t('과부하 그리드', 'Overclocked Grid'),
-    blurb: t('전술 회선이 과열되어 있다. 첫 전술은 공짜지만 경보가 빨리 울린다.', 'Tactical lines run hot. Your first tactic refunds energy, but alarms trip fast.'),
-    boon: t('전투 첫 전술 카드 에너지 +1 환급 · 시작 크레딧 +30', 'First tactic each combat refunds +1 energy · start with +30 ₵'),
+    blurb: t('전술 회선이 과열되어 있다. 전술은 싸게 돌지만 경보가 빨리 울린다.', 'Tactical lines run hot. Tactics run cheap, but alarms trip fast.'),
+    boon: t('매 턴 첫 전술 카드 에너지 1 환급', 'First tactic each turn refunds 1 energy'),
     burden: t('노드마다 추적도 +5', 'Trace +5 per node'),
-    mods: { startCredits: 30, traceStep: 5 },
+    mods: { traceStep: 5 },
+    combat: { tacticRefund: 1 },
   },
   {
     id: 'bounty_hunters',
@@ -145,6 +164,7 @@ export const MUTATORS: MutatorDef[] = [
     boon: t('전투 크레딧 +50% · 전투 시작 시 집중 2', 'Fight credits +50 % · combat start: Focus 2 on connector'),
     burden: t('엘리트·보스 체력 +25%', 'Elite and boss HP +25 %'),
     mods: { rewardCreditsPct: 50, eliteHpPct: 25 },
+    combat: { openConnector: { focus: 2 } },
   },
 ]
 
@@ -152,6 +172,13 @@ const BY_ID: Record<string, MutatorDef> = Object.fromEntries(MUTATORS.map((m) =>
 
 export function mutatorById(id: string | undefined): MutatorDef | undefined {
   return id ? BY_ID[id] : undefined
+}
+
+const NO_COMBAT: MutatorCombat = {}
+
+/** The run's in-combat mutator rules (empty when there is none). */
+export function mutatorCombat(id: string | undefined): MutatorCombat {
+  return mutatorById(id)?.combat ?? NO_COMBAT
 }
 
 /** Deterministic pair of optional mutator offers for a normal loop (seeded by loop/profile). */

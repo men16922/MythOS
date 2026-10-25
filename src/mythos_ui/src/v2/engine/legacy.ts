@@ -6,7 +6,7 @@
 //   bends — Improvise checks get easier, each new act starts quieter, and at the top a growth point to start with.
 //
 // Both are frozen into the run at newRun and never apply to a daily (it must be the same run for everyone).
-import type { ContentRegistry, EchoDef, EchoSource, MetaProfile, RunEffect, RunRecord, RunState } from './types.ts'
+import type { ContentRegistry, EchoDef, EchoSource, MetaProfile, RunEffect, RunRecord, RunState, Text } from './types.ts'
 
 /** Lore entries (profile.codex) needed for autonomy levels 1, 2 and 3. */
 export const AUTONOMY_STEPS = [6, 12, 18] as const
@@ -67,17 +67,70 @@ export function autonomyDc(run: Pick<RunState, 'autonomy'>): number {
   return (run.autonomy ?? 0) >= 1 ? AUTONOMY_IMPROVISE_DC : 0
 }
 
-export type WorldEchoFlag = 'world_echo_rewrite' | 'world_echo_refuge' | 'world_echo_noble'
-
-const ENDING_TO_WORLD_ECHO: Record<string, WorldEchoFlag> = {
-  ending_code_rewrite: 'world_echo_rewrite',
-  ending_safe_refuge: 'world_echo_refuge',
-  ending_noble_sacrifice: 'world_echo_noble',
+/**
+ * World echo: the last victorious normal loop's ending leaves the city changed for the next loop. Frozen into the
+ * run as `run.flags[id] = 1` at newRun (never on a daily); the run-start part applies there, the combat part at
+ * every fight start (combat.ts). `text` is what the setup screen shows — keep it in step with the numbers.
+ */
+export interface WorldEchoDef {
+  id: string
+  endingId: string
+  name: Text
+  text: Text
+  /** Credits at run start. */
+  credits?: number
+  /** Bond with every starting companion. */
+  bond?: number
+  combat?: {
+    /** Block on every party unit on turn 1 of every fight. */
+    openingBlock?: number
+    /** Act 3 boss changes. */
+    finalBoss?: { armor?: number; thorns?: number }
+  }
 }
 
-/** World-state carryover flag from the last victorious normal loop's ending. */
-export function worldEchoFor(profile: Pick<MetaProfile, 'history'>): WorldEchoFlag | undefined {
+const t = (ko: string, en: string): Text => ({ ko, en })
+
+export const WORLD_ECHOES: readonly WorldEchoDef[] = [
+  {
+    id: 'world_echo_rewrite',
+    endingId: 'ending_code_rewrite',
+    name: t('재작성된 코드', 'Rewritten Code'),
+    text: t('+15₵ · 최종 보스 장갑 +1 · 가시 2 (IX 역방화벽)', '+15₵ · final boss armor +1 and Thorns 2 (IX counter-firewall)'),
+    credits: 15,
+    combat: { finalBoss: { armor: 1, thorns: 2 } },
+  },
+  {
+    id: 'world_echo_refuge',
+    endingId: 'ending_safe_refuge',
+    name: t('은신처의 유대', 'Safe Refuge'),
+    text: t('시작 동료 유대 +1', '+1 starting companion bond'),
+    bond: 1,
+  },
+  {
+    id: 'world_echo_noble',
+    endingId: 'ending_noble_sacrifice',
+    name: t('남은 불씨', 'Remaining Ember'),
+    text: t('+15₵ · 매 전투 첫 턴 아군 방어막 +4', '+15₵ · +4 block for every ally on turn 1 of each fight'),
+    credits: 15,
+    combat: { openingBlock: 4 },
+  },
+]
+
+const ECHO_BY_ID: Record<string, WorldEchoDef> = Object.fromEntries(WORLD_ECHOES.map((e) => [e.id, e]))
+
+export function worldEchoById(id: string | undefined): WorldEchoDef | undefined {
+  return id ? ECHO_BY_ID[id] : undefined
+}
+
+/** The run's world echo (from run.flags), if any. */
+export function worldEchoOf(run: Pick<RunState, 'flags'>): WorldEchoDef | undefined {
+  return WORLD_ECHOES.find((e) => run.flags[e.id])
+}
+
+/** World-state carryover from the last victorious normal loop's ending. */
+export function worldEchoFor(profile: Pick<MetaProfile, 'history'>): WorldEchoDef | undefined {
   const last = lastLoop(profile)
   if (!last || last.result !== 'victory') return undefined
-  return ENDING_TO_WORLD_ECHO[last.endingId]
+  return WORLD_ECHOES.find((e) => e.endingId === last.endingId)
 }

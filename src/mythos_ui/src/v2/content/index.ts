@@ -44,6 +44,9 @@ export const CONTENT: ContentRegistry = {
   crpg: CRPG,
   echoes: ECHOES,
   thoughts: THOUGHTS,
+  // Balance 2026-10-25 (docs/plans/2026-10-25-argon-review-and-s-rank-plan.md): the 5-stat perks, Evade/Crit and the
+  // larger card/implant pool made the party much stronger than the authored enemy numbers assumed.
+  tuning: { enemyHpPct: 5, eliteHpPct: 15, dmgFromAct: 1 },
 }
 
 export { CARDS, CONSUMABLES, ENEMIES, ENCOUNTERS, IMPLANTS, COMPANIONS, ARCHETYPES }

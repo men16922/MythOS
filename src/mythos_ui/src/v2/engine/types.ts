@@ -60,8 +60,8 @@ export interface Tile {
 
 /**
  * burn    N : at the end of each enemy phase the unit takes N damage (ignores block), then N -= 1.
- * bleed   N : when the unit moves or is pushed/pulled at least 1 tile (and at the end of the enemy phase),
- *             it takes N damage (ignores block). Movement ticks N -= 1; enemy phase end decays N to floor(N / 2).
+ * bleed   N : when the unit moves or is pushed/pulled at least 1 tile it takes N damage (ignores block), then N -= 1.
+ *             It never ticks on its own: the end of each enemy phase only decays N to floor(N / 2).
  * corrode N : at the end of each enemy phase the unit takes N damage (ignores block) and loses 1 permanent armor,
  *             then N -= 1. If a unit with corrode > 0 dies, its remaining corrode spreads to adjacent enemies.
  * shock   N : enemy — its intent fizzles when it would fire and it does not move; party — cannot move.
@@ -1098,4 +1098,15 @@ export interface ContentRegistry {
   echoes?: EchoDef[]
   /** Thoughts the stat voices offer after checks (engine/thoughts.ts; absent in test doubles). */
   thoughts?: ThoughtDef[]
+  /** Global enemy toughness on top of the authored numbers (absent in test doubles = authored numbers). */
+  tuning?: EnemyTuning
+}
+
+export interface EnemyTuning {
+  /** +% max HP for every enemy. */
+  enemyHpPct: number
+  /** Extra +% max HP for elites and bosses. */
+  eliteHpPct: number
+  /** From this act on, every enemy move deals +1 (shown in its telegraph). */
+  dmgFromAct: number
 }

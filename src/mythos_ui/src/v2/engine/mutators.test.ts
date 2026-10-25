@@ -30,7 +30,7 @@ test('table: ids unique, a visible boon AND burden each, bilingual, mods are san
     assert.ok(!ids.has(m.id), `duplicate ${m.id}`)
     ids.add(m.id)
     for (const text of [m.name, m.blurb, m.boon, m.burden]) assert.ok(text.ko.trim() && text.en.trim(), `${m.id}: empty text`)
-    assert.ok(Object.keys(m.mods).length >= 2, `${m.id}: a trade has at least two dials`)
+    assert.ok(Object.keys(m.mods).length + Object.keys(m.combat ?? {}).length >= 2, `${m.id}: a trade has at least two dials`)
     for (const [k, v] of Object.entries(m.mods)) assert.ok(Number.isInteger(v) && Math.abs(v) <= 100, `${m.id}.${k}=${v}`)
   }
   assert.ok(MUTATORS.length >= 8)

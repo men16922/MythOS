@@ -353,17 +353,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                   <>
                     {' · '}
                     <b>
-                      {worldEcho === 'world_echo_rewrite'
-                        ? ko
-                          ? '월드 잔향: 재작성된 코드 (+15₵ · IX 역방화벽)'
-                          : 'World Echo: Rewritten Code (+15₵ · IX counter-firewall)'
-                        : worldEcho === 'world_echo_refuge'
-                          ? ko
-                            ? '월드 잔향: 은신처의 유대 (시작 동료 유대 +1)'
-                            : 'World Echo: Safe Refuge (+1 starting companion bond)'
-                          : ko
-                            ? '월드 잔향: 남은 불씨 (+15₵ · 개전 방어막 +4)'
-                            : 'World Echo: Remaining Ember (+15₵ · +4 opening block)'}
+                      {ko ? '월드 잔향' : 'World Echo'}: {tr(worldEcho.name, lang)} ({tr(worldEcho.text, lang)})
                     </b>
                   </>
                 )}

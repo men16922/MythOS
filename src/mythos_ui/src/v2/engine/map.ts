@@ -17,7 +17,7 @@ import type { RngHolder } from './rng.ts'
 import type { ActMap, ContentRegistry, EncounterDef, EventDef, MapNode, NodeKind } from './types.ts'
 
 /** Regular rows (0..MAP_ROWS-1); the boss sits on row MAP_ROWS. */
-export const MAP_ROWS = 8
+export const MAP_ROWS = 7
 export const MAP_COLS = 4
 export const BOSS_ROW = MAP_ROWS
 

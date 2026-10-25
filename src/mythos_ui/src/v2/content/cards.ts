@@ -141,8 +141,8 @@ const STARTER_SMUGGLER: CardDef[] = [
     archetype: 'smuggler',
     cost: 1,
     target: { mode: 'lob', minRange: 1, range: 4 },
-    effects: [{ kind: 'redirect' }],
-    text: t('적의 공격 방향을 뒤집는다.', "Turn an enemy's attack around."),
+    effects: [{ kind: 'redirect' }, { kind: 'draw', amount: 1 }],
+    text: t('적의 공격 방향을 뒤집는다. 카드 1장 뽑기.', "Turn an enemy's attack around. Draw 1."),
     upgrade: { cost: 0 },
     icon: 'v2/cards/system_hack.webp',
     tags: ['hack'],
@@ -514,7 +514,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('피해 4. 출혈 4.', 'Deal 4. Bleed 4.'),
     },
-    icon: 'v2/cards/blink_strike.webp',
+    icon: 'v2/cards/artery_rip.webp',
     tags: ['bleed'],
   },
   {
@@ -531,7 +531,7 @@ const POOL_COMMON: CardDef[] = [
       effects: [{ kind: 'status', status: 'corrode', amount: 3, area: 'cross' }],
       text: t('십자 범위에 부식 3.', 'Cross area: Corrode 3.'),
     },
-    icon: 'v2/cards/meltdown.webp',
+    icon: 'v2/cards/corrosive_rain.webp',
     tags: ['corrode', 'hack'],
   },
   {
@@ -554,7 +554,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('회피 2 (+민첩/4), 집중 3.', 'Gain Evade 2 (+AGI/4) and Focus 3.'),
     },
-    icon: 'v2/cards/ghost_protocol.webp',
+    icon: 'v2/cards/phantom_feint.webp',
     tags: ['move'],
   },
   {
@@ -579,7 +579,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('피해 3을 두 번. 표식 2.', 'Deal 3 twice. Mark 2.'),
     },
-    icon: 'v2/cards/double_tap.webp',
+    icon: 'v2/cards/tracer_barrage.webp',
     tags: ['mark'],
   },
   {
@@ -604,7 +604,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('피해 4 (+근력/3). 출혈 3 후 1칸 밀어내 출혈을 즉시 터뜨린다.', 'Deal 4 (+STR/3). Inflict Bleed 3, then push 1 to trigger Bleed immediately.'),
     },
-    icon: 'v2/cards/shove.webp',
+    icon: 'v2/cards/serrated_shove.webp',
     tags: ['bleed', 'push'],
   },
   {
@@ -629,7 +629,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('빈 칸으로 도약. 회피 1, 방어막 5 (+민첩/3).', 'Leap to an empty tile. Gain Evade 1 and 5 (+AGI/3) block.'),
     },
-    icon: 'v2/cards/smoke_step.webp',
+    icon: 'v2/cards/evasive_roll.webp',
     tags: ['move', 'block'],
   },
 ]
@@ -855,7 +855,7 @@ const POOL_UNCOMMON: CardDef[] = [
       ],
       text: t('피해 3, 출혈 4. 2칸 끌어당긴다 (출혈 즉시 격발).', 'Deal 3, Bleed 4. Pull 2 (triggers Bleed immediately).'),
     },
-    icon: 'v2/cards/grapple.webp',
+    icon: 'v2/cards/crimson_hook.webp',
     tags: ['bleed', 'push'],
   },
   {
@@ -878,7 +878,7 @@ const POOL_UNCOMMON: CardDef[] = [
       ],
       text: t('집중 3을 얻고 피해 7 (+관찰/2).', 'Gain Focus 3, then deal 7 (+OBS/2).'),
     },
-    icon: 'v2/cards/deadeye.webp',
+    icon: 'v2/cards/vital_snipe.webp',
     tags: ['mark'],
   },
   {
@@ -901,7 +901,7 @@ const POOL_UNCOMMON: CardDef[] = [
       ],
       text: t('관통 피해 6 (+지능/3). 부식 3.', 'Deal 6 (+INT/3) piercing damage. Corrode 3.'),
     },
-    icon: 'v2/cards/armor_breaker.webp',
+    icon: 'v2/cards/rust_burst.webp',
     tags: ['corrode', 'hack'],
   },
   {
@@ -926,7 +926,7 @@ const POOL_UNCOMMON: CardDef[] = [
       ],
       text: t('직선으로 돌진해 피해 7, 출혈 3. 집중 2를 얻는다.', 'Charge in a line: deal 7, Bleed 3. Gain Focus 2.'),
     },
-    icon: 'v2/cards/afterburner.webp',
+    icon: 'v2/cards/bloodhound_rush.webp',
     tags: ['move', 'bleed'],
   },
   {
@@ -949,7 +949,7 @@ const POOL_UNCOMMON: CardDef[] = [
       ],
       text: t('십자 범위에 피해 6, 부식 3.', 'Cross area: deal 6 and Corrode 3.'),
     },
-    icon: 'v2/cards/scattershot.webp',
+    icon: 'v2/cards/corrosive_shrapnel.webp',
     tags: ['corrode'],
   },
   {
@@ -973,7 +973,7 @@ const POOL_UNCOMMON: CardDef[] = [
       ],
       text: t('집중 4(다음 4+ 타격 치명타!), 회피 2. 소멸.', 'Gain Focus 4 (next 4+ hit Crits!) and Evade 2. Exhaust.'),
     },
-    icon: 'v2/cards/adrenaline.webp',
+    icon: 'v2/cards/assassin_focus.webp',
     tags: ['mark', 'move'],
   },
 ]
@@ -1002,7 +1002,7 @@ const POOL_RARE: CardDef[] = [
       ],
       text: t('관통 피해 11 (+근력/2). 출혈 5 후 1칸 밀어내 출혈을 즉시 격발. 소멸.', 'Deal 11 (+STR/2) piercing damage. Bleed 5, then push 1 to trigger Bleed. Exhaust.'),
     },
-    icon: 'v2/cards/execution_protocol.webp',
+    icon: 'v2/cards/crimson_finale.webp',
     tags: ['bleed', 'push'],
   },
   {
@@ -1099,7 +1099,7 @@ const POOL_RARE: CardDef[] = [
       ],
       text: t('3×3 범위에 피해 5, 부식 4, 출혈 3. 소멸.', '3×3 area: deal 5, Corrode 4, Bleed 3. Exhaust.'),
     },
-    icon: 'v2/cards/singularity.webp',
+    icon: 'v2/cards/pandemic_pulse.webp',
     tags: ['corrode', 'bleed'],
   },
 ]

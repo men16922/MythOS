@@ -21,7 +21,7 @@ import {
   consumeInPlace,
   type TargetOption,
 } from './combat.ts'
-import { getUnit, livingEnemies, livingParty, tileAt, unitAt } from './effects.ts'
+import { getUnit, livingEnemies, livingParty, sprintEvade, tileAt, unitAt } from './effects.ts'
 import { effectiveIntentDamage, findMove, intentGeometry } from './intents.ts'
 
 /**
@@ -85,13 +85,7 @@ function moveInPlace(c: CombatState, uid: string, to: Pos): void {
   const dist = manhattan(u.pos, to)
   u.pos = { ...to }
   u.moved = true
-  if (u.uid === 'connector' && (c.runStats?.agi ?? 0) >= 6 && dist >= 3) {
-    const key = `t${c.turn}:sprint_evade`
-    if (!c.triggered[key]) {
-      c.triggered[key] = 1
-      u.statuses.evade = (u.statuses.evade ?? 0) + 1
-    }
-  }
+  sprintEvade(c, u, dist)
 }
 
 function toTarget(o: TargetOption): PlayTarget {

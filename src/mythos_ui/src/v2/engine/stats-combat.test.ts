@@ -15,20 +15,20 @@ import type { MetaProfile, RunRecord } from './types.ts'
 
 const NOW = '2026-10-25T00:00:00.000Z'
 
-test('AGI grants opening evade, +1 connector move at AGI>=8, and sprint evade on 3+ tile move', () => {
+test('AGI grants opening evade (7+), +1 connector move (9+), and sprint evade (7+) on a 3+ tile move', () => {
   const base = startCombat(makeRun({ stats: { str: 3, agi: 5, int: 3, cha: 3, obs: 4 } }), 'duel', FIXTURE)
   const connBase = base.units.find((u) => u.uid === 'connector')!
   assert.equal(connBase.statuses.evade ?? 0, 0)
   assert.equal(connBase.move, 3)
 
-  const agi8 = startCombat(makeRun({ stats: { str: 3, agi: 8, int: 3, cha: 3, obs: 4 } }), 'duel', FIXTURE)
+  const agi8 = startCombat(makeRun({ stats: { str: 3, agi: 9, int: 3, cha: 3, obs: 4 } }), 'duel', FIXTURE)
   const conn8 = agi8.units.find((u) => u.uid === 'connector')!
-  assert.equal(conn8.statuses.evade, 1, 'AGI 8 grants opening evade 1')
-  assert.equal(conn8.move, 4, 'AGI 8 grants +1 move range')
+  assert.equal(conn8.statuses.evade, 1, 'AGI 9 grants opening evade 1')
+  assert.equal(conn8.move, 4, 'AGI 9 grants +1 move range')
 
   const moved = moveUnit(agi8, FIXTURE, 'connector', { x: conn8.pos.x + 2, y: conn8.pos.y + 1 })
   const connAfter = moved.units.find((u) => u.uid === 'connector')!
-  assert.equal(connAfter.statuses.evade, 2, 'moving 3+ tiles at AGI>=6 grants +1 sprint evade')
+  assert.equal(connAfter.statuses.evade, 2, 'moving 3+ tiles at AGI>=7 grants +1 sprint evade')
 })
 
 test('Evade halves incoming direct attack damage, decrements by 1, and emits evaded delta', () => {
@@ -47,14 +47,14 @@ test('Evade halves incoming direct attack damage, decrements by 1, and emits eva
 })
 
 test('OBS builds Focus on attacks and triggers Critical Hit (1.5x + armor ignore) at Focus >= 4', () => {
-  const c = startCombat(makeRun({ stats: { str: 3, agi: 5, int: 3, cha: 3, obs: 8 } }), 'duel', FIXTURE)
+  const c = startCombat(makeRun({ stats: { str: 3, agi: 5, int: 3, cha: 3, obs: 9 } }), 'duel', FIXTURE)
   const conn = c.units.find((u) => u.uid === 'connector')!
   const enemy = c.units.find((u) => u.side === 'enemy')!
-  assert.equal(conn.statuses.focus, 2, 'OBS 8 grants opening focus 2')
+  assert.equal(conn.statuses.focus, 2, 'OBS 9 grants opening focus 2')
 
   // First non-crit attack builds +2 focus (2 -> 4)
   dealDamage(c, FIXTURE, enemy, 4, { source: 'party', attacker: conn, attack: true })
-  assert.equal(conn.statuses.focus, FOCUS_CRIT_THRESHOLD, 'attack at OBS 8 reaches focus threshold 4')
+  assert.equal(conn.statuses.focus, FOCUS_CRIT_THRESHOLD, 'attack at OBS 9 reaches focus threshold 4')
 
   // Next attack crits: ignores armor, multiplies by 1.5x, consumes 4 focus
   enemy.armor = 3
@@ -70,7 +70,7 @@ test('OBS builds Focus on attacks and triggers Critical Hit (1.5x + armor ignore
 
 test('STR boosts Connector direct attacks and push bump damage; INT boosts DoTs; CHA shields & refunds companion', () => {
   const run = makeRun({
-    stats: { str: 8, agi: 5, int: 8, cha: 6, obs: 4 },
+    stats: { str: 9, agi: 5, int: 9, cha: 7, obs: 4 },
     party: [{ id: 'se_rin', hp: 20, maxHp: 20, bond: 0 }],
   })
   const c = startCombat(run, 'a1_n1_cover', C)
@@ -78,30 +78,30 @@ test('STR boosts Connector direct attacks and push bump damage; INT boosts DoTs;
   const serin = c.units.find((u) => u.defId === 'se_rin')!
   const enemy = c.units.find((u) => u.side === 'enemy')!
 
-  // CHA 6 grants floor((6-2)/2) = 2 opening block to deployed companions
-  assert.equal(serin.block, 2, 'CHA 6 grants opening block 2 to companion')
-  assert.equal(c.hand.length, 6, 'INT 8 (>=7) draws +1 card on Turn 1')
+  // CHA 7 grants floor((7-3)/2) = 2 opening block to deployed companions
+  assert.equal(serin.block, 2, 'CHA 7 grants opening block 2 to companion')
+  assert.equal(c.hand.length, 6, 'INT 9 (>=8) draws +1 card on Turn 1')
 
-  // STR 8 adds +2 direct attack damage for connector
+  // STR 9 adds +2 direct attack damage for connector
   enemy.armor = 0
   enemy.block = 0
   const hp0 = enemy.hp
   dealDamage(c, C, enemy, 5, { source: 'party', attacker: conn, attack: true })
-  assert.equal(hp0 - enemy.hp, 7, '5 base + 2 from STR 8')
+  assert.equal(hp0 - enemy.hp, 7, '5 base + 2 from STR 9')
 
-  // INT 8 adds +2 to party-applied DoT via corrosive_rain
+  // INT 9 adds +2 to party-applied DoT via corrosive_rain
   enemy.pos = { x: conn.pos.x + 2, y: conn.pos.y }
   c.hand.push({ uid: 'test_corr', defId: 'corrosive_rain', upgraded: false })
   c.energy = 3
   const c2 = playCard(c, C, 'test_corr', 'connector', { pos: enemy.pos })
   const e2 = c2.units.find((u) => u.uid === enemy.uid)!
-  assert.equal(e2.statuses.corrode, 4, 'corrosive_rain base 2 + 2 from INT 8 = 4')
+  assert.equal(e2.statuses.corrode, 4, 'corrosive_rain base 2 + 2 from INT 9 = 4')
 
-  // CHA 6 refunds +1 energy on the first companion card played in combat
+  // CHA 7 refunds +1 energy on the first companion card played in combat
   c2.hand.push({ uid: 'test_comp', defId: 'serin_escape_route', upgraded: false })
   const energyBefore = c2.energy
   const c3 = playCard(c2, C, 'test_comp', serin.uid, {})
-  assert.equal(c3.energy, energyBefore - 1 + 1, '1 cost - 1 refunded by CHA 6')
+  assert.equal(c3.energy, energyBefore - 1 + 1, '1 cost - 1 refunded by CHA 7')
 
   // statScale cards: phantom_feint (evade + AGI/4) and vital_snipe (damage + OBS/2)
   c3.runStats = { str: 3, agi: 8, int: 3, cha: 3, obs: 8 }
@@ -174,7 +174,7 @@ test('World Echoes carry over from victorious endings and Tactical Mutators appl
     endedAt: NOW,
   })
   const profRewrite: MetaProfile = { ...newProfile('T'), loops: 1, history: [victoryRec('ending_code_rewrite')] }
-  assert.equal(worldEchoFor(profRewrite), 'world_echo_rewrite')
+  assert.equal(worldEchoFor(profRewrite)?.id, 'world_echo_rewrite')
   const runRewrite = newRun(profRewrite, { archetype: 'ghost', paradox: 0, seed: 42, now: NOW }, C)
   assert.equal(runRewrite.flags.world_echo_rewrite, 1)
   const bossCombat = startCombat(runRewrite, 'a3_boss_ix', C)
@@ -198,7 +198,7 @@ test('World Echoes carry over from victorious endings and Tactical Mutators appl
   assert.equal(acidEnemy.statuses.corrode, 2, 'acid_rain applies corrode 2 to enemies at combat start')
 })
 
-test('Volume Expansion: 12 new enemies/bosses, 15 new encounters, 8 new cards, 9 new events, and 9-row map', () => {
+test('Volume Expansion: 12 new enemies/bosses, 15 new encounters, 8 new cards, 9 new events', () => {
   for (const id of [
     'ripper_hound',
     'stalker_drone',

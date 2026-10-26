@@ -2,6 +2,9 @@
 
   .venv/bin/python scripts/dev/ui_playthrough.py [--runs 2] [--max-minutes 12] [--seed-daily] [--signal-plus]
 
+`--deep` plays Deep Signal (all 6 acts); `--secret` does too with every First Record shard and enough insight, so the
+run should go into the secret First Connector fight after the Act 6 boss.
+
 `--signal-plus` plays as a Signal+ player (the server grants the bot's player id): background pick, districts first on
 the map, every conversation, camp nights, thoughts and growth points.
 
@@ -62,7 +65,7 @@ def snapshot(page: Page) -> dict:
     return page.evaluate(
         """() => { const r = window.__m2 && window.__m2.run; if (!r) return { kind: 'none' };
           const s = r.screen; return { kind: s.kind, act: r.act, hp: r.hp, node: r.nodeId, visited: r.visited.length,
-            combatTurn: s.kind === 'combat' ? s.combat.turn : null, foes: s.kind === 'combat' ? s.combat.units.filter((u) => u.side === 'enemy').map((u) => u.hp).join(',') : null, me: s.kind === 'combat' ? (s.combat.units.find((u) => u.defId === 'connector') || {}).hp : null, hand: s.kind === 'combat' ? s.combat.hand.length : null, energy: s.kind === 'combat' ? s.combat.energy : null, phase: s.kind === 'combat' ? s.combat.phase : null,
+            combatTurn: s.kind === 'combat' ? s.combat.turn : null, enc: s.kind === 'combat' ? s.combat.encounterId : null, foes: s.kind === 'combat' ? s.combat.units.filter((u) => u.side === 'enemy').map((u) => u.hp).join(',') : null, me: s.kind === 'combat' ? (s.combat.units.find((u) => u.defId === 'connector') || {}).hp : null, hand: s.kind === 'combat' ? s.combat.hand.length : null, energy: s.kind === 'combat' ? s.combat.energy : null, phase: s.kind === 'combat' ? s.combat.phase : null,
             resolved: s.kind === 'event' ? !!(s.resolved || (s.improvised && s.improvised.rolled)) : null, rng: r.rng, seed: r.seed,
             crpg: !!r.crpg, districts: Object.values(r.map.nodes).filter((n) => n.kind === 'district').map((n) => n.id).join(',') } }"""
     )
@@ -439,6 +442,8 @@ def play_one(
     god: bool,
     max_nodes: int = 0,
     plus: bool = False,
+    deep: bool = False,
+    secret: bool = False,
 ) -> tuple[bool, str, Counter]:
     seen: Counter = Counter()
     page.goto(f"{base}/?mute=1")
@@ -457,6 +462,13 @@ def play_one(
         page.evaluate(
             "() => window.__m2.setProfile((p) => ({ ...p, settings: { ...p.settings, lang: 'en' } }))"
         )
+    if deep or secret:
+        # Deep Signal opens after the first win; `--secret` also carries every First Record shard into the loop.
+        records = [f"record_{i}" for i in range(1, 8)] if secret else []
+        page.evaluate(
+            "(records) => window.__m2.setProfile((p) => ({ ...p, wins: Math.max(1, p.wins), records }))",
+            records,
+        )
     if daily:
         page.locator(".m2-menu-item--daily").click()
     else:
@@ -466,6 +478,8 @@ def play_one(
     if plus:
         page.locator(".m2-bgs button").first.wait_for(timeout=15000)  # the Signal+ background pick
         page.locator(".m2-bgs button").last.click()
+    if deep or secret:
+        page.locator(".m2-bgs button", has_text=re.compile("딥 시그널|Deep Signal")).first.click()
     page.get_by_role("button", name=re.compile(r"^\s*(접속|Connect)\s*$")).first.click()
     page.wait_for_timeout(600)
     page.keyboard.press("Escape")  # skip the prologue
@@ -488,6 +502,13 @@ def play_one(
             )
             if os.environ.get("PLAYTHROUGH_DEBUG"):
                 print("   god:", res)
+        if secret and st.get("act") == 6:
+            # The bot does not steer the story axes; give it the insight the First Connector's gate asks for.
+            page.evaluate(
+                "() => { const r = window.__m2.run; if ((r.axes?.insight ?? 0) < 5) window.__m2.setRun({ ...r, axes: { ...r.axes, insight: 5 } }) }"
+            )
+        if st["kind"] == "combat" and st.get("enc"):
+            seen[f"enc:{st['enc']}"] = 1
         seen[st["kind"]] += 1
         tour = os.environ.get("PLAYTHROUGH_TOUR")
         if tour and seen[st["kind"]] in (2, 6):
@@ -561,6 +582,16 @@ def main() -> int:
         default=0,
         help="stop playing after this many map nodes, then tour the shop/safehouse/treasure/final choice (quick check)",
     )
+    ap.add_argument(
+        "--deep",
+        action="store_true",
+        help="play Deep Signal (6 acts; the profile is given its first win)",
+    )
+    ap.add_argument(
+        "--secret",
+        action="store_true",
+        help="Deep Signal with every First Record shard and enough insight: reach the secret First Connector fight",
+    )
     args = ap.parse_args()
     api_port, ui_port = free_port(), free_port()
     if {api_port, ui_port} & {8010, 5173}:
@@ -627,6 +658,8 @@ def main() -> int:
                     not args.no_god,
                     args.max_nodes,
                     args.signal_plus,
+                    args.deep,
+                    args.secret,
                 )
                 if ok and kind_of(page) != "ended":
                     try:

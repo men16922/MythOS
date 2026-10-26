@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { CompanionDef, CompanionIntro, FirstImpression, Lang } from '../../engine/types.ts'
 import { asset } from '../common/assets.ts'
-import { tr } from '../common/lang.ts'
+import { josa, tr } from '../common/lang.ts'
 import { sound } from './sound.ts'
 import { Typewriter } from './Typewriter.tsx'
 import './cutscene.css'
@@ -133,7 +133,7 @@ export function RecruitScene({ def, intro, lang, reunion, seed, fast, onDone }: 
             </div>
             {!reunion && tone && tone === intro.likesTone && (
               <div className="m2-recruit__approve" role="status">
-                {ko ? `${name}이(가) 마음에 들어 한다 · 유대 +1` : `${name} approves · Bond +1`}
+                {ko ? `${josa(name, '이', '가')} 마음에 들어 한다 · 유대 +1` : `${name} approves · Bond +1`}
               </div>
             )}
             <div className="m2-recruit__card">

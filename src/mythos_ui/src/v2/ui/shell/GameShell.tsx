@@ -461,6 +461,9 @@ export function GameShell() {
         screen = CombatScreen ? (
           <Suspense fallback={<div className="m2-loading">{lang === 'ko' ? '전투 준비 중…' : 'Deploying…'}</div>}>
             <CombatScreen
+              // A fight that follows a fight (the secret First Connector after the last boss) is a fresh screen:
+              // the finished fight's ending lock, splash and animator must not carry over.
+              key={s.combat.encounterId}
               run={run}
               combat={s.combat}
               C={C}

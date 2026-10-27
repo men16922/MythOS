@@ -15,7 +15,7 @@ Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank
 
 ## Priority 0c — DLC-scale expansion "Deep Signal" (R1–R7 built 2026-10-26)
 
-Plan: `docs/plans/2026-10-26-dlc-expansion-plan.md` (§17.6 = status). `[ ]` `[owner]` play a Deep Signal run to Act 6 and judge fun / difficulty (sim: 6-act clear ≈ 20 %). `[x]` preview `00154-lom` promoted 2026-10-27 (`--to-latest`, health 200, served bundle = committed; rollback `00150-qen`) (it carries the secret-fight fix; `00153-tuv` is stale). `[ ]` later (proposal): weekly contracts, achievements, codex completion rewards, custom anomaly mixer, Chronicle campaign mode, companion outfits.
+Plan: `docs/plans/2026-10-26-dlc-expansion-plan.md` (§17.6 = status). `[ ]` `[owner]` play a Deep Signal run to Act 6 and judge fun / difficulty (sim: 6-act clear ≈ 20 %). `[x]` preview `00154-lom` promoted 2026-10-27 (`--to-latest`, health 200, served bundle = committed; rollback `00150-qen`) (it carries the secret-fight fix; `00153-tuv` is stale). `[x]` stun + wall-bump stun cards + 11 companion ultimates + full-screen ult cut-in (2026-10-27, sim-neutral; `[ ]` `[owner]` feel check, `[ ]` deploy = owner call). `[ ]` fix `make test-e2e-v2` (assumes the first map node is a fight; fails on HEAD). `[ ]` later (proposal): weekly contracts, achievements, codex completion rewards, custom anomaly mixer, Chronicle campaign mode, companion outfits.
 
 ## Priority 0 — global showcase & improvement waves (owner direction 2026-10-24)
 

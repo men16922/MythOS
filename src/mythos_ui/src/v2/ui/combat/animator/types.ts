@@ -23,6 +23,8 @@ export interface Banner {
   sub?: string
   /** Portrait for a 'burst' cut-in. */
   art?: string
+  /** 'burst' cut-in colour set: the archetype's Signal Burst (gold) or a companion ultimate (cyan). */
+  tone?: 'burst' | 'ult'
   key: number
 }
 

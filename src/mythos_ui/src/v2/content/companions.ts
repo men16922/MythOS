@@ -24,6 +24,11 @@ export const COMPANIONS: CompanionDef[] = [
       text: t('세린이 전술 카드를 쓰면 방어막 3을 얻고, 다시 이동할 수 있다. (턴당 1회)', 'When Se-rin plays a tactic, she gains 3 block and may move again. (Once per turn)'),
       triggers: [{ on: 'play_tactic', ownerOnly: true, limit: 'turn', effects: [{ kind: 'block', amount: 3, to: 'owner' }, { kind: 'refund_move', to: 'owner' }] }],
     },
+    ultimate: {
+      name: t('역류 탈출', 'Undertow Exit'),
+      text: t('모든 아군 방어막 6, 모두 다시 이동할 수 있다. 카드 1장을 뽑는다.', "All allies gain 6 block and may move again. Draw 1."),
+      effects: [{ kind: 'block', amount: 6, to: 'all_allies' }, { kind: 'refund_move', to: 'all_allies' }, { kind: 'draw', amount: 1 }],
+    },
     bondLines: [
       t('빚진 건 갚는 거야. 그게 다야.', "I pay my debts. That's all this is."),
       t('물거미가 왜 물거미인지 알아? 가라앉는 법을 몰라서.', "Know why they call me Water Spider? I never learned how to sink."),
@@ -59,6 +64,11 @@ export const COMPANIONS: CompanionDef[] = [
         { on: 'play_attack', ownerOnly: true, limit: 'turn', effects: [{ kind: 'block', amount: 4, to: 'owner' }] },
       ],
     },
+    ultimate: {
+      name: t('사냥개 돌파', 'Hound Breakthrough'),
+      text: t('모든 적을 태오에게서 2칸 밀쳐낸다. 부딪히면 충돌 피해 +2, 기절. 태오 방어막 8.', "Push every enemy 2 tiles away from Tae-o. Bumps deal +2 and Stun. Tae-o gains 8 block."),
+      effects: [{ kind: 'push', dir: 'away', distance: 2, to: 'all_enemies', slam: 2, stun: true }, { kind: 'block', amount: 8, to: 'owner' }],
+    },
     bondLines: [
       t('난 명령을 따랐다. 그게 변명이 안 된다는 것도 안다.', "I followed orders. I know that's no excuse."),
       t('이 흉터? 마지막으로 사람을 지킨 날 생긴 거다.', 'This scar? Got it the last time I protected someone.'),
@@ -89,6 +99,11 @@ export const COMPANIONS: CompanionDef[] = [
       name: t('역추적', 'Backtrace'),
       text: t('한이 전술 카드를 쓰면 카드 1장을 뽑는다. (턴당 1회)', 'When Han plays a tactic, draw 1 card. (Once per turn)'),
       triggers: [{ on: 'play_tactic', ownerOnly: true, limit: 'turn', effects: [{ kind: 'draw', amount: 1 }] }],
+    },
+    ultimate: {
+      name: t('역추적 완료', 'Trace Complete'),
+      text: t('카드 3장을 뽑고 에너지 +1. 모든 적에게 표식 2.', "Draw 3, gain 1 energy. Every enemy gets Mark 2."),
+      effects: [{ kind: 'draw', amount: 3 }, { kind: 'energy', amount: 1 }, { kind: 'status', status: 'mark', amount: 2, to: 'all_enemies' }],
     },
     bondLines: [
       t('난 접속 안 해. 밖에서 뚫는 게 더 재밌거든.', "I don't plug in. Breaking in from outside is more fun."),
@@ -123,6 +138,11 @@ export const COMPANIONS: CompanionDef[] = [
         { on: 'play_skill', ownerOnly: true, limit: 'turn', effects: [{ kind: 'block', amount: 2, to: 'all_allies' }] },
       ],
     },
+    ultimate: {
+      name: t('잔향 단조', 'Echo Forge'),
+      text: t('모든 아군 방어막 7. 잔향 칼날 2장을 손에 넣는다.', "All allies gain 7 block. Add 2 Echo Blades to your hand."),
+      effects: [{ kind: 'block', amount: 7, to: 'all_allies' }, { kind: 'add_card', cardId: 'echo_blade', pile: 'hand', count: 2 }],
+    },
     bondLines: [
       t('기억도 쇠처럼 두드리면 모양이 잡혀.', 'Memories are like iron. Hammer them and they take shape.'),
       t('네 잔향, 금이 많이 갔네. 내가 손봐줄게.', "Your echo's cracked all over. Let me fix it."),
@@ -152,6 +172,11 @@ export const COMPANIONS: CompanionDef[] = [
       name: t('광학 조준', 'Optical Lock'),
       text: t('매 턴 시작 시 무작위 적 하나에 표식 2.', 'At the start of each of your turns, Mark 2 on a random enemy.'),
       triggers: [{ on: 'turn_start', effects: [{ kind: 'status', status: 'mark', amount: 2, to: 'random_enemy' }] }],
+    },
+    ultimate: {
+      name: t('꿈의 저격', 'Dream Sniper'),
+      text: t('모든 적에게 표식 2. 무작위 적에게 피해 8을 두 번.', "Every enemy gets Mark 2. Deal 8 to a random enemy, twice."),
+      effects: [{ kind: 'status', status: 'mark', amount: 2, to: 'all_enemies' }, { kind: 'damage', amount: 8, to: 'random_enemy' }, { kind: 'damage', amount: 8, to: 'random_enemy' }],
     },
     bondLines: [
       t('폐기 판정을 받은 날, 처음으로 꿈을 꿨어요.', 'The day I was marked for disposal, I dreamed for the first time.'),
@@ -185,6 +210,11 @@ export const COMPANIONS: CompanionDef[] = [
         { on: 'enemy_killed', effects: [{ kind: 'credits', amount: 3 }] },
         { on: 'enemy_killed', limit: 'turn', effects: [{ kind: 'energy', amount: 1 }] },
       ],
+    },
+    ultimate: {
+      name: t('대박 거래', 'Jackpot Deal'),
+      text: t('에너지 +2, 카드 2장을 뽑는다. 15₵.', "Gain 2 energy, draw 2. Gain 15₵."),
+      effects: [{ kind: 'energy', amount: 2 }, { kind: 'draw', amount: 2 }, { kind: 'credits', amount: 15 }],
     },
     bondLines: [
       t('세상에 공짜는 없어. 나도 마찬가지고.', "Nothing in this world is free. Me included."),

@@ -29,8 +29,8 @@ export const ARCHETYPES: ArchetypeDef[] = [
     sprite: 'ghost',
     burst: {
       name: t('공허 붕괴', 'Void Collapse'),
-      text: t('모든 적을 1칸 밀쳐낸다. 부딪히면 충돌 피해 +2.', 'Push every enemy 1 tile away. Bumps deal +2.'),
-      effects: [{ kind: 'push', dir: 'away', distance: 1, to: 'all_enemies', slam: 2 }],
+      text: t('모든 적을 1칸 밀쳐낸다. 부딪히면 충돌 피해 +2, 기절.', 'Push every enemy 1 tile away. Bumps deal +2 and Stun.'),
+      effects: [{ kind: 'push', dir: 'away', distance: 1, to: 'all_enemies', slam: 2, stun: true }],
     },
   },
   {

@@ -18,12 +18,12 @@ import './combat.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Layers, Maximize2, X } from 'lucide-react'
-import { canPlay, threatMap } from '../../engine/combat.ts'
+import { canPlay, getUnit, threatMap, ultimatesReady } from '../../engine/combat.ts'
 import { endTurn } from './recordedActions.ts'
 import { posKey, samePos } from '../../engine/grid.ts'
 import type { CombatState, ContentRegistry, Lang, Pos, RunState, UnitState } from '../../engine/types.ts'
 import { ART } from '../common/artManifest.ts'
-import { BACKDROPS, asset } from '../common/assets.ts'
+import { BACKDROPS, asset, portrait } from '../common/assets.ts'
 import { playBgm } from '../common/audio.ts'
 import type { Bgm } from '../common/audio.ts'
 import { tr } from '../common/lang.ts'
@@ -568,9 +568,15 @@ export function CombatScreen(props: CombatScreenProps) {
             momentum={combat.momentum ?? 0}
             max={MOMENTUM_MAX}
             burstName={combat.archetype && C.archetypes[combat.archetype]?.burst ? tr(C.archetypes[combat.archetype]!.burst!.name, lang) : null}
+            burstText={combat.archetype && C.archetypes[combat.archetype]?.burst ? tr(C.archetypes[combat.archetype]!.burst!.text, lang) : ''}
+            ults={ultimatesReady(combat, C).map((o) => {
+              const comp = C.companions[getUnit(combat, o.uid)?.defId ?? '']
+              return { uid: o.uid, name: tr(o.def.name, lang), text: tr(o.def.text, lang), art: portrait(comp?.sprite ?? '') }
+            })}
             used={!!combat.burstUsed}
             interactive={interactive}
-            onBurst={doBurst}
+            onBurst={() => doBurst()}
+            onUlt={(uid) => doBurst(uid)}
           />
           <ItemSlots combat={combat} C={C} lang={lang} armedIndex={armed?.kind === 'item' ? armed.index : -1} onItem={onItem} onOpenDeck={props.onOpenDeck} />
           <PileButtons k={k} discard={piles.discard.length} exhaust={piles.exhaust.length} canUndo={!!combat.undo && interactive} onPile={setPile} onUndo={doUndo} />

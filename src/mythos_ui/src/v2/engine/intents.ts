@@ -249,7 +249,7 @@ function presenceHeat(c: CombatState, targets: UnitState[]): Map<string, number>
   const enemies = livingEnemies(c)
   for (const t of targets) {
     bump(t.pos, 1)
-    if (t.side !== 'party' || (t.statuses.shock ?? 0) > 0) continue
+    if (t.side !== 'party' || (t.statuses.shock ?? 0) > 0 || (t.statuses.stun ?? 0) > 0) continue
     for (let y = 0; y < c.tiles.length; y++) {
       for (let x = 0; x < (c.tiles[y]?.length ?? 0); x++) {
         const p = { x, y }
@@ -577,7 +577,8 @@ export function enemiesTelegraph(c: CombatState, C: ContentRegistry, canMove: bo
   for (const e of livingEnemies(c).sort(byUid)) {
     if (c.phase !== 'player') return
     // A pending (winding-up) intent stays; everyone who fired, fizzled or just arrived re-plans.
-    if (e.hp <= 0 || e.intent) continue
+    // A stunned enemy sits this phase out (elites/bosses already shook it off in the decay step).
+    if (e.hp <= 0 || e.intent || (e.statuses.stun ?? 0) > 0) continue
     planIntent(c, C, e, canMove)
   }
 }

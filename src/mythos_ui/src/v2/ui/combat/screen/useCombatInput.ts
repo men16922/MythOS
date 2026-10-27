@@ -3,7 +3,7 @@
 // they replace) and act through the screen's commitAction / targeting setters.
 
 import type { RefObject } from 'react'
-import { burstReady, consumableTargets, partyOrigins } from '../../../engine/combat.ts'
+import { burstReady, consumableTargets, partyOrigins, ultimatesReady } from '../../../engine/combat.ts'
 import { moveUnit, playCard, undoMove, fireBurst, useConsumable as applyConsumable } from '../recordedActions.ts'
 import type { TargetOption } from '../../../engine/combat.ts'
 import { samePos } from '../../../engine/grid.ts'
@@ -218,11 +218,12 @@ export function useCombatInput(d: CombatInputDeps) {
     commitAction(undoMove(combat))
   }
 
-  /** X2: fire the archetype's Signal Burst (B). */
-  const doBurst = () => {
-    if (!interactive || !burstReady(combat, C)) return
+  /** X2: fire the archetype's Signal Burst (B), or — with a companion uid — that companion's ultimate. */
+  const doBurst = (companionUid?: string) => {
+    if (!interactive) return
+    if (companionUid ? !ultimatesReady(combat, C).some((o) => o.uid === companionUid) : !burstReady(combat, C)) return
     setArmed(null)
-    commitAction(fireBurst(combat, C))
+    commitAction(fireBurst(combat, C, companionUid))
   }
 
   const cycleUnit = () => {

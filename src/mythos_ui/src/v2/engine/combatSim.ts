@@ -21,6 +21,7 @@ import {
   playCardInPlace,
   selectableTargets,
   consumeInPlace,
+  ultimatesReady,
   type TargetOption,
 } from './combat.ts'
 import { getUnit, livingEnemies, livingParty, sprintEvade, tileAt, unitAt } from './effects.ts'
@@ -37,8 +38,9 @@ export type BotPolicy = 'greedy' | 'basic' | 'mixed'
 export function autoPlay(c0: CombatState, C: ContentRegistry, policy: BotPolicy, maxTurns = 25): CombatState {
   const c = leanClone(c0)
   while (c.phase === 'player' && c.turn <= maxTurns) {
-    // Signal Burst: a player fires it as soon as it is ready while two foes or an elite/boss stand.
-    if (burstReady(c, C) && (livingEnemies(c).length >= 2 || livingEnemies(c).some((e) => C.enemies[e.defId]?.tier !== 'normal' && C.enemies[e.defId]?.tier !== 'minion'))) burstInPlace(c, C)
+    // Signal Burst / companion ultimate: a player spends the gauge as soon as it is full while two foes or an
+    // elite/boss stand, on whichever option leaves the best board.
+    if (livingEnemies(c).length >= 2 || livingEnemies(c).some((e) => C.enemies[e.defId]?.tier !== 'normal' && C.enemies[e.defId]?.tier !== 'minion')) spendGauge(c, C)
     if (c.phase !== 'player') break
     if (policy === 'greedy' || (policy === 'mixed' && mixedRoll(c) < 0.75)) greedyTurn(c, C)
     else basicTurn(c, C)
@@ -46,6 +48,19 @@ export function autoPlay(c0: CombatState, C: ContentRegistry, policy: BotPolicy,
     c.events = []
   }
   return c
+}
+
+/** Fire the best of the Signal Burst and the companion ultimates on offer (none ready = no-op). Mutates. */
+function spendGauge(c: CombatState, C: ContentRegistry): void {
+  const options: (string | undefined)[] = [...(burstReady(c, C) ? [undefined] : []), ...ultimatesReady(c, C).map((o) => o.uid)]
+  let best: { score: number; uid: string | undefined } | undefined
+  for (const uid of options) {
+    const trial = leanClone(c)
+    burstInPlace(trial, C, uid)
+    const score = evaluate(trial, C)
+    if (!best || score > best.score) best = { score, uid }
+  }
+  if (best) burstInPlace(c, C, best.uid)
 }
 
 /** Deterministic per-turn coin for the mixed policy (does not advance the combat RNG). */

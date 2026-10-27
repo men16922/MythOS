@@ -594,6 +594,32 @@
 .is-port .m2c-sigburst kbd {
   display: none;
 }
+.is-port .m2c-sigburst span {
+  word-break: keep-all; /* Korean otherwise breaks per syllable in the narrow cell */
+}
+.is-port .m2c-momentum {
+  position: relative;
+  z-index: 40; /* the ultimate chips float over the hand's lower edge */
+}
+.is-port .m2c-ults {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 5;
+  margin-top: 0;
+}
+.is-port .m2c-ult {
+  flex: none;
+  padding: 2px;
+  border-radius: 50%;
+}
+.is-port .m2c-ult img {
+  width: 36px;
+  height: 36px;
+}
+.is-port .m2c-ult span {
+  display: none;
+}
 .is-port .m2c-items {
   grid-area: items;
   justify-self: end;

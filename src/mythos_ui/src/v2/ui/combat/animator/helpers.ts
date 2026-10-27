@@ -34,6 +34,7 @@ export const STATUS_SFX: Partial<Record<string, SfxName>> = {
   rage: 'rage',
   redact: 'hack',
   freeze: 'status_shock',
+  stun: 'bump',
 }
 
 /** Projectile / swing travel time per FX kind. */

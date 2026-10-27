@@ -82,7 +82,7 @@ export type ActId = number
  * rage    N : enemy — every damaging move hits for +N. Elites and bosses gain it at the end of each enemy phase
  *             from a set turn (CONTENT.tuning.rage), so a slow kill gets more dangerous every turn.
  */
-export type StatusKind = 'burn' | 'bleed' | 'corrode' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns' | 'evade' | 'focus' | 'rage' | 'redact' | 'freeze'
+export type StatusKind = 'burn' | 'bleed' | 'corrode' | 'shock' | 'mark' | 'weak' | 'guard' | 'thorns' | 'evade' | 'focus' | 'rage' | 'redact' | 'freeze' | 'stun'
 export type Statuses = Partial<Record<StatusKind, number>>
 
 export interface StatScale {
@@ -124,7 +124,8 @@ export type Effect =
    * bump damage (cover loses 1 hp). Enemies pushed into void are destroyed; party units treat void as a wall.
    */
   /** `slam` adds that much to the bump damage when this push ends against a wall / cover / unit (both sides). */
-  | { kind: 'push'; dir: 'away' | 'toward'; distance?: number; to?: EffectScope; area?: AreaShape; slam?: number }
+  /** `stun` stuns the pushed unit when it bumps into something (wall / cover / unit; not a void death). */
+  | { kind: 'push'; dir: 'away' | 'toward'; distance?: number; to?: EffectScope; area?: AreaShape; slam?: number; stun?: boolean }
   | { kind: 'block'; amount: number; to?: EffectScope; statScale?: StatScale }
   | { kind: 'heal'; amount: number; to?: EffectScope }
   | { kind: 'status'; status: StatusKind; amount: number; to?: EffectScope; area?: AreaShape; statScale?: StatScale }
@@ -384,7 +385,7 @@ export type CombatEvent =
   /** `n` enemies killed this player turn (2+ = a chain, with its reward). */
   | { t: 'chain'; n: number }
   | { t: 'momentum'; amount: number; total: number }
-  | { t: 'burst'; archetype: string }
+  | { t: 'burst'; archetype: string; companion?: string }
   | { t: 'card'; owner: string; cardId: string; target?: Pos; dir?: Dir }
   | { t: 'move'; uid: string; path: Pos[] }
   | { t: 'teleport'; uid: string; from: Pos; to: Pos }
@@ -543,6 +544,8 @@ export interface CompanionDef {
   passive?: ImplantPassive
   /** In-combat trait while the companion stands (fires `passive` events). Effects with scope 'owner' hit the companion. */
   combatPassive?: CombatPassive
+  /** Companion ultimate: an alternative to the archetype's Signal Burst on the same Momentum gauge (fired from the companion). */
+  ultimate?: BurstDef
   /** Short lines for the safehouse bond scene, by bond level 1..3. */
   bondLines: Text[]
   /** Combat barks (random pick). */

@@ -45,12 +45,31 @@ export function CardGhosts(p: { cards: CardFx[]; g: BoardGeom; boardLeft: number
 }
 
 export function CombatBanner({ banner }: { banner: Banner }) {
+  const tone = banner.kind === 'burst' ? ` is-${banner.tone ?? 'burst'}` : ''
   return (
-    <div className={`m2c-banner is-${banner.kind}`}>
-      <div className="m2c-banner-bar" />
-      {banner.art && <img className="m2c-banner-art" src={banner.art} alt="" />}
-      <div className="m2c-banner-title">{banner.title}</div>
-      {banner.sub && <div className="m2c-banner-sub">{banner.sub}</div>}
+    <>
+      {banner.kind === 'burst' && <UltScreen tone={banner.tone ?? 'burst'} art={banner.art} />}
+      <div className={`m2c-banner is-${banner.kind}${tone}`}>
+        <div className="m2c-banner-bar" />
+        {banner.art && <img className="m2c-banner-art" src={banner.art} alt="" />}
+        <div className="m2c-banner-title">{banner.title}</div>
+        {banner.sub && <div className="m2c-banner-sub">{banner.sub}</div>}
+      </div>
+    </>
+  )
+}
+
+/** Full-screen cut-in behind a Signal Burst / companion ultimate banner: flash, letterbox, speed lines, sweep. */
+function UltScreen({ tone, art }: { tone: 'burst' | 'ult'; art: string | undefined }) {
+  return (
+    <div className={`m2c-ultfx is-${tone}`} aria-hidden="true">
+      <div className="m2c-ultfx-dim" />
+      <div className="m2c-ultfx-lines" />
+      {art && <img className="m2c-ultfx-art" src={art} alt="" />}
+      <div className="m2c-ultfx-sweep" />
+      <div className="m2c-ultfx-bar is-top" />
+      <div className="m2c-ultfx-bar is-bottom" />
+      <div className="m2c-ultfx-flash" />
     </div>
   )
 }

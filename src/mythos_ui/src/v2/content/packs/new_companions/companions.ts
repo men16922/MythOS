@@ -29,6 +29,11 @@ export const NEW_COMPANIONS: CompanionDef[] = [
         { on: 'play_skill', limit: 'turn', effects: [{ kind: 'draw', amount: 1 }] },
       ],
     },
+    ultimate: {
+      name: t('열람 허가', 'Access Granted'),
+      text: t('소멸한 카드 2장을 손으로 되돌리고 1장을 뽑는다. 모든 적에게 표식 2.', "Return 2 exhausted cards to your hand and draw 1. Every enemy gets Mark 2."),
+      effects: [{ kind: 'recall', count: 2 }, { kind: 'draw', amount: 1 }, { kind: 'status', status: 'mark', amount: 2, to: 'all_enemies' }],
+    },
     bondLines: [
       t('대출 기록을 확인했습니다. 당신은 반납 기한을 한 번도 지키지 않았군요.', 'I have checked your loan record. You have never once returned anything on time.'),
       t('실패한 루프를 꽂아 두는 일이 제 일이었습니다. 당신 칸은 비워 두겠습니다.', 'Shelving failed loops was my work. I will leave your shelf empty.'),
@@ -53,6 +58,11 @@ export const NEW_COMPANIONS: CompanionDef[] = [
       name: t('그림자 독서', 'Reading in the Dark'),
       text: t('전투 시작 시 아군 모두 회피 1.', 'At the start of each fight, every ally gains Evade 1.'),
       triggers: [{ on: 'combat_start', effects: [{ kind: 'status', status: 'evade', amount: 1, to: 'all_allies' }] }],
+    },
+    ultimate: {
+      name: t('그림자 기습', 'Shadow Ambush'),
+      text: t('모든 적에게 피해 4. 모든 아군 회피 2.', "Deal 4 to every enemy. All allies gain Evade 2."),
+      effects: [{ kind: 'damage', amount: 4, to: 'all_enemies' }, { kind: 'status', status: 'evade', amount: 2, to: 'all_allies' }],
     },
     bondLines: [
       t('쉿. 아무도 날 기억 못 해. 그게 편해.', 'Shh. Nobody remembers me. It’s easier that way.'),
@@ -79,6 +89,11 @@ export const NEW_COMPANIONS: CompanionDef[] = [
       text: t('접속자가 피해를 입으면(턴마다 1번) 접속자에게 방어막 4.', 'When the connector takes damage (once a turn), the connector gains 4 Block.'),
       triggers: [{ on: 'damage_taken', limit: 'turn', effects: [{ kind: 'block', amount: 4, to: 'connector' }] }],
     },
+    ultimate: {
+      name: t('인간 방벽', 'Living Wall'),
+      text: t('접속자 방어막 12. 모든 아군 가시 2, 도윤 수호 3.', "The Connector gains 12 block. All allies gain Thorns 2; Doyun gains Guard 3."),
+      effects: [{ kind: 'block', amount: 12, to: 'connector' }, { kind: 'status', status: 'thorns', amount: 2, to: 'all_allies' }, { kind: 'status', status: 'guard', amount: 3, to: 'owner' }],
+    },
     bondLines: [
       t('명단에서 제 이름이 지워진 날, 처음으로 제 이름을 소리 내서 말해 봤어요.', 'The day my name came off the list, I said it out loud for the first time.'),
       t('저는 싸우는 법은 몰라요. 서 있는 법은 알아요.', 'I don’t know how to fight. I know how to stand.'),
@@ -104,6 +119,11 @@ export const NEW_COMPANIONS: CompanionDef[] = [
       text: t('턴마다 첫 전술 카드를 쓰면 무작위 적 하나에게 약화 1.', 'The first tactic you play each turn gives a random enemy Weak 1.'),
       triggers: [{ on: 'play_tactic', limit: 'turn', effects: [{ kind: 'status', status: 'weak', amount: 1, to: 'random_enemy' }] }],
     },
+    ultimate: {
+      name: t('검열 해제', 'Uncensored'),
+      text: t('모든 적에게 약화 2, 침식 3.', "Every enemy gets Weak 2 and Corrode 3."),
+      effects: [{ kind: 'status', status: 'weak', amount: 2, to: 'all_enemies' }, { kind: 'status', status: 'corrode', amount: 3, to: 'all_enemies' }],
+    },
     bondLines: [
       t('난 십 년 동안 남의 문장을 잘랐어. 이제 내 문장을 써 보려고.', 'I cut other people’s sentences for ten years. I want to write one of my own.'),
       t('검열관은 다 읽어. 그래서 제일 먼저 질려.', 'Censors read everything. That’s why we’re the first to get sick of it.'),
@@ -128,6 +148,11 @@ export const NEW_COMPANIONS: CompanionDef[] = [
       name: t('자장가', 'Lullaby'),
       text: t('내 턴이 끝날 때 무작위 적 하나에게 빙결 1(그 턴 움직이지 못한다).', 'At the end of your turn a random enemy is Frozen 1 (it cannot move that turn).'),
       triggers: [{ on: 'turn_end', limit: 'turn', effects: [{ kind: 'status', status: 'freeze', amount: 1, to: 'random_enemy' }] }],
+    },
+    ultimate: {
+      name: t('꿈의 정지', 'Dream Stop'),
+      text: t('모든 적을 기절시킨다.', "Stun every enemy."),
+      effects: [{ kind: 'status', status: 'stun', amount: 1, to: 'all_enemies' }],
     },
     bondLines: [
       t('기계들의 꿈을 끄는 게 제 일이었어요. 당신 꿈은… 켜 두고 싶어요.', 'Switching off the machines’ dreams was my work. Yours… I’d like to leave on.'),

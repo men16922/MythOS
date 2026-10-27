@@ -166,16 +166,61 @@ export function EndTurnButton(p: {
 }
 
 /** X2 Momentum gauge (기세) + the Signal Burst button once it is full. */
-export function MomentumGauge(p: { k: boolean; momentum: number; max: number; burstName: string | null; used: boolean; interactive: boolean; onBurst: () => void }) {
+/** A companion ultimate on offer next to the Signal Burst (same gauge). */
+export interface UltOption {
+  uid: string
+  name: string
+  text: string
+  art: string
+}
+
+export function MomentumGauge(p: {
+  k: boolean
+  momentum: number
+  max: number
+  burstName: string | null
+  burstText?: string
+  ults?: UltOption[]
+  used: boolean
+  interactive: boolean
+  onBurst: () => void
+  onUlt?: (uid: string) => void
+}) {
   const pct = Math.max(0, Math.min(100, (p.momentum / p.max) * 100))
-  const ready = !!p.burstName && !p.used && p.momentum >= p.max
+  const full = !p.used && p.momentum >= p.max
+  const ults = full ? (p.ults ?? []) : []
+  const ready = full && (!!p.burstName || ults.length > 0)
   return (
-    <div className={`m2c-momentum${ready ? ' is-ready' : ''}${p.used ? ' is-used' : ''}`} title={p.k ? '기세: 처치·환경 처치·치명타·회피·턴 경과로 찬다. 가득 차면 필살기(전투당 1회).' : 'Momentum: kills, environment kills, crits, evades and turns fill it. Full = Signal Burst (once per fight).'}>
+    <div className={`m2c-momentum${ready ? ' is-ready' : ''}${p.used ? ' is-used' : ''}`} title={p.k ? '기세: 처치·환경 처치·치명타·회피·턴 경과로 찬다. 가득 차면 필살기 또는 동료 궁극기 하나(전투당 1회).' : 'Momentum: kills, environment kills, crits, evades and turns fill it. Full = your Signal Burst or one companion ultimate (once per fight).'}>
       {ready ? (
-        <button type="button" className="m2c-sigburst" disabled={!p.interactive} onClick={p.onBurst} onMouseDown={(e) => e.preventDefault()}>
-          <span>{p.burstName}</span>
-          <kbd>B</kbd>
-        </button>
+        <>
+          {ults.length > 0 && (
+            <div className="m2c-ults">
+              {ults.map((u) => (
+                <Tooltip
+                  key={u.uid}
+                  content={
+                    <div>
+                      <b>{u.name}</b>
+                      <div>{u.text}</div>
+                    </div>
+                  }
+                >
+                  <button type="button" className="m2c-ult" disabled={!p.interactive} onClick={() => p.onUlt?.(u.uid)} onMouseDown={(e) => e.preventDefault()}>
+                    <img src={u.art} alt="" draggable={false} />
+                    <span>{u.name}</span>
+                  </button>
+                </Tooltip>
+              ))}
+            </div>
+          )}
+          {p.burstName && (
+            <button type="button" className="m2c-sigburst" title={p.burstText} disabled={!p.interactive} onClick={p.onBurst} onMouseDown={(e) => e.preventDefault()}>
+              <span>{p.burstName}</span>
+              <kbd>B</kbd>
+            </button>
+          )}
+        </>
       ) : (
         <>
           <div className="m2c-momentum__label">{p.used ? (p.k ? '필살기 사용' : 'BURST USED') : p.k ? '기세' : 'MOMENTUM'}</div>

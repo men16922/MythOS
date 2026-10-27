@@ -2,6 +2,14 @@
 
 Last updated: 2026-10-27
 
+## 2026-10-27 — Stun, wall-bump stuns, companion ultimates, full-screen ult cut-in (Claude Opus 5.5, owner request)
+
+- **Stun** (`stun`, new status, never stacks): cancels an enemy's telegraph on the spot and it sits out the next enemy turn (no move/telegraph; elites/bosses re-telegraph at its end); a stunned party unit cannot move or play cards. `push.stun` stuns the pushed unit when it bumps a wall/cover/unit. Sources: **Concussion Kick** (common, any), **Pinball Slam** (rare, any), Ghost burst "Void Collapse" (+stun on bump), Tae-o / Rem ultimates. Codex art: 2 cards + `status/stun.png` (0 GCP).
+- **Companion ultimates** (`CompanionDef.ultimate`, all 11): same Momentum gauge as the Signal Burst — when full, pick the burst or one standing companion's ultimate (once per fight, cast from the companion). `ultimatesReady` / `fireBurst(c, C, companionUid)`; replay records the uid. Sim bot spends the gauge on the best-scoring option.
+- **Full-screen cut-in** for every burst/ultimate (flash, letterbox, speed lines, sweep, big portrait; gold = burst, cyan = companion; reduced-motion keeps only the banner). Phone portrait: ultimates float as round portrait chips over the momentum cell; Korean burst names no longer break per syllable (`keep-all`).
+- **Sim** (mixed, same seeds; base → new): standard 3 × 150 41.8 → 41.3 %, ghost 3 × 150 44.7 → 48.7 %, Deep Signal 90 runs 25.6 → 23.3 %, greedy P5 90.0 → 89.3 %, basic 0 → 0 %. Pinball Slam as a ghost-only uncommon read +11 pts for ghost, but a no-effect dud card in the same slot read +8 (pool-composition artifact); as an any-pool rare it is neutral.
+- Gates: `make check` green (node 400, Python 338); `make playthrough-quick` OK (146 s); sandbox screenshots (desktop + 390 px phone) of chips, both cut-ins and stun icons, 0 console errors. `make test-e2e-v2` **fails at map → combat on HEAD too** (pre-existing: it assumes the first reachable node is a fight). Feel/clarity of stun and the cut-in: **owner verdict pending**. Not deployed.
+
 ## 2026-10-27 — Production: `00154-lom` promoted (Claude Opus 5.5, owner call)
 
 - `gcloud run services update-traffic mythos-api --to-latest` → `00154-lom` (`git-sha=910834b`, Deep Signal DLC R1–R7 + secret-fight fix) at 100 % `LATEST`; rollback `00150-qen`. Checked: `/api/health` 200, served `App2.js`/`CombatScreen.js` hashes = committed bundle, no `src/` changes since `910834b`. Unverified: sign-in and a played run on the production URL after promotion.
@@ -80,14 +88,3 @@ Last updated: 2026-10-27
 - **Smuggler payoff card** `mass_hijack` (rare, cost 1/0: redirect every intent in a cross + 5₵; Codex art): smuggler-only 3 × 150 with 38.9 % vs without 39.3 % (neutral, identity not power); mechanics test in `tuning.test.ts`.
 - **Preview**: `make deploy-preview` → `00150-qen` (`git-sha=a6615b7`, 0 % traffic, tag `v2-preview`); `make verify-preview` 5/5 (HEAD sha, health, postgres + gemini GM, google auth, served bundle = committed); headless muted visit of the preview (sandbox `a2_boss_hyeonmu` shows the new sprite, title screen, 0 console errors). Promoted on the owner's answer ("Promote now"): `update-traffic --to-latest` → `00150-qen` 100 % `LATEST`; production URL `verify_preview.py --url` 4/4. Rollback `00148-nav`.
 - **Verified**: `make check` (370 + 338), `make frontend-build`, `make playthrough-quick`, sandbox screenshot of an elite at turn 4 (Rage 3 pill, telegraph 9). **Unverified**: human feel of Rage.
-
-## 2026-10-25 — Argon review: refactor, rebalance (~75 → ~45 %), unique art (Claude Opus 5.5)
-
-- **Review** (`docs/plans/2026-10-25-argon-review-and-s-rank-plan.md`): Argon's `0699ace..491f071` raised P0 mixed win 30.8 → ~75 % (greedy 100 %) unmeasured — the log entry below still quoted 30.9 %. Same-block sims: `1f97f84` (stats/evade/crit/DoT) 61.7 %, `491f071` 70.8–77.5 %; all stat perks off 51.7 %; 7-row map −16 pts. Hidden mutator rules (`overclocked_grid` per-turn refund + DoT ×1.5, `magnetic_storm` bump/push, `acid_rain` first-2-enemies + hazard ×2), `ripper_hound` text, English-only CRIT/EVADE popups, reused art (3 bosses, 14 cards, 4 implants, 9 events, 12 sprites).
-- **Refactor**: `engine/statPerks.ts` (one table for engine + `TopBar` tooltip), `perksOf`/`sprintEvade`/`hazardDamage`/`applyOpeningPerks`, `MutatorDef.combat` + `mutatorCombat()`, `WORLD_ECHOES` (`legacy.ts`; dead `world_echo_throne` + encounter-id branches removed), `CONTENT.tuning` (`EnemyTuning`; test doubles keep authored numbers).
-- **Balance**: `MAP_ROWS` 8 → 7 (24 floors), perk thresholds +1, tuning HP +12 % / elite·boss +20 % / enemy dmg +1 (telegraphed), bleed movement-only, smuggler HP 32 → 35 + `overclocked_deck` block 2/turn (smuggler-only 32 → 46 %) + `system_hack` draws 1. P0 4 × 150 mixed 38.0/44.7/48.0/54.7 %, greedy 98.9 %, basic 0 %, Paradox 1/3/5 31.3/27.3/16.0 %; ghost ~54 · smuggler ~37 · echo ~48; boss ~10 turns. Elite flat +1/+2 dmg tried: elite loss stays ~3 % (not adopted, `EnemyTuning.eliteDmg` left at 0). Open: archetype gap 17 pts, elite threat, boss length.
-- **Fixes/UX**: mutator text = code, `acid_rain` hits all enemies, localized 치명타/회피 popups, distinct bleed (crimson) / corrode (acid) damage numbers.
-- **Art (Codex image, 68 calls, 0 GCP)**: unique boss key art ×3, boss sprites ×3, cards ×14, implants ×4, events ×9, enemy sprites ×9 (`sprites/specs.py`, `build_manifest.py`); eye-checked, `qa_text.py` (Gemini) not run.
-- **Verified**: `make check` green (363 + 338), `make frontend-build`, `make playthrough-quick` OK (126 s; 134 s after the smuggler/tuning follow-up), sandbox screenshots (3 bosses, blade alley, rust hulk; 0 console errors). **Unverified**: `make test-e2e-v2`, phone widths with new art, deploy (production still `00148-nav`).
-
-Older entries: `bin/docs/archive/progress-2026-10-25-showcase-and-content.md` (2026-10-24 … 10-25), `bin/docs/archive/progress-2026-10-20-showcase-prep.md` (2026-10-18 … 10-20).

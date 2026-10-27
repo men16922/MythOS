@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 272,
+ "codex_image_calls": 275,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -2413,6 +2413,15 @@
    ],
    "ts": "2026-10-26T03:13:35"
   },
+  "status/stun.png": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). A minimal game status-effect icon: a small round head outline with three little five-pointed stars orbiting above it in a tilted ellipse (dazed, knocked out). Drawn as thin, clean WHITE outline strokes only (no fill, no color, no shading, no text), centered with generous margin, on a perfectly flat solid pure green (#00FF00) background. Match the line style of the reference icon (a white outline flame).",
+   "refs": [
+    "resources/neo-seoul/status/burn.png"
+   ],
+   "ts": "2026-10-27T21:41:42"
+  },
   "trailer/stills/blackout.png": {
    "art": "art/act1.webp",
    "generations": 2,
@@ -2946,6 +2955,15 @@
    ],
    "ts": "2026-10-25T17:35:25"
   },
+  "v2/cards/concussion_kick.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector delivering a brutal front kick that slams a hulking chrome security drone back into a concrete wall, the wall cracking in a spiderweb, small dazed yellow sparks circling the drone's dented head. The character is the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset). The reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but not its subject or composition. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/cards/vector_kick.webp"
+   ],
+   "ts": "2026-10-27T21:41:45"
+  },
   "v2/cards/corrosive_rain.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3167,6 +3185,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
    ],
    "ts": "2026-10-25T17:33:33"
+  },
+  "v2/cards/pinball_slam.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector firing a pulse of teal kinetic force from an outstretched palm, sending an armored enemy android tumbling backwards across a rain-slick rooftop until it crashes into a steel barrier with a burst of sparks and a ring of dazed yellow stars. The character is the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset). The reference image is ONLY a style guide: match its painterly rendering, colour palette and lighting, but not its subject or composition. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/cards/riptide.webp"
+   ],
+   "ts": "2026-10-27T21:41:48"
   },
   "v2/cards/rem_deep_dream.webp": {
    "generations": 1,

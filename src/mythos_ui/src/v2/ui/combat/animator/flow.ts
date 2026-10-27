@@ -110,20 +110,25 @@ export function chainSteps(kit: Kit, plan: Plan, ev: Ev<'chain'>): void {
 export function burstSteps(kit: Kit, plan: Plan, ev: Ev<'burst'>): void {
   const { showBanner, addFx, unitOf, pose, trauma, hitStop, S } = kit
   const arch = plan.C.archetypes[ev.archetype]
-  const name = arch?.burst ? tr(arch.burst.name, plan.lang) : plan.k ? '시그널 버스트' : 'SIGNAL BURST'
+  const comp = ev.companion ? plan.C.companions[ev.companion] : undefined
+  const def = comp ? comp.ultimate : arch?.burst
+  const name = def ? tr(def.name, plan.lang) : plan.k ? '시그널 버스트' : 'SIGNAL BURST'
+  const who = comp ? tr(comp.name, plan.lang) : arch ? tr(arch.name, plan.lang) : ''
+  const art = portrait(comp ? comp.sprite : (arch?.sprite ?? 'player-noise'))
+  const uid = ev.companion ?? 'connector'
   plan.steps.push({
     dur: 1250,
     run: () => {
-      showBanner({ kind: 'burst', title: name, sub: arch ? tr(arch.name, plan.lang) : '', art: portrait(arch?.sprite ?? 'player-noise') }, S(1400))
-      const u = unitOf('connector')
+      showBanner({ kind: 'burst', title: name, sub: who, art, tone: comp ? 'ult' : 'burst' }, S(1400))
+      const u = unitOf(uid)
       if (u) {
-        addFx({ kind: 'nova', at: u.pos, tone: 'gold', ms: S(900) })
-        addFx({ kind: 'ring', at: u.pos, tone: 'gold', ms: S(800) })
-        pose('connector', 'skill', S(900))
+        addFx({ kind: 'nova', at: u.pos, tone: comp ? 'shock' : 'gold', ms: S(900) })
+        addFx({ kind: 'ring', at: u.pos, tone: comp ? 'shock' : 'gold', ms: S(800) })
+        pose(uid, 'skill', S(900))
       }
       hitStop(S(120))
       trauma(0.75)
-      const sig = BURST_SFX[ev.archetype] ?? 'shockwave'
+      const sig = comp ? 'shockwave' : (BURST_SFX[ev.archetype] ?? 'shockwave')
       sfx('unlock')
       sfx(sig, { intensity: 1.4 })
     },

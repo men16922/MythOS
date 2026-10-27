@@ -499,10 +499,29 @@ export function gainBlock(c: CombatState, u: UnitState, amount: number): void {
 
 export function addStatus(c: CombatState, u: UnitState, status: StatusKind, amount: number): void {
   if (u.hp <= 0 || amount === 0) return
+  if (status === 'stun') {
+    stunUnit(c, u)
+    return
+  }
   const next = Math.max(0, (u.statuses[status] ?? 0) + amount)
   if (next > 0) u.statuses[status] = next
   else delete u.statuses[status]
   if (amount > 0) emit(c, { t: 'status', uid: u.uid, status, amount })
+}
+
+/**
+ * Stun (never stacks): an enemy's telegraphed attack is cancelled on the spot and it sits out the next enemy
+ * phase — no move, no new telegraph (elites and bosses re-telegraph at that phase's end). A stunned party unit
+ * can neither move nor play cards until its turn ends.
+ */
+export function stunUnit(c: CombatState, u: UnitState): void {
+  if (u.hp <= 0 || (u.statuses.stun ?? 0) > 0) return
+  u.statuses.stun = 1
+  emit(c, { t: 'status', uid: u.uid, status: 'stun', amount: 1 })
+  if (u.side === 'enemy' && u.intent) {
+    u.intent = null
+    emit(c, { t: 'fizzle', uid: u.uid })
+  }
 }
 
 /** Decrement a status by 1 (removing it at 0). */
@@ -521,7 +540,7 @@ export function decayStatus(u: UnitState, status: StatusKind): void {
  * passive for non-party units), cover loses 1 hp. A non-flying enemy pushed into void is deleted.
  * `stopBefore` (a uid) ends a pull silently in front of the puller instead of bumping into it.
  */
-export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: Dir, distance: number, stopBefore?: string, slam = 0): void {
+export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: Dir, distance: number, stopBefore?: string, slam = 0, stun = false): void {
   if (u.hp <= 0 || distance <= 0) return
   const from = { ...u.pos }
   const fromTile = tileAt(c, from)
@@ -571,6 +590,7 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
       const other = getUnit(c, bumped)
       if (other) dealDamage(c, C, other, BUMP_DAMAGE + slam + (other.side === 'party' ? 0 : extra), { source: 'environment', cause: 'bump' })
     }
+    if (stun && u.hp > 0) stunUnit(c, u)
     fireTrigger(c, C, 'bump', u.hp > 0 ? u.pos : bumpPos)
   }
   if (moved && u.hp > 0) {
@@ -794,7 +814,7 @@ export function effectTiles(eff: Effect, res: Resolution): Pos[] {
   return uniqPositions(centres.flatMap((p) => areaTiles(p, area, res.dir)))
 }
 
-const DEBUFFS: ReadonlySet<StatusKind> = new Set<StatusKind>(['burn', 'bleed', 'corrode', 'shock', 'mark', 'weak'])
+const DEBUFFS: ReadonlySet<StatusKind> = new Set<StatusKind>(['burn', 'bleed', 'corrode', 'shock', 'mark', 'weak', 'stun'])
 
 /** Units an effect applies to. `random_enemy` consumes the combat RNG. */
 export function effectTargets(c: CombatState, eff: Effect, res: Resolution): UnitState[] {
@@ -917,7 +937,7 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       plans.sort((a, b) => lead(b) - lead(a))
       const stopBefore = eff.dir === 'toward' ? res.origin?.uid : undefined
       const dist = (eff.distance ?? 1) + (res.side === 'party' ? (mutatorCombat(c.mutator).pushBonus ?? 0) : 0)
-      for (const { u, d } of plans) pushUnit(c, C, u, d, dist, stopBefore, eff.slam ?? 0)
+      for (const { u, d } of plans) pushUnit(c, C, u, d, dist, stopBefore, eff.slam ?? 0, eff.stun ?? false)
       return
     }
     case 'block': {

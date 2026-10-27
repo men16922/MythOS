@@ -632,6 +632,29 @@ const POOL_COMMON: CardDef[] = [
     icon: 'v2/cards/evasive_roll.webp',
     tags: ['move', 'block'],
   },
+  {
+    id: 'concussion_kick',
+    name: t('뇌진탕 킥', 'Concussion Kick'),
+    type: 'attack',
+    rarity: 'common',
+    owner: 'any',
+    cost: 1,
+    target: { mode: 'melee' },
+    effects: [
+      { kind: 'damage', amount: 3 },
+      { kind: 'push', dir: 'away', distance: 1, stun: true },
+    ],
+    text: t('피해 3, 1칸 밀어낸다. 벽·엄폐물·유닛에 부딪히면 기절.', 'Deal 3, push 1. If it bumps into a wall, cover or a unit, it is Stunned.'),
+    upgrade: {
+      effects: [
+        { kind: 'damage', amount: 5 },
+        { kind: 'push', dir: 'away', distance: 1, stun: true },
+      ],
+      text: t('피해 5, 1칸 밀어낸다. 벽·엄폐물·유닛에 부딪히면 기절.', 'Deal 5, push 1. If it bumps into a wall, cover or a unit, it is Stunned.'),
+    },
+    icon: 'v2/cards/concussion_kick.webp',
+    tags: ['push'],
+  },
 ]
 
 const POOL_UNCOMMON: CardDef[] = [
@@ -1101,6 +1124,29 @@ const POOL_RARE: CardDef[] = [
     },
     icon: 'v2/cards/pandemic_pulse.webp',
     tags: ['corrode', 'bleed'],
+  },
+  {
+    id: 'pinball_slam',
+    name: t('핀볼 충돌', 'Pinball Slam'),
+    type: 'tactic',
+    rarity: 'rare',
+    owner: 'any',
+    cost: 2,
+    target: { mode: 'line', range: 4 },
+    effects: [
+      { kind: 'damage', amount: 1 },
+      { kind: 'push', dir: 'away', distance: 2, stun: true },
+    ],
+    text: t('사거리 4: 피해 1, 2칸 날려 보낸다. 벽·엄폐물·유닛에 부딪히면 기절.', 'Range 4: deal 1 and knock it 2 tiles. If it bumps into a wall, cover or a unit, it is Stunned.'),
+    upgrade: {
+      effects: [
+        { kind: 'damage', amount: 3 },
+        { kind: 'push', dir: 'away', distance: 2, stun: true },
+      ],
+      text: t('사거리 4: 피해 3, 2칸 날려 보낸다. 벽·엄폐물·유닛에 부딪히면 기절.', 'Range 4: deal 3 and knock it 2 tiles. If it bumps into a wall, cover or a unit, it is Stunned.'),
+    },
+    icon: 'v2/cards/pinball_slam.webp',
+    tags: ['push'],
   },
 ]
 

@@ -70,4 +70,5 @@ export const STATUS_ICON: Record<string, string> = {
   rage: asset('status/rage.png'),
   redact: asset('status/redact.png'),
   freeze: asset('status/freeze.png'),
+  stun: asset('status/stun.png'),
 }

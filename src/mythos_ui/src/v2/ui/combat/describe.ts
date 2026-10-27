@@ -17,6 +17,7 @@ export const STATUS_NAME: Record<StatusKind, Text> = {
   rage: L('분노', 'Rage'),
   redact: L('검열', 'Redacted'),
   freeze: L('빙결', 'Frozen'),
+  stun: L('기절', 'Stunned'),
 }
 
 export const STATUS_TEXT: Record<StatusKind, Text> = {
@@ -30,6 +31,7 @@ export const STATUS_TEXT: Record<StatusKind, Text> = {
   thorns: L('근접·돌진으로 공격한 상대는 수치만큼 피해를 받는다.', 'Melee/charge attackers take N damage.'),
   evade: L('직격 공격을 받을 때 피해량을 절반으로 줄이고(스침) 1 줄어든다.', 'Halves incoming direct attack damage (grazed), then N − 1.'),
   freeze: L('움직일 수 없다(행동은 가능). 자기 차례가 끝나면 1 줄어든다.', 'Cannot move (can still act). N − 1 at the end of its own phase.'),
+  stun: L('적: 예고 공격이 즉시 취소되고 다음 적 턴을 쉰다(이동·새 예고 없음, 엘리트·보스는 그 턴 끝에 다시 예고). 아군: 이 턴에 이동·카드 사용 불가.', 'Enemy: its telegraphed attack is cancelled and it sits out the next enemy turn (no move, no new telegraph; elites/bosses re-telegraph at its end). Party: cannot move or play cards this turn.'),
   redact: L('이 유닛이 다음에 쓰는 카드의 비용 +1 (쓰면 1 줄어든다).', 'The next card this unit plays costs +1 (then N − 1).'),
   rage: L('모든 공격 피해 +N. 엘리트·보스는 전투가 길어지면 매 턴 쌓인다.', 'Every attack deals +N. Elites and bosses build it each turn once a fight drags on.'),
   focus: L('4 이상 모이면 다음 직접 공격이 치명타(피해 1.5배 + 장갑 무시)로 적중하고 4 소모된다.', 'At 4+, the next direct attack critically hits (1.5× damage, ignores armor) and consumes 4.'),

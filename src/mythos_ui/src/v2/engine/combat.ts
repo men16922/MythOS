@@ -117,6 +117,7 @@ const REASON = {
   noCard: T('손에 없는 카드', 'Card not in hand'),
   junk: T('사용할 수 없는 카드', 'This card cannot be played'),
   noOrigin: T('행동할 수 없는 대원', 'That unit cannot act'),
+  stunned: T('기절해 있다', 'Stunned'),
   connectorOnly: T('접속자만 쓸 수 있다', 'Only the Connector can use this'),
   downed: T('주인이 쓰러져 있다', 'Its owner is down'),
   wrongOwner: T('다른 대원의 카드', "Another member's card"),
@@ -402,7 +403,7 @@ function partyMovePaths(c: CombatState, u: UnitState): Map<string, Pos[]> {
 /** Tiles the unit may move to this turn (excluding where it stands). */
 export function legalMoves(c: CombatState, uid: string): Pos[] {
   const u = getUnit(c, uid)
-  if (!u || c.phase !== 'player' || u.side !== 'party' || u.moved || (u.statuses.shock ?? 0) > 0 || (u.statuses.freeze ?? 0) > 0) return []
+  if (!u || c.phase !== 'player' || u.side !== 'party' || u.moved || (u.statuses.shock ?? 0) > 0 || (u.statuses.freeze ?? 0) > 0 || (u.statuses.stun ?? 0) > 0) return []
   const out: Pos[] = []
   for (const path of partyMovePaths(c, u).values()) {
     const end = path[path.length - 1]
@@ -592,6 +593,7 @@ function ownerCheck(c: CombatState, def: CardDef, originUid: string): Text | und
   const origin = getUnit(c, originUid)
   if (def.owner !== 'any' && def.owner !== 'connector' && !getUnit(c, def.owner)) return REASON.downed
   if (!origin || origin.side !== 'party') return REASON.noOrigin
+  if ((origin.statuses.stun ?? 0) > 0) return REASON.stunned
   if (def.owner === 'connector' && origin.uid !== 'connector') return REASON.connectorOnly
   if (def.owner !== 'any' && def.owner !== 'connector' && origin.uid !== def.owner) return REASON.wrongOwner
   return undefined
@@ -830,6 +832,7 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
     decayStatus(e, 'shock')
     decayStatus(e, 'weak')
     decayStatus(e, 'freeze')
+    if (isStrong(C, e)) decayStatus(e, 'stun')
   }
   growRage(c, C)
   if (enc) {
@@ -847,6 +850,7 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
   // c. move + telegraph; enemy guard refreshes block for the coming player turn
   enemiesTelegraph(c, C, true)
   for (const e of livingEnemies(c)) {
+    decayStatus(e, 'stun')
     const guard = e.statuses.guard ?? 0
     if (guard > 0) gainBlock(c, e, guard)
   }
@@ -872,31 +876,56 @@ function applyHeldEffects(c: CombatState, C: ContentRegistry): void {
 
 // ---------------------------------------------------------------- Signal Burst (X2)
 
+/** Elites and bosses shake off stun faster (they re-telegraph at the end of the phase they sat out). */
+function isStrong(C: ContentRegistry, u: UnitState): boolean {
+  const tier = C.enemies[u.defId]?.tier
+  return tier === 'elite' || tier === 'boss'
+}
+
+function momentumFull(c: CombatState): boolean {
+  return c.phase === 'player' && !c.burstUsed && (c.momentum ?? 0) >= MOMENTUM_MAX
+}
+
 /** The archetype's Signal Burst, if Momentum is full and it was not used this fight. */
 export function burstReady(c: CombatState, C: ContentRegistry): BurstDef | undefined {
-  if (c.phase !== 'player' || c.burstUsed || (c.momentum ?? 0) < MOMENTUM_MAX) return undefined
+  if (!momentumFull(c)) return undefined
   const conn = connectorOf(c)
   if (!conn || conn.hp <= 0) return undefined
   return c.archetype ? C.archetypes[c.archetype]?.burst : undefined
 }
 
-/** Fire the Signal Burst from the connector (no energy, no target; once per fight). Mutates. */
-export function burstInPlace(c: CombatState, C: ContentRegistry): void {
+/** Companion ultimates on offer right now (same gauge as the Signal Burst; the companion must stand). */
+export function ultimatesReady(c: CombatState, C: ContentRegistry): { uid: string; def: BurstDef }[] {
+  if (!momentumFull(c)) return []
+  const out: { uid: string; def: BurstDef }[] = []
+  for (const u of livingParty(c)) {
+    const def = u.uid === 'connector' ? undefined : C.companions[u.defId]?.ultimate
+    if (def) out.push({ uid: u.uid, def })
+  }
+  return out
+}
+
+/**
+ * Spend the full Momentum gauge (no energy, no target; once per fight): the archetype's Signal Burst from the
+ * connector, or — with `companionUid` — that companion's ultimate fired from the companion. Mutates.
+ */
+export function burstInPlace(c: CombatState, C: ContentRegistry, companionUid?: string): void {
   requirePlayer(c)
-  const def = burstReady(c, C)
-  const conn = connectorOf(c)
-  if (!def || !conn) throw new Error('signal burst not ready')
+  const ult = companionUid ? ultimatesReady(c, C).find((o) => o.uid === companionUid) : undefined
+  const def = companionUid ? ult?.def : burstReady(c, C)
+  const origin = companionUid ? getUnit(c, companionUid) : connectorOf(c)
+  if (!def || !origin) throw new Error('signal burst not ready')
   c.undo = null
   c.burstUsed = true
   c.momentum = 0
-  emit(c, { t: 'burst', archetype: c.archetype ?? '' })
-  applyEffects(c, C, def.effects, { origin: conn, side: 'party', tiles: [], source: 'party' })
+  emit(c, companionUid ? { t: 'burst', archetype: c.archetype ?? '', companion: origin.defId } : { t: 'burst', archetype: c.archetype ?? '' })
+  applyEffects(c, C, def.effects, { origin, side: 'party', tiles: [], source: 'party' })
   checkEnd(c, C)
 }
 
-export function fireBurst(c: CombatState, C: ContentRegistry): CombatState {
+export function fireBurst(c: CombatState, C: ContentRegistry, companionUid?: string): CombatState {
   const next = clone(c)
-  burstInPlace(next, C)
+  burstInPlace(next, C, companionUid)
   return next
 }
 
@@ -920,6 +949,7 @@ export function endTurnInPlace(c: CombatState, C: ContentRegistry): void {
     decayStatus(u, 'shock')
     decayStatus(u, 'weak')
     decayStatus(u, 'freeze')
+    decayStatus(u, 'stun')
   }
   const x = c as CombatStateExt
   x.inEnemyPhase = true

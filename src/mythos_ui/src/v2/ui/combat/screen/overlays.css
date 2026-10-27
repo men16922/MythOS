@@ -272,9 +272,219 @@
     opacity: 0;
   }
 }
+.m2c-banner.is-burst.is-ult .m2c-banner-bar {
+  background: linear-gradient(100deg, transparent, rgba(8, 30, 60, 0.95) 18%, rgba(40, 14, 80, 0.95) 82%, transparent);
+  border-color: rgba(140, 230, 255, 0.85);
+}
+.m2c-banner.is-burst.is-ult .m2c-banner-title {
+  color: #e8fbff;
+  text-shadow:
+    0 0 22px rgba(80, 210, 255, 0.95),
+    0 0 46px rgba(160, 110, 255, 0.6),
+    0 3px 0 #04203a;
+}
+.m2c-banner.is-burst.is-ult .m2c-banner-art {
+  filter: drop-shadow(0 0 18px rgba(90, 210, 255, 0.85));
+}
+
+/* --------------------------------------------------------------- ultimate cut-in (full screen) */
+
+.m2c-ultfx {
+  --ult-a: 255, 176, 64;
+  --ult-b: 255, 61, 160;
+  position: absolute;
+  inset: 0;
+  z-index: 790;
+  overflow: hidden;
+  pointer-events: none;
+  animation: m2c-ultfx-life 1.4s linear both;
+}
+.m2c-ultfx.is-ult {
+  --ult-a: 80, 210, 255;
+  --ult-b: 150, 110, 255;
+}
+@keyframes m2c-ultfx-life {
+  0%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.m2c-ultfx-dim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(var(--ult-b), 0.18), rgba(4, 2, 12, 0.78) 70%);
+  animation: m2c-ultfx-dim 1.4s ease-out both;
+}
+@keyframes m2c-ultfx-dim {
+  0% {
+    opacity: 0;
+  }
+  12%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.m2c-ultfx-lines {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 260vmax;
+  height: 260vmax;
+  margin: -130vmax 0 0 -130vmax;
+  background: repeating-conic-gradient(from 0deg, rgba(var(--ult-a), 0.55) 0deg 0.6deg, transparent 0.6deg 7deg);
+  -webkit-mask-image: radial-gradient(circle, transparent 9%, #000 26%, #000 40%, transparent 52%);
+  mask-image: radial-gradient(circle, transparent 9%, #000 26%, #000 40%, transparent 52%);
+  mix-blend-mode: screen;
+  animation: m2c-ultfx-lines 1.3s cubic-bezier(0.1, 0.8, 0.3, 1) both;
+}
+@keyframes m2c-ultfx-lines {
+  0% {
+    transform: scale(0.35) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.15) rotate(14deg);
+    opacity: 0;
+  }
+}
+.m2c-ultfx-art {
+  position: absolute;
+  left: 4%;
+  bottom: 0;
+  height: 78%;
+  width: auto;
+  max-width: 46%;
+  object-fit: contain;
+  object-position: bottom;
+  filter: drop-shadow(0 0 28px rgba(var(--ult-a), 0.75)) saturate(1.15);
+  -webkit-mask-image: linear-gradient(to top, transparent, #000 22%);
+  mask-image: linear-gradient(to top, transparent, #000 22%);
+  animation: m2c-ultfx-art 1.35s cubic-bezier(0.15, 0.9, 0.2, 1) both;
+}
+@keyframes m2c-ultfx-art {
+  0% {
+    transform: translateX(-40%) skewX(-8deg);
+    opacity: 0;
+  }
+  22%,
+  78% {
+    transform: none;
+    opacity: 0.92;
+  }
+  100% {
+    transform: translateX(6%);
+    opacity: 0;
+  }
+}
+.m2c-ultfx.is-ult .m2c-ultfx-art {
+  /* companions are square painted faces, not cut-out sprites: feather every edge */
+  height: 70%;
+  bottom: 15%;
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 55%, transparent 100%);
+}
+/* the full-screen cut-in carries the portrait; the banner's small one only shows with reduced motion */
+.m2c-banner.is-burst .m2c-banner-art {
+  display: none;
+}
+.m2c-ultfx-sweep {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: -40%;
+  width: 34%;
+  background: linear-gradient(90deg, transparent, rgba(var(--ult-a), 0.55), rgba(255, 255, 255, 0.75), rgba(var(--ult-b), 0.5), transparent);
+  transform: skewX(-22deg);
+  mix-blend-mode: screen;
+  animation: m2c-ultfx-sweep 0.75s 0.12s cubic-bezier(0.5, 0, 0.3, 1) both;
+}
+@keyframes m2c-ultfx-sweep {
+  0% {
+    left: -40%;
+  }
+  100% {
+    left: 120%;
+  }
+}
+.m2c-ultfx-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 11%;
+  background: #030208;
+  box-shadow: 0 0 24px rgba(var(--ult-a), 0.45);
+}
+.m2c-ultfx-bar.is-top {
+  top: 0;
+  border-bottom: 2px solid rgba(var(--ult-a), 0.8);
+  animation: m2c-ultfx-bartop 1.4s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+.m2c-ultfx-bar.is-bottom {
+  bottom: 0;
+  border-top: 2px solid rgba(var(--ult-b), 0.8);
+  animation: m2c-ultfx-barbot 1.4s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+@keyframes m2c-ultfx-bartop {
+  0% {
+    transform: translateY(-100%);
+  }
+  14%,
+  80% {
+    transform: none;
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+@keyframes m2c-ultfx-barbot {
+  0% {
+    transform: translateY(100%);
+  }
+  14%,
+  80% {
+    transform: none;
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+.m2c-ultfx-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, #fff, rgba(var(--ult-a), 0.9) 45%, rgba(var(--ult-b), 0.6));
+  mix-blend-mode: screen;
+  animation: m2c-ultfx-flash 0.42s ease-out both;
+}
+@keyframes m2c-ultfx-flash {
+  0% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .m2c-banner.is-burst .m2c-banner-title,
   .m2c-banner-art {
     animation: none;
+  }
+  .m2c-ultfx-lines,
+  .m2c-ultfx-sweep,
+  .m2c-ultfx-flash,
+  .m2c-ultfx-art {
+    display: none;
+  }
+  .m2c-banner.is-burst .m2c-banner-art {
+    display: block;
   }
 }

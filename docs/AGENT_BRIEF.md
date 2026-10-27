@@ -4,7 +4,7 @@ Last updated: 2026-10-27
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-10-26 (Claude Opus 5.5): DLC update R1–R7 complete on `main` (`323f5bb`)** — Deep Signal 6 acts (Glass Library / Dreaming Machines / First Record + secret true ending), 11 companions, 5 archetypes, autonomy 5, mastery, Archive Vault; plan `docs/plans/2026-10-26-dlc-expansion-plan.md` §17.6. 2026-10-27: secret-fight input lock fixed + full Deep Signal run verified in the real UI (`ui_playthrough.py --secret`). Preview **`00154-lom`** (`910834b`, includes the fix) verified 5/5, **not promoted** (production `00150-qen`; `00153-tuv` is stale; promotion = owner call). Next: owner plays a Deep Signal run to Act 6 → fun/difficulty verdict; later proposals in `docs/NEXT_PLAN.md` P0c.
+> ▶ NEXT SESSION: **2026-10-26 (Claude Opus 5.5): DLC update R1–R7 complete on `main` (`323f5bb`)** — Deep Signal 6 acts (Glass Library / Dreaming Machines / First Record + secret true ending), 11 companions, 5 archetypes, autonomy 5, mastery, Archive Vault; plan `docs/plans/2026-10-26-dlc-expansion-plan.md` §17.6. 2026-10-27: secret-fight input lock fixed + full Deep Signal run verified in the real UI (`ui_playthrough.py --secret`). Preview **`00154-lom`** (`910834b`) verified 5/5 and **promoted to production 2026-10-27** (rollback `00150-qen`). Next: owner plays a Deep Signal run to Act 6 → fun/difficulty verdict; later proposals in `docs/NEXT_PLAN.md` P0c.
 
 ## Snapshot
 

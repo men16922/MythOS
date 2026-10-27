@@ -2,6 +2,10 @@
 
 Last updated: 2026-10-27
 
+## 2026-10-27 — Production: `00154-lom` promoted (Claude Opus 5.5, owner call)
+
+- `gcloud run services update-traffic mythos-api --to-latest` → `00154-lom` (`git-sha=910834b`, Deep Signal DLC R1–R7 + secret-fight fix) at 100 % `LATEST`; rollback `00150-qen`. Checked: `/api/health` 200, served `App2.js`/`CombatScreen.js` hashes = committed bundle, no `src/` changes since `910834b`. Unverified: sign-in and a played run on the production URL after promotion.
+
 ## 2026-10-27 — Deep Signal real-UI pass: secret-fight lock fixed (Claude Opus 5.5)
 
 - **Bug (fixed)**: the secret First Connector fight follows the Act 6 boss on the same `combat` screen, so `CombatScreen` kept the won fight's `ending` lock — hand greyed, no input. `GameShell` now keys `CombatScreen` by `encounterId` (fresh state, boss splash and intro). Repro fails without the key, passes with it (turn 2→3, foe 265→250).

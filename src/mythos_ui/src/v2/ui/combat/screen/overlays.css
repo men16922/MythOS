@@ -292,12 +292,15 @@
 .m2c-ultfx {
   --ult-a: 255, 176, 64;
   --ult-b: 255, 61, 160;
+  --band-top: 13%;
+  --band-h: 54%;
+  --fx-y: 40%;
   position: absolute;
   inset: 0;
   z-index: 790;
   overflow: hidden;
   pointer-events: none;
-  animation: m2c-ultfx-life 1.4s linear both;
+  animation: m2c-ultfx-life 1.6s linear both;
 }
 .m2c-ultfx.is-ult {
   --ult-a: 80, 210, 255;
@@ -305,7 +308,7 @@
 }
 @keyframes m2c-ultfx-life {
   0%,
-  85% {
+  86% {
     opacity: 1;
   }
   100% {
@@ -315,15 +318,15 @@
 .m2c-ultfx-dim {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, rgba(var(--ult-b), 0.18), rgba(4, 2, 12, 0.78) 70%);
-  animation: m2c-ultfx-dim 1.4s ease-out both;
+  background: radial-gradient(ellipse at 50% var(--fx-y), rgba(var(--ult-b), 0.22), rgba(4, 2, 12, 0.84) 70%);
+  animation: m2c-ultfx-dim 1.6s ease-out both;
 }
 @keyframes m2c-ultfx-dim {
   0% {
     opacity: 0;
   }
-  12%,
-  75% {
+  10%,
+  78% {
     opacity: 1;
   }
   100% {
@@ -333,29 +336,192 @@
 .m2c-ultfx-lines {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: var(--fx-y);
   width: 260vmax;
   height: 260vmax;
   margin: -130vmax 0 0 -130vmax;
-  background: repeating-conic-gradient(from 0deg, rgba(var(--ult-a), 0.55) 0deg 0.6deg, transparent 0.6deg 7deg);
-  -webkit-mask-image: radial-gradient(circle, transparent 9%, #000 26%, #000 40%, transparent 52%);
-  mask-image: radial-gradient(circle, transparent 9%, #000 26%, #000 40%, transparent 52%);
+  background: repeating-conic-gradient(from 0deg, rgba(var(--ult-a), 0.6) 0deg 0.6deg, transparent 0.6deg 6deg);
+  -webkit-mask-image: radial-gradient(circle, transparent 8%, #000 22%, #000 40%, transparent 52%);
+  mask-image: radial-gradient(circle, transparent 8%, #000 22%, #000 40%, transparent 52%);
   mix-blend-mode: screen;
-  animation: m2c-ultfx-lines 1.3s cubic-bezier(0.1, 0.8, 0.3, 1) both;
+  animation: m2c-ultfx-lines 1.5s cubic-bezier(0.1, 0.8, 0.3, 1) both;
 }
 @keyframes m2c-ultfx-lines {
   0% {
-    transform: scale(0.35) rotate(0deg);
+    transform: scale(0.3) rotate(0deg);
     opacity: 0;
   }
-  15% {
+  12% {
     opacity: 1;
   }
   100% {
-    transform: scale(1.15) rotate(14deg);
+    transform: scale(1.2) rotate(18deg);
     opacity: 0;
   }
 }
+
+/* colour stripes racing past the band's edges in opposite directions */
+.m2c-ultfx-stripe {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  height: 7px;
+  transform: skewY(-4deg);
+  mix-blend-mode: screen;
+}
+.m2c-ultfx-stripe.is-a {
+  top: calc(var(--band-top) - 18px);
+  background: linear-gradient(90deg, transparent, rgba(var(--ult-a), 0.95) 30%, #fff 50%, rgba(var(--ult-a), 0.95) 70%, transparent);
+  animation: m2c-ultfx-stripe-l 1.6s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+.m2c-ultfx-stripe.is-b {
+  top: calc(var(--band-top) + var(--band-h) + 12px);
+  background: linear-gradient(90deg, transparent, rgba(var(--ult-b), 0.95) 30%, #fff 50%, rgba(var(--ult-b), 0.95) 70%, transparent);
+  animation: m2c-ultfx-stripe-r 1.6s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+@keyframes m2c-ultfx-stripe-l {
+  0% {
+    transform: translateX(110%) skewY(-4deg) scaleY(0.4);
+    opacity: 0;
+  }
+  12%,
+  82% {
+    transform: skewY(-4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-110%) skewY(-4deg);
+    opacity: 0;
+  }
+}
+@keyframes m2c-ultfx-stripe-r {
+  0% {
+    transform: translateX(-110%) skewY(-4deg) scaleY(0.4);
+    opacity: 0;
+  }
+  12%,
+  82% {
+    transform: skewY(-4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(110%) skewY(-4deg);
+    opacity: 0;
+  }
+}
+
+/* the ultimate's illustration: slammed in on a skewed band, drifts, then collapses to a line */
+.m2c-ultfx-panel {
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  top: var(--band-top);
+  height: var(--band-h);
+  filter: drop-shadow(0 0 26px rgba(var(--ult-a), 0.75)) drop-shadow(0 0 60px rgba(var(--ult-b), 0.45));
+  animation: m2c-ultfx-panel 1.6s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+@keyframes m2c-ultfx-panel {
+  0% {
+    transform: translateX(55%) skewX(-20deg) scaleY(0.25);
+    opacity: 0;
+  }
+  8% {
+    transform: translateX(-4%) skewX(-6deg) scaleY(1.08);
+    opacity: 1;
+  }
+  14% {
+    transform: none;
+  }
+  80% {
+    transform: translateX(-1.5%);
+    opacity: 1;
+  }
+  90% {
+    transform: translateX(-2%) scaleY(0.03) scaleX(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-2%) scaleY(0) scaleX(1.3);
+    opacity: 0;
+  }
+}
+.m2c-ultfx-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+  background: #05030c;
+}
+.m2c-ultfx-clip::before,
+.m2c-ultfx-clip::after {
+  /* bright edge lines along the top and bottom of the band */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 3;
+  background: linear-gradient(90deg, rgba(var(--ult-a), 0.2), #fff, rgba(var(--ult-b), 0.9));
+  box-shadow: 0 0 14px rgba(var(--ult-a), 0.9);
+}
+.m2c-ultfx-clip::before {
+  top: 0;
+}
+.m2c-ultfx-clip::after {
+  bottom: 0;
+}
+.m2c-ultfx-splash {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+  filter: saturate(1.2) contrast(1.08);
+  animation: m2c-ultfx-kenburns 1.6s cubic-bezier(0.15, 0.8, 0.3, 1) both;
+}
+@keyframes m2c-ultfx-kenburns {
+  0% {
+    transform: scale(1.35) translateX(3%);
+  }
+  100% {
+    transform: scale(1.04) translateX(-2%);
+  }
+}
+/* anime-style impact frame: a hard inverted, posterised copy for the first beats */
+.m2c-ultfx-splash.is-impact {
+  filter: grayscale(1) invert(1) contrast(4) brightness(1.1);
+  mix-blend-mode: normal;
+  animation:
+    m2c-ultfx-kenburns 1.6s cubic-bezier(0.15, 0.8, 0.3, 1) both,
+    m2c-ultfx-impact 1.6s steps(1, end) both;
+}
+@keyframes m2c-ultfx-impact {
+  0% {
+    opacity: 1;
+  }
+  4% {
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.85;
+  }
+  9%,
+  100% {
+    opacity: 0;
+  }
+}
+.m2c-ultfx-scan {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
+    linear-gradient(90deg, rgba(4, 2, 12, 0.7), transparent 18%, transparent 82%, rgba(4, 2, 12, 0.7)),
+    linear-gradient(0deg, rgba(4, 2, 12, 0.75), transparent 38%);
+}
+
+/* fallback without an illustration: the portrait slides in at the left */
 .m2c-ultfx-art {
   position: absolute;
   left: 4%;
@@ -368,15 +534,15 @@
   filter: drop-shadow(0 0 28px rgba(var(--ult-a), 0.75)) saturate(1.15);
   -webkit-mask-image: linear-gradient(to top, transparent, #000 22%);
   mask-image: linear-gradient(to top, transparent, #000 22%);
-  animation: m2c-ultfx-art 1.35s cubic-bezier(0.15, 0.9, 0.2, 1) both;
+  animation: m2c-ultfx-art 1.5s cubic-bezier(0.15, 0.9, 0.2, 1) both;
 }
 @keyframes m2c-ultfx-art {
   0% {
     transform: translateX(-40%) skewX(-8deg);
     opacity: 0;
   }
-  22%,
-  78% {
+  20%,
+  80% {
     transform: none;
     opacity: 0.92;
   }
@@ -396,6 +562,108 @@
 .m2c-banner.is-burst .m2c-banner-art {
   display: none;
 }
+/* with an illustration the name sits on the band's lower edge, like a super-move caption */
+.m2c-banner.is-burst.has-splash {
+  top: calc(67% - 46px);
+}
+.m2c-banner.is-burst.has-splash .m2c-banner-bar {
+  background: linear-gradient(100deg, transparent, rgba(4, 2, 12, 0.88) 22%, rgba(4, 2, 12, 0.88) 78%, transparent);
+}
+.m2c-banner.is-burst.has-splash .m2c-banner-title {
+  font-size: 66px;
+  font-style: italic;
+  text-shadow:
+    -3px 0 0 rgba(var(--ult-b-t, 255, 61, 160), 0.85),
+    3px 0 0 rgba(var(--ult-a-t, 255, 176, 64), 0.85),
+    0 0 26px rgba(var(--ult-a-t, 255, 176, 64), 0.95),
+    0 4px 0 #000;
+  animation: m2c-ultfx-title 0.6s 0.1s cubic-bezier(0.2, 1.5, 0.3, 1) both;
+}
+.m2c-banner.is-burst.is-ult.has-splash {
+  --ult-a-t: 80, 210, 255;
+  --ult-b-t: 150, 110, 255;
+}
+@keyframes m2c-ultfx-title {
+  0% {
+    transform: scale(2.4) skewX(-14deg);
+    opacity: 0;
+    filter: blur(6px);
+  }
+  60% {
+    transform: scale(0.94) skewX(-6deg);
+    opacity: 1;
+    filter: none;
+  }
+  100% {
+    transform: skewX(-6deg);
+  }
+}
+
+/* shockwave ring and radial shards out of the impact point */
+.m2c-ultfx-ring {
+  position: absolute;
+  left: 50%;
+  top: var(--fx-y);
+  width: 40vmin;
+  height: 40vmin;
+  margin: -20vmin 0 0 -20vmin;
+  border-radius: 50%;
+  border: 6px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 0 30px rgba(var(--ult-a), 0.9),
+    inset 0 0 30px rgba(var(--ult-b), 0.8);
+  mix-blend-mode: screen;
+  animation: m2c-ultfx-ring 0.7s 0.06s cubic-bezier(0.1, 0.7, 0.3, 1) both;
+}
+@keyframes m2c-ultfx-ring {
+  0% {
+    transform: scale(0.1);
+    opacity: 1;
+    border-width: 14px;
+  }
+  100% {
+    transform: scale(4.5);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+.m2c-ultfx-shards {
+  position: absolute;
+  left: 50%;
+  top: var(--fx-y);
+  width: 0;
+  height: 0;
+}
+.m2c-ultfx-shards i {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 22vmax;
+  height: 4px;
+  border-radius: 4px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, transparent, rgba(var(--ult-a), 0.95) 40%, #fff);
+  box-shadow: 0 0 12px rgba(var(--ult-a), 0.9);
+  mix-blend-mode: screen;
+  animation: m2c-ultfx-shard 0.75s calc(60ms + var(--d, 0ms)) cubic-bezier(0.1, 0.8, 0.3, 1) both;
+}
+.m2c-ultfx-shards i:nth-child(even) {
+  background: linear-gradient(90deg, transparent, rgba(var(--ult-b), 0.95) 40%, #fff);
+  height: 3px;
+}
+@keyframes m2c-ultfx-shard {
+  0% {
+    transform: rotate(var(--a)) translateX(2vmax) scaleX(0.2);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--a)) translateX(70vmax) scaleX(1);
+    opacity: 0;
+  }
+}
 .m2c-ultfx-sweep {
   position: absolute;
   top: -20%;
@@ -405,7 +673,7 @@
   background: linear-gradient(90deg, transparent, rgba(var(--ult-a), 0.55), rgba(255, 255, 255, 0.75), rgba(var(--ult-b), 0.5), transparent);
   transform: skewX(-22deg);
   mix-blend-mode: screen;
-  animation: m2c-ultfx-sweep 0.75s 0.12s cubic-bezier(0.5, 0, 0.3, 1) both;
+  animation: m2c-ultfx-sweep 0.75s 0.18s cubic-bezier(0.5, 0, 0.3, 1) both;
 }
 @keyframes m2c-ultfx-sweep {
   0% {
@@ -419,26 +687,26 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: 11%;
+  height: 9%;
   background: #030208;
   box-shadow: 0 0 24px rgba(var(--ult-a), 0.45);
 }
 .m2c-ultfx-bar.is-top {
   top: 0;
   border-bottom: 2px solid rgba(var(--ult-a), 0.8);
-  animation: m2c-ultfx-bartop 1.4s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  animation: m2c-ultfx-bartop 1.6s cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 .m2c-ultfx-bar.is-bottom {
   bottom: 0;
   border-top: 2px solid rgba(var(--ult-b), 0.8);
-  animation: m2c-ultfx-barbot 1.4s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  animation: m2c-ultfx-barbot 1.6s cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 @keyframes m2c-ultfx-bartop {
   0% {
     transform: translateY(-100%);
   }
-  14%,
-  80% {
+  12%,
+  82% {
     transform: none;
   }
   100% {
@@ -449,24 +717,34 @@
   0% {
     transform: translateY(100%);
   }
-  14%,
-  80% {
+  12%,
+  82% {
     transform: none;
   }
   100% {
     transform: translateY(100%);
   }
 }
+/* white impact flash in, a softer second flash as the band collapses */
 .m2c-ultfx-flash {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle, #fff, rgba(var(--ult-a), 0.9) 45%, rgba(var(--ult-b), 0.6));
+  background: radial-gradient(circle at 50% var(--fx-y), #fff, rgba(var(--ult-a), 0.9) 45%, rgba(var(--ult-b), 0.6));
   mix-blend-mode: screen;
-  animation: m2c-ultfx-flash 0.42s ease-out both;
+  animation: m2c-ultfx-flash 1.6s ease-out both;
 }
 @keyframes m2c-ultfx-flash {
   0% {
-    opacity: 0.95;
+    opacity: 1;
+  }
+  22% {
+    opacity: 0;
+  }
+  86% {
+    opacity: 0;
+  }
+  90% {
+    opacity: 0.55;
   }
   100% {
     opacity: 0;
@@ -481,8 +759,17 @@
   .m2c-ultfx-lines,
   .m2c-ultfx-sweep,
   .m2c-ultfx-flash,
-  .m2c-ultfx-art {
+  .m2c-ultfx-art,
+  .m2c-ultfx-stripe,
+  .m2c-ultfx-ring,
+  .m2c-ultfx-shards,
+  .m2c-ultfx-splash.is-impact {
     display: none;
+  }
+  .m2c-ultfx-panel,
+  .m2c-ultfx-splash,
+  .m2c-banner.is-burst.has-splash .m2c-banner-title {
+    animation: none;
   }
   .m2c-banner.is-burst .m2c-banner-art {
     display: block;

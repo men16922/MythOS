@@ -24,6 +24,11 @@ test('every event, act and ending has generated art', () => {
   assert.deepEqual(missing(Object.keys(C.endings), ART.endings), [])
 })
 
+test('every companion ultimate and archetype Signal Burst has its cut-in illustration', () => {
+  assert.deepEqual(missing(Object.keys(C.companions), ART.ults), [])
+  assert.deepEqual(missing(Object.keys(C.archetypes), ART.ults), [])
+})
+
 test('every music cue has a generated loop', () => {
   const cues = ['title', 'hub', 'map1', 'map2', 'map3', 'event', 'shop', 'rest', 'combat1', 'combat2', 'combat3', 'elite', 'boss1', 'boss2', 'boss_ix', 'victory', 'defeat', 'ending']
   assert.deepEqual(missing(cues, MUSIC), [])

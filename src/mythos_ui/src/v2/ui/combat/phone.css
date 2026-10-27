@@ -756,3 +756,16 @@
 .m2c-bottom:has(.m2c-hand.is-sliding) {
   z-index: 27;
 }
+
+/* ultimate cut-in on a phone: a shorter band higher up, the name on its lower edge */
+.is-port .m2c-ultfx {
+  --band-top: 19%;
+  --band-h: 27%;
+  --fx-y: 32%;
+}
+.is-port .m2c-banner.is-burst.has-splash {
+  top: calc(46% - 30px);
+}
+.is-compact .m2c-banner.is-burst.has-splash .m2c-banner-title {
+  font-size: 36px;
+}

@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 275,
+ "codex_image_calls": 291,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -4727,6 +4727,166 @@
     "resources/neo-seoul/v2/ui/cache_closed.webp"
    ],
    "ts": "2026-10-18T23:25:18"
+  },
+  "v2/ult/archivist.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: The Archivist reads aloud from a colossal floating book, burned pages swirling back together and restoring themselves as they orbit in a blazing ring, glass library shelves behind. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in blazing gold and hot magenta, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/archivist-idle.webp",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/archivist-attack.webp"
+   ],
+   "ts": "2026-10-28T04:19:40"
+  },
+  "v2/ult/bel.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Bel slashes a huge red pen stroke across the air; the stroke becomes a burning crimson band of light that corrodes the enemy silhouettes behind it into dripping black redaction bars. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/bel.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/bel-idle.webp"
+   ],
+   "ts": "2026-10-28T04:18:34"
+  },
+  "v2/ult/doyun.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Doyun plants both feet and spreads his arms wide, a towering wall of energy erupting in front of him and absorbing a hail of enemy laser fire, thorn-like shards of light bristling from the barrier. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/doyun.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/doyun-idle.webp"
+   ],
+   "ts": "2026-10-28T04:18:48"
+  },
+  "v2/ult/echo_collector.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: The Echo Collector strides forward with arms open, the warm glowing ghost silhouettes of the dead walking beside them, a great dome of golden shields closing over the crew, healing light pouring down. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in blazing gold and hot magenta, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/echo_collector-idle.webp",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/echo_collector-attack.webp"
+   ],
+   "ts": "2026-10-28T04:19:13"
+  },
+  "v2/ult/ghost.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: The Ghost Signal connector slams a palm onto the street, a black-violet void implosion sphere bursting out and hurling every enemy outward into walls, cracks in reality splintering through the air. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in blazing gold and hot magenta, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/ghost-idle.webp",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/ghost-attack.webp"
+   ],
+   "ts": "2026-10-28T04:19:04"
+  },
+  "v2/ult/han.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Han stands in a storm of floating holographic data streams and trailing cables, both hands on a glowing hacking deck, dozens of targeting reticles locking onto distant enemy silhouettes, glowing code reflected in his eyes. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/han.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/han-idle.webp"
+   ],
+   "ts": "2026-10-28T04:17:12"
+  },
+  "v2/ult/io.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Io throws open an enormous ancient book that blazes with light, its pages tearing free and spiralling up in a vortex around her, glowing shelves of a glass library stretching into the dark behind. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/io-ally.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/io-ally-idle.webp"
+   ],
+   "ts": "2026-10-28T04:18:18"
+  },
+  "v2/ult/kai.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Kai kneels on a rain-soaked rooftop ledge firing a long rail sniper rifle, a blinding blue beam tearing across the night, dreamy floating star particles drifting around the white ceramic plating, blue eyes blazing. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/kai.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/kai-idle.webp"
+   ],
+   "ts": "2026-10-28T04:17:54"
+  },
+  "v2/ult/lin_yue.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Lin-yue flicks a spinning golden credit chip into the air with a confident smile, a shower of glowing gold holographic coins exploding around her, her gold hairpin glinting, red night-market lanterns blurred behind. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/lin-yue.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/lin-yue-idle.webp"
+   ],
+   "ts": "2026-10-28T04:17:46"
+  },
+  "v2/ult/miro.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Miro bursts out of a pool of living shadow mid-leap with twin daggers, violet afterimages trailing, three shadow clones of Miro striking at once from different directions. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/miro.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/miro-idle.webp"
+   ],
+   "ts": "2026-10-28T04:17:55"
+  },
+  "v2/ult/rem.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Rem, the porcelain mask pushed up on the head, raises both hands as a vast wave of pale-violet moths and dream mist sweeps outward, enemy silhouettes frozen mid-motion, rain drops hanging still in the air, faint concentric clock-like rings of light. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/rem-ally.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/rem-ally-idle.webp"
+   ],
+   "ts": "2026-10-28T04:18:34"
+  },
+  "v2/ult/scrapborn.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: The Scrapborn android stands in the eye of a roaring tornado of scrap metal, bolts and torn panels, arcs of lightning, shrapnel blasting outward from the storm. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in blazing gold and hot magenta, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/scrapborn-idle.webp",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/scrapborn-attack.webp"
+   ],
+   "ts": "2026-10-28T04:19:52"
+  },
+  "v2/ult/se_rin.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Se-rin vaults across a rooftop gap mid-air, long black hair and leather jacket whipping back, a huge translucent hexagon energy shield blooming around her and the silhouettes of her crew, the rain around them surging backwards like a reversed waterfall. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/se-rin.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/se-rin-idle.webp"
+   ],
+   "ts": "2026-10-28T04:17:16"
+  },
+  "v2/ult/smuggler.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: The Data Smuggler raises one hand and hijacks a ring of enemy gun turrets with streaming red holographic lines, the turrets wrenching around to aim at each other, sparks and glowing credit chips flying. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in blazing gold and hot magenta, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/smuggler-idle.webp",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/smuggler-attack.webp"
+   ],
+   "ts": "2026-10-28T04:19:29"
+  },
+  "v2/ult/su_ah.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Su-ah swings a glowing forge hammer down onto an anvil, an explosion of violet echo-sparks erupting, two spectral blades of light forging themselves out of the sparks and plates of light armour assembling around her. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/su-ah.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/su-ah-idle.webp"
+   ],
+   "ts": "2026-10-28T04:17:01"
+  },
+  "v2/ult/tae_o.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Ultimate-move splash illustration for a cyberpunk tactics game: a fighting-game super-move cut-in, wide cinematic 16:9 shot, dynamic low camera angle, foreshortened action pose bursting toward the viewer. Painterly digital concept art matching the reference character images (the FIRST reference is a close-up portrait for face and hair, the SECOND a full-body sprite for outfit and props; keep the character identical, but redraw them in this scene). Scene: Tae-o charges shoulder-first behind a massive riot shield, smashing a row of chrome security drones backwards into a concrete wall that bursts into a spiderweb of cracks, dazed sparks circling the dented drones, a shockwave ring blasting out from the impact. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip), explosive radiating energy in glowing cyan and electric violet, motion streaks, sparks and debris flying outward, extreme contrast, the outer edges fall into deep shadow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, volumetric haze, strong rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/tae-o.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/tae-o-idle.webp"
+   ],
+   "ts": "2026-10-28T04:17:06"
   }
  },
  "veo_calls": 17,

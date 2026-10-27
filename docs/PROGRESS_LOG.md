@@ -1,6 +1,12 @@
 # Progress Log
 
-Last updated: 2026-10-27
+Last updated: 2026-10-28
+
+## 2026-10-28 — Ultimate illustrations + louder cut-in (Claude Opus 5.5, owner request)
+
+- **16 ultimate illustrations** (Codex image, 0 GCP): `v2/ult/<id>.webp` 1280×720 for all 11 companion ultimates and 5 archetype bursts (`scripts/v2_assets/gen_ult_art.py`, refs = portrait + full-body sprite). Manifest group `ART.ults`; `art.test` requires one per companion and archetype.
+- **Cut-in**: the illustration slams in on a skewed glowing band (overshoot, Ken Burns drift, an inverted impact frame, collapse-to-a-line exit), colour stripes, a shockwave ring, 14 radial shards, double flash; the name sits on the band's lower edge in a large italic chromatic title. After the cut-in a release shockwave (wave + nova + ring + shake) fires from the caster. 1.4 → 1.6 s. Phone portrait: shorter band higher up. Reduced motion: static band + banner only.
+- Gates: `make check` green (node 401, Python 338); sandbox screenshots desktop + 390 px phone (Se-rin ultimate, Ghost burst), 0 console errors. Feel (length / intensity): **owner verdict pending**. Not deployed.
 
 ## 2026-10-27 — Stun, wall-bump stuns, companion ultimates, full-screen ult cut-in (Claude Opus 5.5, owner request)
 

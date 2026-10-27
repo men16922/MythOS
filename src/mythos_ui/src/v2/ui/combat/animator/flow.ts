@@ -1,7 +1,8 @@
 // Timeline builders for the flow of a fight: turn banners, boss phase shifts, implant triggers and
 // companion passives.
 
-import { portrait } from '../../common/assets.ts'
+import { ART } from '../../common/artManifest.ts'
+import { asset, portrait } from '../../common/assets.ts'
 import { tr } from '../../common/lang.ts'
 import { setMusicDuck, sfx, type SfxName } from '../../common/sfx.ts'
 import { panOf } from './helpers.ts'
@@ -106,31 +107,45 @@ export function chainSteps(kit: Kit, plan: Plan, ev: Ev<'chain'>): void {
   })
 }
 
-/** X2 Signal Burst: portrait cut-in banner, gold nova on the connector, a heavy shake. */
+/**
+ * X2 Signal Burst / companion ultimate: a full-screen illustration cut-in, then a release shockwave from the
+ * caster as the cut-in clears and the effects land.
+ */
 export function burstSteps(kit: Kit, plan: Plan, ev: Ev<'burst'>): void {
-  const { showBanner, addFx, unitOf, pose, trauma, hitStop, S } = kit
+  const { showBanner, addFx, unitOf, pose, trauma, hitStop, later, S } = kit
   const arch = plan.C.archetypes[ev.archetype]
   const comp = ev.companion ? plan.C.companions[ev.companion] : undefined
   const def = comp ? comp.ultimate : arch?.burst
   const name = def ? tr(def.name, plan.lang) : plan.k ? '시그널 버스트' : 'SIGNAL BURST'
   const who = comp ? tr(comp.name, plan.lang) : arch ? tr(arch.name, plan.lang) : ''
   const art = portrait(comp ? comp.sprite : (arch?.sprite ?? 'player-noise'))
+  const ult = ART.ults[ev.companion ?? ev.archetype]
+  const splash = ult ? asset(ult) : undefined
   const uid = ev.companion ?? 'connector'
+  const tone = comp ? 'shock' : 'gold'
   plan.steps.push({
-    dur: 1250,
+    dur: 1450,
     run: () => {
-      showBanner({ kind: 'burst', title: name, sub: who, art, tone: comp ? 'ult' : 'burst' }, S(1400))
+      showBanner({ kind: 'burst', title: name, sub: who, art, ...(splash ? { splash } : {}), tone: comp ? 'ult' : 'burst' }, S(1600))
       const u = unitOf(uid)
-      if (u) {
-        addFx({ kind: 'nova', at: u.pos, tone: comp ? 'shock' : 'gold', ms: S(900) })
-        addFx({ kind: 'ring', at: u.pos, tone: comp ? 'shock' : 'gold', ms: S(800) })
-        pose(uid, 'skill', S(900))
-      }
-      hitStop(S(120))
-      trauma(0.75)
+      if (u) pose(uid, 'skill', S(1400))
+      hitStop(S(140))
+      trauma(0.8)
       const sig = comp ? 'shockwave' : (BURST_SFX[ev.archetype] ?? 'shockwave')
       sfx('unlock')
       sfx(sig, { intensity: 1.4 })
+      later(() => {
+        const at = unitOf(uid)?.pos
+        if (at) {
+          addFx({ kind: 'wave', at, radius: 5, tone, ms: S(900) })
+          addFx({ kind: 'nova', at, tone, ms: S(900) })
+          addFx({ kind: 'ring', at, tone, ms: S(800) })
+          addFx({ kind: 'burst', at, tone, ms: S(700) })
+        }
+        trauma(0.65)
+        hitStop(S(90))
+        sfx('shockwave', { intensity: 1.2 })
+      }, S(1300))
     },
   })
 }

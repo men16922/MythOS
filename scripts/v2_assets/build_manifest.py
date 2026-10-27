@@ -108,6 +108,7 @@ def build() -> tuple[str, dict[str, int]]:
         "endings": _files("ending", ".webp"),
         "events": _files("events", ".webp"),
         "cutscenes": _files("cutscenes", ".webp"),
+        "ults": _files("ult", ".webp"),
     }
     cards = _files("cards", ".webp")
     implants = _files("implants", ".webp")
@@ -128,6 +129,7 @@ def build() -> tuple[str, dict[str, int]]:
         "  endings: Record<string, string>",
         "  events: Record<string, string>",
         "  cutscenes: Record<string, string>",
+        "  ults: Record<string, string>",
         "} = {",
         f"  title: '{art.get('title', '')}',",
         f"  archive: '{art.get('archive', '')}',",

@@ -12,6 +12,7 @@ export const ART: {
   endings: Record<string, string>
   events: Record<string, string>
   cutscenes: Record<string, string>
+  ults: Record<string, string>
 } = {
   title: 'v2/art/title.webp',
   archive: 'v2/art/archive.webp',
@@ -259,6 +260,24 @@ export const ART: {
     su_ah_warm_crystal: 'v2/cutscenes/su_ah_warm_crystal.webp',
     tae_o_dawn_watch: 'v2/cutscenes/tae_o_dawn_watch.webp',
     tae_o_unlatched: 'v2/cutscenes/tae_o_unlatched.webp',
+  },
+  ults: {
+    archivist: 'v2/ult/archivist.webp',
+    bel: 'v2/ult/bel.webp',
+    doyun: 'v2/ult/doyun.webp',
+    echo_collector: 'v2/ult/echo_collector.webp',
+    ghost: 'v2/ult/ghost.webp',
+    han: 'v2/ult/han.webp',
+    io: 'v2/ult/io.webp',
+    kai: 'v2/ult/kai.webp',
+    lin_yue: 'v2/ult/lin_yue.webp',
+    miro: 'v2/ult/miro.webp',
+    rem: 'v2/ult/rem.webp',
+    scrapborn: 'v2/ult/scrapborn.webp',
+    se_rin: 'v2/ult/se_rin.webp',
+    smuggler: 'v2/ult/smuggler.webp',
+    su_ah: 'v2/ult/su_ah.webp',
+    tae_o: 'v2/ult/tae_o.webp',
   },
 }
 

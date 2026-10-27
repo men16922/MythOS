@@ -67,3 +67,15 @@ Older entries: `bin/docs/archive/progress-2026-10-25-showcase-and-content.md` (2
 - NPC free talk (`DialogueScreen`): model replies carry the mark + inline report flag and join the Settings AI-line list (they were missing from it). Verified on Vite dev with a mocked `llm` reply (district `d1_lamp_market` tent), 0 errors.
 - Owner rule mid-wave: UX first, low fatigue → dropped the TopBar AI chip and intent-% / memory tags (`DECISIONS.md`).
 - Verified: `make check` green (node 350, Python 337 + 12 DB skipped); `make playthrough-quick` OK (134 s); headless muted 1440×900 + 390×844 with a mocked `llm` narrate: mark on act intro + event card, 3 chips, tap fills, 0 console errors. Real model line checked the same day: local Ollama `gemma4:8b-64k` (no Vertex), act intro + event narrate both `source: llm` → mark shown on both cards.
+
+## 2026-10-25 — S-rank pass 2: Rage, archetype parity, Paradox 5 ceiling, status icons (Claude Opus 5.5)
+
+- **Owner fun verdict (2026-10-26)**: "S — fun, keep it" on live `00150-qen` → S-rank criterion 7 passed; goal closed.
+
+- **Rage** (`StatusKind 'rage'`, `dmgBonusOf` adds it, `growRage` in the enemy phase, `CONTENT.tuning.rage` elite 3 / boss 1 from turn 3, Paradox 5 one turn earlier via `CombatScaling.rageFrom`; `bossHpPct` −15). Flat elite damage +1/+2 had left elite loss at ~3 % (rejected). `engine/tuning.test.ts` (5 tests).
+- **Parity**: ghost evade perks AGI 7 → 8 (Se-rin's +1 made them free), `cracked_cube` victory heal 2 → 5, `overclocked_deck` block 3/turn.
+- **Art**: Codex status icons `status/{bleed,evade,focus,rage}.png` (chroma-keyed, 4 calls); `art.test.ts` asserts every status has its own file.
+- **Sim** (5 × 150 P0): mixed 40.5 % (39.3/40.7/38.7/49.3/34.7), ghost 42 / smuggler 42 / echo 37, elite loss 7.3 % (7.5 t), boss 8.9 t, Paradox 1–5 34.7/26.0/12.7/10.7/8.7 %, greedy P0 98.9 / P5 85.6 %, basic 0 %.
+- **Smuggler payoff card** `mass_hijack` (rare, cost 1/0: redirect every intent in a cross + 5₵; Codex art): smuggler-only 3 × 150 with 38.9 % vs without 39.3 % (neutral, identity not power); mechanics test in `tuning.test.ts`.
+- **Preview**: `make deploy-preview` → `00150-qen` (`git-sha=a6615b7`, 0 % traffic, tag `v2-preview`); `make verify-preview` 5/5 (HEAD sha, health, postgres + gemini GM, google auth, served bundle = committed); headless muted visit of the preview (sandbox `a2_boss_hyeonmu` shows the new sprite, title screen, 0 console errors). Promoted on the owner's answer ("Promote now"): `update-traffic --to-latest` → `00150-qen` 100 % `LATEST`; production URL `verify_preview.py --url` 4/4. Rollback `00148-nav`.
+- **Verified**: `make check` (370 + 338), `make frontend-build`, `make playthrough-quick`, sandbox screenshot of an elite at turn 4 (Rage 3 pill, telegraph 9). **Unverified**: human feel of Rage.

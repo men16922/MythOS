@@ -60,7 +60,7 @@ export function CombatBanner({ banner }: { banner: Banner }) {
 }
 
 /** Radial streaks thrown out of the cut-in's impact (angle in degrees, delay in ms). */
-const ULT_SHARDS = [0, 24, 52, 75, 101, 128, 155, 180, 207, 232, 258, 283, 309, 336].map((a, i) => ({ a, d: (i % 4) * 30 }))
+const ULT_SHARDS = [0, 47, 92, 136, 180, 226, 271, 316].map((a, i) => ({ a, d: (i % 4) * 30 }))
 
 /**
  * Full-screen cut-in behind a Signal Burst / companion ultimate banner: impact flash, letterbox, speed lines,

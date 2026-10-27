@@ -340,7 +340,7 @@
   width: 260vmax;
   height: 260vmax;
   margin: -130vmax 0 0 -130vmax;
-  background: repeating-conic-gradient(from 0deg, rgba(var(--ult-a), 0.6) 0deg 0.6deg, transparent 0.6deg 6deg);
+  background: repeating-conic-gradient(from 0deg, rgba(var(--ult-a), 0.4) 0deg 0.5deg, transparent 0.5deg 7deg);
   -webkit-mask-image: radial-gradient(circle, transparent 8%, #000 22%, #000 40%, transparent 52%);
   mask-image: radial-gradient(circle, transparent 8%, #000 22%, #000 40%, transparent 52%);
   mix-blend-mode: screen;
@@ -476,8 +476,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 40%;
-  filter: saturate(1.2) contrast(1.08);
+  /* faces sit in the upper third of every illustration; the band crops mostly from the bottom */
+  object-position: 50% 24%;
+  filter: saturate(1.1) contrast(1.05);
   animation: m2c-ultfx-kenburns 1.6s cubic-bezier(0.15, 0.8, 0.3, 1) both;
 }
 @keyframes m2c-ultfx-kenburns {
@@ -725,7 +726,7 @@
     transform: translateY(100%);
   }
 }
-/* white impact flash in, a softer second flash as the band collapses */
+/* white impact flash as the band slams in */
 .m2c-ultfx-flash {
   position: absolute;
   inset: 0;
@@ -737,15 +738,7 @@
   0% {
     opacity: 1;
   }
-  22% {
-    opacity: 0;
-  }
-  86% {
-    opacity: 0;
-  }
-  90% {
-    opacity: 0.55;
-  }
+  22%,
   100% {
     opacity: 0;
   }

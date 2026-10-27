@@ -5,8 +5,9 @@ Last updated: 2026-10-28
 ## 2026-10-28 — Ultimate illustrations + louder cut-in (Claude Opus 5.5, owner request)
 
 - **16 ultimate illustrations** (Codex image, 0 GCP): `v2/ult/<id>.webp` 1280×720 for all 11 companion ultimates and 5 archetype bursts (`scripts/v2_assets/gen_ult_art.py`, refs = portrait + full-body sprite). Manifest group `ART.ults`; `art.test` requires one per companion and archetype.
-- **Cut-in**: the illustration slams in on a skewed glowing band (overshoot, Ken Burns drift, an inverted impact frame, collapse-to-a-line exit), colour stripes, a shockwave ring, 14 radial shards, double flash; the name sits on the band's lower edge in a large italic chromatic title. After the cut-in a release shockwave (wave + nova + ring + shake) fires from the caster. 1.4 → 1.6 s. Phone portrait: shorter band higher up. Reduced motion: static band + banner only.
-- Gates: `make check` green (node 401, Python 338); sandbox screenshots desktop + 390 px phone (Se-rin ultimate, Ghost burst), 0 console errors. Feel (length / intensity): **owner verdict pending**. Not deployed.
+- **Cut-in**: the illustration slams in on a skewed glowing band (overshoot, Ken Burns drift, an inverted impact frame, collapse-to-a-line exit), colour stripes, a shockwave ring, 8 radial shards, one flash; the name sits on the band's lower edge in a large italic chromatic title. After the cut-in a release shockwave (wave + nova + ring + shake) fires from the caster. 1.4 → 1.6 s. Phone portrait: shorter band higher up. Reduced motion: static band + banner only.
+- **Owner pass 1** ("Se-rin / Doyun look out of proportion; bring out character; a bit less flashy"): all 16 regenerated with eye-level natural proportions (no wide-angle foreshortening), each pose built on the character's bond lines (Doyun = an ordinary survivor who "knows how to stand"), one restrained effect; cut-in toned down (fewer shards, fainter lines, no exit flash), band framed on the upper third.
+- Gates: `make check` green (node 401, Python 338); sandbox screenshots desktop + 390 px phone (Se-rin / Doyun ultimates, Ghost burst), 0 console errors. Feel (length / intensity): **owner verdict pending**. Not deployed.
 
 ## 2026-10-27 — Stun, wall-bump stuns, companion ultimates, full-screen ult cut-in (Claude Opus 5.5, owner request)
 
@@ -82,15 +83,3 @@ Last updated: 2026-10-28
 - **Visuals**: Momentum gauge + Burst button (`MomentumGauge`, desktop above items, phone grid area `mom`), Burst cut-in banner with portrait, chain counter text, crit cut (longer hit-stop + slash + flare + zoom punch), elite/boss death shockwave + debris, Rage aura (`--rage` pulse). Sandbox `?momentum=100` for checks.
 - **Art**: Jujak / Arachne got their own key art + idle/attack/hit sprites (Codex, 8 calls) — they had borrowed Haetae / Echo Eater art (owner report: Act 1 always opened on Haetae's illustration).
 - **Verified**: `make check` (373 + 338), `make frontend-build`, `make playthrough-quick` (105 s), sandbox screenshots desktop + phone (Burst ready/cut-in, Jujak). **Unverified**: human feel of the Burst pacing.
-
-## 2026-10-25 — S-rank pass 2: Rage, archetype parity, Paradox 5 ceiling, status icons (Claude Opus 5.5)
-
-- **Owner fun verdict (2026-10-26)**: "S — fun, keep it" on live `00150-qen` → S-rank criterion 7 passed; goal closed.
-
-- **Rage** (`StatusKind 'rage'`, `dmgBonusOf` adds it, `growRage` in the enemy phase, `CONTENT.tuning.rage` elite 3 / boss 1 from turn 3, Paradox 5 one turn earlier via `CombatScaling.rageFrom`; `bossHpPct` −15). Flat elite damage +1/+2 had left elite loss at ~3 % (rejected). `engine/tuning.test.ts` (5 tests).
-- **Parity**: ghost evade perks AGI 7 → 8 (Se-rin's +1 made them free), `cracked_cube` victory heal 2 → 5, `overclocked_deck` block 3/turn.
-- **Art**: Codex status icons `status/{bleed,evade,focus,rage}.png` (chroma-keyed, 4 calls); `art.test.ts` asserts every status has its own file.
-- **Sim** (5 × 150 P0): mixed 40.5 % (39.3/40.7/38.7/49.3/34.7), ghost 42 / smuggler 42 / echo 37, elite loss 7.3 % (7.5 t), boss 8.9 t, Paradox 1–5 34.7/26.0/12.7/10.7/8.7 %, greedy P0 98.9 / P5 85.6 %, basic 0 %.
-- **Smuggler payoff card** `mass_hijack` (rare, cost 1/0: redirect every intent in a cross + 5₵; Codex art): smuggler-only 3 × 150 with 38.9 % vs without 39.3 % (neutral, identity not power); mechanics test in `tuning.test.ts`.
-- **Preview**: `make deploy-preview` → `00150-qen` (`git-sha=a6615b7`, 0 % traffic, tag `v2-preview`); `make verify-preview` 5/5 (HEAD sha, health, postgres + gemini GM, google auth, served bundle = committed); headless muted visit of the preview (sandbox `a2_boss_hyeonmu` shows the new sprite, title screen, 0 console errors). Promoted on the owner's answer ("Promote now"): `update-traffic --to-latest` → `00150-qen` 100 % `LATEST`; production URL `verify_preview.py --url` 4/4. Rollback `00148-nav`.
-- **Verified**: `make check` (370 + 338), `make frontend-build`, `make playthrough-quick`, sandbox screenshot of an elite at turn 4 (Rage 3 pill, telegraph 9). **Unverified**: human feel of Rage.

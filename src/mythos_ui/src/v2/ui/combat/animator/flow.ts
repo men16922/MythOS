@@ -4,7 +4,7 @@
 import { ART } from '../../common/artManifest.ts'
 import { asset, portrait } from '../../common/assets.ts'
 import { tr } from '../../common/lang.ts'
-import { setMusicDuck, sfx, type SfxName } from '../../common/sfx.ts'
+import { setMusicDuck, sfx, ULT_SFX, type SfxName } from '../../common/sfx.ts'
 import { panOf } from './helpers.ts'
 import type { Ev, Kit, Plan } from './types.ts'
 
@@ -131,7 +131,7 @@ export function burstSteps(kit: Kit, plan: Plan, ev: Ev<'burst'>): void {
       if (u) pose(uid, 'skill', S(1400))
       hitStop(S(140))
       trauma(0.8)
-      const sig = comp ? 'shockwave' : (BURST_SFX[ev.archetype] ?? 'shockwave')
+      const sig = (ev.companion ? ULT_SFX[ev.companion] : BURST_SFX[ev.archetype]) ?? 'shockwave'
       sfx('unlock')
       sfx(sig, { intensity: 1.4 })
       later(() => {

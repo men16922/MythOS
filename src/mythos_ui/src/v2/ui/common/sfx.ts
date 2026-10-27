@@ -83,7 +83,33 @@ export type SfxName =
   | 'burst_echo'
   | 'burst_archivist'
   | 'burst_scrapborn'
+  | 'ult_se_rin'
+  | 'ult_tae_o'
+  | 'ult_han'
+  | 'ult_su_ah'
+  | 'ult_kai'
+  | 'ult_lin_yue'
+  | 'ult_io'
+  | 'ult_miro'
+  | 'ult_doyun'
+  | 'ult_bel'
+  | 'ult_rem'
   | 'recruit'
+
+/** Each companion ultimate's signature cue (companion id → cue). */
+export const ULT_SFX: Record<string, SfxName> = {
+  se_rin: 'ult_se_rin',
+  tae_o: 'ult_tae_o',
+  han: 'ult_han',
+  su_ah: 'ult_su_ah',
+  kai: 'ult_kai',
+  lin_yue: 'ult_lin_yue',
+  io: 'ult_io',
+  miro: 'ult_miro',
+  doyun: 'ult_doyun',
+  bel: 'ult_bel',
+  rem: 'ult_rem',
+}
 
 export interface SfxOpts {
   /** 0.3 … 2 — scales loudness, pitch drop and body of impact sounds. Default 1. */
@@ -490,6 +516,107 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.thump(110, 30, 0.02, 0.5, 1, 0.2, true)
       v.tone(180, 'square', 0.005, 0.25, 0.12, 90, 0.2)
       duckForImpact(6, 0.4)
+      break
+    case 'ult_se_rin':
+      // Undertow Exit: an undertow surging up, a bubbling rise, splashes, then a dash out.
+      v.noise('bandpass', 300, 0.25, 0.35, 0.4, 2600)
+      v.tone(500, 'sine', 0.01, 0.3, 0.12, 1400, 0.1)
+      v.crackle(8, 0.25, 0.12, 0.3, 1800)
+      v.noise('highpass', 2000, 0.005, 0.18, 0.25, 6000, 0.45)
+      v.shimmer(3, 0.05, 0.5)
+      break
+    case 'ult_tae_o':
+      // Hound Breakthrough: two charging steps, a shield slam into a wall, rubble and a ringing clang.
+      v.thump(120, 60, 0.03, 0.12, 0.6, 0, true)
+      v.thump(120, 60, 0.03, 0.12, 0.7, 0.14, true)
+      v.noise('bandpass', 700, 0.08, 0.2, 0.4, 2400, 0.1)
+      v.thump(150, 36, 0.06, 0.5, 1, 0.3, true)
+      v.click(0.7, 2600, 0.3)
+      v.tone(310, 'square', 0.001, 0.4, 0.1, undefined, 0.3)
+      v.tone(467, 'triangle', 0.001, 0.5, 0.1, undefined, 0.3)
+      v.crackle(12, 0.4, 0.2, 0.34, 1800)
+      duckForImpact(6, 0.5)
+      break
+    case 'ult_han':
+      // Trace Complete: a burst of keystrokes, a modem chirp, three lock-on beeps.
+      for (let i = 0; i < 10; i++) v.tone(1800 + i * 80, 'square', 0.001, 0.012, 0.05, undefined, i * 0.03)
+      v.tone(900, 'sawtooth', 0.01, 0.2, 0.06, 2600, 0.3)
+      v.tone(1320, 'sine', 0.002, 0.06, 0.1, undefined, 0.55)
+      v.tone(1568, 'sine', 0.002, 0.06, 0.1, undefined, 0.65)
+      v.tone(1976, 'sine', 0.002, 0.3, 0.1, undefined, 0.75)
+      v.sample('glitch', 0.3)
+      break
+    case 'ult_su_ah':
+      // Echo Forging: two hammer strikes on an anvil, a quench hiss, a violet ring.
+      for (const at of [0, 0.3]) {
+        v.click(0.6, 3200, at)
+        v.tone(880, 'triangle', 0.001, 0.35, 0.1, undefined, at)
+        v.tone(1397, 'sine', 0.001, 0.3, 0.08, undefined, at)
+        v.tone(2093, 'sine', 0.001, 0.22, 0.06, undefined, at)
+        v.thump(140, 70, 0.02, 0.12, 0.45, at, true)
+      }
+      v.noise('highpass', 3500, 0.02, 0.5, 0.14, undefined, 0.38)
+      v.shimmer(4, 0.06, 0.45)
+      break
+    case 'ult_kai':
+      // Dream Shot: a rail rifle charging, the crack of the shot, then a soft dreamy chime.
+      v.tone(200, 'sine', 0.35, 0.03, 0.1, 3000)
+      v.tone(300, 'sawtooth', 0.35, 0.03, 0.04, 2400)
+      v.click(0.8, 3000, 0.4)
+      v.noise('bandpass', 1800, 0.001, 0.25, 0.5, 400, 0.4)
+      v.thump(200, 60, 0.02, 0.25, 0.7, 0.4, true)
+      v.tone(1047, 'sine', 0.01, 0.8, 0.07, undefined, 0.6)
+      v.tone(1568, 'sine', 0.01, 0.8, 0.06, undefined, 0.7)
+      v.shimmer(3, 0.04, 0.65)
+      break
+    case 'ult_lin_yue':
+      // Big Deal: a coin flicked up, a shower of coins, a cash-register ring.
+      v.tone(2637, 'sine', 0.001, 0.15, 0.1)
+      for (let i = 0; i < 8; i++) v.tone(2000 + Math.random() * 1500, 'square', 0.001, 0.04, 0.04, undefined, 0.1 + i * 0.05)
+      v.tone(1319, 'square', 0.001, 0.08, 0.08, undefined, 0.55)
+      v.tone(1976, 'square', 0.001, 0.35, 0.08, undefined, 0.62)
+      v.sample('pickup', 0.35, 0.55)
+      break
+    case 'ult_io':
+      // Access Granted: pages riffling, a heavy book falling open, glass bells over a soft pad.
+      v.noise('bandpass', 3000, 0.02, 0.2, 0.12, 5000)
+      v.stutter(5, 0.04, 0.08)
+      v.thump(90, 50, 0.03, 0.3, 0.5, 0.18)
+      v.tone(440, 'sine', 0.2, 0.9, 0.08, undefined, 0.3)
+      v.tone(1760, 'sine', 0.002, 1, 0.08, undefined, 0.3)
+      v.tone(2637, 'sine', 0.002, 0.9, 0.06, undefined, 0.38)
+      break
+    case 'ult_miro':
+      // Shadow Ambush: a "shh", a beat of silence, three quick blade swishes over a dark drop.
+      v.noise('highpass', 4000, 0.08, 0.25, 0.12)
+      v.tone(180, 'sine', 0.2, 0.4, 0.15, 60, 0.3)
+      for (const at of [0.4, 0.5, 0.6]) v.noise('bandpass', 1200, 0.004, 0.08, 0.4, 5000, at)
+      v.click(0.5, 3600, 0.62)
+      break
+    case 'ult_doyun':
+      // Human Wall: feet planted, a barrier humming up, laser bolts pinging off it.
+      v.thump(80, 50, 0.03, 0.35, 0.7, 0, true)
+      v.tone(110, 'sawtooth', 0.15, 0.7, 0.08)
+      v.tone(220, 'triangle', 0.15, 0.7, 0.08)
+      for (const at of [0.35, 0.5, 0.62]) v.tone(2400, 'sine', 0.001, 0.12, 0.06, 1200, at)
+      v.shimmer(3, 0.05, 0.3)
+      break
+    case 'ult_bel':
+      // Censorship Lifted: one pen stroke scratched through the air, a redaction buzz, a corrosive hiss.
+      v.noise('bandpass', 2200, 0.01, 0.25, 0.35, 5000)
+      v.tone(120, 'square', 0.01, 0.4, 0.08, 100, 0.25)
+      v.stutter(5, 0.04, 0.08)
+      v.noise('highpass', 3000, 0.05, 0.5, 0.15, undefined, 0.3)
+      break
+    case 'ult_rem':
+      // Dream Halt: two clock ticks, a reversed swell, then time slows to a hush (falling bell, soft flutter).
+      v.click(0.4, 3000)
+      v.click(0.3, 3000, 0.18)
+      v.noise('bandpass', 400, 0.4, 0.05, 0.3, 3000)
+      v.tone(880, 'sine', 0.002, 1, 0.1, 220, 0.45)
+      v.tone(1319, 'sine', 0.002, 1.2, 0.07, undefined, 0.45)
+      v.crackle(10, 0.8, 0.05, 0.5, 1200)
+      duckForImpact(5, 0.6)
       break
     case 'recruit':
       // A companion joins: two warm notes resolving upward.

@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-28
 
+## 2026-10-28 — Companion ultimate signature SFX (Claude Opus 5.5, owner request)
+
+- 11 procedural cues `ult_<companion>` in `sfx.ts` (`ULT_SFX` map), one per ultimate, matching its scene (Se-rin undertow surge + dash, Tae-o charge + shield slam, Han keystrokes + lock-on, Su-ah anvil strikes, Kai rail charge + shot, Lin-yue coin shower + register, Io page riffle + glass bells, Miro "shh" + three swishes, Doyun barrier hum + deflections, Bel pen scratch + hiss, Rem clock ticks + slowing hush). Archetype bursts keep their `burst_*` cues. `audio-cues.test` checks every companion has a distinct cue that plays.
+- Gates: `make check` green. Sound itself **unheard** (automation stays muted): owner listen check pending. Not deployed.
+
 ## 2026-10-28 — Ultimate illustrations + louder cut-in (Claude Opus 5.5, owner request)
 
 - **16 ultimate illustrations** (Codex image, 0 GCP): `v2/ult/<id>.webp` 1280×720 for all 11 companion ultimates and 5 archetype bursts (`scripts/v2_assets/gen_ult_art.py`, refs = portrait + full-body sprite). Manifest group `ART.ults`; `art.test` requires one per companion and archetype.

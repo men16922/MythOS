@@ -449,6 +449,7 @@ export function GameShell() {
                 ? { outcome: game.dailySubmit.outcome, today, onBoard: () => setBoard({ date: game.dailySubmit?.date ?? today, archetype: run.archetype }) }
                 : undefined
             }
+            achievements={profile.history.find((h) => h.id === run.id)?.achievements}
             onChronicle={(text) => game.attachChronicle(run.id, text)}
             onDone={() => {
               game.closeRun()

@@ -1095,6 +1095,8 @@ export interface RunRecord {
   chronicle?: string
   /** Set for a daily-seed run: its date key ('2026-10-11'). */
   daily?: string
+  /** Achievements first earned when this run was banked (engine/achievements.ts). */
+  achievements?: string[]
 }
 
 export interface MetaProfile {
@@ -1128,6 +1130,37 @@ export interface MetaProfile {
   archetypeWins?: Record<string, number>
   /** How many runs each event appeared in (any loop, daily included): lets the GM open a revisited scene on déjà vu. */
   eventsSeen?: Record<string, number>
+  /** Achievement ids earned, in the order they were earned (engine/achievements.ts; checked when a run is banked). */
+  achievements?: string[]
+}
+
+export type AchievementGroup = 'progress' | 'ending' | 'collection' | 'archetype' | 'companion' | 'challenge'
+
+/** What earns an achievement. Profile conditions read the banked profile; run conditions read the run just ended.
+ *  `n: 'all'` = every entry the content has (lore, endings, companions). */
+export type AchievementCond =
+  | { kind: 'loops' | 'wins' | 'bestAct' | 'records' | 'memories'; n: number }
+  | { kind: 'codex' | 'endings' | 'companionsMet'; n: number | 'all' }
+  | { kind: 'ending'; id: string }
+  | { kind: 'archetypeWin' | 'companionWin'; id: string }
+  | { kind: 'dailyDays'; n: number }
+  // run conditions
+  | { kind: 'paradoxWin'; n: number }
+  | { kind: 'deepWin' }
+  | { kind: 'dailyWin' }
+  | { kind: 'endlessLap'; n: number }
+  | { kind: 'runTally'; stat: 'kills' | 'environmentKills' | 'elites'; min: number }
+  | { kind: 'flawless'; maxDamage: number }
+  | { kind: 'leanDeck'; maxCards: number }
+
+export interface AchievementDef {
+  id: string
+  group: AchievementGroup
+  name: Text
+  text: Text
+  when: AchievementCond
+  /** Name and text stay '???' until earned (spoilers). */
+  secret?: boolean
 }
 
 export type MetaUnlockKind = 'archetype' | 'companion' | 'card_pack' | 'implant_pack' | 'thread'
@@ -1211,6 +1244,8 @@ export interface ContentRegistry {
   thoughts?: ThoughtDef[]
   /** Global enemy toughness on top of the authored numbers (absent in test doubles = authored numbers). */
   tuning?: EnemyTuning
+  /** Achievements (content/achievements.ts; absent in test doubles = none). */
+  achievements?: Record<string, AchievementDef>
 }
 
 export interface EnemyTuning {

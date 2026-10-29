@@ -4,6 +4,7 @@
 // Pure: every function returns a new profile (or a derived value) and never touches
 // storage. A RunState is self-contained, so banking reads only the run + content.
 
+import { newAchievements } from './achievements.ts'
 import { DAILY_CAP, isBetterDaily, isDateKey } from './daily.ts'
 import type {
   ContentRegistry,
@@ -75,6 +76,7 @@ export function newProfile(name: string, settings: Partial<MetaProfile['settings
     cutscenes: [],
     companionWins: {},
     archetypeWins: {},
+    achievements: [],
   }
 }
 
@@ -135,7 +137,7 @@ function migrateRecord(raw: unknown): RunRecord | null {
     archetype: str(raw.archetype),
     result,
     endingId: str(raw.endingId),
-    act: int(raw.act, 1, 3),
+    act: int(raw.act, 1, 99),
     floors: int(raw.floors, 0),
     echoes: int(raw.echoes, 0),
     party: strList(raw.party),
@@ -144,6 +146,7 @@ function migrateRecord(raw: unknown): RunRecord | null {
   if (typeof raw.killedBy === 'string') rec.killedBy = raw.killedBy
   if (typeof raw.chronicle === 'string') rec.chronicle = raw.chronicle
   if (isDateKey(raw.daily)) rec.daily = raw.daily
+  if (Array.isArray(raw.achievements)) rec.achievements = strList(raw.achievements)
   return rec
 }
 
@@ -226,10 +229,11 @@ export function migrateProfile(raw: unknown): MetaProfile {
     archetypeWins: migrateCounts(r.archetypeWins),
     ...(Array.isArray(r.records) ? { records: strList(r.records) } : {}),
     eventsSeen: migrateCounts(r.eventsSeen),
+    achievements: strList(r.achievements),
   }
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {
-    profile.lastDeath = { killedBy: death.killedBy, act: int(death.act, 1, 3), loop: int(death.loop, 0) }
+    profile.lastDeath = { killedBy: death.killedBy, act: int(death.act, 1, 99), loop: int(death.loop, 0) }
   }
   return profile
 }
@@ -401,7 +405,7 @@ export function recordDaily(daily: MetaProfile['daily'], date: string, result: D
 /**
  * Bank a finished run into the profile: echoes (+ending bonus, +victory), history (capped),
  * totals, paradox unlock, codex/endings/companions met, last death, loops + 1, and for a
- * daily-seed run that day's record (attempts + 1, best kept).
+ * daily-seed run that day's record (attempts + 1, best kept), and any achievements it earns.
  * Idempotent per run id; a run that has not ended returns the profile unchanged.
  */
 function addWins(prev: Record<string, number> | undefined, ids: string[]): Record<string, number> {
@@ -457,5 +461,10 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
   }
   if (!victory && !abandoned && killedBy) next.lastDeath = { killedBy, act: run.act, loop: run.loop }
   if (isDateKey(run.daily)) next.daily = recordDaily(profile.daily, run.daily, dailyResultOf(run, earned))
+  const unlocked = newAchievements(next, run, C)
+  if (unlocked.length > 0) {
+    record.achievements = unlocked
+    next.achievements = [...(profile.achievements ?? []), ...unlocked]
+  }
   return next
 }

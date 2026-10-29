@@ -3,7 +3,8 @@
 import { CUTSCENES, type CutsceneDef } from '../../content/cutscenes.ts'
 import { Cutscene } from '../components/Cutscene.tsx'
 import { art } from '../components/art.ts'
-import { BookOpen, CalendarDays, Check, ChevronLeft, History, Heart, Library, Lock, Play, Sparkles, Trophy } from 'lucide-react'
+import { Award, BookOpen, CalendarDays, Check, ChevronLeft, History, Heart, Library, Lock, Play, Sparkles, Trophy } from 'lucide-react'
+import { ArchiveAchievements } from './ArchiveAchievements.tsx'
 import { ArchiveVault } from './ArchiveVault.tsx'
 import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel, recentDateKeys } from '../../engine/daily.ts'
@@ -32,7 +33,7 @@ const KINDS: { kind: MetaUnlockKind; label: Text; hint: Text }[] = [
   { kind: 'thread', label: L('기억의 실', 'Memory threads'), hint: L('모든 루프에 영구히 따라붙는 작은 이점.', 'Small permanent edges for every loop.') },
 ]
 
-type SideTab = 'codex' | 'endings' | 'memories' | 'history' | 'vault'
+type SideTab = 'codex' | 'endings' | 'memories' | 'achievements' | 'history' | 'vault'
 
 function ixLine(profile: MetaProfile, C: ContentRegistry, lang: Lang): string {
   const lines = C.ixLines
@@ -326,6 +327,12 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                 {(profile.cutscenes ?? []).length}/{CUTSCENES.length}
               </small>
             </button>
+            <button className={side === 'achievements' ? 'is-on' : ''} onClick={() => setSide('achievements')} data-testid="achievements-tab">
+              <Award size={14} /> {ko ? '업적' : 'Feats'}
+              <small className="m2-mono">
+                {(profile.achievements ?? []).length}/{Object.keys(C.achievements ?? {}).length}
+              </small>
+            </button>
             <button className={side === 'history' ? 'is-on' : ''} onClick={() => setSide('history')}>
               <History size={14} /> {ko ? '이력' : 'History'}
             </button>
@@ -369,6 +376,7 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                 })}
               </div>
             )}
+            {side === 'achievements' && <ArchiveAchievements profile={profile} C={C} lang={lang} />}
             {side === 'vault' && <ArchiveVault profile={profile} C={C} lang={lang} />}
             {side === 'memories' && (
               <>

@@ -672,3 +672,51 @@
 .m2-firstrec p.is-hidden {
   opacity: 0.35;
 }
+
+/* Achievements tab: one quiet row each, earned ones lit. */
+.m2-ach__sec {
+  margin-bottom: 14px;
+}
+.m2-ach__sec h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--m2-gold, #ffd68c);
+}
+.m2-ach__sec h4 small {
+  margin-left: 4px;
+  opacity: 0.7;
+}
+.m2-ach__row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  opacity: 0.45;
+}
+.m2-ach__row.is-got {
+  opacity: 1;
+}
+.m2-ach__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+}
+.m2-ach__row.is-got .m2-ach__mark {
+  border-color: var(--m2-gold, #ffd68c);
+  color: var(--m2-gold, #ffd68c);
+}
+.m2-ach__body b {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+.m2-ach__body small {
+  font-size: 12px;
+  opacity: 0.8;
+}

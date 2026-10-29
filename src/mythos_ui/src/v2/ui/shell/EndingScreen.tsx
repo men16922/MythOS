@@ -1,6 +1,6 @@
 // Mythos 2.0 — ending + run summary: ending art, text, Echo tally count-up, stats, chronicle.
 import { art } from '../components/art.ts'
-import { Check, Copy, Sparkles, Trophy } from 'lucide-react'
+import { Award, Check, Copy, Sparkles, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { computeEchoes } from '../../engine/meta.ts'
 import type { Lang, RunState } from '../../engine/types.ts'
@@ -58,6 +58,25 @@ export interface EndingScreenProps extends ScreenProps {
   onChronicle: (text: string) => void
   /** A daily-seed run: its leaderboard submit (outcome null while sending), today's KST date and the board opener. */
   daily?: { outcome: SubmitOutcome | null; today: string; onBoard: () => void }
+  /** Achievement ids this run earned (its banked history row). */
+  achievements?: readonly string[]
+}
+
+/** One quiet line under the stats: the achievements this run earned (first three named, then a count). */
+function EarnedLine({ ids, C, lang }: { ids: readonly string[]; C: ScreenProps['C']; lang: Lang }) {
+  const names = ids.map((id) => C.achievements?.[id]?.name).filter((n) => !!n)
+  if (names.length === 0) return null
+  const shown = names.slice(0, 3).map((n) => tr(n, lang)).join(' · ')
+  const more = names.length - 3
+  return (
+    <div className="m2-ending__ach" role="status" data-testid="ending-achievements">
+      <Award size={13} />
+      <span>
+        {shown}
+        {more > 0 && (lang === 'ko' ? ` 외 ${more}개` : ` +${more} more`)}
+      </span>
+    </div>
+  )
 }
 
 /** The daily run's leaderboard line: rank / total, "기록 갱신!", or why it is waiting. */
@@ -82,7 +101,7 @@ function DailyRank({ date, daily, lang }: { date: string; daily: NonNullable<End
 
 const CHRONICLE_WAIT_MS = 8000
 
-export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, daily }: EndingScreenProps) {
+export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, daily, achievements }: EndingScreenProps) {
   const ended = run.screen.kind === 'ended' ? run.screen : null
   const ending = ended ? C.endings[ended.endingId] : undefined
   const breakdown = useMemo(() => computeEchoes(run, C), [run, C])
@@ -241,6 +260,7 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
               <small>{ko ? '덱' : 'Deck'}</small>
             </div>
           </div>
+          {stage >= 3 && achievements && achievements.length > 0 && <EarnedLine ids={achievements} C={C} lang={lang} />}
           {daily && isDateKey(run.daily) && <DailyRank date={run.daily} daily={daily} lang={lang} />}
           <div className="m2-ending__actions">
             <button className="m2-btn m2-btn--ghost m2-ending__share" onClick={onCopySummary}>

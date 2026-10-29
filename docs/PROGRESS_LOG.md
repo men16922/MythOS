@@ -2,6 +2,13 @@
 
 Last updated: 2026-10-29
 
+## 2026-10-29 — Achievements, first pass: 43 (Claude Opus 5.5, owner: "next priority, autonomously")
+
+- **What**: DLC plan §11 "업적", first pass — 43 achievements (`content/achievements.ts`): loops/wins/acts/daily days 9, endings 3 (secret First Record), collection 6 (codex, memories, companions met, shards), one-run challenges 9 (Paradox 5/10, Deep Signal win, Endless lap, daily win, 20 terrain kills, 5 elites, ≤40 damage taken, deck ≤18), plus one per archetype (5) and per companion (11), generated from content. Challenge thresholds set from the mixed-bot tally of 200 runs (wins: damage p5 30 / p50 84, terrain kills p95 20, deck p5 27).
+- **How**: declarative `AchievementCond` (`types.ts`), checked once in `applyRunEnd` (`engine/achievements.ts`) against the banked profile + the ended run; earned ids go to `profile.achievements` and the run's history row. Cosmetic only (no reward, no run state) → balance untouched by construction; `RunSimResult.tally` added for measuring. Existing profiles earn what they already qualify for on their next banked run. Also fixed: `migrateProfile` clamped history / last-death acts to 3 (Deep Signal reaches 6).
+- **UI**: Archive side tab "업적 n/43" (grouped, dim until earned, secret = ???); ending screen shows one small gold line of what this run earned (first 3 + count). No toast, no sound (UX-first).
+- Gates: `make check` green (node 409, Python 338); `make playthrough-quick` OK (209 s); `make test-e2e-v2` OK; muted headless screenshots desktop + 390 px phone (ending line, Archive tab, no horizontal overflow, 0 console errors). `gameplay-qa` not run (no combat/run change). Not deployed. Owner: names/wording and the 6-tab wrap on narrow screens unreviewed.
+
 ## 2026-10-29 — `make test-e2e-v2` green again (Claude Opus 5.5)
 
 - Root cause was not "the first node is not a fight": a companion recruit scene (`RecruitScene`, `data-testid=recruit-scene`) opens over the map and swallowed the node click. `scripts/e2e_v2.py` now closes it with Escape (fails if it stays open) and clicks a reachable `combat`/`elite` node instead of the first reachable node.
@@ -67,29 +74,4 @@ Last updated: 2026-10-29
 - **Sim (Deep Signal, 3 × 150 mixed)**: 30.7/28.7/28.7 % clear (standard 39 %), ~20 % of runs entering Act 4 die there, Act 4 boss loss 10.2 % (9.1 turns), greedy deep 90 %.
 - **Verified**: `make check` (379 + 338), `make playthrough-quick` OK, sandbox screenshots of `a4_boss_io` / `a4_n2_footnotes` / `a4_boss_reader` (0 console errors). **Unverified**: a full Deep Signal run through the real UI (Act 3 → 4 transition is engine/sim-verified only).
 
-## 2026-10-26 — DLC update R2b: CRPG for everyone, 2 districts/act, factions, d20 roll, ground jolt, Architect Omega art (Claude Opus 5.5)
-
-- **CRPG free (D2)**: "Signal+" tags gone from setup/district; `DISTRICTS_PER_ACT = 2` (two event nodes on different rows; 28/30 seeds get 2 in Act 1).
-- **Factions (C+4)**: `Faction` offgrid/market/grid on every NPC (`NPC_FACTION`), `crpg.rep` moved by dialogue intent (warm +1, threat/lie/force −1); ±3 tiers: market shop ∓10 %, offgrid rest ±10 pts, grid trace ∓1/node. Shown on the character sheet.
-- **d20 (C+3)**: tumbling throw + bounce landing, rattle ticks, natural 20 gold / natural 1 cracked; approval reactions pop in.
-- **Ground jolt (owner idea)**: a push/pull onto fire or a hazard, or off one onto safe ground, deals that ground's hit once (`groundJolt`, ≤ 1 per push). 3 × 150 mixed 39.3/34.7/38.7 % (neutral), greedy P5 82.2 %.
-- **Art**: Architect Omega redesigned as a black-and-brass drafting machine with amber/violet blueprints (key art + 3 sprites, Codex 7 calls) — it had been a near-copy of IX (owner report).
-- **Fix**: `ui_playthrough.py` treasure tour now grants an implant the run does not own (the first pool entry could already be held → "2 -> 2" false failure; seen once, then 3 passes).
-- **Verified**: `make check` (378 + 338), `make playthrough-quick` OK ×3. **Unverified**: phone screenshot of the reputation block.
-
-## 2026-10-26 — DLC update R2a: companion recruit scenes, character sheet, choice axes, skill SFX (Claude Opus 5.5)
-
-- **Recruit scenes** (owner: "동료 소개·성격·대화 같은 RPG 요소가 너무 없다"): `CompanionIntro` (bio, 3 traits, likes/dislikes, quote, 4–6 beats, 3 first-impression choices with replies, liked tone, reunion lines) for all 6 companions — text by Codex/Astra (`content/companionIntros.ts`), 6 meeting stills `v2/recruit/*.webp` (Codex). Engine: `joinCompanion` queues `run.introQueue`; `resolveIntro` (liked tone → +1 bond on normal runs, leans an axis). UI `RecruitScene` on the map (full first meeting / one-line reunion via `profile.companionsMet`). `ui_playthrough.py` reads scenes through.
-- **Character sheet** (`CharacterSheet`, top-bar portrait): stats + live perks (`statPerkLines` shared with the tooltip), background, growth, the 4 axes, Signal Burst, crew with bond/approval/traits/first impression.
-- **Choice axes** (1.0 port): `run.axes` humanity/dominance/resilience/insight — dialogue intents (`intentAxis`), first impressions, elite/boss wins.
-- **SFX**: 14 new procedural cues (slice, acid, whoosh, crit, hack, blink, riposte, rage, chain, momentum_full, burst ×3 per archetype, recruit); per-card signature sound from effects/tags (`cardSignature`), distinct bleed/corrode ticks, burst-ready call-out.
-- **Verified**: `make check` (376 + 338), `make playthrough-quick` OK (210 s, scenes read through), real-UI screenshots desktop + phone (scene beats/choice/reply, sheet). **Unverified**: human listen check of the new SFX.
-
-## 2026-10-26 — DLC update R1: action layer + visuals, Jujak/Arachne unique art (Claude Opus 5.5)
-
-- **Plan**: `docs/plans/2026-10-26-dlc-expansion-plan.md` §17 (owner: DLC-scale free update, CRPG/action/visual boost; execution R1–R7).
-- **Action (engine)**: Chain (`t{turn}:kills` → draw / +1 energy / +25 Momentum), Momentum 0–100 (`gainMomentum`: kill 20, env +10, crit 10, evade 10, +10 per later turn), Signal Burst (`ArchetypeDef.burst` data, `burstReady` / `burstInPlace` / `fireBurst`, recorded for daily replay), Riposte 2 on an Evade-grazed melee hit; redirect `to: 'all_enemies'`. Bot fires the Burst when ≥ 2 foes or an elite/boss stand (act-1 normal fights: 15 % reach it). `engine/action.test.ts` (3).
-- **Balance**: tuning boss Rage 1 → 2, boss HP −15 → −10 % to offset the Burst (boss loss had fallen 15 → 8 %). TUNE A/B 3 × 150 mixed 38.7/39.3/36.7 %, ghost 42 / smuggler 36 / echo 37, elite loss 6.0 % (7.2 t), boss 15.7 % (9.0 t).
-- **Visuals**: Momentum gauge + Burst button (`MomentumGauge`, desktop above items, phone grid area `mom`), Burst cut-in banner with portrait, chain counter text, crit cut (longer hit-stop + slash + flare + zoom punch), elite/boss death shockwave + debris, Rage aura (`--rage` pulse). Sandbox `?momentum=100` for checks.
-- **Art**: Jujak / Arachne got their own key art + idle/attack/hit sprites (Codex, 8 calls) — they had borrowed Haetae / Echo Eater art (owner report: Act 1 always opened on Haetae's illustration).
-- **Verified**: `make check` (373 + 338), `make frontend-build`, `make playthrough-quick` (105 s), sandbox screenshots desktop + phone (Burst ready/cut-in, Jujak). **Unverified**: human feel of the Burst pacing.
+Older entries: `bin/docs/archive/` (newest: `progress-2026-10-26-dlc-r1-r2.md`).

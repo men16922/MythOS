@@ -1,6 +1,7 @@
 // Mythos 2.0 — content registry. Pure data: arrays authored per file, assembled into id-keyed records here.
 // Engine/UI code receives `CONTENT` (or a test double with the same shape) as `C: ContentRegistry`.
 
+import { buildAchievements } from './achievements.ts'
 import { COMPANION_INTROS } from './companionIntros.ts'
 import type { ActDef, ActId, ContentRegistry } from '../engine/types.ts'
 import { CARDS as BASE_CARDS } from './cards.ts'
@@ -65,6 +66,7 @@ export const CONTENT: ContentRegistry = {
   echoes: ECHOES,
   thoughts: THOUGHTS,
   intros: COMPANION_INTROS,
+  achievements: byId(buildAchievements(ARCHETYPES, COMPANIONS)),
   // Balance 2026-10-25 (docs/plans/2026-10-25-argon-review-and-s-rank-plan.md): the 5-stat perks, Evade/Crit and the
   // larger card/implant pool made the party much stronger than the authored enemy numbers assumed.
   tuning: { enemyHpPct: 12, eliteHpPct: 20, bossHpPct: -10, dmgFromAct: 1, rage: { elite: 3, boss: 2, fromTurn: 3 }, acts: { 4: { hpPct: 45, dmg: 3 }, 5: { hpPct: 70, dmg: 4 }, 6: { hpPct: 85, dmg: 6 } } },

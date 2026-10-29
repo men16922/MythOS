@@ -355,3 +355,24 @@
   white-space: nowrap;
 }
 
+/* Achievements this run earned: one quiet line, no fanfare. */
+.m2-ending__ach {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--m2-gold, #ffd68c);
+  opacity: 0.9;
+  animation: m2-ach-in 0.6s ease-out both;
+}
+@keyframes m2-ach-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2-ending__ach {
+    animation: none;
+  }
+}

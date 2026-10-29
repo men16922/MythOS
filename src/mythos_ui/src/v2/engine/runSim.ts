@@ -68,6 +68,8 @@ export interface RunSimResult {
   /** Ending reached (victory or the defeat ending) and the choice axes at the end. */
   endingId: string
   axes: Partial<Record<ChoiceAxis, number>>
+  /** The run's tally at the end (kills, terrain kills, damage taken, ...). */
+  tally: RunState['tally']
 }
 
 /** Per-fight balance telemetry (see RunSimOptions.onFight). */
@@ -473,6 +475,7 @@ export function simulateRun(
     echoes: computeEchoes(run, C).total,
     endingId: end.endingId,
     axes: { ...(run.axes ?? {}) },
+    tally: { ...run.tally },
   }
   const killedBy = runKilledBy(run)
   if (killedBy) result.killedBy = killedBy

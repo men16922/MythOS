@@ -306,6 +306,7 @@ export function GameShell() {
     crpg?: { background: string | null; trial?: boolean }
     echo?: string
     mutator?: string
+    mutators?: string[]
     mode?: RunMode
   }) => {
     if (game.hasRun) {

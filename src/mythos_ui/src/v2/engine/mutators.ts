@@ -8,7 +8,9 @@
 // distance, a tactic refund); every such rule is spelled out in its boon/burden text.
 //
 // Picked by `mutatorForDate(dateKey)`; frozen on the run as `run.mutator` at `newRun` (so a run in progress
-// never changes if the table is retuned). Non-daily runs never have one.
+// never changes if the table is retuned). A normal loop may take one optional offer (`run.mutator`), or — once
+// the profile has escaped — a custom mix of MIX_MIN..MIX_MAX chosen by hand (`run.mutators`, the "anomaly
+// mixer"); a mix's clauses add up (trace per node adds each one's change from the base 3, hazard multipliers multiply).
 
 import { hashSeed } from './rng.ts'
 import type { RunState, StatusKind, Text } from './types.ts'
@@ -174,11 +176,45 @@ export function mutatorById(id: string | undefined): MutatorDef | undefined {
   return id ? BY_ID[id] : undefined
 }
 
+/** Anomaly mixer: how many mutators a custom mix takes. */
+export const MIX_MIN = 2
+export const MIX_MAX = 3
+
+/** Where a run or a fight keeps its mutators: one daily / offered id, or a custom mix. */
+export type MutatorHolder = { mutator?: string; mutators?: string[] }
+
+/** A valid custom mix: MIX_MIN..MIX_MAX distinct known ids. */
+export function isValidMix(ids: readonly string[] | undefined): ids is string[] {
+  return !!ids && ids.length >= MIX_MIN && ids.length <= MIX_MAX && new Set(ids).size === ids.length && ids.every((id) => BY_ID[id])
+}
+
+/** The active mutator definitions (a custom mix wins over the single id; unknown ids are skipped). */
+export function activeMutators(h: MutatorHolder): MutatorDef[] {
+  const ids = h.mutators?.length ? h.mutators : h.mutator ? [h.mutator] : []
+  return ids.map((id) => BY_ID[id]).filter((m): m is MutatorDef => !!m)
+}
+
+function addStatuses(a: MutatorCombat['openEnemies'], b: MutatorCombat['openEnemies']): MutatorCombat['openEnemies'] {
+  const out: Partial<Record<StatusKind, number>> = { ...(a ?? {}) }
+  for (const [k, n] of Object.entries(b ?? {}) as [StatusKind, number][]) out[k] = (out[k] ?? 0) + n
+  return out
+}
+
 const NO_COMBAT: MutatorCombat = {}
 
-/** The run's in-combat mutator rules (empty when there is none). */
-export function mutatorCombat(id: string | undefined): MutatorCombat {
-  return mutatorById(id)?.combat ?? NO_COMBAT
+/** The in-combat mutator rules of a run or fight (a string id is one mutator; empty when there is none). */
+export function mutatorCombat(h: MutatorHolder | string | undefined): MutatorCombat {
+  const defs = typeof h === 'string' || h === undefined ? activeMutators({ mutator: h }) : activeMutators(h)
+  if (defs.length <= 1) return defs[0]?.combat ?? NO_COMBAT
+  const out: MutatorCombat = {}
+  for (const c of defs.map((d) => d.combat).filter((c): c is MutatorCombat => !!c)) {
+    if (c.openEnemies) out.openEnemies = addStatuses(out.openEnemies, c.openEnemies)
+    if (c.openConnector) out.openConnector = addStatuses(out.openConnector, c.openConnector)
+    if (c.hazardMult !== undefined) out.hazardMult = (out.hazardMult ?? 1) * c.hazardMult
+    if (c.pushBonus !== undefined) out.pushBonus = (out.pushBonus ?? 0) + c.pushBonus
+    if (c.tacticRefund !== undefined) out.tacticRefund = Math.max(out.tacticRefund ?? 0, c.tacticRefund)
+  }
+  return out
 }
 
 /** Deterministic pair of optional mutator offers for a normal loop (seeded by loop/profile). */
@@ -201,7 +237,19 @@ export function mutatorForDate(dateKey: string): MutatorDef {
 
 const NONE: MutatorMods = {}
 
-/** The run's mutator mods (empty when the run has none or the id is unknown, e.g. a retired mutator). */
-export function mutatorMods(run: Pick<RunState, 'mutator'>): MutatorMods {
-  return mutatorById(run.mutator)?.mods ?? NONE
+/** Base trace per map node that a mutator's `traceStep` replaces (run.ts NODE_TRACE). */
+const BASE_TRACE_STEP = 3
+
+/** The run's mutator mods (empty when the run has none or the id is unknown, e.g. a retired mutator). A custom
+ *  mix adds its clauses up; `traceStep` is absolute, so a mix adds each one's change from the base step. */
+export function mutatorMods(run: Pick<RunState, 'mutator' | 'mutators'>): MutatorMods {
+  const defs = activeMutators(run)
+  if (defs.length <= 1) return defs[0]?.mods ?? NONE
+  const out: Record<string, number> = {}
+  for (const d of defs) {
+    for (const [k, v] of Object.entries(d.mods) as [keyof MutatorMods, number][]) {
+      out[k] = k === 'traceStep' ? Math.max(0, (out[k] ?? BASE_TRACE_STEP) + v - BASE_TRACE_STEP) : (out[k] ?? 0) + v
+    }
+  }
+  return out as MutatorMods
 }

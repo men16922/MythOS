@@ -2,6 +2,11 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-29 — Anomaly mixer: open after the first escape, counts as a normal loop
+
+- **Decision** (agent default under the owner's "do the next priorities autonomously"; owner may override): the mixer (2–3 mutators by hand) opens with the first escape, replaces the loop's single offer, never applies to a daily, and a mixed run banks like any normal loop (echoes, achievements, mastery, Paradox unlock). Clauses add up; `traceStep` adds each one's change from the base 3; hazard multipliers multiply; the tactic refund does not stack.
+- **Why**: measured on 2 × 60 identical seeds (mixed bot), no mix beat the no-mutator baseline by more than noise (45.0 % → 24–47 %), so a mix can only make a loop harder — there is nothing to exploit, and a separate scoring track would add rules for no gain.
+
 ## 2026-10-24 — New players start in their browser's language
 
 - **Decision** (owner): a device with no saved profile starts in Korean for a Korean browser and English otherwise. The choice is remembered (`mythos2.lang0`) so a run started in English never flips; a device that played before this rule (a run or player id stored) keeps Korean; a saved profile always keeps its own setting; `?lang=en|ko` overrides.

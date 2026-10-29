@@ -522,3 +522,22 @@
   color: var(--m2-gold);
   letter-spacing: 0.04em;
 }
+
+/* Anomaly mixer: a small toggle beside the mutator label, then every mutator as a pick-up-to-3 grid. */
+.m2-setup__mixtoggle {
+  margin-left: 10px;
+  padding: 2px 8px;
+  font-size: 11px;
+  border: 1px solid var(--m2-line-2);
+  background: transparent;
+  color: var(--m2-mute);
+  cursor: pointer;
+}
+.m2-setup__mixtoggle[aria-pressed='true'] {
+  border-color: #6fe3c8;
+  color: var(--m2-ink);
+}
+.m2-bgs--mix button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

@@ -1,0 +1,60 @@
+# Progress Log archive — 2026-10-26 (DLC update R1–R7)
+
+Moved from `docs/PROGRESS_LOG.md` on 2026-10-29 (doc budget).
+
+## 2026-10-26 — DLC update R7: Pack 2 "Dreaming Machines" (Act 5), Pack 3 "First Record" (Act 6), meta close, 5 new companions (Claude Opus 5.5)
+
+- **Pack 2 (Act 5)** `content/packs/dreaming_machines/`: Scrap Legion 8 + elites 4 + bosses 3 (Furnace Mother, KAI-0, REM), 17 fights, 20 events (Codex). New status **freeze** (cannot move, still acts; decays on its side's phase end). **Salvage**: `EnemyDef.salvage` → `combat.parts` → `run.parts`; safehouse **workbench** (`restCraft`: patch 2 / assemble 3 / refit 6, each once per rest, free); parts chip in the top bar; the sim bot crafts.
+- **Pack 3 (Act 6)** `content/packs/first_record/`: Origin Code 7 + elites 4 + bosses 3 + secret First Connector, 17 fights, 20 events (Codex). Effect **rewrite** (tile → floor/cover/hazard/void; wall/pit only on empty tiles; enemy telegraphs show "재작성 → …"); 4 Rewrite cards (`CardDef.minAct` 6), Act 6 gift (`ActDef.gift`). Deep endings 5 (axis gates via `requires.minAct/axis`, resilience 10) + secret true ending; Act 3 and Act 6 show separate ending sets. **First Record** shards `record_1..7` in Act 4–6 events → `profile.records` (Archive). Secret fight after the Act 6 boss with 7 shards + insight ≥ 5 (losing it still reaches the final choice); true ending → IX `remembered` lines forever. New event effect `axis`.
+- **R7c meta**: autonomy 5 levels (24/30 lore: start removal, Erase card), 12 Deep Signal lore entries (35 total), archetype mastery I–III (1/3/6 wins: +4 HP / upgraded starter / +1 growth; `profile.archetypeWins`, badge on setup). Rest/shop backdrops for Acts 4–6. Profile migration keeps `archetypeWins`/`records`.
+- **R7d companions**: Io, Miro, Doyun, Bel, Rem (`content/packs/new_companions/`): trigger passives, 5 cards each, Archive unlocks, recruit scenes, 2 cutscenes, opening, personal event, Se-rin banter (Codex writing), `talk.py` personas + client fallback mirror.
+- **Sim** (mixed, 3 × 150): Deep Signal 6-act clear ≈ 20–22 % (target ~20 %), standard 36.7 % (unchanged). Act 5/6 bosses 3–20 % loss, ~9–10 turns. New companions as starter 70–83 % vs base 76–79 % (all unlocks).
+- **R7e archetypes**: Archivist (new `recall` effect, Return Slip) and Scrapborn (walls, wire traps, overload, Self-Repair), 7 cards each, bursts + signature SFX, Archive unlocks; sim 40.6 / 40.5 % (base 35–43 %). Archive floor 2 = **Vault** tab (depth records, mastery progress, First Record, music room).
+- **Fixes**: act intro and map showed "/3" in Deep Signal (now `lastAct` / ∞); `.m2-records` class collision avoided; Io companion sprite key `io-ally` (the Act 4 boss owns `io`); sandbox `?arch=`/`?comp=`.
+- **Art (Codex, 0 GCP)**: ~305 images — Act 5/6 sprites, boss art, arenas, events, cards, endings, guard icon; companions (portraits, 4-pose sprites, 25 cards, 10 cutscenes, 5 events, 5 recruit scenes); archetypes (sprites, 14 cards, 2 implants).
+- **Verified**: `make check` (394 + 338), `make playthrough-quick` OK incl. new workbench + Vault tour steps, sandbox screenshots (Act 5/6 fights incl. secret boss, Scrapborn + Rem, Archivist + Io), 0 console errors. **Unverified**: a full Deep Signal run to Act 6 and the secret fight through the real UI (engine-tested), new companions' recruit scenes in the real UI, music-room playback (muted tests).
+
+## 2026-10-26 — DLC update R5+R6: CRPG districts 6 → 14, faction reactions, List Warden, Paradox 6–10, Endless Signal (Claude Opus 5.5)
+
+- **Districts (C+7)**: 8 new districts from 1.0 side arcs (`d1_spider_debt`, `d1_list_shelter`, `d2_runner_shortcut`, `d2_broker_request`, `d3_vault_beyond`, `d3_old_wound`, `d4_dream_stacks`, `d4_return_desk`), 24 NPCs with factions + server AI personas (`src/mythos_v2/npcs/`), 8 quests — written by two parallel Codex jobs (`outputs/briefs/districts_*.md`), registered and passing `crpg.test.ts` (reachability, budgets, quests, personas). Art: 8 district scenes + 24 portraits (Codex, 34 calls).
+- **C+8**: combat mods `surprise` (enemies start Shocked) and `backup` (allies Guard 2); reputation reacts — off-grid +3 → backup at bosses, grid +3 → surprise at elites.
+- **Act 3 third boss** "명단 관리관 / THE LIST WARDEN" (`a3_boss_warden`, protect-the-hostage bonus, 1.0 "버려진 자들의 신호"), tuned by damage not HP: loss 15.2 % at 9.7 turns (IX 28 %, Omega 36 %); key art + sprites + hostage sprite (Codex).
+- **Paradox 6–10** (`MAX_PARADOX` 10): rage +1, shop +20 %, boss HP +20 %, trace +10 per act, enemy dmg +1; setup row wraps on phones.
+- **Endless Signal** (`run.mode 'endless'`, `run.lap`): after the last act → Act 1 one echo layer deeper (+60 % HP, +3 dmg, Rage earlier/stronger per lap), death only; `profile.endlessBest`; top bar shows the layer. Mixed bot falls in lap 0, greedy at 13–18 layers.
+- **Fixes**: `migrateProfile` no longer clamps `bestAct` to 3 (Deep Signal records); content test accepts 2.0 neutral sprites.
+- **Verified**: `make check` (383 + 338), `make playthrough-quick` OK, sandbox screenshot of the List Warden fight; standard P0 mixed 3 × 150 36.7/32.7/40.0 %. **Unverified**: real-UI Endless lap transition (engine-tested).
+
+## 2026-10-26 — DLC update R3+R4: Deep Signal mode + Pack 1 "The Glass Librarian" (Act 4) (Claude Opus 5.5)
+
+- **R3 foundation**: `ActId = number` (no `1 | 2 | 3`), `lastAct` (3 standard / every content act on Deep Signal), `deepSignalOpen` (after a win), `run.mode = 'deep'`, setup "깊이" toggle, reward/chronicle/music read the act count; `content/index.ts` merges packs into the exported arrays so every integrity/art test covers them.
+- **Pack 1 (Act 4)** `content/packs/glass_library/`: Censorate enemies 8 + elites 4 + bosses 3 (IO, THE BLANK, THE FIRST READER), 13 encounters + `a4_event_ambush`, act def, 20 events (Codex/Astra, `outputs/briefs/glass_events*.md`), new status **redact** (next card +1 cost; `redactTax` in `canPlay`/play), backdrop `library`, `tuning.acts[4] = { hpPct: 45, dmg: 3 }` + boss moves +2.
+- **Art (Codex, 0 GCP)**: 45 sprites, 3 boss key arts, act4 + map act4 + `v2/arena/library.webp` + legacy backdrop, 20 event scenes, redact icon (~80 calls). New art test: every encounter backdrop has 2.0 arena art (caught the missing library arena).
+- **Sim (Deep Signal, 3 × 150 mixed)**: 30.7/28.7/28.7 % clear (standard 39 %), ~20 % of runs entering Act 4 die there, Act 4 boss loss 10.2 % (9.1 turns), greedy deep 90 %.
+- **Verified**: `make check` (379 + 338), `make playthrough-quick` OK, sandbox screenshots of `a4_boss_io` / `a4_n2_footnotes` / `a4_boss_reader` (0 console errors). **Unverified**: a full Deep Signal run through the real UI (Act 3 → 4 transition is engine/sim-verified only).
+
+## 2026-10-26 — DLC update R2b: CRPG for everyone, 2 districts/act, factions, d20 roll, ground jolt, Architect Omega art (Claude Opus 5.5)
+
+- **CRPG free (D2)**: "Signal+" tags gone from setup/district; `DISTRICTS_PER_ACT = 2` (two event nodes on different rows; 28/30 seeds get 2 in Act 1).
+- **Factions (C+4)**: `Faction` offgrid/market/grid on every NPC (`NPC_FACTION`), `crpg.rep` moved by dialogue intent (warm +1, threat/lie/force −1); ±3 tiers: market shop ∓10 %, offgrid rest ±10 pts, grid trace ∓1/node. Shown on the character sheet.
+- **d20 (C+3)**: tumbling throw + bounce landing, rattle ticks, natural 20 gold / natural 1 cracked; approval reactions pop in.
+- **Ground jolt (owner idea)**: a push/pull onto fire or a hazard, or off one onto safe ground, deals that ground's hit once (`groundJolt`, ≤ 1 per push). 3 × 150 mixed 39.3/34.7/38.7 % (neutral), greedy P5 82.2 %.
+- **Art**: Architect Omega redesigned as a black-and-brass drafting machine with amber/violet blueprints (key art + 3 sprites, Codex 7 calls) — it had been a near-copy of IX (owner report).
+- **Fix**: `ui_playthrough.py` treasure tour now grants an implant the run does not own (the first pool entry could already be held → "2 -> 2" false failure; seen once, then 3 passes).
+- **Verified**: `make check` (378 + 338), `make playthrough-quick` OK ×3. **Unverified**: phone screenshot of the reputation block.
+
+## 2026-10-26 — DLC update R2a: companion recruit scenes, character sheet, choice axes, skill SFX (Claude Opus 5.5)
+
+- **Recruit scenes** (owner: "동료 소개·성격·대화 같은 RPG 요소가 너무 없다"): `CompanionIntro` (bio, 3 traits, likes/dislikes, quote, 4–6 beats, 3 first-impression choices with replies, liked tone, reunion lines) for all 6 companions — text by Codex/Astra (`content/companionIntros.ts`), 6 meeting stills `v2/recruit/*.webp` (Codex). Engine: `joinCompanion` queues `run.introQueue`; `resolveIntro` (liked tone → +1 bond on normal runs, leans an axis). UI `RecruitScene` on the map (full first meeting / one-line reunion via `profile.companionsMet`). `ui_playthrough.py` reads scenes through.
+- **Character sheet** (`CharacterSheet`, top-bar portrait): stats + live perks (`statPerkLines` shared with the tooltip), background, growth, the 4 axes, Signal Burst, crew with bond/approval/traits/first impression.
+- **Choice axes** (1.0 port): `run.axes` humanity/dominance/resilience/insight — dialogue intents (`intentAxis`), first impressions, elite/boss wins.
+- **SFX**: 14 new procedural cues (slice, acid, whoosh, crit, hack, blink, riposte, rage, chain, momentum_full, burst ×3 per archetype, recruit); per-card signature sound from effects/tags (`cardSignature`), distinct bleed/corrode ticks, burst-ready call-out.
+- **Verified**: `make check` (376 + 338), `make playthrough-quick` OK (210 s, scenes read through), real-UI screenshots desktop + phone (scene beats/choice/reply, sheet). **Unverified**: human listen check of the new SFX.
+
+## 2026-10-26 — DLC update R1: action layer + visuals, Jujak/Arachne unique art (Claude Opus 5.5)
+
+- **Plan**: `docs/plans/2026-10-26-dlc-expansion-plan.md` §17 (owner: DLC-scale free update, CRPG/action/visual boost; execution R1–R7).
+- **Action (engine)**: Chain (`t{turn}:kills` → draw / +1 energy / +25 Momentum), Momentum 0–100 (`gainMomentum`: kill 20, env +10, crit 10, evade 10, +10 per later turn), Signal Burst (`ArchetypeDef.burst` data, `burstReady` / `burstInPlace` / `fireBurst`, recorded for daily replay), Riposte 2 on an Evade-grazed melee hit; redirect `to: 'all_enemies'`. Bot fires the Burst when ≥ 2 foes or an elite/boss stand (act-1 normal fights: 15 % reach it). `engine/action.test.ts` (3).
+- **Balance**: tuning boss Rage 1 → 2, boss HP −15 → −10 % to offset the Burst (boss loss had fallen 15 → 8 %). TUNE A/B 3 × 150 mixed 38.7/39.3/36.7 %, ghost 42 / smuggler 36 / echo 37, elite loss 6.0 % (7.2 t), boss 15.7 % (9.0 t).
+- **Visuals**: Momentum gauge + Burst button (`MomentumGauge`, desktop above items, phone grid area `mom`), Burst cut-in banner with portrait, chain counter text, crit cut (longer hit-stop + slash + flare + zoom punch), elite/boss death shockwave + debris, Rage aura (`--rage` pulse). Sandbox `?momentum=100` for checks.
+- **Art**: Jujak / Arachne got their own key art + idle/attack/hit sprites (Codex, 8 calls) — they had borrowed Haetae / Echo Eater art (owner report: Act 1 always opened on Haetae's illustration).
+- **Verified**: `make check` (373 + 338), `make frontend-build`, `make playthrough-quick` (105 s), sandbox screenshots desktop + phone (Burst ready/cut-in, Jujak). **Unverified**: human feel of the Burst pacing.

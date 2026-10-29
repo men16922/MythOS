@@ -100,6 +100,8 @@ export interface RunSimOptions {
   companion?: string
   /** Deep Signal run (acts 4+): the sim profile counts as having won once, which opens the mode. */
   mode?: RunMode
+  /** Anomaly mixer mix (2–3 mutator ids); like `mode`, the sim profile then counts as having won once. */
+  mutators?: string[]
   /** Implants to hold from the start (balance experiments, e.g. a full set). */
   startImplants?: string[]
   /** Play with the Signal+ CRPG layer (districts, dialogue, camp) and this background. */
@@ -454,9 +456,9 @@ export function simulateRun(
   policy: SimPolicy,
   opts: RunSimOptions = {},
 ): RunSimResult {
-  const profile = opts.profile ?? (opts.mode ? { ...newProfile('sim'), wins: 1 } : newProfile('sim'))
+  const profile = opts.profile ?? (opts.mode || opts.mutators ? { ...newProfile('sim'), wins: 1 } : newProfile('sim'))
   const maxTurns = opts.maxTurns ?? 30
-  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily, companion: opts.companion, crpg: opts.crpg, mode: opts.mode }, C)
+  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily, companion: opts.companion, crpg: opts.crpg, mode: opts.mode, mutators: opts.mutators }, C)
   for (const id of opts.startImplants ?? []) run = grantImplant(run, id, C)
   for (let step = 0; run.screen.kind !== 'ended'; step++) {
     if (step >= MAX_STEPS) throw new Error(`runSim: step limit on ${run.screen.kind} (seed ${seed})`)

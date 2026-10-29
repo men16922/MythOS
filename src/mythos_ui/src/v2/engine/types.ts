@@ -458,6 +458,8 @@ export interface CombatState {
   runStats?: Stats
   /** Active run mutator id (if any), for combat-level mutator rules. */
   mutator?: string
+  /** A custom anomaly mix instead (engine/mutators.ts activeMutators). */
+  mutators?: string[]
   /** Momentum 0..MOMENTUM_MAX: kills, environment kills, crits and evades fill it; full = Signal Burst ready. */
   momentum?: number
   /** The Signal Burst was used this fight. */
@@ -812,8 +814,10 @@ export interface RunState {
   endedAt?: string
   /** Daily-seed run ("오늘의 시드"): the KST date key 'YYYY-MM-DD' it was seeded from. */
   daily?: string
-  /** Daily runs only: id of that day's mutator (engine/mutators.ts), frozen at newRun. */
+  /** That day's mutator on a daily, or the one optional offer a normal loop took (engine/mutators.ts), frozen at newRun. */
   mutator?: string
+  /** Anomaly mixer: a custom mix of 2–3 mutators chosen at setup (normal loops after the first escape; never a daily). */
+  mutators?: string[]
   /** Companion mastery tier (0–2) per companion id, frozen at newRun from the profile (never on a daily). */
   mastery?: Record<string, number>
   /** Signal+ CRPG layer state (engine/crpg.ts); present only when the run was started with it (never a daily). */

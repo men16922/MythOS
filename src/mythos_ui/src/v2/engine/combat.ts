@@ -234,7 +234,7 @@ function applyOpeningPerks(c: CombatState, run: RunState, enc: EncounterDef, C: 
   }
   const x = c as CombatStateExt
   if (perks.openDraw > 0) x.pendingDraw = (x.pendingDraw ?? 0) + perks.openDraw
-  const mut = mutatorCombat(run.mutator)
+  const mut = mutatorCombat(run)
   for (const [k, n] of Object.entries(mut.openEnemies ?? {}) as [StatusKind, number][]) {
     for (const e of livingEnemies(c)) addStatus(c, e, k, n)
   }
@@ -293,6 +293,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     runStats: { ...run.stats },
     archetype: run.archetype,
     ...(run.mutator ? { mutator: run.mutator } : {}),
+    ...(run.mutators?.length ? { mutators: [...run.mutators] } : {}),
   }
   if (enc.bonus) c.bonus = { def: enc.bonus, progress: 0, failed: false }
 
@@ -698,7 +699,7 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
     c.energy += 1
     emit(c, { t: 'energy', amount: 1 })
   }
-  const refund = mutatorCombat(c.mutator).tacticRefund ?? 0
+  const refund = mutatorCombat(c).tacticRefund ?? 0
   if (refund > 0 && def.type === 'tactic' && face.cost > 0 && !c.triggered[`t${c.turn}:oc_tactic`]) {
     c.triggered[`t${c.turn}:oc_tactic`] = 1
     c.energy += refund

@@ -5,8 +5,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
 import { AUTONOMY_STEPS, AUTONOMY_TEXT, autonomyLevel, echoOffers, nextAutonomyStep, worldEchoFor } from '../../engine/legacy.ts'
 import { ARCH_MASTERY_TEXT, archMasteryTier, MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
-import { deepSignalOpen, lastAct } from '../../engine/run.ts'
-import { mutatorForDate, mutatorOffersForSeed } from '../../engine/mutators.ts'
+import { deepSignalOpen, lastAct, mixerOpen } from '../../engine/run.ts'
+import { isValidMix, MIX_MAX, MIX_MIN, MUTATORS, mutatorForDate, mutatorOffersForSeed } from '../../engine/mutators.ts'
 import { MutatorCard } from '../components/MutatorCard.tsx'
 import type { ContentRegistry, MetaProfile, StatKey, Lang, RunMode } from '../../engine/types.ts'
 import { asset, portrait } from '../common/assets.ts'
@@ -35,6 +35,7 @@ export interface SetupScreenProps {
     crpg?: { background: string | null; trial?: boolean }
     echo?: string
     mutator?: string
+    mutators?: string[]
     mode?: RunMode
   }) => void
   onBack: () => void
@@ -82,6 +83,11 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
   const worldEcho = useMemo(() => (daily ? undefined : worldEchoFor(profile)), [daily, profile])
   const mutatorOffers = useMemo(() => (daily || firstLoop ? [] : mutatorOffersForSeed(profile.loops + 1, 2)), [daily, firstLoop, profile.loops])
   const [mutatorId, setMutatorId] = useState<string | null>(null)
+  // Anomaly mixer (after the first escape): pick 2–3 mutators by hand instead of the loop's offer.
+  const canMix = mutatorOffers.length > 0 && mixerOpen(profile)
+  const [mixing, setMixing] = useState(false)
+  const [mix, setMix] = useState<string[]>([])
+  const mixReady = mixing && isValidMix(mix)
   const deepOpen = !daily && deepSignalOpen(profile, C)
   const [depth, setDepth] = useState<RunMode | undefined>(undefined)
   const autonomy = autonomyLevel(profile)
@@ -431,33 +437,89 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
           )}
           {mutatorOffers.length > 0 && (
             <section className="m2-setup__bg-pick">
-              <div className="m2-setup__label">{ko ? '도시 이상 현상 — 선택 변칙' : 'City Anomaly — optional mutator'}</div>
-              <div className="m2-bgs" role="radiogroup">
-                {mutatorOffers.map((m) => (
+              <div className="m2-setup__label">
+                {mixing ? (ko ? `변칙 조합기 — ${MIX_MIN}~${MIX_MAX}개 선택` : `Anomaly mixer — pick ${MIX_MIN}–${MIX_MAX}`) : ko ? '도시 이상 현상 — 선택 변칙' : 'City Anomaly — optional mutator'}
+                {canMix && (
                   <button
-                    key={m.id}
-                    role="radio"
-                    aria-checked={mutatorId === m.id}
-                    className={mutatorId === m.id ? 'is-on' : ''}
+                    className="m2-setup__mixtoggle"
+                    data-testid="mixer-toggle"
+                    aria-pressed={mixing}
                     onClick={() => {
                       sound('ui_click')
-                      setMutatorId(mutatorId === m.id ? null : m.id)
+                      setMixing(!mixing)
+                      setMutatorId(null)
+                      setMix([])
                     }}
                   >
-                    <b>{tr(m.name, lang)}</b>
-                    <small>
-                      ▲ {tr(m.boon, lang)} · ▼ {tr(m.burden, lang)}
-                    </small>
+                    {mixing ? (ko ? '제시된 변칙으로' : 'Back to the offer') : ko ? '직접 조합하기' : 'Mix my own'}
                   </button>
-                ))}
+                )}
               </div>
-              <p className="m2-bgs__text">
-                {mutatorId
-                  ? tr(mutatorOffers.find((m) => m.id === mutatorId)?.blurb, lang)
-                  : ko
-                    ? '선택 사항. 고르지 않으면 기본 도시 환경으로 시작한다.'
-                    : 'Optional. Leave unselected for standard city conditions.'}
-              </p>
+              {mixing && (
+                <div className="m2-bgs m2-bgs--mix" data-testid="mixer">
+                  {MUTATORS.map((m) => {
+                    const on = mix.includes(m.id)
+                    return (
+                      <button
+                        key={m.id}
+                        aria-pressed={on}
+                        className={on ? 'is-on' : ''}
+                        disabled={!on && mix.length >= MIX_MAX}
+                        onClick={() => {
+                          sound('ui_click')
+                          setMix(on ? mix.filter((id) => id !== m.id) : [...mix, m.id])
+                        }}
+                      >
+                        <b>{tr(m.name, lang)}</b>
+                        <small>
+                          ▲ {tr(m.boon, lang)} · ▼ {tr(m.burden, lang)}
+                        </small>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+              {mixing && (
+                <p className="m2-bgs__text">
+                  {mixReady
+                    ? ko
+                      ? '고른 변칙의 효과가 모두 합쳐진다. 노드당 추적도는 각자의 증감을 더한다.'
+                      : 'All chosen clauses apply together. Trace per node adds up each one’s change.'
+                    : ko
+                      ? `${MIX_MIN}~${MIX_MAX}개를 고른다 (${mix.length}개 선택).`
+                      : `Pick ${MIX_MIN}–${MIX_MAX} (${mix.length} chosen).`}
+                </p>
+              )}
+              {!mixing && (
+                <>
+                  <div className="m2-bgs" role="radiogroup">
+                    {mutatorOffers.map((m) => (
+                      <button
+                        key={m.id}
+                        role="radio"
+                        aria-checked={mutatorId === m.id}
+                        className={mutatorId === m.id ? 'is-on' : ''}
+                        onClick={() => {
+                          sound('ui_click')
+                          setMutatorId(mutatorId === m.id ? null : m.id)
+                        }}
+                      >
+                        <b>{tr(m.name, lang)}</b>
+                        <small>
+                          ▲ {tr(m.boon, lang)} · ▼ {tr(m.burden, lang)}
+                        </small>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="m2-bgs__text">
+                    {mutatorId
+                      ? tr(mutatorOffers.find((m) => m.id === mutatorId)?.blurb, lang)
+                      : ko
+                        ? '선택 사항. 고르지 않으면 기본 도시 환경으로 시작한다.'
+                        : 'Optional. Leave unselected for standard city conditions.'}
+                  </p>
+                </>
+              )}
             </section>
           )}
           {!daily && backgrounds.length > 0 && (
@@ -500,7 +562,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
       <footer className="m2-setup__foot">
         <button
           className="m2-btn m2-btn--primary m2-btn--lg"
-          disabled={!arch}
+          disabled={!arch || (mixing && !mixReady)}
           onMouseEnter={() => sound('ui_hover')}
           onClick={() => {
             sound('transition', { intensity: 1.3 })
@@ -513,7 +575,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                     paradox,
                     ...(crpg ? { crpg: { background: bgId } } : C.crpg ? { crpg: { background: null, trial: true } } : {}),
                     ...(echoId ? { echo: echoId } : {}),
-                    ...(mutatorId ? { mutator: mutatorId } : {}),
+                    ...(mixReady ? { mutators: mix } : mutatorId ? { mutator: mutatorId } : {}),
                     ...(depth && deepOpen ? { mode: depth } : {}),
                   },
             )

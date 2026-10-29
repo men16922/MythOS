@@ -41,7 +41,7 @@ import {
   unlockedCompanions,
 } from './meta.ts'
 import { SET_PULL, implantSetOf, newlyReached, setCounts, setPassives } from './implantSets.ts'
-import { mutatorById, mutatorForDate, mutatorMods } from './mutators.ts'
+import { isValidMix, mutatorById, mutatorForDate, mutatorMods } from './mutators.ts'
 import { hashSeed, pick, pickWeighted, rand, randInt, sample, shuffle } from './rng.ts'
 import type { RngHolder } from './rng.ts'
 import { mapRng, resetNodeStreams, runStream } from './streams.ts'
@@ -478,6 +478,8 @@ export interface NewRunOptions {
   echo?: string
   /** Optional loop mutator id for a non-daily run. */
   mutator?: string
+  /** Anomaly mixer: 2–3 mutator ids (non-daily, once mixerOpen; replaces `mutator`). */
+  mutators?: string[]
   /** Deep Signal (ignored on a daily, and until the profile may play it — see deepSignalOpen). */
   mode?: RunMode
 }
@@ -552,6 +554,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   const thread = threadPassive(unlockSource, C)
   applyConcretePassive(run, thread)
   if (daily) run.mutator = mutatorForDate(daily).id
+  else if (isValidMix(opts.mutators) && mixerOpen(profile)) run.mutators = [...opts.mutators]
   else if (opts.mutator && mutatorById(opts.mutator)) run.mutator = opts.mutator
   if (!daily && opts.mode && deepSignalOpen(profile, C)) run.mode = opts.mode
   const mut = mutatorMods(run)
@@ -951,6 +954,11 @@ export function endlessDepth(run: Pick<RunState, 'mode' | 'lap' | 'act'>, C: Pic
 }
 
 /** Deep Signal is open once the profile has won a run and the content holds acts beyond the third. */
+/** The anomaly mixer opens with the first escape (like the Deep Signal). */
+export function mixerOpen(profile: Pick<MetaProfile, 'wins'>): boolean {
+  return profile.wins > 0
+}
+
 export function deepSignalOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<ContentRegistry, 'acts'>): boolean {
   return profile.wins > 0 && Object.keys(C.acts).some((k) => Number(k) > STANDARD_ACTS)
 }

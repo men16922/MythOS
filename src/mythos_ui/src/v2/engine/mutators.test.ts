@@ -4,7 +4,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { CONTENT as C } from '../content/index.ts'
-import { MUTATORS, mutatorById, mutatorForDate, mutatorMods } from './mutators.ts'
+import { MUTATORS, isValidMix, mutatorById, mutatorCombat, mutatorForDate, mutatorMods } from './mutators.ts'
 import { newProfile } from './meta.ts'
 import { startCombat } from './combat.ts'
 import { enterNode, generateShop, newRun, reachableNodes, restHealPercent, startAct, updateCombat } from './run.ts'
@@ -144,4 +144,49 @@ test('fight credits follow rewardCreditsPct (patrol surge +35 %, market boom −
   const base = rewardCredits('iron_week') // no credit dial
   assert.ok(rewardCredits('patrol_surge') >= Math.round(base * 1.25), `surge ${rewardCredits('patrol_surge')} vs base ${base}`)
   assert.ok(rewardCredits('market_boom') <= Math.round(base * 0.8), `boom ${rewardCredits('market_boom')} vs base ${base}`)
+})
+
+// ---------------------------------------------------------------- anomaly mixer (custom mix of 2–3)
+
+test('mixer: a mix adds clauses up; trace per node adds each change from the base 3', () => {
+  const mods = mutatorMods({ mutators: ['patrol_surge', 'overclocked_grid', 'tight_wire'] })
+  assert.equal(mods.traceStep, 3 + 2 + 2 - 1, 'patrol +2, overclocked +2, tight wire −1')
+  assert.equal(mods.rewardCreditsPct, 35)
+  assert.equal(mods.eliteHpPct, 35)
+  const both = mutatorMods({ mutators: ['market_boom', 'scrap_season'] })
+  assert.equal(both.shopPct, -5)
+  assert.equal(both.rewardCreditsPct, -5)
+  // A single id (daily / offered) is still that mutator's own table, untouched.
+  assert.equal(mutatorMods({ mutator: 'patrol_surge' }), mutatorById('patrol_surge')!.mods)
+})
+
+test('mixer: combat rules merge — statuses add, hazard multiplies, refund does not stack', () => {
+  const c = mutatorCombat({ mutators: ['acid_rain', 'magnetic_storm', 'bounty_hunters'] })
+  assert.deepEqual(c.openConnector, { corrode: 1, evade: 1, focus: 2 })
+  assert.deepEqual(c.openEnemies, { corrode: 2 })
+  assert.equal(c.hazardMult, 2)
+  assert.equal(c.pushBonus, 1)
+  assert.equal(mutatorCombat({ mutators: ['overclocked_grid', 'patrol_surge'] }).tacticRefund, 1)
+  assert.equal(mutatorCombat('acid_rain'), mutatorById('acid_rain')!.combat, 'string id still works')
+})
+
+test('mixer: only valid 2–3 distinct mixes, only after the first escape, never on a daily', () => {
+  assert.ok(isValidMix(['patrol_surge', 'acid_rain']))
+  assert.ok(!isValidMix(['patrol_surge']))
+  assert.ok(!isValidMix(['patrol_surge', 'patrol_surge']))
+  assert.ok(!isValidMix(['patrol_surge', 'acid_rain', 'iron_week', 'glass_loop']))
+  assert.ok(!isValidMix(['patrol_surge', 'nope']))
+  const mix = ['iron_week', 'glass_loop']
+  const fresh = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 3, now: NOW, mutators: mix }, C)
+  assert.equal(fresh.mutators, undefined, 'locked until the first escape')
+  const veteran = { ...newProfile('T'), wins: 1, loops: 2 }
+  const run = newRun(veteran, { archetype: 'ghost', paradox: 0, seed: 3, now: NOW, mutators: mix, mutator: 'acid_rain' }, C)
+  assert.deepEqual(run.mutators, mix)
+  assert.equal(run.mutator, undefined, 'a mix replaces the single offer')
+  const plain = newRun(veteran, { archetype: 'ghost', paradox: 0, seed: 3, now: NOW }, C)
+  assert.equal(run.maxHp, plain.maxHp + 10 - 8, 'iron week +10, glass loop −8')
+  assert.equal(run.credits, plain.credits + 80)
+  const daily = newRun(veteran, { archetype: 'ghost', paradox: 0, seed: 3, now: NOW, daily: '2026-10-13', mutators: mix }, C)
+  assert.equal(daily.mutators, undefined)
+  assert.ok(daily.mutator)
 })

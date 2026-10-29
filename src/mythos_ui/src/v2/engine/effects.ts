@@ -622,7 +622,7 @@ function groundJolt(c: CombatState, C: ContentRegistry, u: UnitState, fromTile: 
 
 /** Damage a hazard tile deals this fight (a mutator can multiply it). */
 export function hazardDamage(c: CombatState): number {
-  return HAZARD_DAMAGE * (mutatorCombat(c.mutator).hazardMult ?? 1)
+  return HAZARD_DAMAGE * (mutatorCombat(c).hazardMult ?? 1)
 }
 
 /** AGI perk: the connector's first 3+ tile move each turn grants Evade 1. */
@@ -937,7 +937,7 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       }
       plans.sort((a, b) => lead(b) - lead(a))
       const stopBefore = eff.dir === 'toward' ? res.origin?.uid : undefined
-      const dist = (eff.distance ?? 1) + (res.side === 'party' ? (mutatorCombat(c.mutator).pushBonus ?? 0) : 0)
+      const dist = (eff.distance ?? 1) + (res.side === 'party' ? (mutatorCombat(c).pushBonus ?? 0) : 0)
       for (const { u, d } of plans) pushUnit(c, C, u, d, dist, stopBefore, eff.slam ?? 0, eff.stun ?? false)
       return
     }

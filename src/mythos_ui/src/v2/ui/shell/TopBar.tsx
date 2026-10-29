@@ -9,7 +9,7 @@ import { CountUp } from '../components/CountUp.tsx'
 import { companionSprite, savedAgo } from '../components/format.ts'
 import { HpBar } from '../components/HpBar.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
-import { mutatorById } from '../../engine/mutators.ts'
+import { activeMutators } from '../../engine/mutators.ts'
 import { statPerkLines } from '../components/statPerkLines.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
 import { TraceMeter } from '../components/TraceMeter.tsx'
@@ -42,6 +42,7 @@ export interface TopBarProps {
 
 export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSheet, onSettings, onMenu, savedAt, onDiscard }: TopBarProps) {
   const [journal, setJournal] = useState(false)
+  const mutators = activeMutators(run)
   // Mark implants as seen after their pulse has played.
   const implantKey = run.implants.join('|')
   useEffect(() => {
@@ -131,14 +132,14 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSheet, onSett
 
       <TraceMeter trace={run.trace} lang={lang} />
 
-      {run.mutator && mutatorById(run.mutator) && (
+      {mutators.length > 0 && (
         <Tooltip
-          content={`${tr(mutatorById(run.mutator)!.blurb, lang)} ▲ ${tr(mutatorById(run.mutator)!.boon, lang)} · ▼ ${tr(mutatorById(run.mutator)!.burden, lang)}`}
+          content={mutators.map((m) => `${mutators.length === 1 ? `${tr(m.blurb, lang)} ` : `${tr(m.name, lang)}: `}▲ ${tr(m.boon, lang)} · ▼ ${tr(m.burden, lang)}`).join(' / ')}
           placement="bottom"
         >
           <div className="m2-topbar__mutator" data-testid="mutator-chip">
             <Shuffle size={13} aria-hidden="true" />
-            <span>{tr(mutatorById(run.mutator)!.name, lang)}</span>
+            <span>{mutators.length === 1 ? tr(mutators[0]!.name, lang) : lang === 'ko' ? `변칙 ${mutators.length}개` : `${mutators.length} anomalies`}</span>
           </div>
         </Tooltip>
       )}

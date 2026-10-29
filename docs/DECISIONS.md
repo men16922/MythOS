@@ -2,6 +2,11 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-30 — Recruiting is open-ended; deployment stays at two
+
+- **Decision** (owner): recruiting has no roster cap and the party screen chooses who deploys; the deploy cap stays at two companions (board and balance untouched). Besides the scripted Act 2 scene, each act from Act 3 may roll one recruit scene written for that act (random by seed, at most once, never guaranteed); recruiting there costs Trace and declining pays a small gift or a stat check.
+- **Agent defaults inside that** (owner may tune): +8 Trace per road recruit, roll weight 5 (on about half the maps), no road recruit in Acts 1–2 (Act 1 has Tae-o's event, Act 2 the scripted scene).
+
 ## 2026-10-29 — Anomaly mixer: open after the first escape, counts as a normal loop
 
 - **Decision** (agent default under the owner's "do the next priorities autonomously"; owner may override): the mixer (2–3 mutators by hand) opens with the first escape, replaces the loop's single offer, never applies to a daily, and a mixed run banks like any normal loop (echoes, achievements, mastery, Paradox unlock). Clauses add up; `traceStep` adds each one's change from the base 3; hazard multipliers multiply; the tactic refund does not stack.

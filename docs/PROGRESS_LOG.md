@@ -1,6 +1,13 @@
 # Progress Log
 
-Last updated: 2026-10-29
+Last updated: 2026-10-30
+
+## 2026-10-30 — Road recruits: one themed recruit scene per act from Act 3 (Claude Opus 5.5, owner direction)
+
+- **What** (owner: recruit freely, pick who deploys; deploy cap stays 2; a recruit event per act, random, at most once, with a trade-off, fitting each act's theme): `content/eventsRecruit.ts` — `a3_recruit` (ARK Spire: the next names on the list), `a4_recruit` (Glass Library: readers from failed loops), `a5_recruit` (scrap graveyard: half-woken androids), `a6_recruit` (First Record: half-erased connectors). Each rolls on the map like any event (weight 5 → on 40–58 % of that act's maps, measured over 2000 maps), never twice in an act. Recruiting costs +8 Trace (hint says "대기 합류" when both slots are full); the two authored options are the decline side (a small gift + a stat check against the act's watchers). The Act 2 scripted scene is unchanged. Four Codex-image illustrations (act art as the style reference).
+- **How**: `EventDef.recruit { trace }`; `optionList` appends costed recruit options after the authored ones (picker follow-ups keep their indices); `resolveEventId` swaps a road recruit for another event when nobody is left to recruit; `recruitCandidates` also keys on the Endless lap. Party screen bench hint updated.
+- **Balance** (mixed bot, same seeds, before → after): standard 147 → 151 / 300; standard with every companion unlocked 147 → 149 / 300; Deep Signal (all unlocked) 51 → 52 / 150 — noise. Map rolls for Acts 3–6 change for existing seeds (new events in the pool), as with any event addition.
+- Gates: `make check` green (node 419, Python 338); `make playthrough-quick` OK (117 s); `make test-e2e-v2` OK (daily replay verified); real UI desktop + 390 px with a seeded Act 3 run (scene, 2 declines + 2 costed recruits, recruit → bench → party screen, 0 console errors). A road recruit met naturally in a bot playthrough: unverified. Not deployed.
 
 ## 2026-10-29 — Anomaly mixer: custom 2–3 mutator mix (Claude Opus 5.5, owner: "계속해")
 

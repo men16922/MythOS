@@ -194,6 +194,12 @@ const events: EventDef[] = [
     ['a', 'b', 'c', 'd'].map((s) => event(`ev_${act}${s}`, [act], [opt('take', [{ kind: 'credits', amount: 10 }]), opt('skip', [])])),
   ),
   event('a2_recruit', [2], [opt('alone', [{ kind: 'credits', amount: 30 }])], { improvise: false }),
+  // A road recruit (content/eventsRecruit.ts); weight 0 so it never changes the fixture's map rolls.
+  event('ev_road', [3], [opt('hide', [{ kind: 'credits', amount: 30 }]), opt('scout', [{ kind: 'trace', amount: -5 }])], {
+    recruit: { trace: 8 },
+    improvise: false,
+    weight: 0,
+  }),
 ]
 
 const unlocks: MetaUnlockDef[] = [

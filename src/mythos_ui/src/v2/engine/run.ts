@@ -681,7 +681,9 @@ function beginCombat(run: RunState, encounterId: string, C: ContentRegistry): Co
 
 /** Pre-rolled event if still valid, else a fresh act event (unseen + requirements met first). */
 function resolveEventId(run: RunState, node: MapNode, C: ContentRegistry): string | null {
-  const usable = (e: EventDef | undefined): e is EventDef => !!e && conditionMet(run, e.requires, C).ok
+  // A road recruit with nobody left to recruit gives way to another event.
+  const usable = (e: EventDef | undefined): e is EventDef =>
+    !!e && conditionMet(run, e.requires, C).ok && (!e.recruit || recruitCandidates(run, C).length > 0)
   const pre = node.eventId ? C.events[node.eventId] : undefined
   if (usable(pre) && !run.seenEvents.includes(pre.id)) return pre.id
   const onMap = new Set(Object.values(run.map.nodes).map((n) => n.eventId))
@@ -1009,19 +1011,31 @@ export interface EventOptionView {
   chance?: number
 }
 
-/** Companions the Act 2 recruit event offers (≤ 2, deterministic per run + act). */
+/** Companions a recruit scene offers (≤ 2, deterministic per run + act + Endless lap). */
 export function recruitCandidates(run: RunState, C: ContentRegistry): string[] {
   const pool = run.pools.companions.filter((id) => C.companions[id] && !roster(run).some((m) => m.id === id))
-  return sample({ rng: hashSeed(`${run.seed}:recruit:${run.act}`) }, pool, 2)
+  return sample({ rng: hashSeed(`${run.seed}:recruit:${run.act}${run.lap ? `:${run.lap}` : ''}`) }, pool, 2)
 }
 
-function recruitOption(id: string, C: ContentRegistry): EventOption | null {
+/** The scripted Act 2 scene or a road recruit (EventDef.recruit). */
+function isRecruitScene(def: EventDef): boolean {
+  return def.id === RECRUIT_EVENT || !!def.recruit
+}
+
+function recruitOption(id: string, C: ContentRegistry, benched: boolean, trace: number): EventOption | null {
   const d = C.companions[id]
   if (!d) return null
+  const costKo = trace ? ` · 추적 +${trace}` : ''
+  const costEn = trace ? ` · +${trace} Trace` : ''
+  const effects: RunEffect[] = [{ kind: 'companion', id }]
+  if (trace) effects.push({ kind: 'trace', amount: trace })
   return {
     label: t(`${d.name.ko} 영입`, `Recruit ${d.name.en}`),
-    hint: t(`${d.role.ko} · ${d.passiveText.ko}`, `${d.role.en} · ${d.passiveText.en}`),
-    success: { text: d.bondLines[0] ?? d.alias, effects: [{ kind: 'companion', id }] },
+    // Road recruits show the cost instead of the passive (their cards and passive are on the portrait).
+    hint: trace
+      ? t(`${d.role.ko}${costKo}${benched ? ' · 대기 합류' : ''}`, `${d.role.en}${costEn}${benched ? ' · joins the bench' : ''}`)
+      : t(`${d.role.ko} · ${d.passiveText.ko}${benched ? ' · 대기 합류' : ''}`, `${d.role.en} · ${d.passiveText.en}${benched ? ' · joins the bench' : ''}`),
+    success: { text: d.bondLines[0] ?? d.alias, effects },
   }
 }
 
@@ -1036,12 +1050,14 @@ const KEEP_LINEUP: EventOption = {
 }
 
 function optionList(run: RunState, def: EventDef, C: ContentRegistry): EventOption[] {
-  if (def.id !== RECRUIT_EVENT) return def.options
+  if (!isRecruitScene(def)) return def.options
+  const benched = run.party.length >= MAX_PARTY
   const extra = recruitCandidates(run, C)
-    .map((id) => recruitOption(id, C))
+    .map((id) => recruitOption(id, C, benched, def.recruit?.trace ?? 0))
     .filter((o): o is EventOption => o !== null)
-  // A full party is not "alone": the authored go-alone bonus only applies with a free slot.
-  return [...(run.party.length >= MAX_PARTY ? [KEEP_LINEUP] : def.options), ...extra]
+  // A full party is not "alone": the Act 2 go-alone bonus only applies with a free slot. Road recruits keep their
+  // authored declines either way.
+  return [...(def.id === RECRUIT_EVENT && benched ? [KEEP_LINEUP] : def.options), ...extra]
 }
 
 export function eventOptions(run: RunState, C: ContentRegistry): EventOptionView[] {

@@ -143,6 +143,20 @@ test('scripted events: present, never rolled, recruit has one authored option', 
   for (const e of EVENTS) if (!SCRIPTED.has(e.id)) assert.notEqual(e.weight, 0, `${e.id} would never roll`)
 })
 
+test('road recruits: one per act from Act 3 on, rolled (never guaranteed), costed, with two authored declines', () => {
+  for (const act of [3, 4, 5, 6] as const) {
+    const road = EVENTS.filter((e) => e.recruit && e.acts.includes(act))
+    assert.equal(road.length, 1, `act ${act} has ${road.length} road recruits`)
+    const r = road[0] as EventDef
+    assert.deepEqual(r.acts, [act], `${r.id}: each act tells its own scene`)
+    assert.ok((r.weight ?? 1) > 0, `${r.id} must roll`)
+    assert.ok((r.recruit?.trace ?? 0) > 0, `${r.id}: recruiting needs a cost`)
+    assert.equal(r.options.length, 2, `${r.id}: two declines (a gift, a check)`)
+    assert.ok(r.options.some((o) => o.check) && r.options.some((o) => !o.check), r.id)
+  }
+  assert.equal(EVENTS.find((e) => e.id === RECRUIT_ID)?.recruit, undefined, 'the Act 2 scene stays scripted and free')
+})
+
 test('option counts, checks and hints', () => {
   for (const e of EVENTS) {
     const min = e.id === RECRUIT_ID ? 1 : 2

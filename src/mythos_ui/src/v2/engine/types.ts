@@ -644,7 +644,7 @@ export type RunEffect =
   | { kind: 'upgrade_card'; count: number; random?: boolean }
   | { kind: 'implant'; implantId?: string; rarity?: ImplantDef['rarity'] }
   | { kind: 'consumable'; id?: string }
-  | { kind: 'companion'; id: string } // recruit (if party has room)
+  | { kind: 'companion'; id: string } // recruit (deployed if a slot is free, else benched)
   | { kind: 'bond'; id: string; amount: number }
   | { kind: 'stat'; stat: StatKey; amount: number }
   | { kind: 'flag'; key: string; value?: number }
@@ -686,6 +686,11 @@ export interface EventDef {
   gmHints?: string[]
   /** Show IX's mirror under the text: it politely quotes this run's real choices back (content/ixMirror.ts). */
   ixMirror?: boolean
+  /**
+   * A road recruit scene (content/eventsRecruit.ts): the engine appends one "Recruit X" option per available
+   * companion, each costing `trace`, and swaps the scene for another event when nobody is left to recruit.
+   */
+  recruit?: { trace: number }
 }
 
 // ---------------------------------------------------------------- map & run

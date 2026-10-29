@@ -117,7 +117,7 @@ export function PartyModal({ run, C, lang, onChange, onClose }: Props) {
       {bench.length ? (
         <ul className="m2-party__list">{bench.map((m) => card(m, false))}</ul>
       ) : (
-        <p className="m2-party__empty">{ko ? '대기 중인 동료가 없다. 2막 초입에서 새 동료를 만날 수 있다.' : 'Nobody on the bench. New companions wait at the start of Act 2.'}</p>
+        <p className="m2-party__empty">{ko ? '대기 중인 동료가 없다. 2막 초입에서, 3막부터는 막마다 가끔 사건으로 새 동료를 만난다.' : 'Nobody on the bench. New companions wait at the start of Act 2, and from Act 3 now and then at an event.'}</p>
       )}
     </Modal>
   )

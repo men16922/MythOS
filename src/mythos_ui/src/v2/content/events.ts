@@ -1,5 +1,6 @@
 // Narrative events — 16 per act (12 here + 4 in eventsMore.ts) + two scripted scenes: the Act 1 opening ('a1_opening') and the
-// Act 2 recruit scene ('a2_recruit'). Scripted events carry weight 0 and are never rolled on the map.
+// Act 2 recruit scene ('a2_recruit'). Scripted events carry weight 0 and are never rolled on the map. From Act 3 on,
+// each act also rolls one road recruit scene (eventsRecruit.ts).
 //
 // Rules of the road (enforced by narrative.test.ts):
 // - every option is a real decision: a visible cost, a risk (stat check) or a trade-off;
@@ -14,6 +15,7 @@
 import type { EventDef, Text } from '../engine/types.ts'
 import { COMPANION_ARCS } from './eventsArcs.ts'
 import { A1_MORE, A2_MORE, A3_MORE, SUAH_ARC } from './eventsMore.ts'
+import { ROAD_RECRUITS } from './eventsRecruit.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 
@@ -2829,6 +2831,7 @@ export const EVENTS: EventDef[] = [
   ...A3,
   ...A3_EXTRA,
   ...A3_MORE,
+  ...ROAD_RECRUITS,
   ...SUAH_ARC,
   ...COMPANION_ARCS,
 ]

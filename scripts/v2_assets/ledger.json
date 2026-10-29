@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 308,
+ "codex_image_calls": 313,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -3675,6 +3675,15 @@
    ],
    "ts": "2026-10-25T17:39:39"
   },
+  "v2/events/a3_recruit.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape. Painterly digital concept art. The reference image is ONLY a style guide for this place: match its painterly rendering, colour palette and lighting, but not its exact composition. Scene: Below a stark white stairwell landing inside a gleaming white tower, a narrow cable-duct door hangs half open; inside, a few ordinary citizens in grey clothes crouch in the dim gap among bundled cables, faded marks on their wrists, looking out with quiet hope. Cold white light outside, warm dim light inside, a single small ceiling camera lens far down the white corridor. Eye-level framing, natural proportions, restrained effects. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (screens and pages are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/art/act3.webp"
+   ],
+   "ts": "2026-10-30T03:30:58"
+  },
   "v2/events/a3_valkyrie_hangar.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3827,6 +3836,15 @@
     "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
    ],
    "ts": "2026-10-26T03:22:17"
+  },
+  "v2/events/a4_recruit.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape. Painterly digital concept art. The reference image is ONLY a style guide for this place: match its painterly rendering, colour palette and lighting, but not its exact composition. Scene: Between towering shelves of glowing glass books in an endless crystal library, one reading desk is lit by a lamp; a few worn, slightly translucent people from failed timelines sit and stand around it, one holding out a loose glass page. Pale cyan and white glass light, one warm lamp, deep shadows between the shelves. Eye-level framing, natural proportions, restrained effects. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (screens and pages are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/art/act4.webp"
+   ],
+   "ts": "2026-10-30T03:31:19"
   },
   "v2/events/a4_red_thread_bookmark.webp": {
    "generations": 1,
@@ -3991,6 +4009,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/art/act5.webp"
    ],
    "ts": "2026-10-26T04:41:08"
+  },
+  "v2/events/a5_recruit.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape. Painterly digital concept art. The reference image is ONLY a style guide for this place: match its painterly rendering, colour palette and lighting, but not its exact composition. Scene: In the shade of a huge rusted crane in an endless android scrap graveyard, a small campfire; half-awake androids with dented plating and two ragged scavengers sit around it, one android looking up with dim glowing eyes. Iron dust in the air, orange firelight against rust and dusk-blue sky, discarded machine bodies piled in the distance. Eye-level framing, natural proportions, restrained effects. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (screens and pages are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/art/act5.webp"
+   ],
+   "ts": "2026-10-30T03:31:21"
   },
   "v2/events/a5_rem_lullaby.webp": {
    "generations": 1,
@@ -4188,6 +4215,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/art/act6.webp"
    ],
    "ts": "2026-10-26T04:49:49"
+  },
+  "v2/events/a6_recruit.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Cinematic event scene illustration for a cyberpunk RPG, 16:9 landscape. Painterly digital concept art. The reference image is ONLY a style guide for this place: match its painterly rendering, colour palette and lighting, but not its exact composition. Scene: On a vast dark floor that unravels into faint glowing lines of abstract illegible glyphs, a few people stand whose outlines are partly blank and dissolving into light, like half-erased sentences; one reaches a hand toward the viewer. Deep black and soft white-teal glow, minimal and quiet, a distant pale spire overhead. Eye-level framing, natural proportions, restrained effects. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (screens and pages are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/art/act6.webp"
+   ],
+   "ts": "2026-10-30T03:31:05"
   },
   "v2/events/a6_rewrite_bridge.webp": {
    "generations": 2,

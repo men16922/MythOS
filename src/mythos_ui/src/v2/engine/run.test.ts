@@ -342,6 +342,33 @@ test('party: a full party benches the newcomer; deployment swaps on the map only
   assert.equal(conditionMet(swapped, { companion: 'tae_o' }, C).ok, false, 'arc events need them deployed')
 })
 
+test('road recruit: costed recruits after the authored declines; another event when nobody is left', () => {
+  const run = structuredClone(atMap(1234, unlocked('comp_tae_o', 'comp_han')))
+  run.party.push({ id: 'tae_o', hp: 24, maxHp: 24, bond: 0 }) // both slots filled: the newcomer is benched
+  const ev = enter(run, 'event', { eventId: 'ev_road' })
+  assert.equal(screen(ev, 'event').eventId, 'ev_road')
+  const opts = eventOptions(ev, C)
+  assert.deepEqual(
+    opts.map((o) => o.option.label.en),
+    ['hide', 'scout', 'Recruit han'],
+    'the authored declines first, so picker follow-ups keep their indices',
+  )
+  assert.deepEqual(opts[2]?.option.success.effects, [
+    { kind: 'companion', id: 'han' },
+    { kind: 'trace', amount: 8 },
+  ])
+  assert.match(opts[2]?.option.hint?.en ?? '', /\+8 Trace · joins the bench$/)
+  const joined = chooseEventOption(ev, 2, C)
+  assert.deepEqual(joined.bench?.map((m) => m.id), ['han'])
+  assert.ok(joined.trace > ev.trace, 'recruiting costs trace')
+  assert.equal(chooseEventOption(ev, 0, C).credits, ev.credits + 30, 'declining keeps the authored gift')
+
+  // Nobody left to recruit: the node plays another event instead.
+  const everyone = structuredClone(run)
+  everyone.bench = [{ id: 'han', hp: 18, maxHp: 18, bond: 0 }]
+  assert.notEqual(screen(enter(everyone, 'event', { eventId: 'ev_road' }), 'event').eventId, 'ev_road')
+})
+
 test('defeat ends the run in Forced Erasure and banks a last death', () => {
   let run = enter(atMap(), 'combat', { encounterId: 'n1_3' })
   run = finishCombat(run, 'lost')

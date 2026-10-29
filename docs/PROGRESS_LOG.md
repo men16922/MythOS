@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-29
 
+## 2026-10-29 — Achievements pass 2: 43 → 60 + fight-level feats (Claude Opus 5.5, `/goal` autonomous)
+
+- **17 more** (DLC plan §11 target 60): archetype mastery III, companion ×5 wins, 30 daily days, 6 endings, codex 25, memories 11, 5 companions met, Paradox 3/7, Endless 3 laps, **boss without losing HP**, 5 terrain kills in one fight, 10 burst/ultimate fights in one loop, win with ≥600 credits / ≥13 implants / trace ≤30, solo win (no companion ever). Thresholds from 200 mixed-bot runs (wins: terrain/fight p95 3, bursts p95 7, credits p95 658, trace p5 40; ≥1 flawless boss in 30 % of runs).
+- **Fight feats**: `noteFightFeats` (`engine/achievements.ts`) writes `feat_*` run flags on each won fight in `updateCombat`; `RunSimResult.feats` exposes them. Sim A/B on 3 × 150 identical seeds: wins 72 / 61 / 83 before and after, result hashes identical → no gameplay effect.
+- Gates: `make check` green (node 411, Python 338); `make playthrough-quick` OK (124 s); `make test-e2e-v2` OK; muted screenshots desktop + 390 px (tab 1/60, 0 console errors). Not deployed.
+
 ## 2026-10-29 — Achievements, first pass: 43 (Claude Opus 5.5, owner: "next priority, autonomously")
 
 - **What**: DLC plan §11 "업적", first pass — 43 achievements (`content/achievements.ts`): loops/wins/acts/daily days 9, endings 3 (secret First Record), collection 6 (codex, memories, companions met, shards), one-run challenges 9 (Paradox 5/10, Deep Signal win, Endless lap, daily win, 20 terrain kills, 5 elites, ≤40 damage taken, deck ≤18), plus one per archetype (5) and per companion (11), generated from content. Challenge thresholds set from the mixed-bot tally of 200 runs (wins: damage p5 30 / p50 84, terrain kills p95 20, deck p5 27).

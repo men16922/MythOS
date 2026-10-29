@@ -2,9 +2,9 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { CONTENT as C } from '../content/index.ts'
 import { CUTSCENES } from '../content/cutscenes.ts'
-import { newAchievements } from './achievements.ts'
+import { FEAT_BOSS_FLAWLESS, FEAT_BURSTS, FEAT_FIGHT_TERRAIN, newAchievements, noteFightFeats } from './achievements.ts'
 import { applyRunEnd, migrateProfile, newProfile } from './meta.ts'
-import type { MetaProfile, RunState } from './types.ts'
+import type { CombatState, MetaProfile, RunState } from './types.ts'
 
 const deckOf = (n: number) => Array.from({ length: n }, (_, i) => ({ uid: `c${i}`, defId: 'strike', upgraded: false }))
 
@@ -50,7 +50,7 @@ const ids = (p: MetaProfile) => p.achievements ?? []
 
 test('content: every achievement is well formed and points at real content', () => {
   const all = Object.values(C.achievements ?? {})
-  assert.ok(all.length >= 40, `first pass ships 40+ achievements (got ${all.length})`)
+  assert.equal(all.length, 60, 'DLC plan §11: 60 achievements')
   for (const a of all) {
     assert.ok(a.id.startsWith('ach_'), a.id)
     assert.ok(a.name.ko && a.name.en && a.text.ko && a.text.en, `${a.id} text`)
@@ -143,4 +143,39 @@ test('migrateProfile keeps achievements and Deep Signal acts on history rows', (
   assert.deepEqual(m.history[0]?.achievements, ['ach_act_6'])
   assert.equal(m.lastDeath?.act, 5)
   assert.deepEqual(migrateProfile({}).achievements, [])
+})
+
+test('fight feats: flawless bosses, best terrain fight and burst fights go into run flags', () => {
+  const run = endedRun({ flags: {} })
+  const fight = (damageTaken: number, environmentKills: number, burstUsed: boolean) =>
+    ({ stats: { enemiesKilled: 3, environmentKills, damageDealt: 20, damageTaken, cardsPlayed: 8 }, burstUsed }) as unknown as CombatState
+  noteFightFeats(run, fight(0, 2, true), 'boss')
+  noteFightFeats(run, fight(3, 5, false), 'combat')
+  noteFightFeats(run, fight(0, 1, true), 'elite')
+  noteFightFeats(run, fight(4, 0, false), 'boss')
+  assert.equal(run.flags[FEAT_BOSS_FLAWLESS], 1, 'only the boss fought without losing HP')
+  assert.equal(run.flags[FEAT_FIGHT_TERRAIN], 5, 'best single fight, not the sum')
+  assert.equal(run.flags[FEAT_BURSTS], 2)
+})
+
+test('pass 2 conditions: feats, rich / implant / quiet / solo wins, mastery', () => {
+  const run = endedRun(
+    {
+      party: [],
+      bench: [],
+      credits: 650,
+      trace: 25,
+      implants: Array.from({ length: 13 }, (_, i) => `imp${i}`),
+      flags: { [FEAT_BOSS_FLAWLESS]: 1, [FEAT_FIGHT_TERRAIN]: 5, [FEAT_BURSTS]: 10 },
+    },
+    'victory',
+    'ending_code_rewrite',
+  )
+  const p = applyRunEnd({ ...newProfile('T'), archetypeWins: { ghost: 5 }, companionWins: { se_rin: 5 } }, run, C)
+  for (const id of ['ach_boss_flawless', 'ach_fight_terrain', 'ach_bursts_10', 'ach_rich', 'ach_implants_13', 'ach_quiet', 'ach_solo', 'ach_arch_mastery', 'ach_comp_mastery']) {
+    assert.ok(ids(p).includes(id), id)
+  }
+  // With a companion along and a loud, poor run, none of the win-shape feats fire.
+  const plain = applyRunEnd(newProfile('T'), endedRun({ credits: 10, trace: 80 }, 'victory', 'ending_code_rewrite'), C)
+  for (const id of ['ach_rich', 'ach_quiet', 'ach_solo', 'ach_boss_flawless', 'ach_arch_mastery']) assert.ok(!ids(plain).includes(id), id)
 })

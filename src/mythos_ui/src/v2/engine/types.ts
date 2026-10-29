@@ -1144,6 +1144,8 @@ export type AchievementCond =
   | { kind: 'ending'; id: string }
   | { kind: 'archetypeWin' | 'companionWin'; id: string }
   | { kind: 'dailyDays'; n: number }
+  /** Any archetype / companion with at least this many (non-daily) victories. */
+  | { kind: 'archMastery' | 'companionMastery'; wins: number }
   // run conditions
   | { kind: 'paradoxWin'; n: number }
   | { kind: 'deepWin' }
@@ -1152,6 +1154,13 @@ export type AchievementCond =
   | { kind: 'runTally'; stat: 'kills' | 'environmentKills' | 'elites'; min: number }
   | { kind: 'flawless'; maxDamage: number }
   | { kind: 'leanDeck'; maxCards: number }
+  /** A fight-level feat flag (engine/achievements.ts FEAT_*) reached `min` this run. */
+  | { kind: 'runFlag'; flag: string; min: number }
+  | { kind: 'richWin'; credits: number }
+  | { kind: 'implantWin'; n: number }
+  | { kind: 'quietWin'; maxTrace: number }
+  /** Victory with nobody in the party or on the bench. */
+  | { kind: 'soloWin' }
 
 export interface AchievementDef {
   id: string

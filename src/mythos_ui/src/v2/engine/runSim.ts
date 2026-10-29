@@ -70,6 +70,8 @@ export interface RunSimResult {
   axes: Partial<Record<ChoiceAxis, number>>
   /** The run's tally at the end (kills, terrain kills, damage taken, ...). */
   tally: RunState['tally']
+  /** Fight-level feat flags (engine/achievements.ts FEAT_*). */
+  feats: Record<string, number>
 }
 
 /** Per-fight balance telemetry (see RunSimOptions.onFight). */
@@ -476,6 +478,7 @@ export function simulateRun(
     endingId: end.endingId,
     axes: { ...(run.axes ?? {}) },
     tally: { ...run.tally },
+    feats: Object.fromEntries(Object.entries(run.flags).filter(([k]) => k.startsWith('feat_'))),
   }
   const killedBy = runKilledBy(run)
   if (killedBy) result.killedBy = killedBy

@@ -15,6 +15,7 @@
 // (entering the next node, or leaving the boss reward). Elites +4, bosses +12 on win.
 // Victory/ending bonuses are added only when banking (see meta.computeEchoes).
 
+import { noteFightFeats } from './achievements.ts'
 import { startCombat } from './combat.ts'
 import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, repTier, takeCombatMods } from './crpg.ts'
 import { advanceDirectiveOnWin } from './directives.ts'
@@ -863,6 +864,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   if ((combat.parts ?? 0) > 0) next.parts = (next.parts ?? 0) + (combat.parts ?? 0)
   gainTrace(next, combat.trace, C)
   advanceDirectiveOnWin(next, combat, nodeKind)
+  noteFightFeats(next, combat, nodeKind)
   if (nodeKind === 'elite' || nodeKind === 'boss') addAxis(next, 'resilience')
   if (nodeKind === 'elite') {
     next.tally.elites += 1

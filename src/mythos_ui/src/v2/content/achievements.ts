@@ -1,4 +1,4 @@
-// Mythos 2.0 — achievements (DLC plan §11 "업적": 60). Pure data: what each one asks
+// Mythos 2.0 — achievements (DLC plan §11 "업적" 60 + 4 codex-completion ones). Pure data: what each one asks
 // lives in `when` (engine/achievements.ts checks it when a run is banked). Cosmetic only: no
 // achievement changes a run, so balance is untouched. One per archetype and per companion is
 // generated from the merged content lists (content/index.ts).
@@ -42,6 +42,10 @@ const FIXED: AchievementDef[] = [
   { id: 'ach_memories_all', group: 'collection', name: t('곁에 남은 사람들', 'The Ones Who Stayed'), text: t('동료와의 기억을 모두 연다.', 'Unlock every companion memory.'), when: { kind: 'memories', n: 22 } },
   { id: 'ach_met_5', group: 'collection', name: t('분대가 생겼다', 'A Squad Forms'), text: t('동료 5명을 만난다.', 'Meet 5 companions.'), when: { kind: 'companionsMet', n: 5 } },
   { id: 'ach_met_all', group: 'collection', name: t('네오서울의 얼굴들', 'Faces of Neo-Seoul'), text: t('모든 동료를 만난다.', 'Meet every companion.'), when: { kind: 'companionsMet', n: 'all' } },
+  { id: 'ach_bestiary_40', group: 'collection', name: t('적의 얼굴', 'Faces of the Enemy'), text: t('적 도감에 40종을 기록한다.', 'Record 40 kinds of enemy in the bestiary.'), when: { kind: 'bestiary', n: 40 } },
+  { id: 'ach_bestiary_all', group: 'collection', name: t('도시의 모든 이빨', 'Every Tooth in the City'), text: t('적 도감을 완성한다.', 'Complete the bestiary.'), when: { kind: 'bestiary', n: 'all' } },
+  { id: 'ach_cards_60', group: 'collection', name: t('손에 익은 프로토콜', 'Familiar Protocols'), text: t('카드 도감에 60장을 기록한다.', 'Record 60 cards in the card codex.'), when: { kind: 'cardCodex', n: 60 } },
+  { id: 'ach_cards_all', group: 'collection', name: t('모든 프로토콜', 'Every Protocol'), text: t('카드 도감을 완성한다.', 'Complete the card codex.'), when: { kind: 'cardCodex', n: 'all' } },
   { id: 'ach_records_7', group: 'collection', name: t('일곱 조각', 'Seven Shards'), text: t('최초 기록 조각 7개를 모두 찾는다.', 'Find all 7 First Record shards.'), when: { kind: 'records', n: 7 } },
   // challenge (one run)
   { id: 'ach_paradox_3', group: 'challenge', name: t('어긋난 규칙', 'Bent Rules'), text: t('역설 3 이상에서 탈출한다.', 'Escape at Paradox 3 or higher.'), when: { kind: 'paradoxWin', n: 3 } },

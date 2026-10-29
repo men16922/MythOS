@@ -720,3 +720,77 @@
   font-size: 12px;
   opacity: 0.8;
 }
+
+/* Codex tab: enemies met and cards owned, small tiles; unmet ones are silhouettes. */
+.m2-codex__switch {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.m2-codex__switch button {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  cursor: pointer;
+}
+.m2-codex__switch button.is-on {
+  border-color: var(--m2-gold, #ffd68c);
+  color: var(--m2-gold, #ffd68c);
+}
+.m2-codex__switch small {
+  margin-left: 4px;
+  opacity: 0.75;
+}
+.m2-codex__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 6px;
+}
+.m2-codex__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(4, 12, 15, 0.6);
+  text-align: center;
+  min-width: 0;
+}
+.m2-codex__cell img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+.m2-codex__cell--card img {
+  object-fit: cover;
+  border-radius: 4px;
+}
+.m2-codex__cell.is-hidden img {
+  filter: brightness(0) opacity(0.5);
+}
+.m2-codex__blank {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.m2-codex__name {
+  font-size: 11px;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.m2-codex__cell small {
+  font-size: 10px;
+  opacity: 0.7;
+}
+.m2-codex__cell.is-hidden .m2-codex__name {
+  opacity: 0.4;
+}

@@ -348,6 +348,7 @@ export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause
   c.units = c.units.filter((x) => x !== u)
   if (u.side === 'enemy') {
     c.stats.enemiesKilled += 1
+    c.killed = { ...(c.killed ?? {}), [u.defId]: (c.killed?.[u.defId] ?? 0) + 1 }
     c.credits += C.enemies[u.defId]?.bounty ?? 0
     const salvage = C.enemies[u.defId]?.salvage ?? 0
     if (salvage > 0) c.parts = (c.parts ?? 0) + salvage

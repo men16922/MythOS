@@ -16,6 +16,7 @@
 // Victory/ending bonuses are added only when banking (see meta.computeEchoes).
 
 import { noteFightFeats } from './achievements.ts'
+import { noteFightBestiary } from './bestiary.ts'
 import { startCombat } from './combat.ts'
 import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, repTier, takeCombatMods } from './crpg.ts'
 import { advanceDirectiveOnWin } from './directives.ts'
@@ -223,6 +224,7 @@ function addCard(run: RunState, defId: string, C: ContentRegistry, upgraded = fa
   run.uidCounter += 1
   const inst: CardInstance = { uid: `k${run.uidCounter}`, defId, upgraded }
   run.deck.push(inst)
+  if (!run.cardsSeen?.includes(defId)) run.cardsSeen = [...(run.cardsSeen ?? []), defId]
   return inst
 }
 
@@ -839,6 +841,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   next.tally.environmentKills += combat.stats.environmentKills
   next.tally.damageTaken += combat.stats.damageTaken
   next.tally.cardsPlayed += combat.stats.cardsPlayed
+  noteFightBestiary(next, combat, C)
   const name = C.encounters[combat.encounterId]?.name ?? KIND_NOTE[nodeKind]
 
   if (combat.phase === 'lost' && combat.encounterId === SECRET_ENCOUNTER) {

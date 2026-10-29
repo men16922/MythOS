@@ -4,6 +4,7 @@
 // banking, so profile totals already include the run. Earlier progress counts too: a profile
 // from before achievements earns everything it already qualifies for on its next banked run.
 
+import { bestiaryIds, codexCardIds } from './bestiary.ts'
 import type { AchievementCond, AchievementDef, CombatState, ContentRegistry, MetaProfile, NodeKind, RunState } from './types.ts'
 
 /** Run flags for fight-level feats (set by run.updateCombat on a win; read by `runFlag` conditions). */
@@ -46,6 +47,15 @@ export function meets(when: AchievementCond, profile: MetaProfile, run: RunState
       return atLeast(profile.endingsSeen.filter((id) => C.endings[id]).length, when.n, Object.keys(C.endings).length)
     case 'companionsMet':
       return atLeast(profile.companionsMet.filter((id) => C.companions[id]).length, when.n, Object.keys(C.companions).length)
+    case 'bestiary': {
+      const ids = bestiaryIds(C)
+      return atLeast(ids.filter((id) => profile.bestiary?.[id] !== undefined).length, when.n, ids.length)
+    }
+    case 'cardCodex': {
+      const ids = codexCardIds(C)
+      const seen = new Set(profile.cardsSeen ?? [])
+      return atLeast(ids.filter((id) => seen.has(id)).length, when.n, ids.length)
+    }
     case 'ending':
       return profile.endingsSeen.includes(when.id)
     case 'archetypeWin':

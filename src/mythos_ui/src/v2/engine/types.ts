@@ -466,6 +466,8 @@ export interface CombatState {
   archetype?: string
   /** Salvage parts picked up this fight (added to run.parts when it is won). */
   parts?: number
+  /** Enemies killed this fight by enemy id (engine/bestiary.ts). */
+  killed?: Record<string, number>
 }
 
 export interface PlayTarget {
@@ -837,6 +839,10 @@ export interface RunState {
   lap?: number
   /** The connector's leanings this run (1.0 choice axes): dialogue intents, first impressions, hard wins. */
   axes?: Partial<Record<ChoiceAxis, number>>
+  /** Enemies met this run: id → kills (0 = seen only) (engine/bestiary.ts). */
+  bestiary?: Record<string, number>
+  /** Card ids that entered the deck this run (the card codex). */
+  cardsSeen?: string[]
 }
 
 /** Run length mode (engine/run.ts lastAct): standard (omitted), Deep Signal, Endless Signal. */
@@ -1130,6 +1136,10 @@ export interface MetaProfile {
   archetypeWins?: Record<string, number>
   /** How many runs each event appeared in (any loop, daily included): lets the GM open a revisited scene on déjà vu. */
   eventsSeen?: Record<string, number>
+  /** Enemies ever met: id → total kills (0 = seen only) (engine/bestiary.ts). */
+  bestiary?: Record<string, number>
+  /** Card ids ever in a deck (the card codex). */
+  cardsSeen?: string[]
   /** Achievement ids earned, in the order they were earned (engine/achievements.ts; checked when a run is banked). */
   achievements?: string[]
 }
@@ -1140,7 +1150,7 @@ export type AchievementGroup = 'progress' | 'ending' | 'collection' | 'archetype
  *  `n: 'all'` = every entry the content has (lore, endings, companions). */
 export type AchievementCond =
   | { kind: 'loops' | 'wins' | 'bestAct' | 'records' | 'memories'; n: number }
-  | { kind: 'codex' | 'endings' | 'companionsMet'; n: number | 'all' }
+  | { kind: 'codex' | 'endings' | 'companionsMet' | 'bestiary' | 'cardCodex'; n: number | 'all' }
   | { kind: 'ending'; id: string }
   | { kind: 'archetypeWin' | 'companionWin'; id: string }
   | { kind: 'dailyDays'; n: number }

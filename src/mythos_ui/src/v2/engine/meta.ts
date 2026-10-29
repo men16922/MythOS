@@ -5,6 +5,7 @@
 // storage. A RunState is self-contained, so banking reads only the run + content.
 
 import { newAchievements } from './achievements.ts'
+import { mergeBestiary } from './bestiary.ts'
 import { DAILY_CAP, isBetterDaily, isDateKey } from './daily.ts'
 import type {
   ContentRegistry,
@@ -77,6 +78,8 @@ export function newProfile(name: string, settings: Partial<MetaProfile['settings
     companionWins: {},
     archetypeWins: {},
     achievements: [],
+    bestiary: {},
+    cardsSeen: [],
   }
 }
 
@@ -183,6 +186,14 @@ function migrateDaily(raw: unknown): Record<string, DailyRecord> {
 
 /** Coerce anything (old saves, garbage, partial JSON) into a valid profile. Never throws. */
 /** `{ id: n }` with n a non-negative integer; anything else is dropped. */
+/** Bestiary: like migrateCounts but keeps 0 (seen, never killed). */
+function migrateBestiary(raw: unknown): Record<string, number> {
+  const out: Record<string, number> = {}
+  if (!isObj(raw)) return out
+  for (const [k, v] of Object.entries(raw)) if (k && typeof v === 'number' && Number.isFinite(v)) out[k] = int(v, 0, 999999)
+  return out
+}
+
 function migrateCounts(raw: unknown): Record<string, number> {
   const out: Record<string, number> = {}
   if (!isObj(raw)) return out
@@ -230,6 +241,8 @@ export function migrateProfile(raw: unknown): MetaProfile {
     ...(Array.isArray(r.records) ? { records: strList(r.records) } : {}),
     eventsSeen: migrateCounts(r.eventsSeen),
     achievements: strList(r.achievements),
+    bestiary: migrateBestiary(r.bestiary),
+    cardsSeen: strList(r.cardsSeen),
   }
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {
@@ -457,6 +470,8 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     companionWins: victory && !run.daily ? addWins(profile.companionWins, run.party.map((m) => m.id)) : { ...(profile.companionWins ?? {}) },
     archetypeWins: victory && !run.daily ? addWins(profile.archetypeWins, [run.archetype]) : { ...(profile.archetypeWins ?? {}) },
     eventsSeen: addWins(profile.eventsSeen, [...new Set(run.seenEvents)]),
+    bestiary: mergeBestiary(profile.bestiary, run.bestiary),
+    cardsSeen: union(profile.cardsSeen ?? [], run.cardsSeen ?? []),
     settings: { ...profile.settings },
   }
   if (!victory && !abandoned && killedBy) next.lastDeath = { killedBy, act: run.act, loop: run.loop }

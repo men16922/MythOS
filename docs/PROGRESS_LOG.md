@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-29
 
+## 2026-10-29 — Codex: bestiary + card codex, completion achievements (Claude Opus 5.5, `/goal` autonomous)
+
+- **What** (DLC plan §11 "도감 완성 보상", scoped down): Archive tab "도감" with **enemies** (87; seen = silhouette lifted + total kills) and **cards** (126 collectible = starter/common/uncommon/rare; owned once = art shown). Completion rewards are 4 achievements (bestiary 40 / all, cards 60 / all → 64 total); no titles or frames (would need new UI surfaces + art).
+- **How**: `engine/bestiary.ts` — `CombatState.killed` per enemy id (`killUnit`), `noteFightBestiary` in `updateCombat` (encounter roster + reinforcements = seen, kills added), `RunState.cardsSeen` in `addCard`, folded into `profile.bestiary` / `profile.cardsSeen` by `applyRunEnd`. The bestiary lists only enemies some encounter can field (incl. summons), and a test proves every codex card is in some archetype pool or starting deck → both are completable.
+- Sim A/B 3 × 150 identical seeds: hash-identical to before. Gates: `make check` green (node 414, Python 338); `make playthrough-quick` OK (194 s, real fights through the new path); `make test-e2e-v2` OK; screenshots desktop + 390 px with a seeded profile (2/87 enemies, 3/126 cards, 0 console errors). The bestiary filling from a real UI fight is covered by unit tests only. Not deployed.
+
 ## 2026-10-29 — Achievements pass 2: 43 → 60 + fight-level feats (Claude Opus 5.5, `/goal` autonomous)
 
 - **17 more** (DLC plan §11 target 60): archetype mastery III, companion ×5 wins, 30 daily days, 6 endings, codex 25, memories 11, 5 companions met, Paradox 3/7, Endless 3 laps, **boss without losing HP**, 5 terrain kills in one fight, 10 burst/ultimate fights in one loop, win with ≥600 credits / ≥13 implants / trace ≤30, solo win (no companion ever). Thresholds from 200 mixed-bot runs (wins: terrain/fight p95 3, bursts p95 7, credits p95 658, trace p5 40; ≥1 flawless boss in 30 % of runs).

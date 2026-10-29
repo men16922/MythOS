@@ -218,10 +218,21 @@ def main() -> int:
             print("event resolved → map")
 
             page.wait_for_selector(".m2-node.is-reach", timeout=10000)
+            # A companion's recruit scene can open over the map; Escape closes it like a player skipping it.
+            for _ in range(3):
+                scene = page.locator("[data-testid=recruit-scene]")
+                if scene.count() == 0:
+                    break
+                page.keyboard.press("Escape")
+                page.wait_for_timeout(600)
+            if page.locator("[data-testid=recruit-scene]").count() > 0:
+                errors.append("recruit scene over the map did not close on Escape")
             shot(page, "map")
-            page.locator(".m2-node.is-reach").first.click(
-                force=True
-            )  # reachable nodes pulse forever
+            # The first reachable node is not always a fight: pick a combat (or elite) node.
+            fight = page.locator(".m2-node--combat.is-reach, .m2-node--elite.is-reach")
+            if fight.count() == 0:
+                raise SystemExit("no reachable combat/elite node on the first map row")
+            fight.first.click(force=True)  # reachable nodes pulse forever
             page.wait_for_selector(".m2c-root", timeout=15000)
             page.wait_for_timeout(2500)  # boss/encounter intro + coach marks
             shot(page, "combat")

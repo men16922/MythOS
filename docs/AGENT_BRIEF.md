@@ -1,6 +1,6 @@
 # Agent Brief
 
-Last updated: 2026-10-27
+Last updated: 2026-10-29
 
 This file is compressed startup context. Open linked docs only when needed.
 

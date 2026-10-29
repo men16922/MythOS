@@ -1,6 +1,6 @@
 # Next Plan
 
-Last updated: 2026-10-25
+Last updated: 2026-10-29
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
@@ -15,7 +15,7 @@ Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank
 
 ## Priority 0c — DLC-scale expansion "Deep Signal" (R1–R7 built 2026-10-26)
 
-Plan: `docs/plans/2026-10-26-dlc-expansion-plan.md` (§17.6 = status). `[ ]` `[owner]` play a Deep Signal run to Act 6 and judge fun / difficulty (sim: 6-act clear ≈ 20 %). `[x]` preview `00154-lom` promoted 2026-10-27 (`--to-latest`, health 200, served bundle = committed; rollback `00150-qen`) (it carries the secret-fight fix; `00153-tuv` is stale). `[x]` stun + wall-bump stun cards + 11 companion ultimates + full-screen ult cut-in (2026-10-27, sim-neutral; 2026-10-28: 16 ultimate illustrations + louder cut-in; `[ ]` `[owner]` feel check, `[x]` preview `00156-fuj` (`ed5a6cb`) verified 5/5 2026-10-28, `[x]` promoted 2026-10-28 (now `00158-roq`, rollback `00156-fuj`); `[x]` 11 companion ultimate SFX; `[ ]` `[owner]` listen check of the 11 ultimate cues + cut-in length/intensity). `[ ]` fix `make test-e2e-v2` (assumes the first map node is a fight; fails on HEAD). `[ ]` later (proposal): weekly contracts, achievements, codex completion rewards, custom anomaly mixer, Chronicle campaign mode, companion outfits.
+Plan: `docs/plans/2026-10-26-dlc-expansion-plan.md` (§17.6 = status). `[ ]` `[owner]` play a Deep Signal run to Act 6 and judge fun / difficulty (sim: 6-act clear ≈ 20 %). `[x]` preview `00154-lom` promoted 2026-10-27 (`--to-latest`, health 200, served bundle = committed; rollback `00150-qen`) (it carries the secret-fight fix; `00153-tuv` is stale). `[x]` stun + wall-bump stun cards + 11 companion ultimates + full-screen ult cut-in (2026-10-27, sim-neutral; 2026-10-28: 16 ultimate illustrations + louder cut-in; `[ ]` `[owner]` feel check, `[x]` preview `00156-fuj` (`ed5a6cb`) verified 5/5 2026-10-28, `[x]` promoted 2026-10-28 (now `00158-roq`, rollback `00156-fuj`); `[x]` 11 companion ultimate SFX; `[ ]` `[owner]` listen check of the 11 ultimate cues + cut-in length/intensity). `[x]` fix `make test-e2e-v2` (2026-10-29: a recruit scene over the map ate the node click; closes it + picks a combat node). `[ ]` later (proposal): weekly contracts, achievements, codex completion rewards, custom anomaly mixer, Chronicle campaign mode, companion outfits.
 
 ## Priority 0 — global showcase & improvement waves (owner direction 2026-10-24)
 

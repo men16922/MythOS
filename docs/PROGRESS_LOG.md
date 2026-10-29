@@ -1,6 +1,11 @@
 # Progress Log
 
-Last updated: 2026-10-28
+Last updated: 2026-10-29
+
+## 2026-10-29 — `make test-e2e-v2` green again (Claude Opus 5.5)
+
+- Root cause was not "the first node is not a fight": a companion recruit scene (`RecruitScene`, `data-testid=recruit-scene`) opens over the map and swallowed the node click. `scripts/e2e_v2.py` now closes it with Escape (fails if it stays open) and clicks a reachable `combat`/`elite` node instead of the first reachable node.
+- Gates: `make test-e2e-v2` passed twice in a row (combat reached turn 4, daily replay verified), `make check` green (Python 338). Engine/UI code unchanged.
 
 ## 2026-10-28 — Companion ultimate signature SFX (Claude Opus 5.5, owner request)
 

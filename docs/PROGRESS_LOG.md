@@ -8,6 +8,7 @@ Last updated: 2026-10-30
 - **Tuning from the sim** (start-of-run holder, mixed, 100 runs, base 52): first cut `overload_buffer` 0, `debt_clock` 27, `empty_handed` 26, `corpse_fuel` 29, `echo_wedge` 74 → retuned to 42 / 45 / 37 / 35 / 57; others chain 46, black pact 38, weightless 51, glass 64, pyre 44, hollow 60, wall 47.
 - **Balance** (same seeds, before → after): mixed 3 × 100 152 → 154 / 300; parts on an earlier tuning: implants only 151, gates only 142; greedy 58 → 56 / 60; greedy P5 56 → 52 / 60; Deep Signal mixed 25 → 22 / 75. The bots do not plan around the new rules, so these bound the content, they do not measure it. Map rolls change for existing seeds, as with any event addition.
 - Gates: `make check` green (node 440, Python 338); `make playthrough-quick` OK (199 s); `make test-e2e-v2` OK (daily replay verified); real UI desktop + 390 px: gate hint + HP + mutator chip, noise-paid reward + pick, two full fights holding six rule implants (Hollow World voids on the board), 0 console errors, no horizontal overflow.
+- Preview `00162-paw` (`git-sha=b74d2e6`) deployed at 0 % traffic, `make verify-preview` run after the commit; production stays on `00160-qiy`.
 - Unverified: a gate met and paid out by natural play in a bot run; every rule's feel. **Needs the owner's sandbox/fun verdict** before F2–F4. Not promoted.
 
 ## 2026-10-30 — Production promoted to `00160-qiy` (Claude Opus 5.5, owner OK)

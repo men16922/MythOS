@@ -9,7 +9,8 @@ Last updated: 2026-10-30
 - **Balance** (canonical 3 × 150): without F3/F4 187 → with 197 / 450 (43.8 %, band OK). Replica cost measured separately: 41 → 36 / 150 on a `loops: 1` profile. That profile alone reads 54 → 41 / 150 against a fresh one, unrelated to this work and not investigated.
 - `9e89e58` reached `main` and a preview with `make check` red (an empty card upgrade; a one-line command chained past the failure); fixed in the next commit, production untouched.
 - Gates after the fix: `make check` green (node 457, Python 338); `make playthrough-quick` OK; `make test-e2e-v2` OK; real UI: reverse badge + mask at IX, replica intro + stats, evolution note + deck swap, 0 console errors. All 12 duo cut-ins seen through a real fight; `night_watch` art regenerated twice (face hidden by the band, then an off-tone pose).
-- Unverified: Omega's reboot banner and an evolved card in a hand on screen; a phase crossed by a played card (the test applied the hit directly); sound; feel. Art unapproved: 27 + 12 images. Not promoted.
+- Real UI after the fix: evolved card in a hand; a played card crossing IX's phases (47 → 42 HP, reverse active); Omega's reboot banner through a played card and its animation; final `night_watch` cut-in, 0 console errors.
+- Unverified: sound; feel; a real fight and sign-in on the preview or production. Art unapproved: 27 + 12 images. Not promoted.
 
 ## 2026-10-31 — F2 duo ultimates: twelve pairs (Claude Opus 5.5, owner: proceed without the F1 verdict)
 

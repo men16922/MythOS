@@ -387,10 +387,10 @@ const FORBIDDEN: ImplantDef[] = [
   {
     id: 'glass_circuit',
     name: t('유리 회로', 'Glass Circuit'),
-    text: t('아군의 모든 공격 피해 +2. 적의 모든 공격 피해 +1.', 'All your attacks deal +2. All enemy attacks deal +1.'),
+    text: t('아군의 모든 공격 피해 +2. 적의 모든 공격 피해 +2.', 'All your attacks deal +2. All enemy attacks deal +2.'),
     rarity: 'boss',
     icon: 'v2/implants/glass_circuit.webp',
-    rules: { attackBonus: 2, enemyAttackBonus: 1 },
+    rules: { attackBonus: 2, enemyAttackBonus: 2 },
   },
   {
     id: 'corpse_fuel',
@@ -421,11 +421,10 @@ const FORBIDDEN: ImplantDef[] = [
   {
     id: 'hollow_world',
     name: t('구멍 난 세계', 'Hollow World'),
-    text: t('모든 엄폐물이 공허가 된 채 전투가 시작된다. 환경 처치마다 체력 2 회복.', 'All cover starts the fight as void. Each environment kill: heal 2.'),
+    text: t('모든 엄폐물이 공허가 된 채 전투가 시작된다.', 'All cover starts the fight as void.'),
     rarity: 'boss',
     icon: 'v2/implants/hollow_world.webp',
     rules: { coverToVoid: true },
-    triggers: [{ on: 'environment_kill', effects: [{ kind: 'heal', amount: 2, to: 'connector' }] }],
   },
   {
     id: 'standing_wall',

@@ -44,6 +44,7 @@ import {
   takeRewardCard,
   takeRewardConsumable,
   takeRewardCredits,
+  takeNoiseImplant,
   takeRewardImplant,
   updateCombat,
   MAX_CONSUMABLES, canCraft, restCraft
@@ -329,6 +330,11 @@ function decideReward(run: RunState, s: ScreenOf<'reward'>, C: ContentRegistry):
       (a, b) => (IMPLANT_SCORE[C.implants[b]?.rarity ?? ''] ?? 0) - (IMPLANT_SCORE[C.implants[a]?.rarity ?? ''] ?? 0),
     )[0] as string
     const next = takeRewardImplant(run, best, C)
+    if (next !== run) return next
+  }
+  const forbidden = r.noiseChoices?.[0]
+  if (forbidden && !r.taken.noise) {
+    const next = takeNoiseImplant(run, forbidden, C)
     if (next !== run) return next
   }
   if (r.consumable && !r.taken.consumable && run.consumables.length < MAX_CONSUMABLES) {

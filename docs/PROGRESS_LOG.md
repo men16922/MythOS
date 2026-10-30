@@ -2,6 +2,13 @@
 
 Last updated: 2026-10-30
 
+## 2026-10-31 — Argon's review of F1–F4: fixes (Claude Opus 5.5, owner: have Argon judge it)
+
+- **Review**: Gemini 4 Argon, read-only, report `outputs/agy/f1-f4-verdict.md`. An agent's verdict, not the owner's feel check. About half checked out: its implant ranking and duo notes describe effects that do not exist in the content, and its `glass_circuit` 40 / 40 predates the retune, so those parts were dropped. Each claim below was confirmed in code or on screen first.
+- **Fixed**: a gate closing on a boss lost its payout and on an elite shared one pick, and plain boss implants could appear: the gate is now its own pick of forbidden implants (`noiseChoices`, `takeNoiseImplant`). Both duo lines show. The third ultimate no longer runs off the screen. `overtuned_laser` was identical to `target_laser+`, now adds 3 damage; `flurry` 3 × 2 → 4 × 2. Scramble has a HUD badge, the replica a red mark on the board, the evolution note names its recipe, the codex scrolls to the chosen list. Redrawn: `duo_same_dream`, `duo_overdue_reader`, `duo_warm_circuit`, `duo_burned_ledger`, `noise_gate_record`, `overtuned_laser`, `heart_overload`.
+- **Balance** (canonical 3 × 150): the full payout read 207 / 450 = 46.0 %, over the band, so the gate now costs 8 HP (was 6): 202 / 450 = 44.9 %, in band. `hollow_world`: restoring a heal read 59.8 %, so it stays as it was at 53.3 %; Argon's "trap" call does not match the numbers.
+- Not changed: weak duos and evolutions Argon named, phone ultimate chips over the hand, Omega's reboot staying a banner, and its "too strong / too weak" calls that rest on feel.
+
 ## 2026-10-31 — F3 IX interference + replica, F4 card evolutions + best turn (Claude Opus 5.5, `/goal`, plan defaults)
 
 - **What**: IX bends the game at boss phases (`phases[].glitch`, `engine/effects.ts glitchActive`): card names masked, pushes reversed through the next player turn (HUD badge, previews agree), Omega's fake restart using the 1.0 boot lines. IX's replica of last loop's killer (non-boss, HP ×1.3, damage +1, 80 ₵) at the first elite from Act 2, named in the fight intro and on the unit. 12 card evolutions (`content/evolutions.ts`, card + implant, secret, map note, codex tab). Best turn (damage + kills × 6) on the ending and in the share text. 12 Codex card images, `scripts/v2_assets/gen_evolved_cards.py`.
@@ -76,8 +83,3 @@ Last updated: 2026-10-30
 
 - Root cause was not "the first node is not a fight": a companion recruit scene (`RecruitScene`, `data-testid=recruit-scene`) opens over the map and swallowed the node click. `scripts/e2e_v2.py` now closes it with Escape (fails if it stays open) and clicks a reachable `combat`/`elite` node instead of the first reachable node.
 - Gates: `make test-e2e-v2` passed twice in a row (combat reached turn 4, daily replay verified), `make check` green (Python 338). Engine/UI code unchanged.
-
-## 2026-10-28 — Companion ultimate signature SFX (Claude Opus 5.5, owner request)
-
-- 11 procedural cues `ult_<companion>` in `sfx.ts` (`ULT_SFX` map), one per ultimate, matching its scene (Se-rin undertow surge + dash, Tae-o charge + shield slam, Han keystrokes + lock-on, Su-ah anvil strikes, Kai rail charge + shot, Lin-yue coin shower + register, Io page riffle + glass bells, Miro "shh" + three swishes, Doyun barrier hum + deflections, Bel pen scratch + hiss, Rem clock ticks + slowing hush). Archetype bursts keep their `burst_*` cues. `audio-cues.test` checks every companion has a distinct cue that plays.
-- Gates: `make check` green. Sound itself **unheard** (automation stays muted): owner listen check pending. Preview `00158-roq` (`git-sha=562d220`) `make verify-preview` 5/5 → **promoted 2026-10-28** (`--to-latest`, 100 %; production health 200, served `CombatScreen.js` and the cue chunk = committed; rollback `00156-fuj`).

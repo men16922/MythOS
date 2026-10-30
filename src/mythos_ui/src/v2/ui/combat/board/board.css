@@ -1,0 +1,5 @@
+
+/* IX's replica of last loop's killer stays recognisable after the intro banner. */
+.m2c-unit.is-replica img {
+  filter: drop-shadow(0 0 6px rgba(255, 70, 120, 0.9)) hue-rotate(-25deg) saturate(1.3);
+}

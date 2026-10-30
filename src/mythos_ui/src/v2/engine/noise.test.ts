@@ -3,11 +3,12 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { CONTENT as C } from '../content/index.ts'
+import { NOISE_HP } from '../content/eventsNoise.ts'
 import { applyRunEnd, newProfile, RECENT_EVENT_LOOPS } from './meta.ts'
 import { activeMutators, noiseMutatorFor } from './mutators.ts'
 import { generateActMap } from './map.ts'
 import { startCombat } from './combat.ts'
-import { chooseEventOption, eventOptions, newRun, resolveEventId, startAct, updateCombat } from './run.ts'
+import { chooseEventOption, eventOptions, newRun, resolveEventId, startAct, takeNoiseImplant, updateCombat } from './run.ts'
 import type { RunState } from './types.ts'
 
 const NOW = '2026-10-30T00:00:00.000Z'
@@ -27,7 +28,7 @@ test('a gate names its bargain, takes the HP and opens the mutator for three win
   const m = noiseMutatorFor(run)
   assert.ok(hint.ko.includes(m.name.ko) && hint.en.includes(m.name.en))
   const next = chooseEventOption(run, 0, C)
-  assert.equal(next.hp, run.hp - 6)
+  assert.equal(next.hp, run.hp - NOISE_HP)
   assert.equal(next.noiseMutator, m.id)
   assert.equal(next.noiseLeft, 3)
   assert.ok(activeMutators(next).some((x) => x.id === m.id))
@@ -52,9 +53,26 @@ test('the third win closes the gate and offers forbidden implants', () => {
   assert.equal(paid.noiseLeft, undefined)
   assert.ok(paid.screen.kind === 'reward')
   if (paid.screen.kind !== 'reward') return
-  assert.equal(paid.screen.reward.noisePaid, true)
-  assert.equal(paid.screen.reward.implantChoices.length, 2)
-  for (const id of paid.screen.reward.implantChoices) assert.equal(C.implants[id]?.rarity, 'boss')
+  const choices = paid.screen.reward.noiseChoices ?? []
+  assert.equal(choices.length, 2)
+  for (const id of choices) assert.equal(C.implants[id]?.forbidden, true, `${id} is a forbidden implant`)
+  const after = takeNoiseImplant(paid, choices[0]!, C)
+  assert.ok(after.implants.includes(choices[0]!))
+  assert.equal(takeNoiseImplant(after, choices[1]!, C), after, 'one pick')
+})
+
+test('a gate closing on a boss or elite pays on top of that fight, it never replaces or loses either', () => {
+  for (const nodeKind of ['elite', 'boss'] as const) {
+    const run = { ...chooseEventOption(atGate(), 0, C), noiseLeft: 1, screen: { kind: 'map' as const } }
+    const enc = Object.values(C.encounters).find((e) => e.act === 1 && e.kind === nodeKind)!.id
+    const combat = startCombat(run, enc, C)
+    const paid = updateCombat({ ...run, screen: { kind: 'combat', combat, nodeKind } }, { ...combat, phase: 'won' }, C)
+    assert.ok(paid.screen.kind === 'reward')
+    if (paid.screen.kind !== 'reward') continue
+    assert.equal(paid.screen.reward.implantChoices.length, nodeKind === 'boss' ? 3 : 1, 'the fight keeps its own implants')
+    assert.equal(paid.screen.reward.noiseChoices?.length, 2, 'the gate pays too')
+    assert.ok(paid.screen.reward.noiseChoices!.every((id) => !paid.screen.kind || !(paid.screen as { reward: { implantChoices: string[] } }).reward.implantChoices.includes(id)), 'no overlap')
+  }
 })
 
 test('an open gate is not offered again', () => {

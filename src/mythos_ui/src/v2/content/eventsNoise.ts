@@ -9,12 +9,12 @@ const t = (ko: string, en: string): Text => ({ ko, en })
 /** Won fights a gate lasts. */
 export const NOISE_FIGHTS = 3
 /** HP paid at the gate. */
-export const NOISE_HP = 6
+export const NOISE_HP = 8
 /** Roll weight (other events weigh 1). */
 export const NOISE_WEIGHT = 4
 
 /** Replaced on screen by the engine with this act's actual mutator (run.ts noiseOption). */
-const HINT = t('−6 HP · 변칙 3승 · 금지 임플란트', '−6 HP · 3-win anomaly · forbidden implant')
+const HINT = t('−8 HP · 변칙 3승 · 금지 임플란트', '−8 HP · 3-win anomaly · forbidden implant')
 
 const decline = (ko: string, en: string, kText: string, eText: string) => ({
   label: t(ko, en),

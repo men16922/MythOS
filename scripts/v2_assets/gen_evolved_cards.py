@@ -49,7 +49,7 @@ CARDS: dict[str, tuple[str, str]] = {
     "artery_open": ("artery_rip", "a thin curved blade leaves a long crimson arc in the air"),
     "overtuned_laser": (
         "target_laser",
-        "the targeting laser overloads into a thick beam with sparks at the emitter",
+        "a hooded operative aims a handheld targeting laser that overloads into a thick beam, sparks at the emitter",
     ),
     "phantom_step": (
         "smoke_step",
@@ -57,7 +57,7 @@ CARDS: dict[str, tuple[str, str]] = {
     ),
     "heart_overload": (
         "overload_strike",
-        "the striking arm glows from a burning heart-shaped core in the chest",
+        "the striking arm glows from an overheating mechanical reactor core in the chest, round and industrial, not a heart symbol",
     ),
     "cover_fire": (
         "suppressing_fire",

@@ -367,6 +367,7 @@ function spawnReplica(c: CombatState, C: ContentRegistry, enemyId: string, pos: 
   u.hp = u.maxHp
   u.dmgBonus = (u.dmgBonus ?? 0) + 1
   c.replicaUid = u.uid
+  u.replica = true
   const name = C.enemies[enemyId]?.name
   u.name = T(`IX 복제 ${name?.ko ?? ''}`, `IX replica: ${name?.en ?? ''}`)
 }

@@ -392,6 +392,12 @@ function rollCards(h: RngHolder, run: RunState, C: ContentRegistry, count: numbe
   return out
 }
 
+/** Forbidden implants a closing noise gate offers: never one held or already on this reward. */
+function rollForbidden(h: RngHolder, run: RunState, C: ContentRegistry, exclude: readonly string[]): string[] {
+  const pool = run.pools.implants.filter((id) => C.implants[id]?.forbidden && !run.implants.includes(id) && !exclude.includes(id))
+  return sample(h, pool, NOISE_IMPLANT_CHOICES)
+}
+
 function rollImplant(
   h: RngHolder,
   run: RunState,
@@ -844,13 +850,8 @@ function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: 
     else credits += BONUS_CREDITS
   }
 
-  if (noisePaid) {
-    for (let i = 0; i < NOISE_IMPLANT_CHOICES; i++) {
-      const id = rollImplant(h, run, C, { boss: 1 }, implantChoices) ?? rollImplant(h, run, C, { rare: 1 }, implantChoices)
-      if (id) implantChoices.push(id)
-    }
-    implantChoices = implantChoices.slice(0, 3)
-  }
+  // A noise gate pays on top of the fight's own reward, never instead of it.
+  const noiseChoices = noisePaid ? rollForbidden(h, run, C, implantChoices) : []
 
   const reward: RewardState = {
     credits,
@@ -860,7 +861,7 @@ function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: 
     taken: { credits: false, cards: cardChoices.map(() => false), implant: false, consumable: false },
   }
   if (consumable) reward.consumable = consumable
-  if (noisePaid) reward.noisePaid = true
+  if (noiseChoices.length > 0) reward.noiseChoices = noiseChoices
   return reward
 }
 
@@ -977,6 +978,15 @@ export function takeRewardCard(run: RunState, groupIndex: number, cardId: string
     if (!group || s.reward.taken.cards[groupIndex]) return false
     if (cardId !== null && (!group.includes(cardId) || !addCard(next, cardId, C))) return false
     s.reward.taken.cards[groupIndex] = true
+  })
+}
+
+/** The noise gate's pick (engine/mutators.ts). */
+export function takeNoiseImplant(run: RunState, implantId: string, C: ContentRegistry): RunState {
+  return onScreen(run, 'reward', (next, s) => {
+    if (s.reward.taken.noise || !s.reward.noiseChoices?.includes(implantId)) return false
+    if (!gainImplant(next, implantId, C)) return false
+    s.reward.taken.noise = true
   })
 }
 

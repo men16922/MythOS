@@ -144,11 +144,11 @@ export function burstSteps(kit: Kit, plan: Plan, ev: Ev<'burst'>): void {
   const splash = ult ? asset(ult) : undefined
   const uid = ev.companion ?? 'connector'
   const tone = comp ? 'shock' : 'gold'
-  const quote = duo ? tr(duo.lines[1], plan.lang) : undefined
+  const quote: [string, string] | undefined = duo ? [tr(duo.lines[0], plan.lang), tr(duo.lines[1], plan.lang)] : undefined
   plan.steps.push({
-    dur: duo ? 1900 : 1450,
+    dur: duo ? 2300 : 1450,
     run: () => {
-      showBanner({ kind: 'burst', title: name, sub: who, art, ...(splash ? { splash } : {}), ...(quote ? { quote } : {}), tone: comp ? 'ult' : 'burst' }, S(duo ? 2050 : 1600))
+      showBanner({ kind: 'burst', title: name, sub: who, art, ...(splash ? { splash } : {}), ...(quote ? { quote } : {}), tone: comp ? 'ult' : 'burst' }, S(duo ? 2450 : 1600))
       const u = unitOf(uid)
       if (u) pose(uid, 'skill', S(1400))
       hitStop(S(140))

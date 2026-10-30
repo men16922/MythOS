@@ -197,7 +197,7 @@ export function MomentumGauge(p: {
       {ready ? (
         <>
           {ults.length > 0 && (
-            <div className="m2c-ults">
+            <div className={`m2c-ults${ults.some((u) => u.art2) ? ' has-duo' : ''}`}>
               {ults.map((u) => (
                 <Tooltip
                   key={u.uid}

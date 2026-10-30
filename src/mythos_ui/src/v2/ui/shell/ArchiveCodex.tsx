@@ -1,6 +1,6 @@
 // Archive tab — the codex of things met (engine/bestiary.ts): enemies seen (with total kills) and cards ever
 // owned. Unmet entries stay as dark silhouettes / '???'. Completing either earns an achievement.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { bestiaryIds, codexCardIds } from '../../engine/bestiary.ts'
 import type { ContentRegistry, DuoDef, EvolutionDef, Lang, MetaProfile } from '../../engine/types.ts'
 import { sprite } from '../common/assets.ts'
@@ -48,6 +48,9 @@ function ArchiveEvolutions({ evolutions, found, C, lang }: { evolutions: Evoluti
 export function ArchiveCodex({ profile, C, lang }: { profile: MetaProfile; C: ContentRegistry; lang: Lang }) {
   const ko = lang === 'ko'
   const [view, setView] = useState<'enemies' | 'cards' | 'duos' | 'evolutions'>('enemies')
+  // The codex sits under the Archive's other panels: bring the chosen list into view.
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => root.current?.scrollIntoView({ block: 'start' }), [view])
   const enemies = bestiaryIds(C)
   const cards = codexCardIds(C)
   const met = profile.bestiary ?? {}
@@ -59,7 +62,7 @@ export function ArchiveCodex({ profile, C, lang }: { profile: MetaProfile; C: Co
   const evolutions = Object.values(C.evolutions ?? {})
   const evolved = new Set(profile.evolutions ?? [])
   return (
-    <div className="m2-codex" data-testid="archive-codex">
+    <div className="m2-codex" data-testid="archive-codex" ref={root}>
       <div className="m2-codex__switch" role="tablist">
         <button role="tab" aria-selected={view === 'enemies'} className={view === 'enemies' ? 'is-on' : ''} onClick={() => setView('enemies')}>
           {ko ? '적' : 'Enemies'} <small className="m2-mono">{metCount}/{enemies.length}</small>

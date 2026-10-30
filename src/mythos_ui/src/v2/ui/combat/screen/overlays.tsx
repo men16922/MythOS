@@ -54,7 +54,11 @@ export function CombatBanner({ banner }: { banner: Banner }) {
         {banner.art && <img className="m2c-banner-art" src={banner.art} alt="" />}
         <div className="m2c-banner-title">{banner.title}</div>
         {banner.sub && <div className="m2c-banner-sub">{banner.sub}</div>}
-        {banner.quote && <div className="m2c-banner-quote">{banner.quote}</div>}
+        {banner.quote?.map((line, i) => (
+          <div key={i} className="m2c-banner-quote">
+            {line}
+          </div>
+        ))}
       </div>
     </>
   )

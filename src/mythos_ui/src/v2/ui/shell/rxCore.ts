@@ -77,6 +77,7 @@ export const rxCore = {
   takeCredits: (r: R, C: C): R => Run.takeRewardCredits(r, C),
   takeCard: (r: R, group: number, cardId: string | null, C: C): R => Run.takeRewardCard(r, group, cardId, C),
   takeImplant: (r: R, implantId: string, C: C): R => Run.takeRewardImplant(r, implantId, C),
+  takeNoiseImplant: (r: R, implantId: string, C: C): R => Run.takeNoiseImplant(r, implantId, C),
   takeConsumable: (r: R, C: C): R => Run.takeRewardConsumable(r, C),
   leaveReward: (r: R, C: C): R => Run.leaveReward(r, C),
   chooseCardReward: (r: R, cardId: string | null, C: C): R => Run.pickCardReward(r, cardId, C),

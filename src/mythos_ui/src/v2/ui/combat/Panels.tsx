@@ -69,6 +69,12 @@ export const TopStrip = memo(function TopStrip(p: {
             {ko(lang, 'IX 변조: 밀치기 방향 반전', 'IX override: pushes are reversed')}
           </span>
         )}
+        {glitchActive(c, 'scramble') && (
+          <span className="m2c-mod-badge is-glitch" data-testid="glitch-badge">
+            <i>◈</i>
+            {ko(lang, 'IX 변조: 카드 이름 차폐', 'IX override: card names masked')}
+          </span>
+        )}
         {c.mods && c.mods.length > 0 && (
           <span
             className="m2c-mod-badge"

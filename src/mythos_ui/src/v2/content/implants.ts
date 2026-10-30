@@ -566,7 +566,7 @@ export const IMPLANTS: ImplantDef[] = [
   ...UNCOMMON,
   ...RARE,
   ...BOSS,
-  ...FORBIDDEN,
+  ...FORBIDDEN.map((i) => ({ ...i, forbidden: true })),
   ...SHOP,
   ...PACK_BLACK_MARKET,
   ...PACK_ARK_SALVAGE,

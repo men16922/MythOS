@@ -357,6 +357,8 @@ export interface IntentState {
 }
 
 export interface UnitState {
+  /** IX's rebuild of last loop's killer: marked on the board. */
+  replica?: boolean
   uid: string
   /** EnemyDef id, companion id, 'connector', or 'neutral'. */
   defId: string
@@ -464,7 +466,7 @@ export interface CombatState {
   turnNow?: TurnRecord
   /** IX's current interference: active through player turn `until`. */
   glitch?: { kind: GlitchKind; until: number }
-  /** Uid of IX's replica of the enemy that killed the connector last loop. */
+  /** Uid of IX's replica of the enemy that killed the connector last loop (the unit also carries `replica`). */
   replicaUid?: string
   /** The duo ultimate fired this fight (id, content/duos.ts). */
   duoFired?: string
@@ -568,6 +570,8 @@ export interface ImplantDef {
   text: Text
   rarity: 'starter' | 'common' | 'uncommon' | 'rare' | 'boss' | 'shop'
   icon: string
+  /** A forbidden implant: boss rarity, and what a noise gate pays with. */
+  forbidden?: boolean
   passive?: ImplantPassive
   rules?: ImplantRules
   triggers?: { on: TriggerEvent; effects: Effect[]; limit?: 'turn' | 'combat' }[]
@@ -819,11 +823,11 @@ export interface RewardState {
   credits: number
   cardChoices: string[][] // each inner array = one "pick 1 of N" (elite/boss may have 2)
   implantChoices: string[] // pick 1 (elite: 1 option shown; boss: pick 1 of 3)
-  /** This fight closed a noise gate: its forbidden implants are in `implantChoices`. */
-  noisePaid?: boolean
+  /** This fight closed a noise gate: pick 1 of these forbidden implants, on top of the fight's own reward. */
+  noiseChoices?: string[]
   consumable?: string
   echoes: number
-  taken: { credits: boolean; cards: boolean[]; implant: boolean; consumable: boolean }
+  taken: { credits: boolean; cards: boolean[]; implant: boolean; consumable: boolean; noise?: boolean }
 }
 
 export type RunScreen =

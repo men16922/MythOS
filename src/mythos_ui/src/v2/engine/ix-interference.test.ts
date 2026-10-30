@@ -80,6 +80,7 @@ test('a replica waits at the first elite from Act 2, tougher, and pays when dest
   assert.equal(twin.defId, run.replica)
   assert.ok(twin.maxHp > CONTENT.enemies[run.replica!]!.hp)
   assert.ok(twin.name.ko.startsWith('IX 복제') && twin.name.en.startsWith('IX replica'))
+  assert.equal(twin.replica, true, 'marked on the board')
   assert.equal(startCombat(run, eliteOf(1), CONTENT).replicaUid, undefined, 'not in Act 1')
   const won = updateCombat({ ...run, act: 2, screen: { kind: 'combat', combat: original, nodeKind: 'elite' } }, { ...original, phase: 'won' }, CONTENT)
   assert.equal(won.flags[REPLICA_BEATEN], 1)

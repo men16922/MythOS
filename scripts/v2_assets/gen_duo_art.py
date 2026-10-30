@@ -60,24 +60,25 @@ DUOS: dict[str, tuple[str, str, str, str, str]] = {
         "han",
         "su_ah",
         "A panicking young hacker and the unflappable smith who forged his gear.",
-        "At a workbench he recoils from a sparking handheld rig, eyes wide, while she calmly rests one gloved hand "
-        "on it and the sparks settle.",
+        "At a workbench he grips a sparking handheld rig at chest height with a tense, serious face, jaw set, while "
+        "she calmly rests one gloved hand on it and the sparks settle. Realistic expressions, nothing cartoonish.",
         GOLD,
     ),
     "burned_ledger": (
         "lin_yue",
         "se_rin",
         "A broker writing off a debt for a smuggler who does not trust the gift.",
-        "On a dock at night the broker holds a burning paper ledger over the water, the smuggler watching with her "
-        "arms crossed and one raised eyebrow.",
+        "On a dock at night the broker holds a burning paper ledger up at shoulder height, in the upper half of the "
+        "frame, the smuggler beside her watching with her arms crossed and one raised eyebrow.",
         GOLD,
     ),
     "overdue_reader": (
         "io",
         "miro",
         "A precise librarian AI and the small forgotten reader she finally lets in.",
-        "Between tall glass shelves the librarian stamps a card with grave care while the small reader, a child with "
-        "a card for a face, holds up a worn book to her.",
+        "Between tall glass shelves the two sit at a reading desk with their heads level, both faces in the upper third "
+        "of the frame: the librarian stamps a card with grave care, and the small reader, a child with a card for a "
+        "face, sitting on a tall stool, holds a worn open book up at chest height.",
         TEAL,
     ),
     "red_ink": (
@@ -109,7 +110,9 @@ DUOS: dict[str, tuple[str, str, str, str, str]] = {
         "rem",
         "kai",
         "A dream executor and the android who once dreamed the dream he guarded.",
-        "They stand back to back in a dark machine hall, faint star points drifting between them, both looking up.",
+        "They stand back to back in a dark machine hall, faint star points drifting between them, both looking up. "
+        "The android keeps exactly the reference build: a male-presenting machine body with a flat, square chest plate "
+        "and broad shoulders, no breasts, the same plain mask-like face.",
         TEAL,
     ),
     "undeletable": (

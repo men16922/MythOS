@@ -150,7 +150,7 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
         <h1 className="m2-map__title">{actDef ? tr(actDef.name, lang) : ''}</h1>
         {(run.evolvedNew ?? []).map((id) => (
           <div key={id} className="m2-map__evolved" role="status" data-testid="evolved-note">
-            {lang === 'ko' ? '카드 진화' : 'Card evolved'}: <b>{tr(C.cards[id]?.name, lang)}</b>
+            {lang === 'ko' ? '카드 진화' : 'Card evolved'}: {tr(C.cards[C.evolutions?.[id]?.card ?? '']?.name, lang)} + {tr(C.implants[C.evolutions?.[id]?.implant ?? '']?.name, lang)} → <b>{tr(C.cards[id]?.name, lang)}</b>
           </div>
         ))}
         <p className="m2-map__sub">{actDef ? tr(actDef.subtitle, lang) : ''}</p>

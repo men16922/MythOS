@@ -44,6 +44,7 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
     (reward.credits <= 0 || reward.taken.credits) &&
     reward.cardChoices.every((_, i) => reward.taken.cards[i]) &&
     (reward.implantChoices.length === 0 || reward.taken.implant) &&
+    (!reward.noiseChoices?.length || reward.taken.noise) &&
     (!reward.consumable || reward.taken.consumable)
 
   return (
@@ -151,7 +152,6 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
 
           {reward.implantChoices.length > 1 && (
             <div className="m2-rpick" style={delay()}>
-              {reward.noisePaid && <div className="m2-rpick__note">{ko ? '잡음이 걷히고 무언가 손에 남았다.' : 'The noise clears. Something stays in your hand.'}</div>}
               <div className="m2-rpick__head">
                 <Sparkles size={15} /> {reward.taken.implant ? (ko ? '임플란트 장착 완료' : 'Implant installed') : ko ? '임플란트 하나를 고른다' : 'Choose one implant'}
               </div>
@@ -170,6 +170,39 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
                         sound('rare')
                         setFlashImplant(id)
                         act(rx.takeImplant(run, id, C))
+                      }}
+                    >
+                      <ImplantIcon def={def} lang={lang} size={52} noTip flash={flashImplant === id} />
+                      <b>{tr(def.name, lang)}</b>
+                      <small>{tr(def.text, lang)}</small>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {!!reward.noiseChoices?.length && (
+            <div className="m2-rpick" style={delay()} data-testid="noise-pick">
+              <div className="m2-rpick__note">{ko ? '잡음이 걷히고 무언가 손에 남았다.' : 'The noise clears. Something stays in your hand.'}</div>
+              <div className="m2-rpick__head">
+                <Sparkles size={15} /> {reward.taken.noise ? (ko ? '금지 임플란트 장착 완료' : 'Forbidden implant installed') : ko ? '금지 임플란트 하나를 고른다' : 'Choose a forbidden implant'}
+              </div>
+              <div className="m2-rpick__row">
+                {reward.noiseChoices.map((id) => {
+                  const def = C.implants[id]
+                  if (!def) return null
+                  const mine = reward.taken.noise && run.implants.includes(id)
+                  return (
+                    <button
+                      key={id}
+                      className={`m2-rpick__opt${mine ? ' is-mine' : ''}`}
+                      disabled={reward.taken.noise}
+                      onMouseEnter={() => sound('ui_hover')}
+                      onClick={() => {
+                        sound('rare')
+                        setFlashImplant(id)
+                        act(rx.takeNoiseImplant(run, id, C))
                       }}
                     >
                       <ImplantIcon def={def} lang={lang} size={52} noTip flash={flashImplant === id} />

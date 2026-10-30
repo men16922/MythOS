@@ -3,6 +3,7 @@
 Repo-specific things a future unattended iteration should know before repeating a mistake.
 One line per lesson, dated, newest on top. Lessons about the archived 1.x runtime were removed with it (branch `1.0`).
 
+- 2026-10-31: an agent reviewer's report mixes real bugs with invented facts (Argon ranked implants by effects that do not exist). Check every claim against the code or the screen before acting. And never chain a commit onto a gate with `;`: gate with `if make check; then`.
 - 2026-10-30: greedy P5 cannot judge a strong implant, it sits at its ceiling (40 / 40 vs base 37 / 40 hid +22 pts): judge per-implant strength on mixed, canonical blocks, ≥ 450 runs. An ad-hoc seed block can also read 7 pts off the canonical one: compare the 35–45 % band on canonical seeds only.
 - 2026-10-30: `make verify-preview` compares `app.js`, which can stay byte-identical while the content chunk changes (`assets/fonts.js` holds engine + content here): to prove new code is served, hash the chunk that contains a new id on the preview. And `run.staleEvents`-style inputs must be copied onto the run at `newRun`, never read from the profile in the engine, or seeds stop reproducing.
 - 2026-10-30: a "forbidden" implant held from turn 1 can read 0/100 in the sim (Overload Buffer: +3 hand, 1 damage per card left) because the bot hoards. Measure each rule alone with `startImplants` before trusting a neutral aggregate: the aggregate read neutral while single implants ranged 0–74.

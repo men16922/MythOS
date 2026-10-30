@@ -95,6 +95,7 @@ export const UnitSprite = memo(function UnitSprite(p: UnitProps) {
     'm2c-unit',
     `is-${u.side}`,
     p.selected ? 'is-selected' : '',
+    u.replica ? 'is-replica' : '',
     p.origin ? 'is-origin' : '',
     p.hovered ? 'is-hovered' : '',
     p.xray ? 'is-xray' : '',

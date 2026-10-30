@@ -344,8 +344,17 @@
 }
 .m2c-ults {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   margin-top: -40px; /* grows upward: the burst button keeps its place */
+}
+/* A duo takes its own row above the solo ultimates, so three options never run off the screen. */
+.m2c-ults.has-duo {
+  margin-top: -80px;
+}
+.m2c-ult.is-duo {
+  order: -1;
+  flex: 1 0 100%;
 }
 .m2c-ult {
   display: flex;

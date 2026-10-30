@@ -215,7 +215,7 @@ test('cards are well-formed and upgrades matter', () => {
 test('implants and consumables are well-formed', () => {
   for (const i of IMPLANTS) {
     assert.ok(exists(i.icon), `${i.id} icon ${i.icon}`)
-    assert.ok(i.passive || i.triggers?.length, `${i.id} does nothing`)
+    assert.ok(i.passive || i.rules || i.triggers?.length, `${i.id} does nothing`)
     for (const t of i.triggers ?? []) for (const e of t.effects) checkEffect(e, i.id)
   }
   for (const c of CONSUMABLES) {

@@ -150,6 +150,11 @@
   background: rgba(30, 24, 8, 0.4);
   animation: m2-row-in 0.45s var(--m2-ease) both;
 }
+.m2-rpick__note {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--m2-mute);
+}
 .m2-rpick__head {
   display: flex;
   align-items: center;

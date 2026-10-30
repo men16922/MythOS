@@ -149,6 +149,13 @@
   gap: 6px;
   margin-top: 6px;
 }
+/* Long hints (a noise gate spells out its whole bargain) wrap instead of running off a phone screen. */
+.m2-option__meta .m2-chip {
+  max-width: 100%;
+  height: auto;
+  white-space: normal;
+  line-height: 1.4;
+}
 .m2-option__fail {
   display: inline-flex;
   align-items: center;

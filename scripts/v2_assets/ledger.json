@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 313,
+ "codex_image_calls": 328,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -4316,6 +4316,33 @@
    ],
    "ts": "2026-10-26T05:08:58"
   },
+  "v2/events/noise_gate_origin.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Wide cinematic scene illustration for a cyberpunk tactics game, eye-level camera, no people in frame. Scene: a vast dim machine floor with a faint pulse of violet light travelling under metal grates, unreadable scratches on a wall. Style: painterly concept art, cyberpunk Neo-Seoul noir, deep navy shadows, soft haze, restrained glow, subtle film grain. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a3_recruit.webp"
+   ],
+   "ts": "2026-10-30T21:44:02"
+  },
+  "v2/events/noise_gate_record.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Wide cinematic scene illustration for a cyberpunk tactics game, eye-level camera, no people in frame. Scene: a sterile white corridor where one thin wall panel is slightly ajar, deep blue static light leaking from the gap. Style: painterly concept art, cyberpunk Neo-Seoul noir, deep navy shadows, soft haze, restrained glow, subtle film grain. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a3_recruit.webp"
+   ],
+   "ts": "2026-10-30T21:43:57"
+  },
+  "v2/events/noise_gate_street.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Wide cinematic scene illustration for a cyberpunk tactics game, eye-level camera, no people in frame. Scene: a demolished street relay box in a rainy back alley, its cracked casing leaking cold blue light, cables hanging, humming. Style: painterly concept art, cyberpunk Neo-Seoul noir, deep navy shadows, soft haze, restrained glow, subtle film grain. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a3_recruit.webp"
+   ],
+   "ts": "2026-10-30T21:43:42"
+  },
   "v2/implants/acid_injector.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -4325,6 +4352,69 @@
    ],
    "ts": "2026-10-25T17:37:00"
   },
+  "v2/implants/black_pact.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a black glass contract slate bound with a thin wire, a single drop of dark blood on its circuit seal, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:41:50"
+  },
+  "v2/implants/chain_reactor.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a compact reactor core ringed by interlocked steel links, one link cracking as a shockwave passes down the chain, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:41:44"
+  },
+  "v2/implants/corpse_fuel.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a dented fuel cell fed by a thin tube, filled with dim red sludge and dead sparks, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:42:31"
+  },
+  "v2/implants/debt_clock.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a pocket clock module with three segments, the third segment dark and red, ledger marks around the dial, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:43:27"
+  },
+  "v2/implants/echo_wedge.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a thin metal wedge driven into a resonator, two offset ghost copies of it vibrating beside it, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:43:19"
+  },
+  "v2/implants/empty_handed.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: an open cybernetic palm plate with nothing on it, its finger joints still glowing, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:42:32"
+  },
+  "v2/implants/glass_circuit.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a brittle transparent circuit board with hairline fractures and bright traces inside the glass, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:42:24"
+  },
   "v2/implants/hawkeye_lens.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -4333,6 +4423,33 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
    ],
    "ts": "2026-10-25T17:36:54"
+  },
+  "v2/implants/hollow_world.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a miniature city tile with a perfectly round black hole cut through its centre, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:43:05"
+  },
+  "v2/implants/overload_buffer.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: an overstuffed memory cartridge bulging at its seams, data cards jammed in its slot, hot orange vents, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:41:46"
+  },
+  "v2/implants/pyre_protocol.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a small ceremonial incinerator chip with a tiny flame burning inside its housing, ash on the rim, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:42:38"
   },
   "v2/implants/reflex_gyro.webp": {
    "generations": 1,
@@ -4369,6 +4486,24 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
    ],
    "ts": "2026-10-25T17:37:35"
+  },
+  "v2/implants/standing_wall.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a heavy layered shield plate module planted on a stubborn steel foot, dented but upright, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:43:27"
+  },
+  "v2/implants/weightless_rig.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a small gyroscopic harness module with floating rings and no contact with the surface below it, a forbidden cybernetic artifact with glowing crimson and pale white circuitry, ominous crimson glow. The attached reference image is ONLY a style guide: match its painterly rendering and lighting, but draw a completely new subject and composition (do not copy its subject). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border. Absolutely no text, no letters, no numbers, no readable writing (any pages, cards, notes or screens are blank or show only abstract illegible marks), no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
+   ],
+   "ts": "2026-10-30T21:41:46"
   },
   "v2/map/act4.webp": {
    "generations": 1,

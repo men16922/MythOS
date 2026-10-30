@@ -140,6 +140,7 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSheet, onSett
           <div className="m2-topbar__mutator" data-testid="mutator-chip">
             <Shuffle size={13} aria-hidden="true" />
             <span>{mutators.length === 1 ? tr(mutators[0]!.name, lang) : lang === 'ko' ? `변칙 ${mutators.length}개` : `${mutators.length} anomalies`}</span>
+            {run.noiseLeft ? <span data-testid="noise-left">{lang === 'ko' ? `잡음 ${run.noiseLeft}승` : `Noise: ${run.noiseLeft} wins`}</span> : null}
           </div>
         </Tooltip>
       )}

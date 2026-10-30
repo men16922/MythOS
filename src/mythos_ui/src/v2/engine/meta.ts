@@ -23,6 +23,8 @@ import type {
 } from './types.ts'
 
 export const HISTORY_CAP = 30
+/** Normal loops whose events the next maps prefer to avoid. */
+export const RECENT_EVENT_LOOPS = 2
 export const MAX_PARADOX = 10
 export const NODE_ECHOES = 1
 export const ELITE_ECHOES = 4
@@ -240,6 +242,10 @@ export function migrateProfile(raw: unknown): MetaProfile {
     archetypeWins: migrateCounts(r.archetypeWins),
     ...(Array.isArray(r.records) ? { records: strList(r.records) } : {}),
     eventsSeen: migrateCounts(r.eventsSeen),
+    recentEvents: (Array.isArray(r.recentEvents) ? r.recentEvents : [])
+      .filter(Array.isArray)
+      .slice(0, RECENT_EVENT_LOOPS)
+      .map((ids: unknown[]) => ids.filter((id): id is string => typeof id === 'string')),
     achievements: strList(r.achievements),
     bestiary: migrateBestiary(r.bestiary),
     cardsSeen: strList(r.cardsSeen),
@@ -470,6 +476,7 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     companionWins: victory && !run.daily ? addWins(profile.companionWins, run.party.map((m) => m.id)) : { ...(profile.companionWins ?? {}) },
     archetypeWins: victory && !run.daily ? addWins(profile.archetypeWins, [run.archetype]) : { ...(profile.archetypeWins ?? {}) },
     eventsSeen: addWins(profile.eventsSeen, [...new Set(run.seenEvents)]),
+    recentEvents: run.daily ? (profile.recentEvents ?? []) : [[...new Set(run.seenEvents)], ...(profile.recentEvents ?? [])].slice(0, RECENT_EVENT_LOOPS),
     bestiary: mergeBestiary(profile.bestiary, run.bestiary),
     cardsSeen: union(profile.cardsSeen ?? [], run.cardsSeen ?? []),
     settings: { ...profile.settings },

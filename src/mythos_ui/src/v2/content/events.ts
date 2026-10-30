@@ -16,6 +16,7 @@ import type { EventDef, Text } from '../engine/types.ts'
 import { COMPANION_ARCS } from './eventsArcs.ts'
 import { A1_MORE, A2_MORE, A3_MORE, SUAH_ARC } from './eventsMore.ts'
 import { ROAD_RECRUITS } from './eventsRecruit.ts'
+import { NOISE_GATES } from './eventsNoise.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 
@@ -2832,6 +2833,7 @@ export const EVENTS: EventDef[] = [
   ...A3_EXTRA,
   ...A3_MORE,
   ...ROAD_RECRUITS,
+  ...NOISE_GATES,
   ...SUAH_ARC,
   ...COMPANION_ARCS,
 ]

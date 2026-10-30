@@ -35,6 +35,8 @@ export interface MapOptions {
   paradox?: number
   /** Event ids already seen this run — pre-rolled events avoid them when possible. */
   exclude?: readonly string[]
+  /** Event ids of the last loops — preferred against, ahead of `exclude`, never forbidden. */
+  avoid?: readonly string[]
 }
 
 export function mapNodeId(act: number, row: number, col: number): string {
@@ -65,7 +67,7 @@ export function generateActMap(act: ActId, rng: RngHolder, C: ContentRegistry, o
   const parents = parentIndex(nodes)
   assignKinds(rng, nodes, parents)
   rollEncounters(act, rng, C, nodes, parents)
-  rollEvents(act, rng, C, nodes, opts.exclude ?? [])
+  rollEvents(act, rng, C, nodes, opts.exclude ?? [], opts.avoid ?? [])
   const bosses = mapEncounters(act, 'boss', C)
   const boss = nodes[bossId]
   if (boss && bosses.length > 0) boss.encounterId = pick(rng, bosses).id
@@ -296,16 +298,18 @@ export function actEventPool(act: number, C: ContentRegistry): EventDef[] {
   )
 }
 
-function rollEvents(act: number, rng: RngHolder, C: ContentRegistry, nodes: Record<string, MapNode>, exclude: readonly string[]): void {
+function rollEvents(act: number, rng: RngHolder, C: ContentRegistry, nodes: Record<string, MapNode>, exclude: readonly string[], avoid: readonly string[]): void {
   const pool = actEventPool(act, C)
   if (pool.length === 0) return
   const used = new Set<string>()
   const excluded = new Set(exclude)
+  const stale = new Set(avoid)
   const ordered = Object.values(nodes)
     .filter((n) => n.kind === 'event')
     .sort((a, b) => a.row - b.row || a.col - b.col)
   for (const n of ordered) {
     const tiers = [
+      pool.filter((e) => !used.has(e.id) && !excluded.has(e.id) && !stale.has(e.id)),
       pool.filter((e) => !used.has(e.id) && !excluded.has(e.id)),
       pool.filter((e) => !used.has(e.id)),
       pool,

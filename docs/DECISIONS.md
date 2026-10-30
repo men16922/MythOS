@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-30 — Forbidden implants keep their costs visible; noise gates are events
+
+- **Decision** (agent defaults, owner may override): a forbidden implant's cost must show in the card preview and enemy telegraphs, so no implant hides a telegraph. Noise gates are ordinary events, not a new map node kind. Event rotation is a preference, never a ban, and never applies to a daily.
+- **Why**: "every result is previewed" is a pillar of the combat. A new node kind would add a map icon, quotas and bot logic for a choice an event already gives. A hard ban could empty small pools.
+- **Impact**: enemy attack bonuses go through `scaling.dmg`; gates ride the event pool and `resolveEventId`. `profile.recentEvents` keeps 2 loops; saves without it read as empty.
+
 ## 2026-10-30 — Recruiting is open-ended; deployment stays at two
 
 - **Decision** (owner): recruiting has no roster cap and the party screen chooses who deploys; the deploy cap stays at two companions (board and balance untouched). Besides the scripted Act 2 scene, each act from Act 3 may roll one recruit scene written for that act (random by seed, at most once, never guaranteed); recruiting there costs Trace and declining pays a small gift or a stat check.

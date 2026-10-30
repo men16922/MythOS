@@ -7,6 +7,7 @@
 // 'status' / 'block' / 'heal' / 'energy' carry the positive delta that was applied. Decay and consumption
 // are not evented — the UI reads the resulting numbers from state.
 
+import { implantRules } from './implantRules.ts'
 import { setPassives } from './implantSets.ts'
 import { mutatorCombat } from './mutators.ts'
 import { type StatPerks, statPerks } from './statPerks.ts'
@@ -57,17 +58,17 @@ export const MOMENTUM_CHAIN4 = 25
 export const RIPOSTE_DAMAGE = 2
 
 /** Add Momentum (party only, capped; nothing after the Burst is spent). */
-export function gainMomentum(c: CombatState, n: number): void {
+export function gainMomentum(c: CombatState, C: ContentRegistry, n: number): void {
   if (n <= 0 || c.burstUsed) return
   const before = c.momentum ?? 0
-  const after = Math.min(MOMENTUM_MAX, before + n)
+  const after = Math.min(MOMENTUM_MAX, before + n * (1 + (implantRules(c, C).momentumBonus ?? 0)))
   if (after === before) return
   c.momentum = after
   emit(c, { t: 'momentum', amount: after - before, total: after })
 }
 
 /** Chain (X1): kills in one player turn — 2 = draw 1, 3 = +1 energy, 4+ = +25 Momentum. */
-function countChainKill(c: CombatState): void {
+function countChainKill(c: CombatState, C: ContentRegistry): void {
   const key = `t${c.turn}:kills`
   const n = (c.triggered[key] ?? 0) + 1
   c.triggered[key] = n
@@ -77,7 +78,7 @@ function countChainKill(c: CombatState): void {
   else if (n === 3) {
     c.energy += 1
     emit(c, { t: 'energy', amount: 1 })
-  } else gainMomentum(c, MOMENTUM_CHAIN4)
+  } else gainMomentum(c, C, MOMENTUM_CHAIN4)
 }
 export const BASE_CRIT_MULT = 1.5
 
@@ -358,8 +359,8 @@ export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause
       if (c.bonus?.def.kind === 'environment') c.bonus.progress += 1
     }
     if (c.phase === 'player' && !(c as CombatStateExt).inEnemyPhase) {
-      gainMomentum(c, MOMENTUM_KILL + (environmental ? MOMENTUM_ENV_KILL : 0))
-      countChainKill(c)
+      gainMomentum(c, C, MOMENTUM_KILL + (environmental ? MOMENTUM_ENV_KILL : 0))
+      countChainKill(c, C)
     }
     if (corrode > 0) {
       for (const adj of livingEnemies(c).sort(byUid)) {
@@ -367,6 +368,12 @@ export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause
           addStatus(c, adj, 'corrode', corrode)
         }
       }
+    }
+    const pyre = implantRules(c, C).killFire ?? 0
+    const pyreTile = pyre > 0 ? tileAt(c, deathPos) : undefined
+    if (pyreTile && isStandable(pyreTile)) {
+      pyreTile.fire = Math.max(pyreTile.fire ?? 0, pyre + ((c as CombatStateExt).inEnemyPhase ? 1 : 0))
+      emit(c, { t: 'fire', pos: { ...deathPos }, turns: pyreTile.fire })
     }
     fireTrigger(c, C, 'enemy_killed', deathPos)
     if (environmental) fireTrigger(c, C, 'environment_kill', deathPos)
@@ -416,6 +423,7 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
     if (o.attacker?.uid === 'connector' && o.source === 'party') {
       dmg += perksOf(c).attack
     }
+    if (o.source === 'party') dmg += implantRules(c, C).attackBonus ?? 0
     const mark = victim.statuses.mark ?? 0
     if (mark > 0) {
       dmg += mark + (o.bonusVsMarked ?? 0) + (o.source === 'party' ? perksOf(c).mark : 0)
@@ -427,7 +435,7 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
       const mult = BASE_CRIT_MULT + (o.source === 'party' ? activePassive(c, C, 'critMult') : 0)
       dmg = Math.ceil(dmg * mult)
       addStatus(c, o.attacker, 'focus', -FOCUS_CRIT_THRESHOLD)
-      if (o.source === 'party') gainMomentum(c, MOMENTUM_CRIT)
+      if (o.source === 'party') gainMomentum(c, C, MOMENTUM_CRIT)
     } else if (o.attacker && o.source === 'party' && dmg > 0) {
       const fg = perksOf(c).focusPerHit
       if (fg > 0) addStatus(c, o.attacker, 'focus', fg)
@@ -438,7 +446,7 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
       evaded = dmg - after
       dmg = after
       decayStatus(victim, 'evade')
-      if (victim.side === 'party') gainMomentum(c, MOMENTUM_EVADE)
+      if (victim.side === 'party') gainMomentum(c, C, MOMENTUM_EVADE)
     }
   }
   dmg = Math.max(0, dmg)
@@ -589,7 +597,10 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
     if (bumped === 'cover' && bumpPos) damageCover(c, bumpPos, 1)
     else if (bumped !== 'wall') {
       const other = getUnit(c, bumped)
-      if (other) dealDamage(c, C, other, BUMP_DAMAGE + slam + (other.side === 'party' ? 0 : extra), { source: 'environment', cause: 'bump' })
+      if (other) {
+        dealDamage(c, C, other, BUMP_DAMAGE + slam + (other.side === 'party' ? 0 : extra), { source: 'environment', cause: 'bump' })
+        if (other.hp > 0 && implantRules(c, C).pushChain) pushUnit(c, C, other, dir, 1)
+      }
     }
     if (stun && u.hp > 0) stunUnit(c, u)
     fireTrigger(c, C, 'bump', u.hp > 0 ? u.pos : bumpPos)
@@ -937,8 +948,14 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       }
       plans.sort((a, b) => lead(b) - lead(a))
       const stopBefore = eff.dir === 'toward' ? res.origin?.uid : undefined
-      const dist = (eff.distance ?? 1) + (res.side === 'party' ? (mutatorCombat(c).pushBonus ?? 0) : 0)
+      const rules = implantRules(c, C)
+      const dist = (eff.distance ?? 1) + (res.side === 'party' ? (mutatorCombat(c).pushBonus ?? 0) + (rules.pushBonus ?? 0) : 0)
       for (const { u, d } of plans) pushUnit(c, C, u, d, dist, stopBefore, eff.slam ?? 0, eff.stun ?? false)
+      const recoil = res.side === 'party' ? (rules.pushRecoil ?? 0) : 0
+      const first = plans[0]
+      if (recoil > 0 && first && res.origin && res.origin.hp > 0 && res.origin.uid !== first.u.uid) {
+        pushUnit(c, C, res.origin, opposite(first.d), recoil)
+      }
       return
     }
     case 'block': {

@@ -181,7 +181,7 @@ export const MIX_MIN = 2
 export const MIX_MAX = 3
 
 /** Where a run or a fight keeps its mutators: one daily / offered id, or a custom mix. */
-export type MutatorHolder = { mutator?: string; mutators?: string[] }
+export type MutatorHolder = { mutator?: string; mutators?: string[]; noiseMutator?: string }
 
 /** A valid custom mix: MIX_MIN..MIX_MAX distinct known ids. */
 export function isValidMix(ids: readonly string[] | undefined): ids is string[] {
@@ -191,7 +191,8 @@ export function isValidMix(ids: readonly string[] | undefined): ids is string[] 
 /** The active mutator definitions (a custom mix wins over the single id; unknown ids are skipped). */
 export function activeMutators(h: MutatorHolder): MutatorDef[] {
   const ids = h.mutators?.length ? h.mutators : h.mutator ? [h.mutator] : []
-  return ids.map((id) => BY_ID[id]).filter((m): m is MutatorDef => !!m)
+  const all = h.noiseMutator && !ids.includes(h.noiseMutator) ? [...ids, h.noiseMutator] : ids
+  return all.map((id) => BY_ID[id]).filter((m): m is MutatorDef => !!m)
 }
 
 function addStatuses(a: MutatorCombat['openEnemies'], b: MutatorCombat['openEnemies']): MutatorCombat['openEnemies'] {
@@ -215,6 +216,17 @@ export function mutatorCombat(h: MutatorHolder | string | undefined): MutatorCom
     if (c.tacticRefund !== undefined) out.tacticRefund = Math.max(out.tacticRefund ?? 0, c.tacticRefund)
   }
   return out
+}
+
+/** What a noise gate can bring: only mutators whose every clause still means something mid-run. */
+const NOISE_POOL = ['patrol_surge', 'long_night', 'market_boom', 'tight_wire', 'magnetic_storm', 'overclocked_grid', 'bounty_hunters']
+
+/** The mutator this act's noise gate brings (deterministic; never one already running). */
+export function noiseMutatorFor(run: { seed: number; act: number } & MutatorHolder): MutatorDef {
+  const held = new Set(activeMutators(run).map((m) => m.id))
+  const pool = NOISE_POOL.filter((id) => !held.has(id))
+  const ids = pool.length > 0 ? pool : NOISE_POOL
+  return BY_ID[ids[hashSeed(`${run.seed}:noise:${run.act}`) % ids.length] as string] as MutatorDef
 }
 
 /** Deterministic pair of optional mutator offers for a normal loop (seeded by loop/profile). */

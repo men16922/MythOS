@@ -151,6 +151,7 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
 
           {reward.implantChoices.length > 1 && (
             <div className="m2-rpick" style={delay()}>
+              {reward.noisePaid && <div className="m2-rpick__note">{ko ? '잡음이 걷히고 무언가 손에 남았다.' : 'The noise clears. Something stays in your hand.'}</div>}
               <div className="m2-rpick__head">
                 <Sparkles size={15} /> {reward.taken.implant ? (ko ? '임플란트 장착 완료' : 'Implant installed') : ko ? '임플란트 하나를 고른다' : 'Choose one implant'}
               </div>

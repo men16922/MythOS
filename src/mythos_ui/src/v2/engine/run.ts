@@ -41,7 +41,7 @@ import {
   unlockedCompanions,
 } from './meta.ts'
 import { SET_PULL, implantSetOf, newlyReached, setCounts, setPassives } from './implantSets.ts'
-import { isValidMix, mutatorById, mutatorForDate, mutatorMods } from './mutators.ts'
+import { isValidMix, mutatorById, mutatorForDate, mutatorMods, noiseMutatorFor } from './mutators.ts'
 import { hashSeed, pick, pickWeighted, rand, randInt, sample, shuffle } from './rng.ts'
 import type { RngHolder } from './rng.ts'
 import { mapRng, resetNodeStreams, runStream } from './streams.ts'
@@ -90,6 +90,8 @@ export const FIRST_COMPANION = 'se_rin'
 export const STATIC_CARD = 'static'
 
 const NODE_TRACE = 3
+/** Forbidden implants a closing noise gate adds to its fight's reward (pick 1). */
+const NOISE_IMPLANT_CHOICES = 2
 const NODE_TRACE_PARADOX = 5
 const BASE_REST_HEAL = 30
 const PARADOX_REST_HEAL = 20
@@ -543,6 +545,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     startedAt: opts.now ?? nowIso(),
   }
   if (daily) run.daily = daily
+  else if (profile.recentEvents?.length) run.staleEvents = [...new Set(profile.recentEvents.flat())]
   // Companion mastery comes from the profile, never on a daily (it must be the same run for everybody).
   if (!daily) {
     const mastery = masteryFor(profile)
@@ -620,7 +623,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
       if (worldEcho.bond) for (const m of run.party) raiseBond(run, m.id, worldEcho.bond, C)
     }
   }
-  run.map = generateActMap(1, mapRng(run, 1), C, { paradox })
+  run.map = generateActMap(1, mapRng(run, 1), C, { paradox, avoid: run.staleEvents ?? [] })
   placeDistrict(run, run.map, C)
   log(run, 'start', daily ? t(`오늘의 시드 ${daily} 시작`, `Daily Signal ${daily} begins`) : t(`루프 ${loop} 시작`, `Loop ${loop} begins`))
   const removes = (thread.startRemove ? 1 : 0) + (!daily && (run.autonomy ?? 0) >= 4 ? 1 : 0)
@@ -680,10 +683,10 @@ function beginCombat(run: RunState, encounterId: string, C: ContentRegistry): Co
 }
 
 /** Pre-rolled event if still valid, else a fresh act event (unseen + requirements met first). */
-function resolveEventId(run: RunState, node: MapNode, C: ContentRegistry): string | null {
+export function resolveEventId(run: RunState, node: MapNode, C: ContentRegistry): string | null {
   // A road recruit with nobody left to recruit gives way to another event.
   const usable = (e: EventDef | undefined): e is EventDef =>
-    !!e && conditionMet(run, e.requires, C).ok && (!e.recruit || recruitCandidates(run, C).length > 0)
+    !!e && conditionMet(run, e.requires, C).ok && (!e.recruit || recruitCandidates(run, C).length > 0) && (!e.noise || !run.noiseMutator)
   const pre = node.eventId ? C.events[node.eventId] : undefined
   if (usable(pre) && !run.seenEvents.includes(pre.id)) return pre.id
   const onMap = new Set(Object.values(run.map.nodes).map((n) => n.eventId))
@@ -789,7 +792,7 @@ function bonusAchieved(c: CombatState): boolean {
   }
 }
 
-function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: ContentRegistry): RewardState {
+function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: ContentRegistry, noisePaid = false): RewardState {
   const tier = nodeKind === 'boss' ? 'boss' : nodeKind === 'elite' ? 'elite' : 'normal'
   const h = runStream(run, 'reward')
   const base = tier === 'boss' ? 60 : tier === 'elite' ? randInt(h, 30, 40) : randInt(h, 12, 20)
@@ -821,6 +824,14 @@ function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: 
     else credits += BONUS_CREDITS
   }
 
+  if (noisePaid) {
+    for (let i = 0; i < NOISE_IMPLANT_CHOICES; i++) {
+      const id = rollImplant(h, run, C, { boss: 1 }, implantChoices) ?? rollImplant(h, run, C, { rare: 1 }, implantChoices)
+      if (id) implantChoices.push(id)
+    }
+    implantChoices = implantChoices.slice(0, 3)
+  }
+
   const reward: RewardState = {
     credits,
     cardChoices,
@@ -829,6 +840,7 @@ function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: 
     taken: { credits: false, cards: cardChoices.map(() => false), implant: false, consumable: false },
   }
   if (consumable) reward.consumable = consumable
+  if (noisePaid) reward.noisePaid = true
   return reward
 }
 
@@ -873,6 +885,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   gainTrace(next, combat.trace, C)
   advanceDirectiveOnWin(next, combat, nodeKind)
   noteFightFeats(next, combat, nodeKind)
+  const noisePaid = tickNoise(next)
   if (nodeKind === 'elite' || nodeKind === 'boss') addAxis(next, 'resilience')
   if (nodeKind === 'elite') {
     next.tally.elites += 1
@@ -901,8 +914,18 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
       return next
     }
   }
-  next.screen = { kind: 'reward', reward: buildReward(next, combat, nodeKind, C) }
+  next.screen = { kind: 'reward', reward: buildReward(next, combat, nodeKind, C, noisePaid) }
   return next
+}
+
+/** One won fight off an open noise gate. True when it closes: the fight's reward then holds the payout. */
+function tickNoise(run: RunState): boolean {
+  if (!run.noiseMutator) return false
+  run.noiseLeft = (run.noiseLeft ?? 1) - 1
+  if (run.noiseLeft > 0) return false
+  delete run.noiseMutator
+  delete run.noiseLeft
+  return true
 }
 
 // ---------------------------------------------------------------- reward reducers
@@ -970,7 +993,7 @@ function advanceAct(run: RunState, C: ContentRegistry): void {
   if ((run.autonomy ?? 0) >= 2) gainTrace(run, -AUTONOMY_ACT_SCRUB, C)
   run.act = run.act + 1
   if (run.paradox >= 9) gainTrace(run, 10, C) // Paradox 9: tracked ahead
-  run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents })
+  run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents, avoid: run.staleEvents ?? [] })
   placeDistrict(run, run.map, C)
   run.nodeId = null
   resetNodeStreams(run)
@@ -1049,7 +1072,22 @@ const KEEP_LINEUP: EventOption = {
   },
 }
 
+/** A noise gate's hint spells out the bargain: the HP, this act's mutator and what it pays. */
+function noiseOption(run: RunState, option: EventOption): EventOption {
+  const m = noiseMutatorFor(run)
+  const fights = option.success.effects.find((e) => e.kind === 'noise')?.fights ?? 0
+  const hp = option.success.effects.find((e) => e.kind === 'hp')?.amount ?? 0
+  return {
+    ...option,
+    hint: {
+      ko: `체력 ${hp} · 승리 ${fights}회 동안 ${m.name.ko}: ${m.boon.ko} / ${m.burden.ko} · 끝나면 금지 임플란트 선택`,
+      en: `${hp} HP · ${m.name.en} for ${fights} wins: ${m.boon.en} / ${m.burden.en} · then pick a forbidden implant`,
+    },
+  }
+}
+
 function optionList(run: RunState, def: EventDef, C: ContentRegistry): EventOption[] {
+  if (def.noise) return def.options.map((o, i) => (i === 0 ? noiseOption(run, o) : o))
   if (!isRecruitScene(def)) return def.options
   const benched = run.party.length >= MAX_PARTY
   const extra = recruitCandidates(run, C)
@@ -1100,6 +1138,10 @@ export function applyImmediate(run: RunState, effects: readonly RunEffect[], C: 
         break
       case 'trace':
         gainTrace(run, e.amount, C)
+        break
+      case 'noise':
+        run.noiseMutator = noiseMutatorFor(run).id
+        run.noiseLeft = e.fights
         break
       case 'card':
         addCard(run, e.cardId, C)

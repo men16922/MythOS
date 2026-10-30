@@ -10,6 +10,7 @@
 //   c. enemies without a pending windup move and telegraph (and next reinforcements are announced)
 //   d. win/lose → next player turn (party block clears, guard, energy, draw, turn_start triggers)
 
+import { implantRules } from './implantRules.ts'
 import { mutatorCombat, mutatorMods } from './mutators.ts'
 import { worldEchoOf } from './legacy.ts'
 import type {
@@ -114,6 +115,7 @@ export interface IntentInfo {
 const T = (ko: string, en: string): Text => ({ ko, en })
 const REASON = {
   over: T('전투가 끝났다', 'The fight is over'),
+  cardLimit: T('이번 턴에 더 쓸 수 없다', 'No more cards this turn'),
   noCard: T('손에 없는 카드', 'Card not in hand'),
   junk: T('사용할 수 없는 카드', 'This card cannot be played'),
   noOrigin: T('행동할 수 없는 대원', 'That unit cannot act'),
@@ -161,7 +163,7 @@ function scalingFor(run: RunState, C: ContentRegistry): CombatScaling {
   return {
     hpPct: (tune?.enemyHpPct ?? 0) + (actTune?.hpPct ?? 0) + ENDLESS_HP_PER_LAP * lap + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
     elitePct: (tune?.eliteHpPct ?? 0) + (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
-    dmg: (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (actTune?.dmg ?? 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0) + (run.paradox >= 10 ? 1 : 0) + ENDLESS_DMG_PER_LAP * lap,
+    dmg: (implantRules(run, C).enemyAttackBonus ?? 0) + (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (actTune?.dmg ?? 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0) + (run.paradox >= 10 ? 1 : 0) + ENDLESS_DMG_PER_LAP * lap,
     ...(tune?.eliteDmg ? { eliteDmg: tune.eliteDmg } : {}),
     ...(tune?.bossHpPct || run.paradox >= 8 ? { bossPct: (tune?.bossHpPct ?? 0) + (run.paradox >= 8 ? 20 : 0) } : {}),
     ...(run.paradox >= 6 || lap > 0 ? { rageExtra: (run.paradox >= 6 ? 1 : 0) + lap } : {}),
@@ -234,6 +236,8 @@ function applyOpeningPerks(c: CombatState, run: RunState, enc: EncounterDef, C: 
   }
   const x = c as CombatStateExt
   if (perks.openDraw > 0) x.pendingDraw = (x.pendingDraw ?? 0) + perks.openDraw
+  const rules = implantRules(run, C)
+  if (conn && rules.openLoseHp) conn.hp = Math.max(1, conn.hp - rules.openLoseHp)
   const mut = mutatorCombat(run)
   for (const [k, n] of Object.entries(mut.openEnemies ?? {}) as [StatusKind, number][]) {
     for (const e of livingEnemies(c)) addStatus(c, e, k, n)
@@ -260,10 +264,12 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     for (let x = 0; x < GRID_W; x++) row.push({ kind: 'floor' })
     tiles.push(row)
   }
+  const hollow = implantRules(run, C).coverToVoid
   for (const t of enc.terrain ?? []) {
     const row = tiles[t.pos.y]
     if (!row || !inBounds(t.pos)) continue
-    row[t.pos.x] = t.kind === 'cover' ? { kind: 'cover', hp: COVER_HP } : { kind: t.kind }
+    if (t.kind === 'cover' && hollow) row[t.pos.x] = { kind: 'void' }
+    else row[t.pos.x] = t.kind === 'cover' ? { kind: 'cover', hp: COVER_HP } : { kind: t.kind }
   }
   const c: CombatStateExt = {
     encounterId,
@@ -294,6 +300,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     archetype: run.archetype,
     ...(run.mutator ? { mutator: run.mutator } : {}),
     ...(run.mutators?.length ? { mutators: [...run.mutators] } : {}),
+    ...(run.noiseMutator ? { noiseMutator: run.noiseMutator } : {}),
   }
   if (enc.bonus) c.bonus = { def: enc.bonus, progress: 0, failed: false }
 
@@ -346,11 +353,15 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
   return c
 }
 
+/** Cards the Overload Buffer lets you hold over the end of a turn for free. */
+const HAND_BURN_FREE = 3
+
 function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): void {
   emit(c, { t: 'turn', side: 'player', turn: c.turn })
   pruneTurnKeys(c)
+  const rules = implantRules(c, C)
   for (const u of livingParty(c)) {
-    u.block = 0
+    if (!rules.keepBlock) u.block = 0
     u.moved = false
     const guard = u.statuses.guard ?? 0
     if (guard > 0) gainBlock(c, u, guard)
@@ -363,10 +374,12 @@ function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): vo
     const echoBlock = c.triggered[OPENING_BLOCK_KEY] ?? 0
     if (echoBlock > 0) for (const u of livingParty(c)) gainBlock(c, u, echoBlock)
   }
-  if (!first) gainMomentum(c, MOMENTUM_TURN)
+  if (!first) gainMomentum(c, C, MOMENTUM_TURN)
   // Unspent energy was dropped at end of turn; anything gained off-turn (e.g. on damage taken) carries over.
-  c.energy += c.maxEnergy
-  emit(c, { t: 'energy', amount: c.maxEnergy })
+  const drain = rules.drainTurn ?? 0
+  const energy = drain > 0 && c.turn % drain === 0 ? 0 : c.maxEnergy
+  c.energy += energy
+  emit(c, { t: 'energy', amount: energy })
   const x = c as CombatStateExt
   const bonusDraw = x.pendingDraw ?? 0
   delete x.pendingDraw
@@ -615,6 +628,8 @@ export function canPlay(c: CombatState, C: ContentRegistry, cardUid: string, ori
   const bad = ownerCheck(c, def, originUid)
   if (bad) return { ok: false, reason: bad }
   if (face.cost + redactTax(c, originUid) > c.energy) return { ok: false, reason: REASON.energy }
+  const limit = implantRules(c, C).cardLimit ?? 0
+  if (limit > 0 && cardsPlayedThisTurn(c) >= limit) return { ok: false, reason: REASON.cardLimit }
   const origin = getUnit(c, originUid) as UnitState
   if (rawOptions(c, origin, face.target).length === 0) return { ok: false, reason: REASON.noTarget }
   return { ok: true }
@@ -686,7 +701,11 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
   emit(c, ev)
   if (rootsOrigin(face)) origin.moved = true
 
+  const rules = implantRules(c, C)
   applyEffects(c, C, face.effects, res)
+  if (rules.echoFirstCard && def.type !== 'power' && cardsPlayedThisTurn(c) === 0 && c.phase === 'player' && origin.hp > 0) {
+    applyEffects(c, C, face.effects, res)
+  }
 
   if (face.exhaust || def.type === 'power') c.exhaust.push(card)
   else c.discard.push(card)
@@ -694,6 +713,13 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
   const key = `t${c.turn}:__cards`
   c.triggered[key] = (c.triggered[key] ?? 0) + 1
   if (c.phase === 'lost') return
+  const refill = rules.emptyHandDraw ?? 0
+  if (refill > 0 && c.hand.length === 0 && (c.triggered[`t${c.turn}:empty_hand`] ?? 0) < 2) {
+    c.triggered[`t${c.turn}:empty_hand`] = (c.triggered[`t${c.turn}:empty_hand`] ?? 0) + 1
+    drawCards(c, refill)
+    c.energy += 1
+    emit(c, { t: 'energy', amount: 1 })
+  }
   if (def.owner !== 'any' && def.owner !== 'connector' && perksOf(c).companionRefund && !c.triggered['c:cha_refund']) {
     c.triggered['c:cha_refund'] = 1
     c.energy += 1
@@ -937,6 +963,13 @@ export function endTurnInPlace(c: CombatState, C: ContentRegistry): void {
   if (c.phase !== 'player') return
   applyHeldEffects(c, C)
   if (c.phase !== 'player') return
+  const burn = (implantRules(c, C).handBurn ?? 0) * Math.max(0, c.hand.length - HAND_BURN_FREE)
+  const self = connectorOf(c)
+  if (burn > 0 && self) {
+    dealDamage(c, C, self, burn, { source: 'environment', ignoreBlock: true })
+    checkEnd(c, C)
+    if (c.phase !== 'player') return
+  }
   const kept: CardInstance[] = []
   for (const card of c.hand) {
     const def = C.cards[card.defId]

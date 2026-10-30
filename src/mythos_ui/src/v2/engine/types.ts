@@ -458,6 +458,8 @@ export interface CombatState {
   runStats?: Stats
   /** Active run mutator id (if any), for combat-level mutator rules. */
   mutator?: string
+  /** An open noise gate's mutator, on top of the others. */
+  noiseMutator?: string
   /** A custom anomaly mix instead (engine/mutators.ts activeMutators). */
   mutators?: string[]
   /** Momentum 0..MOMENTUM_MAX: kills, environment kills, crits and evades fill it; full = Signal Burst ready. */
@@ -516,6 +518,40 @@ export interface CombatPassive {
   triggers: { on: TriggerEvent; effects: Effect[]; limit?: 'turn' | 'combat'; ownerOnly?: boolean }[]
 }
 
+/** What a forbidden implant changes in a fight (engine/implantRules.ts). */
+export interface ImplantRules {
+  /** A bump also pushes the unit it hit 1 tile on, party included. */
+  pushChain?: boolean
+  /** Extra tiles on every push the party causes. */
+  pushBonus?: number
+  /** The unit that pushes is thrown this many tiles back the other way. */
+  pushRecoil?: number
+  /** Momentum gains are multiplied by this much more (1 = double). */
+  momentumBonus?: number
+  /** Connector HP lost when a fight starts (never lethal). */
+  openLoseHp?: number
+  /** Connector damage per card held beyond 3 at the end of the turn (ignores block). */
+  handBurn?: number
+  /** Extra damage on every party attack. */
+  attackBonus?: number
+  /** Extra damage on every enemy attack (through `scaling.dmg`, so telegraphs show it). */
+  enemyAttackBonus?: number
+  /** Playing the last card in hand draws this many and gives 1 energy (at most twice a turn). */
+  emptyHandDraw?: number
+  /** A killed enemy leaves its tile burning for this many enemy phases. */
+  killFire?: number
+  /** Cover tiles start the fight as void. */
+  coverToVoid?: boolean
+  /** Block is not cleared at the start of the player's turn. */
+  keepBlock?: boolean
+  /** The first card each turn resolves twice (powers excepted). */
+  echoFirstCard?: boolean
+  /** At most this many cards a turn. */
+  cardLimit?: number
+  /** Every Nth turn gives no energy. */
+  drainTurn?: number
+}
+
 export interface ImplantDef {
   id: string
   name: Text
@@ -523,6 +559,7 @@ export interface ImplantDef {
   rarity: 'starter' | 'common' | 'uncommon' | 'rare' | 'boss' | 'shop'
   icon: string
   passive?: ImplantPassive
+  rules?: ImplantRules
   triggers?: { on: TriggerEvent; effects: Effect[]; limit?: 'turn' | 'combat' }[]
   pack?: string
 }
@@ -653,6 +690,7 @@ export type RunEffect =
   | { kind: 'combat'; encounterId: string } // start a fight after the outcome
   | { kind: 'echoes'; amount: number } // meta currency earned this run
   | { kind: 'axis'; axis: ChoiceAxis; amount?: number } // lean along a choice axis (Deep Signal endings)
+  | { kind: 'noise'; fights: number } // a noise gate: this act's mutator for N won fights, then a forbidden implant
 
 export interface Outcome {
   text: Text
@@ -691,6 +729,11 @@ export interface EventDef {
    * companion, each costing `trace`, and swaps the scene for another event when nobody is left to recruit.
    */
   recruit?: { trace: number }
+  /**
+   * A noise gate (content/eventsNoise.ts): the first option's hint is filled with the mutator it brings, and the
+   * scene gives way to another event while a gate is still open.
+   */
+  noise?: boolean
 }
 
 // ---------------------------------------------------------------- map & run
@@ -738,6 +781,8 @@ export interface RewardState {
   credits: number
   cardChoices: string[][] // each inner array = one "pick 1 of N" (elite/boss may have 2)
   implantChoices: string[] // pick 1 (elite: 1 option shown; boss: pick 1 of 3)
+  /** This fight closed a noise gate: its forbidden implants are in `implantChoices`. */
+  noisePaid?: boolean
   consumable?: string
   echoes: number
   taken: { credits: boolean; cards: boolean[]; implant: boolean; consumable: boolean }
@@ -810,6 +855,11 @@ export interface RunState {
   flags: Record<string, number>
   codex: string[]
   seenEvents: string[]
+  /** Events of the last loops (`profile.recentEvents`): maps prefer others, nothing is forbidden. */
+  staleEvents?: string[]
+  /** An open noise gate: its mutator and the won fights left until it pays out. */
+  noiseMutator?: string
+  noiseLeft?: number
   screen: RunScreen
   log: RunLogEntry[]
   echoes: number // meta currency earned so far this run
@@ -1145,6 +1195,8 @@ export interface MetaProfile {
   archetypeWins?: Record<string, number>
   /** How many runs each event appeared in (any loop, daily included): lets the GM open a revisited scene on déjà vu. */
   eventsSeen?: Record<string, number>
+  /** Event ids of the last normal loops, newest first (never a daily's). */
+  recentEvents?: string[][]
   /** Enemies ever met: id → total kills (0 = seen only) (engine/bestiary.ts). */
   bestiary?: Record<string, number>
   /** Card ids ever in a deck (the card codex). */

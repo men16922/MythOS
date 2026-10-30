@@ -164,6 +164,8 @@ function effectValue(run: RunState, e: RunEffect, C: ContentRegistry): number {
       return Math.max(e.amount, -run.credits) / 8
     case 'trace':
       return -e.amount * 0.25
+    case 'noise':
+      return run.noiseMutator ? -20 : 6
     case 'card':
       return cardScore(e.cardId, C) > 0 ? 3 : -4
     case 'card_choice':

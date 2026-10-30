@@ -12,6 +12,8 @@ import { setPassives } from './implantSets.ts'
 import { mutatorCombat } from './mutators.ts'
 import { type StatPerks, statPerks } from './statPerks.ts'
 import type {
+  TurnRecord,
+  GlitchKind,
   AreaShape,
   CardInstance,
   CombatEvent,
@@ -284,6 +286,23 @@ export function spawnEnemy(c: CombatState, C: ContentRegistry, enemyId: string, 
   return u
 }
 
+/** What makes a turn big: a kill counts like six damage. */
+export function turnScore(t: TurnRecord): number {
+  return t.damage + t.kills * 6
+}
+
+/** Add to the player turn in progress and keep the fight's best. */
+function noteTurn(c: CombatState, damage: number, kills: number): void {
+  const now = c.turnNow?.turn === c.turn ? c.turnNow : { turn: c.turn, damage: 0, kills: 0 }
+  c.turnNow = { turn: c.turn, damage: now.damage + damage, kills: now.kills + kills }
+  if (!c.bestTurn || turnScore(c.turnNow) > turnScore(c.bestTurn)) c.bestTurn = { ...c.turnNow }
+}
+
+/** IX's interference of this kind is running right now. */
+export function glitchActive(c: CombatState, kind: GlitchKind): boolean {
+  return c.glitch?.kind === kind && c.turn <= c.glitch.until
+}
+
 function enterPhases(c: CombatState, C: ContentRegistry, u: UnitState): void {
   const phases = C.enemies[u.defId]?.phases
   if (!phases) return
@@ -293,6 +312,10 @@ function enterPhases(c: CombatState, C: ContentRegistry, u: UnitState): void {
     u.phase = idx
     emit(c, { t: 'phase', uid: u.uid, phase: idx, text: ph.text })
     if (ph.heal) healUnit(c, u, ph.heal)
+    if (ph.glitch) {
+      c.glitch = { kind: ph.glitch, until: c.turn + 1 }
+      emit(c, { t: 'glitch', kind: ph.glitch })
+    }
     if (ph.effects?.length) {
       applyEffects(c, C, ph.effects, { origin: u, side: 'enemy', tiles: [u.pos], impact: u.pos, source: 'enemy' })
     }
@@ -349,6 +372,7 @@ export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause
   c.units = c.units.filter((x) => x !== u)
   if (u.side === 'enemy') {
     c.stats.enemiesKilled += 1
+    if (!(c as CombatStateExt).inEnemyPhase) noteTurn(c, 0, 1)
     c.killed = { ...(c.killed ?? {}), [u.defId]: (c.killed?.[u.defId] ?? 0) + 1 }
     c.credits += C.enemies[u.defId]?.bounty ?? 0
     const salvage = C.enemies[u.defId]?.salvage ?? 0
@@ -470,7 +494,10 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
   if (crit) dmgEv.crit = true
   if (evaded > 0) dmgEv.evaded = evaded
   emit(c, dmgEv)
-  if (victim.side === 'enemy' && o.source === 'party') c.stats.damageDealt += lost
+  if (victim.side === 'enemy' && o.source === 'party') {
+    c.stats.damageDealt += lost
+    noteTurn(c, lost, 0)
+  }
   if (victim.uid === 'connector' && lost > 0) {
     c.stats.damageTaken += lost
     if (c.bonus?.def.kind === 'untouched') c.bonus.failed = true
@@ -938,9 +965,11 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       return
     }
     case 'push': {
+      const reversed = res.side === 'party' && glitchActive(c, 'reverse_push')
       const plans = effectTargets(c, eff, res)
         .map((u) => ({ u, d: pushDirFor(eff, res, u) }))
         .filter((x): x is { u: UnitState; d: Dir } => x.d !== undefined)
+        .map((x) => (reversed ? { ...x, d: opposite(x.d) } : x))
       // Front-most units move first so a row of units does not bump into itself.
       const lead = (x: { u: UnitState; d: Dir }) => {
         const v = add({ x: 0, y: 0 }, x.d)

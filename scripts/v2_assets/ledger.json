@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 340,
+ "codex_image_calls": 354,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -2808,6 +2808,15 @@
    ],
    "ts": "2026-10-26T04:40:23"
   },
+  "v2/cards/acid_incendiary.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: the round bursts in green acid and orange flame together. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/incendiary_round.webp"
+   ],
+   "ts": "2026-10-31T05:35:48"
+  },
   "v2/cards/archivist_bound_volume.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -2877,6 +2886,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/artery_rip.webp"
    ],
    "ts": "2026-10-26T05:15:18"
+  },
+  "v2/cards/artery_open.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: a thin curved blade leaves a long crimson arc in the air. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/artery_rip.webp"
+   ],
+   "ts": "2026-10-31T05:36:09"
   },
   "v2/cards/artery_rip.webp": {
    "generations": 1,
@@ -2982,6 +3000,15 @@
    ],
    "ts": "2026-10-25T17:35:16"
   },
+  "v2/cards/cover_fire.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: a wide fan of tracer fire passes over allied silhouettes crouched behind it. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/suppressing_fire.webp"
+   ],
+   "ts": "2026-10-31T05:36:48"
+  },
   "v2/cards/crimson_finale.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3059,6 +3086,24 @@
    ],
    "ts": "2026-10-25T17:34:30"
   },
+  "v2/cards/flurry.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: the fist blurs into several overlapping afterimages. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/jab.webp"
+   ],
+   "ts": "2026-10-31T05:36:01"
+  },
+  "v2/cards/heart_overload.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: the striking arm glows from a burning heart-shaped core in the chest. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/overload_strike.webp"
+   ],
+   "ts": "2026-10-31T05:36:43"
+  },
   "v2/cards/io_cross_reference.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3108,6 +3153,24 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/io-ally-idle.webp"
    ],
    "ts": "2026-10-26T05:07:05"
+  },
+  "v2/cards/iron_stance.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: the figure stands planted in heavy plating with short metal spines on the guard. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/brace.webp"
+   ],
+   "ts": "2026-10-31T05:36:12"
+  },
+  "v2/cards/locked_shot.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: the shot leaves a burning lock-on reticle ring around the target point. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/packet_shot.webp"
+   ],
+   "ts": "2026-10-31T05:35:20"
   },
   "v2/cards/mass_hijack.webp": {
    "generations": 1,
@@ -3168,6 +3231,24 @@
    ],
    "ts": "2026-10-26T05:09:08"
   },
+  "v2/cards/noise_curtain.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: the noise shield grows into a tall rippling curtain of static. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/covering_noise.webp"
+   ],
+   "ts": "2026-10-31T05:35:14"
+  },
+  "v2/cards/overtuned_laser.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: the targeting laser overloads into a thick beam with sparks at the emitter. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/target_laser.webp"
+   ],
+   "ts": "2026-10-31T05:36:19"
+  },
   "v2/cards/pandemic_pulse.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3185,6 +3266,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
    ],
    "ts": "2026-10-25T17:33:33"
+  },
+  "v2/cards/phantom_step.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: the figure steps out of a line of pale afterimages in the smoke. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/smoke_step.webp"
+   ],
+   "ts": "2026-10-31T05:36:36"
   },
   "v2/cards/pinball_slam.webp": {
    "generations": 1,
@@ -3378,6 +3468,15 @@
    ],
    "ts": "2026-10-25T17:34:22"
   },
+  "v2/cards/triple_tap.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: three muzzle flashes hang in the air in a tight line. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/double_tap.webp"
+   ],
+   "ts": "2026-10-31T05:35:33"
+  },
   "v2/cards/vital_snipe.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3386,6 +3485,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
    ],
    "ts": "2026-10-25T17:33:41"
+  },
+  "v2/cards/wall_breaker.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration for a cyberpunk tactics game, vertical 3:4. The attached image is the ordinary version of this card: keep its painterly style, palette and subject, and redraw it as its evolved, unmistakably more dangerous form. Now: a shove so hard the figure's target smashes through a cracked concrete wall. One clear focal action, eye-level, natural proportions, dark background, restrained glow in gold and crimson marking it as evolved. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/shove.webp"
+   ],
+   "ts": "2026-10-31T05:35:21"
   },
   "v2/cutscenes/bel_uncut_note.webp": {
    "generations": 1,
@@ -4970,14 +5078,14 @@
    "ts": "2026-10-31T05:00:55"
   },
   "v2/ult/duo_night_watch.webp": {
-   "generations": 1,
+   "generations": 3,
    "model": "codex-image",
-   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A masked dream executor who never sleeps, keeping watch over a smuggler who barely trusts him. Scene: In a dim shelter she sits against a wall with her eyes half closed, while he stands over her at the door, mask lifted, perfectly still. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A masked dream executor who never sleeps, keeping watch over a smuggler who barely trusts them. Scene: In a dim shelter doorway the two stand a full step apart, not touching, both faces level in the upper half of the frame: she in her closed jacket, arms crossed, wary and tired; the executor in a high-collared robe, mask lifted, watching the rain outside. Fully clothed, covered torsos, a guarded and quiet mood. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
    "refs": [
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/rem-ally.png",
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/se-rin.png"
    ],
-   "ts": "2026-10-31T05:00:37"
+   "ts": "2026-10-31T05:40:39"
   },
   "v2/ult/duo_not_for_sale.webp": {
    "generations": 1,

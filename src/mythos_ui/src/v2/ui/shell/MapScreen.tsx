@@ -148,6 +148,11 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
       <aside className="m2-map__side">
         <div className="m2-map__actnum">{lang === 'ko' ? `${run.act}막 / ${run.mode === 'endless' ? '∞' : lastAct(run, C)}` : `Act ${run.act} of ${run.mode === 'endless' ? '∞' : lastAct(run, C)}`}</div>
         <h1 className="m2-map__title">{actDef ? tr(actDef.name, lang) : ''}</h1>
+        {(run.evolvedNew ?? []).map((id) => (
+          <div key={id} className="m2-map__evolved" role="status" data-testid="evolved-note">
+            {lang === 'ko' ? '카드 진화' : 'Card evolved'}: <b>{tr(C.cards[id]?.name, lang)}</b>
+          </div>
+        ))}
         <p className="m2-map__sub">{actDef ? tr(actDef.subtitle, lang) : ''}</p>
 
         {/* Thoughts live in the map's side panel: never over another screen's buttons. */}

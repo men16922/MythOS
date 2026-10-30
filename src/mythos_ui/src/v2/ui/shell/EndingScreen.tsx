@@ -50,7 +50,9 @@ function buildShareSummary(
   const statsLine = ko
     ? `처치 ${run.tally.kills} (환경 ${run.tally.environmentKills}) · ◈ ${echoTotal}${rankBit}`
     : `Kills ${run.tally.kills} (Terrain ${run.tally.environmentKills}) · ◈ ${echoTotal}${rankBit}`
-  return [header, statusLine, statsLine].join('\n')
+  const best = run.bestTurn
+  const bestLine = best ? (ko ? `최고의 한 턴: 피해 ${best.damage} · 처치 ${best.kills}` : `Best turn: ${best.damage} damage · ${best.kills} kills`) : null
+  return [header, statusLine, statsLine, ...(bestLine ? [bestLine] : [])].join('\n')
 }
 
 export interface EndingScreenProps extends ScreenProps {
@@ -260,6 +262,11 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
               <small>{ko ? '덱' : 'Deck'}</small>
             </div>
           </div>
+          {stage >= 3 && run.bestTurn && (
+            <div className="m2-ending__ach" data-testid="ending-best-turn">
+              {ko ? `최고의 한 턴: 피해 ${run.bestTurn.damage} · 처치 ${run.bestTurn.kills}` : `Best turn: ${run.bestTurn.damage} damage · ${run.bestTurn.kills} kills`}
+            </div>
+          )}
           {stage >= 3 && achievements && achievements.length > 0 && <EarnedLine ids={achievements} C={C} lang={lang} />}
           {daily && isDateKey(run.daily) && <DailyRank date={run.daily} daily={daily} lang={lang} />}
           <div className="m2-ending__actions">

@@ -633,3 +633,9 @@
   font-size: 12px;
 }
 
+
+.m2-map__evolved {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--m2-gold);
+}

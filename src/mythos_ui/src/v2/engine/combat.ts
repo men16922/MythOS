@@ -10,6 +10,7 @@
 //   c. enemies without a pending windup move and telegraph (and next reinforcements are announced)
 //   d. win/lose → next player turn (party block clears, guard, energy, draw, turn_start triggers)
 
+import type { UnitStateExt } from './effects.ts'
 import { implantRules } from './implantRules.ts'
 import { mutatorCombat, mutatorMods } from './mutators.ts'
 import { worldEchoOf } from './legacy.ts'
@@ -331,6 +332,10 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     const free = allTiles().filter((p) => p.x >= 4 && tileAt(c, p)?.kind === 'floor' && !unitAt(c, p))
     if (free.length > 0) spawnEnemy(c, C, 'purge_drone', pick(c, free))
   }
+  if (run.replica && !run.flags[REPLICA_BEATEN] && enc.kind === 'elite' && enc.act >= REPLICA_FROM_ACT && C.enemies[run.replica]) {
+    const free = allTiles().filter((p) => p.x >= 4 && tileAt(c, p)?.kind === 'floor' && !unitAt(c, p))
+    if (free.length > 0) spawnReplica(c, C, run.replica, pick(c, free))
+  }
   // Waves due "on turn 1" are simply part of the opening board.
   const opening = (enc.reinforcements ?? []).filter((w) => w.turn <= 1).flatMap((w) => w.enemies)
   if (opening.length > 0) arriveReinforcements(c, C, opening)
@@ -352,6 +357,18 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
   announceIncoming(c, enc)
   beginPlayerTurn(c, C, true)
   return c
+}
+
+/** IX's rebuild of what killed you last loop: a tougher copy, announced on the opening board. */
+function spawnReplica(c: CombatState, C: ContentRegistry, enemyId: string, pos: Pos): void {
+  const u = spawnEnemy(c, C, enemyId, pos) as UnitStateExt | undefined
+  if (!u) return
+  u.maxHp = Math.ceil(u.maxHp * REPLICA_HP)
+  u.hp = u.maxHp
+  u.dmgBonus = (u.dmgBonus ?? 0) + 1
+  c.replicaUid = u.uid
+  const name = C.enemies[enemyId]?.name
+  u.name = T(`IX 복제 ${name?.ko ?? ''}`, `IX replica: ${name?.en ?? ''}`)
 }
 
 /** Cards the Overload Buffer lets you hold over the end of a turn for free. */
@@ -909,6 +926,15 @@ function isStrong(C: ContentRegistry, u: UnitState): boolean {
   const tier = C.enemies[u.defId]?.tier
   return tier === 'elite' || tier === 'boss'
 }
+
+/** First act IX's replica can wait in. */
+const REPLICA_FROM_ACT = 2
+/** The replica's HP against the original. */
+const REPLICA_HP = 1.3
+/** Set on the run once the replica is destroyed. */
+export const REPLICA_BEATEN = 'replica_beaten'
+/** Extra credits for destroying it. */
+export const REPLICA_BOUNTY = 80
 
 /** Key of a duo in the `ultimatesReady` list and `fireBurst` (plain ids there are companion uids). */
 export const DUO_PREFIX = 'duo:'

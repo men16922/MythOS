@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Layers, Maximize2, X } from 'lucide-react'
 import { canPlay, getUnit, threatMap, ultimatesReady } from '../../engine/combat.ts'
+import { glitchActive } from '../../engine/effects.ts'
 import { endTurn } from './recordedActions.ts'
 import { posKey, samePos } from '../../engine/grid.ts'
 import type { CombatState, ContentRegistry, Lang, Pos, RunState, UnitState } from '../../engine/types.ts'
@@ -26,7 +27,7 @@ import { ART } from '../common/artManifest.ts'
 import { BACKDROPS, asset, portrait } from '../common/assets.ts'
 import { playBgm } from '../common/audio.ts'
 import type { Bgm } from '../common/audio.ts'
-import { tr } from '../common/lang.ts'
+import { hasBatchim, tr } from '../common/lang.ts'
 import { MOMENTUM_MAX } from '../../engine/effects.ts'
 import { setMusicDuck, sfx } from '../common/sfx.ts'
 import { useCombatAnimator, viewFrom } from './animator.ts'
@@ -302,7 +303,15 @@ export function CombatScreen(props: CombatScreenProps) {
   useEffect(() => {
     const intro = () => {
       const title = enc ? tr(enc.name, lang) : ''
-      const sub = enc?.intro ? tr(enc.intro, lang) : undefined
+      const twin = combat.units.find((u) => u.uid === combat.replicaUid)
+      const twinName = tr(C.enemies[twin?.defId ?? '']?.name, lang)
+      const sub = twin
+        ? lang === 'ko'
+          ? `IX: 지난 루프의 ${twinName}${hasBatchim(twinName) ? '을' : '를'} 복원했습니다. 이번에는 더 정확합니다.`
+          : `IX: Your ${twinName} from the last loop, restored. This one is more accurate.`
+        : enc?.intro
+          ? tr(enc.intro, lang)
+          : undefined
       anim.banner(sub ? { kind: 'intro', title, sub } : { kind: 'intro', title }, 1900)
       sfx('player_turn')
     }
@@ -541,6 +550,7 @@ export function CombatScreen(props: CombatScreenProps) {
         <div className="m2c-bc" style={{ width: handW }}>
           <Hand
             cards={handCards}
+            scrambled={glitchActive(combat, 'scramble')}
             C={C}
             lang={lang}
             fs={fs}

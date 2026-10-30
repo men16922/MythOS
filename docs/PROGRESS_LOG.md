@@ -2,6 +2,14 @@
 
 Last updated: 2026-10-30
 
+## 2026-10-31 — F3 IX interference + replica, F4 card evolutions + best turn (Claude Opus 5.5, `/goal`, plan defaults)
+
+- **What**: IX bends the game at boss phases (`phases[].glitch`, `engine/effects.ts glitchActive`): card names masked, pushes reversed through the next player turn (HUD badge, previews agree), Omega's fake restart using the 1.0 boot lines. IX's replica of last loop's killer (non-boss, HP ×1.3, damage +1, 80 ₵) at the first elite from Act 2, named in the fight intro and on the unit. 12 card evolutions (`content/evolutions.ts`, card + implant, secret, map note, codex tab). Best turn (damage + kills × 6) on the ending and in the share text. 12 Codex card images, `scripts/v2_assets/gen_evolved_cards.py`.
+- **Changed from the plan**: best turn is a text line, not an animated replay. The replica is a single authored reappearance with no hierarchy (Nemesis patent caution, plan §F3); review before any paid release.
+- **Balance** (canonical 3 × 150): without F3/F4 187 → with 197 / 450 (43.8 %, band OK). Replica cost measured separately: 41 → 36 / 150 on a `loops: 1` profile. That profile alone reads 54 → 41 / 150 against a fresh one, unrelated to this work and not investigated.
+- Gates: `make check` green (node 452, Python 338); `make playthrough-quick` OK (100 s); `make test-e2e-v2` OK; real UI: reverse badge + mask at IX, replica intro + stats, evolution note + deck swap, 0 console errors. All 12 duo cut-ins seen through a real fight; `night_watch` art regenerated twice (face hidden by the band, then an off-tone pose).
+- Unverified: Omega's reboot banner and an evolved card in a hand on screen; a phase crossed by a played card (the test applied the hit directly); sound; feel. Art unapproved: 27 + 12 images. Not promoted.
+
 ## 2026-10-31 — F2 duo ultimates: twelve pairs (Claude Opus 5.5, owner: proceed without the F1 verdict)
 
 - **What**: `content/duos.ts`: 12 pairs with a history (every companion in at least one). With both standing and a full gauge the duo joins the options under the key `duo:<id>`; same gauge, once per fight, fired from `pair[0]`. Cut-in with its own illustration (`v2/ult/duo_<id>.webp`, 12 Codex images, `scripts/v2_assets/gen_duo_art.py`, owner art approval pending), both names, one spoken line. Found duos go run → `profile.duos`, Archive codex tab "듀오" (unfound = ???).
@@ -71,10 +79,3 @@ Last updated: 2026-10-30
 
 - 11 procedural cues `ult_<companion>` in `sfx.ts` (`ULT_SFX` map), one per ultimate, matching its scene (Se-rin undertow surge + dash, Tae-o charge + shield slam, Han keystrokes + lock-on, Su-ah anvil strikes, Kai rail charge + shot, Lin-yue coin shower + register, Io page riffle + glass bells, Miro "shh" + three swishes, Doyun barrier hum + deflections, Bel pen scratch + hiss, Rem clock ticks + slowing hush). Archetype bursts keep their `burst_*` cues. `audio-cues.test` checks every companion has a distinct cue that plays.
 - Gates: `make check` green. Sound itself **unheard** (automation stays muted): owner listen check pending. Preview `00158-roq` (`git-sha=562d220`) `make verify-preview` 5/5 → **promoted 2026-10-28** (`--to-latest`, 100 %; production health 200, served `CombatScreen.js` and the cue chunk = committed; rollback `00156-fuj`).
-
-## 2026-10-28 — Ultimate illustrations + louder cut-in (Claude Opus 5.5, owner request)
-
-- **16 ultimate illustrations** (Codex image, 0 GCP): `v2/ult/<id>.webp` 1280×720 for all 11 companion ultimates and 5 archetype bursts (`scripts/v2_assets/gen_ult_art.py`, refs = portrait + full-body sprite). Manifest group `ART.ults`; `art.test` requires one per companion and archetype.
-- **Cut-in**: the illustration slams in on a skewed glowing band (overshoot, Ken Burns drift, an inverted impact frame, collapse-to-a-line exit), colour stripes, a shockwave ring, 8 radial shards, one flash; the name sits on the band's lower edge in a large italic chromatic title. After the cut-in a release shockwave (wave + nova + ring + shake) fires from the caster. 1.4 → 1.6 s. Phone portrait: shorter band higher up. Reduced motion: static band + banner only.
-- **Owner pass 1** ("Se-rin / Doyun look out of proportion; bring out character; a bit less flashy"): all 16 regenerated with eye-level natural proportions (no wide-angle foreshortening), each pose built on the character's bond lines (Doyun = an ordinary survivor who "knows how to stand"), one restrained effect; cut-in toned down (fewer shards, fainter lines, no exit flash), band framed on the upper third.
-- Gates: `make check` green (node 401, Python 338); sandbox screenshots desktop + 390 px phone (Se-rin / Doyun ultimates, Ghost burst), 0 console errors. Owner: redone art approved. Preview `00156-fuj` (`git-sha=ed5a6cb`) deployed, `make verify-preview` 5/5, `v2/ult/doyun.webp` + `status/stun.png` served 200; **promoted 2026-10-28** (`--to-latest`, 100 %; production health 200, served `CombatScreen.js` = committed; rollback `00154-lom`). Unverified: sign-in and a played fight on the production URL.

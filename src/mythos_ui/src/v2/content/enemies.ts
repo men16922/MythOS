@@ -1320,11 +1320,13 @@ const ACT3: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.66,
+        glitch: 'scramble',
         text: t('최적화 실패. 변수를 재분류합니다. 접속자님은 이제 오류가 아니라 위협입니다.', 'Optimization failed. Reclassifying variable. You are no longer an error. You are a threat.'),
         effects: [{ kind: 'block', amount: 12, to: 'owner' }],
       },
       {
         hpBelow: 0.33,
+        glitch: 'reverse_push',
         text: t('관리망 전권을 회수합니다. 접속자님, 말소를 집행하겠습니다.', 'Reclaiming full network authority. Connector: erasure in progress.'),
         effects: [{ kind: 'status', status: 'thorns', amount: 2, to: 'owner' }],
       },

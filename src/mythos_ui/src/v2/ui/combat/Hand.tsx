@@ -14,6 +14,8 @@ import './hand.css'
 
 export interface HandProps {
   cards: CardInstance[]
+  /** IX is masking card names. */
+  scrambled?: boolean
   C: ContentRegistry
   lang: Lang
   /** CardView font size (card = 10.6em × 15em). */
@@ -187,7 +189,7 @@ export const Hand = memo(function Hand(p: HandProps) {
                   p.onCard(card.uid, e.currentTarget)
                 }}
               >
-                <CardView def={def} upgraded={card.upgraded} lang={p.lang} playable={pl.ok} selected={armed} reason={pl.reason} />
+                <CardView def={def} scrambled={p.scrambled} upgraded={card.upgraded} lang={p.lang} playable={pl.ok} selected={armed} reason={pl.reason} />
                 <span className="m2c-key">{i < 9 ? i + 1 : ''}</span>
                 {armed && p.confirmUid === card.uid && (
                   <span className="m2c-confirm">{p.lang === 'ko' ? '한 번 더 눌러 사용' : p.touch ? 'Tap again to play' : 'Click again to play'}</span>

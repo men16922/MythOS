@@ -43,6 +43,25 @@ export function turnSteps(kit: Kit, plan: Plan, ev: Ev<'turn'>): void {
   }
 }
 
+/** IX bends the game at a boss phase: a hard stop and what changed, so nothing feels like a bug. */
+export function glitchSteps(kit: Kit, plan: Plan, ev: Ev<'glitch'>): void {
+  const { showBanner, trauma, S } = kit
+  const { k } = plan
+  const text = {
+    reverse_push: k ? ['규칙 변조', '다음 턴까지 아군의 밀치기 방향이 반대가 됩니다.'] : ['RULE OVERRIDE', 'Your pushes are reversed through your next turn.'],
+    scramble: k ? ['신호 변조', '카드 이름을 잠시 가립니다. 효과는 그대로입니다.'] : ['SIGNAL OVERRIDE', 'Card names are masked for a while. What they do has not changed.'],
+    reboot: ['[00.000] MYTHOS RUNTIME // LOCAL NODE', '[01.014] CONTROL NET TRACE DETECTED'],
+  }[ev.kind]
+  plan.steps.push({
+    dur: 1500,
+    run: () => {
+      showBanner({ kind: 'phase', title: text[0] ?? '', sub: text[1] ?? '' }, S(1500))
+      trauma(0.6)
+      sfx('alarm')
+    },
+  })
+}
+
 export function phaseSteps(kit: Kit, plan: Plan, ev: Ev<'phase'>): void {
   const { unitOf, showBanner, addFx, pose, squash, trauma, S } = kit
   const { k, lang } = plan

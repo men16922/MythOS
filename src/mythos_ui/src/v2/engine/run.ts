@@ -17,7 +17,8 @@
 
 import { noteFightFeats } from './achievements.ts'
 import { noteFightBestiary } from './bestiary.ts'
-import { startCombat } from './combat.ts'
+import { REPLICA_BEATEN, REPLICA_BOUNTY, startCombat } from './combat.ts'
+import { turnScore } from './effects.ts'
 import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, repTier, takeCombatMods } from './crpg.ts'
 import { advanceDirectiveOnWin } from './directives.ts'
 import { AUTONOMY_ACT_SCRUB, autonomyDc, autonomyLevel, echoEffects, echoOffers, worldEchoFor } from './legacy.ts'
@@ -227,7 +228,20 @@ function addCard(run: RunState, defId: string, C: ContentRegistry, upgraded = fa
   const inst: CardInstance = { uid: `k${run.uidCounter}`, defId, upgraded }
   run.deck.push(inst)
   if (!run.cardsSeen?.includes(defId)) run.cardsSeen = [...(run.cardsSeen ?? []), defId]
+  evolveCards(run, C)
   return inst
+}
+
+/** Turn the first copy of a recipe's card into its evolved card, once a run per recipe. Mutates. */
+function evolveCards(run: RunState, C: ContentRegistry): void {
+  for (const e of Object.values(C.evolutions ?? {})) {
+    if (run.evolved?.includes(e.id) || !run.implants.includes(e.implant)) continue
+    const card = run.deck.find((k) => k.defId === e.card)
+    if (!card) continue
+    card.defId = e.id
+    run.evolved = [...(run.evolved ?? []), e.id]
+    run.evolvedNew = [...(run.evolvedNew ?? []), e.id]
+  }
 }
 
 export function canUpgrade(def: CardDef | undefined): boolean {
@@ -239,6 +253,7 @@ function gainImplant(run: RunState, id: string, C: ContentRegistry): boolean {
   if (!def || run.implants.includes(id)) return false
   const reached = newlyReached(run.implants, id)
   run.implants.push(id)
+  evolveCards(run, C)
   applyConcretePassive(run, def.passive)
   // A set tier reached by this pickup: its max-HP / stat part applies once, now (the rest is summed live).
   for (const { tier } of reached) applyConcretePassive(run, { maxHp: tier.passive.maxHp, stats: tier.passive.stats })
@@ -560,6 +575,10 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   else if (isValidMix(opts.mutators) && mixerOpen(profile)) run.mutators = [...opts.mutators]
   else if (opts.mutator && mutatorById(opts.mutator)) run.mutator = opts.mutator
   if (!daily && opts.mode && deepSignalOpen(profile, C)) run.mode = opts.mode
+  if (!daily && profile.lastDeath) {
+    const replica = replicaOf(profile.lastDeath.killedBy, C)
+    if (replica) run.replica = replica
+  }
   const mut = mutatorMods(run)
   run.maxHp = Math.max(20, run.maxHp + (mut.maxHp ?? 0))
   run.hp = run.maxHp
@@ -730,6 +749,7 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
   const node = run.map.nodes[nodeId]
   if (!node) return run
   const next = clone(run)
+  delete next.evolvedNew
   clearCurrentNode(next)
   resetNodeStreams(next)
   next.nodeId = nodeId
@@ -859,6 +879,12 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   next.tally.damageTaken += combat.stats.damageTaken
   next.tally.cardsPlayed += combat.stats.cardsPlayed
   noteFightBestiary(next, combat, C)
+  const turn = combat.bestTurn
+  if (turn && turnScore(turn) > (next.bestTurn ? turnScore(next.bestTurn) : 0)) next.bestTurn = { ...turn, encounterId: combat.encounterId }
+  if (combat.phase === 'won' && combat.replicaUid) {
+    next.flags[REPLICA_BEATEN] = 1
+    combat = { ...combat, credits: combat.credits + REPLICA_BOUNTY }
+  }
   if (combat.duoFired && !next.duosFired?.includes(combat.duoFired)) next.duosFired = [...(next.duosFired ?? []), combat.duoFired]
   const name = C.encounters[combat.encounterId]?.name ?? KIND_NOTE[nodeKind]
 
@@ -917,6 +943,12 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   }
   next.screen = { kind: 'reward', reward: buildReward(next, combat, nodeKind, C, noisePaid) }
   return next
+}
+
+/** The enemy IX rebuilds from a lost fight: its toughest non-boss, if it had one. */
+function replicaOf(encounterId: string, C: ContentRegistry): string | undefined {
+  const ids = (C.encounters[encounterId]?.enemies ?? []).map((e) => e.id).filter((id) => C.enemies[id] && C.enemies[id].tier !== 'boss')
+  return [...ids].sort((a, b) => (C.enemies[b]?.hp ?? 0) - (C.enemies[a]?.hp ?? 0))[0]
 }
 
 /** One won fight off an open noise gate. True when it closes: the fight's reward then holds the payout. */

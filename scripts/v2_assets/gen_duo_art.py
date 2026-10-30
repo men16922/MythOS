@@ -92,8 +92,9 @@ DUOS: dict[str, tuple[str, str, str, str, str]] = {
         "rem",
         "se_rin",
         "A masked dream executor who never sleeps, keeping watch over a smuggler who barely trusts them.",
-        "In a dim shelter she sits against a wall with her eyes half closed, while the executor stands over her at the door, "
-        "mask lifted, perfectly still.",
+        "In a dim shelter doorway the two stand a full step apart, not touching, both faces level in the upper half of "
+        "the frame: she in her closed jacket, arms crossed, wary and tired; the executor in a high-collared robe, mask "
+        "lifted, watching the rain outside. Fully clothed, covered torsos, a guarded and quiet mood.",
         TEAL,
     ),
     "how_to_stand": (

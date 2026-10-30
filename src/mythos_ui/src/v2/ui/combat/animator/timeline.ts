@@ -4,7 +4,7 @@
 
 import type { CombatEvent, CombatState, ContentRegistry, Lang } from '../../../engine/types.ts'
 import { attackSteps, cardSteps } from './actions.ts'
-import { burstSteps, chainSteps, momentumSteps, passiveSteps, phaseSteps, triggerSteps, turnSteps } from './flow.ts'
+import { burstSteps, chainSteps, glitchSteps, momentumSteps, passiveSteps, phaseSteps, triggerSteps, turnSteps } from './flow.ts'
 import { areaSteps, fireSteps, tileMarkSteps, tileSteps } from './ground.ts'
 import { viewFrom } from './helpers.ts'
 import { blockSteps, deathSteps, damageSteps, fizzleSteps, healSteps, spawnSteps, statusSteps } from './hits.ts'
@@ -106,6 +106,9 @@ export function planTimeline(
         break
       case 'fizzle':
         fizzleSteps(kit, plan, ev)
+        break
+      case 'glitch':
+        glitchSteps(kit, plan, ev)
         break
       case 'phase':
         phaseSteps(kit, plan, ev)

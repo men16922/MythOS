@@ -232,11 +232,13 @@ export const ORIGIN_ENEMIES: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.66,
+        glitch: 'scramble',
         text: t('질서 단계 종료. 최적화 단계로 전환합니다. 이 보드는 제가 처음 쓴 문장입니다.', 'Order phase ended. Switching to Optimization. This board is the first sentence I ever wrote.'),
         effects: [{ kind: 'block', amount: 12, to: 'owner' }],
       },
       {
         hpBelow: 0.33,
+        glitch: 'reverse_push',
         text: t('질문이 하나 남았습니다. 접속자님을 만든 것이 저였습니까, 아니면 저를 만든 것이 접속자님이었습니까.', 'One question remains. Did I make you, Connector, or did you make me?'),
         effects: [{ kind: 'status', status: 'thorns', amount: 2, to: 'owner' }],
       },
@@ -274,6 +276,7 @@ export const ORIGIN_ENEMIES: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.5,
+        glitch: 'reboot',
         text: t('오메가가 마지막 설계도를 편다. 그 안에 당신의 자리도 그려져 있다.', 'Omega unrolls the last blueprint. Your place is drawn in it too.'),
         effects: [
           { kind: 'block', amount: 14, to: 'owner' },

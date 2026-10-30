@@ -9,6 +9,8 @@ import './card.css'
 
 export interface CardViewProps {
   def: CardDef
+  /** IX is masking card names (the text under the name still tells the truth). */
+  scrambled?: boolean
   upgraded: boolean
   lang: Lang
   playable?: boolean
@@ -82,6 +84,12 @@ const OWNER_STYLE: Record<string, { color: string; ko: string; en: string }> = {
   lin_yue: { color: '#7dffa8', ko: '린위에', en: 'Lin Yue' },
 }
 
+/** IX masks a card's name: stable per card, so the same card keeps the same mask. */
+function scrambledName(id: string): string {
+  const glyphs = '▓▒░█▚▞'
+  return [...id.slice(0, 6)].map((ch) => glyphs[ch.charCodeAt(0) % glyphs.length]).join('')
+}
+
 export function CardView(props: CardViewProps) {
   const { def, upgraded, lang, playable = true, selected = false, size = 'md', reason } = props
   const face = cardFace(def, upgraded)
@@ -140,7 +148,7 @@ export function CardView(props: CardViewProps) {
         )}
         <div className="m2-card__body">
           <div className="m2-card__name">
-            {tr(def.name, lang)}
+            {props.scrambled ? scrambledName(def.id) : tr(def.name, lang)}
             {upgraded && <span className="m2-card__plus">+</span>}
           </div>
           <div className="m2-card__meta">

@@ -14,6 +14,7 @@ import { NEW_COMPANION_CARDS, NEW_COMPANION_EVENTS, NEW_COMPANIONS } from './pac
 import { ARCHETYPES as BASE_ARCHETYPES } from './archetypes.ts'
 import { NEW_ARCHETYPE_CARDS, NEW_ARCHETYPE_IMPLANTS, NEW_ARCHETYPES } from './packs/new_archetypes/index.ts'
 import { DUOS } from './duos.ts'
+import { EVOLUTIONS, EVOLVED_CARDS } from './evolutions.ts'
 import { EVENTS as BASE_EVENTS } from './events.ts'
 import { LORE as BASE_LORE } from './lore.ts'
 import { DEEP_LORE } from './packs/deep_lore.ts'
@@ -31,7 +32,7 @@ import { ORIGIN_ACT, ORIGIN_ENCOUNTERS, ORIGIN_ENDINGS, ORIGIN_ENEMIES, ORIGIN_E
 
 // Content packs (Deep Signal acts 4+) join the base content here, so every registry, export and integrity test
 // sees one merged set. Standard runs never reach a pack's act (engine/run.ts lastAct).
-const CARDS = [...BASE_CARDS, ...REWRITE_CARDS, ...NEW_COMPANION_CARDS, ...NEW_ARCHETYPE_CARDS]
+const CARDS = [...BASE_CARDS, ...REWRITE_CARDS, ...NEW_COMPANION_CARDS, ...NEW_ARCHETYPE_CARDS, ...EVOLVED_CARDS]
 const IMPLANTS = [...BASE_IMPLANTS, ...NEW_ARCHETYPE_IMPLANTS]
 const ARCHETYPES = [...BASE_ARCHETYPES, ...NEW_ARCHETYPES]
 const COMPANIONS = [...BASE_COMPANIONS, ...NEW_COMPANIONS]
@@ -51,6 +52,7 @@ function byId<T extends { id: string }>(xs: readonly T[]): Record<string, T> {
 export const CONTENT: ContentRegistry = {
   cards: byId(CARDS),
   duos: byId(DUOS),
+  evolutions: byId(EVOLUTIONS),
   consumables: byId(CONSUMABLES),
   enemies: byId(ENEMIES),
   encounters: byId(ENCOUNTERS),

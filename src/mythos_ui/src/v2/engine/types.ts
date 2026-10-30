@@ -303,7 +303,7 @@ export interface EnemyDef {
   /** One-line rules reminder shown on hover. */
   passive?: Text
   /** Boss phases: when hp drops to or below `hpBelow` (fraction 0-1) enter the phase. */
-  phases?: { hpBelow: number; text: Text; heal?: number; effects?: Effect[] }[]
+  phases?: { hpBelow: number; text: Text; heal?: number; effects?: Effect[]; glitch?: GlitchKind }[]
   /** Credits dropped on kill (added to the combat reward). */
   bounty?: number
   /** Salvage parts dropped on kill (Pack 2 machines; spent on crafting at safehouses). */
@@ -401,6 +401,7 @@ export type CombatEvent =
   | { t: 'tile'; pos: Pos; kind: TileKind }
   | { t: 'fizzle'; uid: string }
   | { t: 'phase'; uid: string; phase: number; text: Text }
+  | { t: 'glitch'; kind: GlitchKind }
   | { t: 'turn'; side: 'player' | 'enemy'; turn: number }
   | { t: 'energy'; amount: number }
   | { t: 'draw'; count: number }
@@ -458,6 +459,13 @@ export interface CombatState {
   runStats?: Stats
   /** Active run mutator id (if any), for combat-level mutator rules. */
   mutator?: string
+  /** This fight's biggest turn so far, and the turn in progress. */
+  bestTurn?: TurnRecord
+  turnNow?: TurnRecord
+  /** IX's current interference: active through player turn `until`. */
+  glitch?: { kind: GlitchKind; until: number }
+  /** Uid of IX's replica of the enemy that killed the connector last loop. */
+  replicaUid?: string
   /** The duo ultimate fired this fight (id, content/duos.ts). */
   duoFired?: string
   /** An open noise gate's mutator, on top of the others. */
@@ -646,6 +654,26 @@ export interface BurstDef {
   text: Text
   /** Resolved from the connector, side 'party', no target (group scopes only). */
   effects: Effect[]
+}
+
+/**
+ * IX bending the game itself at a boss phase (engine/effects.ts). 'reverse_push' is a rule, shown on the HUD and in
+ * the previews; 'scramble' (card names) and 'reboot' (a fake restart) only unsettle the screen.
+ */
+export type GlitchKind = 'reverse_push' | 'scramble' | 'reboot'
+
+/** Holding `card` and `implant` together turns the card into the evolved card `id` (content/evolutions.ts). */
+export interface EvolutionDef {
+  id: string
+  card: string
+  implant: string
+}
+
+/** A player turn's output: damage dealt and kills. */
+export interface TurnRecord {
+  turn: number
+  damage: number
+  kills: number
 }
 
 /** A joint ultimate of two companions (content/duos.ts): fired from `pair[0]`, on the same Momentum gauge. */
@@ -865,6 +893,13 @@ export interface RunState {
   flags: Record<string, number>
   codex: string[]
   seenEvents: string[]
+  /** Evolutions made this run (ids); the newest are announced on the map (`evolvedNew`). */
+  evolved?: string[]
+  evolvedNew?: string[]
+  /** The run's biggest turn. */
+  bestTurn?: TurnRecord & { encounterId: string }
+  /** Enemy id IX rebuilt from the last death; it waits at the first elite fight from Act 2. */
+  replica?: string
   /** Duo ultimates fired this run. */
   duosFired?: string[]
   /** Events of the last loops (`profile.recentEvents`): maps prefer others, nothing is forbidden. */
@@ -1207,6 +1242,8 @@ export interface MetaProfile {
   archetypeWins?: Record<string, number>
   /** How many runs each event appeared in (any loop, daily included): lets the GM open a revisited scene on déjà vu. */
   eventsSeen?: Record<string, number>
+  /** Card evolutions ever made (the codex's discoveries). */
+  evolutions?: string[]
   /** Duo ultimates ever fired (the codex's discoveries). */
   duos?: string[]
   /** Event ids of the last normal loops, newest first (never a daily's). */
@@ -1313,6 +1350,8 @@ export interface ActDef {
 }
 
 export interface ContentRegistry {
+  /** Card evolutions (absent in small test registries). */
+  evolutions?: Record<string, EvolutionDef>
   /** Duo ultimates (absent in small test registries). */
   duos?: Record<string, DuoDef>
   cards: Record<string, CardDef>

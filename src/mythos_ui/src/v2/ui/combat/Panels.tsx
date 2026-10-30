@@ -4,6 +4,7 @@ import { memo, useContext } from 'react'
 import { Hourglass, Footprints, Menu, Zap as ZapIcon, Shield as ShieldIcon } from 'lucide-react'
 import type { IntentInfo } from '../../engine/combat.ts'
 import { COMBAT_MOD_TEXT } from '../../engine/crpg.ts'
+import { glitchActive } from '../../engine/effects.ts'
 import { GRID_W } from '../../engine/types.ts'
 import type { CardInstance, CombatState, ContentRegistry, EncounterDef, Lang, StatusKind, Tile, UnitState } from '../../engine/types.ts'
 import { STATUS_ICON, portrait } from '../common/assets.ts'
@@ -60,6 +61,12 @@ export const TopStrip = memo(function TopStrip(p: {
             {bonusText(c.bonus.def, lang)}
             {prog && !c.bonus.failed && <b>{prog}</b>}
             {c.bonus.failed && <b>{ko(lang, '실패', 'FAILED')}</b>}
+          </span>
+        )}
+        {c.glitch?.kind === 'reverse_push' && glitchActive(c, 'reverse_push') && (
+          <span className="m2c-mod-badge is-glitch" data-testid="glitch-badge">
+            <i>◈</i>
+            {ko(lang, 'IX 변조: 밀치기 방향 반전', 'IX override: pushes are reversed')}
           </span>
         )}
         {c.mods && c.mods.length > 0 && (

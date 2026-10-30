@@ -406,3 +406,8 @@
     animation: none;
   }
 }
+
+.m2c-mod-badge.is-glitch {
+  color: #ffd1dc;
+  border-color: rgba(255, 90, 130, 0.7);
+}

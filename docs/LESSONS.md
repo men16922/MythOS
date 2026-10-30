@@ -3,6 +3,9 @@
 Repo-specific things a future unattended iteration should know before repeating a mistake.
 One line per lesson, dated, newest on top. Lessons about the archived 1.x runtime were removed with it (branch `1.0`).
 
+- 2026-10-30: `make verify-preview` compares `app.js`, which can stay byte-identical while the content chunk changes (`assets/fonts.js` holds engine + content here): to prove new code is served, hash the chunk that contains a new id on the preview. And `run.staleEvents`-style inputs must be copied onto the run at `newRun`, never read from the profile in the engine, or seeds stop reproducing.
+- 2026-10-30: a "forbidden" implant held from turn 1 can read 0/100 in the sim (Overload Buffer: +3 hand, 1 damage per card left) because the bot hoards. Measure each rule alone with `startImplants` before trusting a neutral aggregate: the aggregate read neutral while single implants ranged 0–74.
+
 - 2026-10-27: adding ANY card to an archetype-exclusive pool moved that archetype's mixed win rate by up to +8 pts even when the card had no effect (a dud) — pool composition shifts reward picks. A/B a new card against a dud in the same slot on the same seeds before blaming (or crediting) its effect.
 
 - 2026-10-25: a content/system wave can silently wreck difficulty while every gate stays green — Argon's stats+volume pass moved P0 mixed 31 → 75 %. Any engine/content/map change re-runs `simulateRun` on ≥ 3 identical seed blocks and logs the numbers; one extra map row alone was worth +16 pts (deck snowball). Tune enemy damage before HP padding (HP padding stretches boss fights past 10 turns).

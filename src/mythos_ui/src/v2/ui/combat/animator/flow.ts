@@ -115,18 +115,21 @@ export function burstSteps(kit: Kit, plan: Plan, ev: Ev<'burst'>): void {
   const { showBanner, addFx, unitOf, pose, trauma, hitStop, later, S } = kit
   const arch = plan.C.archetypes[ev.archetype]
   const comp = ev.companion ? plan.C.companions[ev.companion] : undefined
-  const def = comp ? comp.ultimate : arch?.burst
+  const duo = ev.duo ? plan.C.duos?.[ev.duo] : undefined
+  const def = duo ?? (comp ? comp.ultimate : arch?.burst)
   const name = def ? tr(def.name, plan.lang) : plan.k ? '시그널 버스트' : 'SIGNAL BURST'
-  const who = comp ? tr(comp.name, plan.lang) : arch ? tr(arch.name, plan.lang) : ''
+  const partner = duo ? plan.C.companions[duo.pair[1]] : undefined
+  const who = comp ? `${tr(comp.name, plan.lang)}${partner ? ` × ${tr(partner.name, plan.lang)}` : ''}` : arch ? tr(arch.name, plan.lang) : ''
   const art = portrait(comp ? comp.sprite : (arch?.sprite ?? 'player-noise'))
-  const ult = ART.ults[ev.companion ?? ev.archetype]
+  const ult = ART.ults[duo ? `duo_${duo.id}` : (ev.companion ?? ev.archetype)]
   const splash = ult ? asset(ult) : undefined
   const uid = ev.companion ?? 'connector'
   const tone = comp ? 'shock' : 'gold'
+  const quote = duo ? tr(duo.lines[1], plan.lang) : undefined
   plan.steps.push({
-    dur: 1450,
+    dur: duo ? 1900 : 1450,
     run: () => {
-      showBanner({ kind: 'burst', title: name, sub: who, art, ...(splash ? { splash } : {}), tone: comp ? 'ult' : 'burst' }, S(1600))
+      showBanner({ kind: 'burst', title: name, sub: who, art, ...(splash ? { splash } : {}), ...(quote ? { quote } : {}), tone: comp ? 'ult' : 'burst' }, S(duo ? 2050 : 1600))
       const u = unitOf(uid)
       if (u) pose(uid, 'skill', S(1400))
       hitStop(S(140))
@@ -134,6 +137,8 @@ export function burstSteps(kit: Kit, plan: Plan, ev: Ev<'burst'>): void {
       const sig = (ev.companion ? ULT_SFX[ev.companion] : BURST_SFX[ev.archetype]) ?? 'shockwave'
       sfx('unlock')
       sfx(sig, { intensity: 1.4 })
+      const second = duo ? ULT_SFX[duo.pair[1]] : undefined
+      if (second) later(() => sfx(second, { intensity: 1.3 }), S(420))
       later(() => {
         const at = unitOf(uid)?.pos
         if (at) {

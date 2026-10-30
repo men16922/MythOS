@@ -72,6 +72,8 @@ export interface RunSimResult {
   tally: RunState['tally']
   /** Fight-level feat flags (engine/achievements.ts FEAT_*). */
   feats: Record<string, number>
+  /** Distinct duo ultimates fired this run. */
+  duos: number
 }
 
 /** Per-fight balance telemetry (see RunSimOptions.onFight). */
@@ -483,6 +485,7 @@ export function simulateRun(
     axes: { ...(run.axes ?? {}) },
     tally: { ...run.tally },
     feats: Object.fromEntries(Object.entries(run.flags).filter(([k]) => k.startsWith('feat_'))),
+    duos: run.duosFired?.length ?? 0,
   }
   const killedBy = runKilledBy(run)
   if (killedBy) result.killedBy = killedBy

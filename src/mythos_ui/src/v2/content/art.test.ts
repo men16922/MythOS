@@ -27,6 +27,7 @@ test('every event, act and ending has generated art', () => {
 test('every companion ultimate and archetype Signal Burst has its cut-in illustration', () => {
   assert.deepEqual(missing(Object.keys(C.companions), ART.ults), [])
   assert.deepEqual(missing(Object.keys(C.archetypes), ART.ults), [])
+  assert.deepEqual(missing(Object.keys(C.duos ?? {}).map((id) => `duo_${id}`), ART.ults), [])
 })
 
 test('every music cue has a generated loop', () => {

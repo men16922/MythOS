@@ -95,6 +95,14 @@
   letter-spacing: 0.06em;
   color: rgba(220, 243, 240, 0.85);
 }
+.m2c-banner-quote {
+  position: relative;
+  margin-top: 6px;
+  font-size: 14px;
+  font-style: italic;
+  color: rgba(240, 248, 250, 0.95);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
 .m2c-banner.is-enemy .m2c-banner-bar,
 .m2c-banner.is-phase .m2c-banner-bar,
 .m2c-banner.is-defeat .m2c-banner-bar {

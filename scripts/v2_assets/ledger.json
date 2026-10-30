@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 328,
+ "codex_image_calls": 340,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -4928,6 +4928,126 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/doyun-idle.webp"
    ],
    "ts": "2026-10-28T04:35:10"
+  },
+  "v2/ult/duo_anvil_and_wall.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A warm-hearted smith patching up a clipped, immovable bodyguard. Scene: In a safehouse workshop she welds the edge of his shield while he stands still, braced, her hand steady on his shoulder plate. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in warm gold and magenta light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/su-ah.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/tae-o.png"
+   ],
+   "ts": "2026-10-31T04:59:02"
+  },
+  "v2/ult/duo_burned_ledger.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A broker writing off a debt for a smuggler who does not trust the gift. Scene: On a dock at night the broker holds a burning paper ledger over the water, the smuggler watching with her arms crossed and one raised eyebrow. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in warm gold and magenta light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/lin-yue.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/se-rin.png"
+   ],
+   "ts": "2026-10-31T05:00:00"
+  },
+  "v2/ult/duo_collection.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A wry smuggler and the stone-faced ex-enforcer who once hunted her, now working the same door. Scene: They stand shoulder to shoulder in a rain-wet corridor: she points ahead with two fingers, he has just set one heavy shield down, a steel door bent inward in front of them. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/se-rin.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/tae-o.png"
+   ],
+   "ts": "2026-10-31T04:58:55"
+  },
+  "v2/ult/duo_how_to_stand.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: An ordinary survivor learning from a veteran how to hold his ground. Scene: On a ruined overpass the young man plants his feet behind a battered shield, and the veteran beside him adjusts his stance with one firm hand, saying nothing. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/doyun.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/tae-o.png"
+   ],
+   "ts": "2026-10-31T05:00:55"
+  },
+  "v2/ult/duo_night_watch.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A masked dream executor who never sleeps, keeping watch over a smuggler who barely trusts him. Scene: In a dim shelter she sits against a wall with her eyes half closed, while he stands over her at the door, mask lifted, perfectly still. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/rem-ally.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/se-rin.png"
+   ],
+   "ts": "2026-10-31T05:00:37"
+  },
+  "v2/ult/duo_not_for_sale.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A smooth night-market broker and the android she refuses to price. Scene: She flips a single coin beside him on a neon market balcony as he levels his rifle, her smile sharp, his expression quietly touched. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in warm gold and magenta light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/lin-yue.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/kai.png"
+   ],
+   "ts": "2026-10-31T04:59:05"
+  },
+  "v2/ult/duo_overdue_reader.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A precise librarian AI and the small forgotten reader she finally lets in. Scene: Between tall glass shelves the librarian stamps a card with grave care while the small reader, a child with a card for a face, holds up a worn book to her. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/io-ally.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/miro.png"
+   ],
+   "ts": "2026-10-31T04:59:54"
+  },
+  "v2/ult/duo_red_ink.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A censor who quit and the librarian whose pages she once struck out. Scene: At a long reading desk the former censor lays down her red pen on an open book, and the librarian restores the struck line with one pale fingertip. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/bel.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/io-ally.png"
+   ],
+   "ts": "2026-10-31T05:00:45"
+  },
+  "v2/ult/duo_same_dream.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A dream executor and the android who once dreamed the dream he guarded. Scene: They stand back to back in a dark machine hall, faint star points drifting between them, both looking up. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/rem-ally.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/kai.png"
+   ],
+   "ts": "2026-10-31T05:01:18"
+  },
+  "v2/ult/duo_undeletable.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A censor who quit and a smug hacker whose code outlived her red pen. Scene: At a terminal she holds her red pen to a glowing line that refuses to fade, and he leans on the desk beside her with a delighted grin. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/bel.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/han.png"
+   ],
+   "ts": "2026-10-31T05:01:35"
+  },
+  "v2/ult/duo_unlogged_dream.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A cocky young hacker and a gentle android sniper who dreams. Scene: On a rooftop at night he kneels beside the sniper with a small laptop glowing on his knee, grinning, while the android looks calmly down the long rifle. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/han.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/kai.png"
+   ],
+   "ts": "2026-10-31T04:59:03"
+  },
+  "v2/ult/duo_warm_circuit.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (the FIRST image is the first character, the SECOND image is the second character; keep both identical, both are shown together in one scene; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: A panicking young hacker and the unflappable smith who forged his gear. Scene: At a workbench he recoils from a sparking handheld rig, eyes wide, while she calmly rests one gloved hand on it and the sparks settle. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in warm gold and magenta light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/han.png",
+    "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/su-ah.png"
+   ],
+   "ts": "2026-10-31T05:00:34"
   },
   "v2/ult/echo_collector.webp": {
    "generations": 2,

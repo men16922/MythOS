@@ -14,6 +14,7 @@ import { implantRules } from './implantRules.ts'
 import { mutatorCombat, mutatorMods } from './mutators.ts'
 import { worldEchoOf } from './legacy.ts'
 import type {
+  DuoDef,
   CardDef,
   CardFace,
   CardInstance,
@@ -909,6 +910,9 @@ function isStrong(C: ContentRegistry, u: UnitState): boolean {
   return tier === 'elite' || tier === 'boss'
 }
 
+/** Key of a duo in the `ultimatesReady` list and `fireBurst` (plain ids there are companion uids). */
+export const DUO_PREFIX = 'duo:'
+
 function momentumFull(c: CombatState): boolean {
   return c.phase === 'player' && !c.burstUsed && (c.momentum ?? 0) >= MOMENTUM_MAX
 }
@@ -922,12 +926,17 @@ export function burstReady(c: CombatState, C: ContentRegistry): BurstDef | undef
 }
 
 /** Companion ultimates on offer right now (same gauge as the Signal Burst; the companion must stand). */
-export function ultimatesReady(c: CombatState, C: ContentRegistry): { uid: string; def: BurstDef }[] {
+export function ultimatesReady(c: CombatState, C: ContentRegistry): { uid: string; def: BurstDef; duo?: DuoDef }[] {
   if (!momentumFull(c)) return []
-  const out: { uid: string; def: BurstDef }[] = []
-  for (const u of livingParty(c)) {
+  const out: { uid: string; def: BurstDef; duo?: DuoDef }[] = []
+  const party = livingParty(c)
+  for (const u of party) {
     const def = u.uid === 'connector' ? undefined : C.companions[u.defId]?.ultimate
     if (def) out.push({ uid: u.uid, def })
+  }
+  // A duo needs both standing; it joins the list under its own key.
+  for (const duo of Object.values(C.duos ?? {})) {
+    if (duo.pair.every((id) => party.some((u) => u.defId === id))) out.push({ uid: `${DUO_PREFIX}${duo.id}`, def: duo, duo })
   }
   return out
 }
@@ -940,12 +949,21 @@ export function burstInPlace(c: CombatState, C: ContentRegistry, companionUid?: 
   requirePlayer(c)
   const ult = companionUid ? ultimatesReady(c, C).find((o) => o.uid === companionUid) : undefined
   const def = companionUid ? ult?.def : burstReady(c, C)
-  const origin = companionUid ? getUnit(c, companionUid) : connectorOf(c)
+  const lead = ult?.duo?.pair[0]
+  const origin = lead ? livingParty(c).find((u) => u.defId === lead) : companionUid ? getUnit(c, companionUid) : connectorOf(c)
   if (!def || !origin) throw new Error('signal burst not ready')
   c.undo = null
   c.burstUsed = true
   c.momentum = 0
-  emit(c, companionUid ? { t: 'burst', archetype: c.archetype ?? '', companion: origin.defId } : { t: 'burst', archetype: c.archetype ?? '' })
+  if (ult?.duo) c.duoFired = ult.duo.id
+  emit(
+    c,
+    ult?.duo
+      ? { t: 'burst', archetype: c.archetype ?? '', companion: origin.defId, duo: ult.duo.id }
+      : companionUid
+        ? { t: 'burst', archetype: c.archetype ?? '', companion: origin.defId }
+        : { t: 'burst', archetype: c.archetype ?? '' },
+  )
   applyEffects(c, C, def.effects, { origin, side: 'party', tiles: [], source: 'party' })
   checkEnd(c, C)
 }

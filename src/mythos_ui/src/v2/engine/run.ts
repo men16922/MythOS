@@ -859,6 +859,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   next.tally.damageTaken += combat.stats.damageTaken
   next.tally.cardsPlayed += combat.stats.cardsPlayed
   noteFightBestiary(next, combat, C)
+  if (combat.duoFired && !next.duosFired?.includes(combat.duoFired)) next.duosFired = [...(next.duosFired ?? []), combat.duoFired]
   const name = C.encounters[combat.encounterId]?.name ?? KIND_NOTE[nodeKind]
 
   if (combat.phase === 'lost' && combat.encounterId === SECRET_ENCOUNTER) {

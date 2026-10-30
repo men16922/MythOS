@@ -172,6 +172,8 @@ export interface UltOption {
   name: string
   text: string
   art: string
+  /** The partner's portrait on a duo ultimate. */
+  art2?: string
 }
 
 export function MomentumGauge(p: {
@@ -206,8 +208,9 @@ export function MomentumGauge(p: {
                     </div>
                   }
                 >
-                  <button type="button" className="m2c-ult" disabled={!p.interactive} onClick={() => p.onUlt?.(u.uid)} onMouseDown={(e) => e.preventDefault()}>
+                  <button type="button" className={`m2c-ult${u.art2 ? ' is-duo' : ''}`} disabled={!p.interactive} onClick={() => p.onUlt?.(u.uid)} onMouseDown={(e) => e.preventDefault()}>
                     <img src={u.art} alt="" draggable={false} />
+                    {u.art2 && <img src={u.art2} alt="" draggable={false} />}
                     <span>{u.name}</span>
                   </button>
                 </Tooltip>

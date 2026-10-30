@@ -2,20 +2,41 @@
 // owned. Unmet entries stay as dark silhouettes / '???'. Completing either earns an achievement.
 import { useState } from 'react'
 import { bestiaryIds, codexCardIds } from '../../engine/bestiary.ts'
-import type { ContentRegistry, Lang, MetaProfile } from '../../engine/types.ts'
+import type { ContentRegistry, DuoDef, Lang, MetaProfile } from '../../engine/types.ts'
 import { sprite } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
 import { art } from '../components/art.ts'
 
+/** Found duos show their pair, effect and lines; unfound ones keep the pair's secret. */
+function ArchiveDuos({ duos, found, C, lang }: { duos: DuoDef[]; found: Set<string>; C: ContentRegistry; lang: Lang }) {
+  return (
+    <div className="m2-codex__duos">
+      {duos.map((d) => {
+        const seen = found.has(d.id)
+        return (
+          <div key={d.id} className={`m2-codex__duo${seen ? '' : ' is-hidden'}`}>
+            <b>{seen ? tr(d.name, lang) : '???'}</b>
+            <small>{seen ? d.pair.map((id) => tr(C.companions[id]?.name, lang)).join(' × ') : '??? × ???'}</small>
+            {seen && <p>{tr(d.text, lang)}</p>}
+            {seen && <p className="m2-codex__duo-lines">“{tr(d.lines[0], lang)}” “{tr(d.lines[1], lang)}”</p>}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export function ArchiveCodex({ profile, C, lang }: { profile: MetaProfile; C: ContentRegistry; lang: Lang }) {
   const ko = lang === 'ko'
-  const [view, setView] = useState<'enemies' | 'cards'>('enemies')
+  const [view, setView] = useState<'enemies' | 'cards' | 'duos'>('enemies')
   const enemies = bestiaryIds(C)
   const cards = codexCardIds(C)
   const met = profile.bestiary ?? {}
   const owned = new Set(profile.cardsSeen ?? [])
   const metCount = enemies.filter((id) => met[id] !== undefined).length
   const ownedCount = cards.filter((id) => owned.has(id)).length
+  const duos = Object.values(C.duos ?? {})
+  const found = new Set(profile.duos ?? [])
   return (
     <div className="m2-codex" data-testid="archive-codex">
       <div className="m2-codex__switch" role="tablist">
@@ -25,7 +46,11 @@ export function ArchiveCodex({ profile, C, lang }: { profile: MetaProfile; C: Co
         <button role="tab" aria-selected={view === 'cards'} className={view === 'cards' ? 'is-on' : ''} onClick={() => setView('cards')}>
           {ko ? '카드' : 'Cards'} <small className="m2-mono">{ownedCount}/{cards.length}</small>
         </button>
+        <button role="tab" aria-selected={view === 'duos'} className={view === 'duos' ? 'is-on' : ''} onClick={() => setView('duos')}>
+          {ko ? '듀오' : 'Duos'} <small className="m2-mono">{duos.filter((d) => found.has(d.id)).length}/{duos.length}</small>
+        </button>
       </div>
+      {view === 'duos' && <ArchiveDuos duos={duos} found={found} C={C} lang={lang} />}
       <div className="m2-codex__grid">
         {view === 'enemies' &&
           enemies.map((id) => {

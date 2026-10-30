@@ -27,6 +27,8 @@ export interface Banner {
   splash?: string
   /** 'burst' cut-in colour set: the archetype's Signal Burst (gold) or a companion ultimate (cyan). */
   tone?: 'burst' | 'ult'
+  /** One spoken line under a duo's cut-in. */
+  quote?: string
   key: number
 }
 

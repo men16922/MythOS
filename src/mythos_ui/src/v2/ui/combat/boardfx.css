@@ -1026,3 +1026,7 @@
     0 0 12px rgba(255, 215, 106, 1),
     0 2px 0 #3d2a00;
 }
+
+.m2c-ult.is-duo img + img {
+  margin-left: -12px;
+}

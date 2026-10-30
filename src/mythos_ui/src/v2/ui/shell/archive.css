@@ -794,3 +794,30 @@
 .m2-codex__cell.is-hidden .m2-codex__name {
   opacity: 0.4;
 }
+
+.m2-codex__duos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+.m2-codex__duo {
+  padding: 10px 12px;
+  border: 1px solid var(--m2-line);
+  background: rgba(8, 20, 24, 0.7);
+}
+.m2-codex__duo.is-hidden {
+  opacity: 0.55;
+}
+.m2-codex__duo small {
+  display: block;
+  margin-top: 2px;
+  color: var(--m2-mute);
+}
+.m2-codex__duo p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.m2-codex__duo-lines {
+  color: var(--m2-mute);
+}

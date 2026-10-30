@@ -382,6 +382,13 @@
   padding: 0 14px;
   font-size: 12.5px;
 }
+.is-compact .m2c-banner-quote {
+  padding: 0 14px;
+  font-size: 12px;
+}
+.is-port .m2c-ult.is-duo img + img {
+  margin-left: -14px;
+}
 .is-compact .m2c-splash-name {
   right: 6%;
 }

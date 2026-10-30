@@ -385,7 +385,7 @@ export type CombatEvent =
   /** `n` enemies killed this player turn (2+ = a chain, with its reward). */
   | { t: 'chain'; n: number }
   | { t: 'momentum'; amount: number; total: number }
-  | { t: 'burst'; archetype: string; companion?: string }
+  | { t: 'burst'; archetype: string; companion?: string; duo?: string }
   | { t: 'card'; owner: string; cardId: string; target?: Pos; dir?: Dir }
   | { t: 'move'; uid: string; path: Pos[] }
   | { t: 'teleport'; uid: string; from: Pos; to: Pos }
@@ -458,6 +458,8 @@ export interface CombatState {
   runStats?: Stats
   /** Active run mutator id (if any), for combat-level mutator rules. */
   mutator?: string
+  /** The duo ultimate fired this fight (id, content/duos.ts). */
+  duoFired?: string
   /** An open noise gate's mutator, on top of the others. */
   noiseMutator?: string
   /** A custom anomaly mix instead (engine/mutators.ts activeMutators). */
@@ -644,6 +646,14 @@ export interface BurstDef {
   text: Text
   /** Resolved from the connector, side 'party', no target (group scopes only). */
   effects: Effect[]
+}
+
+/** A joint ultimate of two companions (content/duos.ts): fired from `pair[0]`, on the same Momentum gauge. */
+export interface DuoDef extends BurstDef {
+  id: string
+  pair: [string, string]
+  /** One short line each: pair[0], then pair[1]. */
+  lines: [Text, Text]
 }
 
 // ---------------------------------------------------------------- events
@@ -855,6 +865,8 @@ export interface RunState {
   flags: Record<string, number>
   codex: string[]
   seenEvents: string[]
+  /** Duo ultimates fired this run. */
+  duosFired?: string[]
   /** Events of the last loops (`profile.recentEvents`): maps prefer others, nothing is forbidden. */
   staleEvents?: string[]
   /** An open noise gate: its mutator and the won fights left until it pays out. */
@@ -1195,6 +1207,8 @@ export interface MetaProfile {
   archetypeWins?: Record<string, number>
   /** How many runs each event appeared in (any loop, daily included): lets the GM open a revisited scene on déjà vu. */
   eventsSeen?: Record<string, number>
+  /** Duo ultimates ever fired (the codex's discoveries). */
+  duos?: string[]
   /** Event ids of the last normal loops, newest first (never a daily's). */
   recentEvents?: string[][]
   /** Enemies ever met: id → total kills (0 = seen only) (engine/bestiary.ts). */
@@ -1299,6 +1313,8 @@ export interface ActDef {
 }
 
 export interface ContentRegistry {
+  /** Duo ultimates (absent in small test registries). */
+  duos?: Record<string, DuoDef>
   cards: Record<string, CardDef>
   consumables: Record<string, ConsumableDef>
   enemies: Record<string, EnemyDef>

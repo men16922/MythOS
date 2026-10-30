@@ -13,6 +13,7 @@ import { COMPANIONS as BASE_COMPANIONS } from './companions.ts'
 import { NEW_COMPANION_CARDS, NEW_COMPANION_EVENTS, NEW_COMPANIONS } from './packs/new_companions/index.ts'
 import { ARCHETYPES as BASE_ARCHETYPES } from './archetypes.ts'
 import { NEW_ARCHETYPE_CARDS, NEW_ARCHETYPE_IMPLANTS, NEW_ARCHETYPES } from './packs/new_archetypes/index.ts'
+import { DUOS } from './duos.ts'
 import { EVENTS as BASE_EVENTS } from './events.ts'
 import { LORE as BASE_LORE } from './lore.ts'
 import { DEEP_LORE } from './packs/deep_lore.ts'
@@ -49,6 +50,7 @@ function byId<T extends { id: string }>(xs: readonly T[]): Record<string, T> {
 
 export const CONTENT: ContentRegistry = {
   cards: byId(CARDS),
+  duos: byId(DUOS),
   consumables: byId(CONSUMABLES),
   enemies: byId(ENEMIES),
   encounters: byId(ENCOUNTERS),

@@ -570,6 +570,10 @@ export function CombatScreen(props: CombatScreenProps) {
             burstName={combat.archetype && C.archetypes[combat.archetype]?.burst ? tr(C.archetypes[combat.archetype]!.burst!.name, lang) : null}
             burstText={combat.archetype && C.archetypes[combat.archetype]?.burst ? tr(C.archetypes[combat.archetype]!.burst!.text, lang) : ''}
             ults={ultimatesReady(combat, C).map((o) => {
+              if (o.duo) {
+                const [a, b] = o.duo.pair.map((id) => portrait(C.companions[id]?.sprite ?? ''))
+                return { uid: o.uid, name: tr(o.def.name, lang), text: tr(o.def.text, lang), art: a ?? '', art2: b ?? '' }
+              }
               const comp = C.companions[getUnit(combat, o.uid)?.defId ?? '']
               return { uid: o.uid, name: tr(o.def.name, lang), text: tr(o.def.text, lang), art: portrait(comp?.sprite ?? '') }
             })}

@@ -249,6 +249,7 @@ export function migrateProfile(raw: unknown): MetaProfile {
     achievements: strList(r.achievements),
     bestiary: migrateBestiary(r.bestiary),
     cardsSeen: strList(r.cardsSeen),
+    duos: strList(r.duos),
   }
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {
@@ -479,6 +480,7 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     recentEvents: run.daily ? (profile.recentEvents ?? []) : [[...new Set(run.seenEvents)], ...(profile.recentEvents ?? [])].slice(0, RECENT_EVENT_LOOPS),
     bestiary: mergeBestiary(profile.bestiary, run.bestiary),
     cardsSeen: union(profile.cardsSeen ?? [], run.cardsSeen ?? []),
+    duos: union(profile.duos ?? [], run.duosFired ?? []),
     settings: { ...profile.settings },
   }
   if (!victory && !abandoned && killedBy) next.lastDeath = { killedBy, act: run.act, loop: run.loop }

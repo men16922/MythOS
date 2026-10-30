@@ -97,3 +97,12 @@ test('the run keeps its biggest turn across fights', () => {
   const after = updateCombat({ ...next, screen: { kind: 'combat', combat: small, nodeKind: 'combat' } }, { ...small, phase: 'won', bestTurn: { turn: 1, damage: 5, kills: 0 } }, C)
   assert.equal(after.bestTurn?.damage, 20)
 })
+
+test('an already upgraded card keeps its edge through evolution: the upgraded face prints the bigger number', () => {
+  for (const e of Object.values(C.evolutions ?? {})) {
+    const made = C.cards[e.id]!
+    assert.notDeepEqual(made.upgrade.effects, made.effects, e.id)
+    const numbers = (text: string) => (text.match(/\d+/g) ?? []).map(Number).reduce((a, b) => a + b, 0)
+    assert.ok(numbers(made.upgrade.text!.ko) > numbers(made.text.ko), `${e.id}: text does not show the upgrade`)
+  }
+})

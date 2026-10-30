@@ -2,6 +2,15 @@
 
 Last updated: 2026-10-30
 
+## 2026-10-30 — Production promoted to `00160-qiy` (Claude Opus 5.5, owner OK)
+
+- Status: achievements (64), bestiary / card codex, anomaly mixer and road recruits are live; production was on `562d220` before this.
+- Changed: `make deploy-preview` → `00160-qiy` (`git-sha=5bdd23f`); owner approved; promoted with `--to-latest` (100 % `LATEST`, rollback `00158-roq`). `docs/test/mythos2_fun_check.md` gains Deep Signal + Archive sections (stun, ultimates, 11 cues, road recruits, mixer rules, achievement wording, codex). `STATUS.md` corrected: 64 achievements, stale "`make test-e2e-v2` unverified" removed.
+- Verified: `make check` green (node 419, Python 338, 12 DB tests skipped), `make frontend-build` left the tree clean, `make verify-preview` 5/5, `verify_preview.py --url <production>` 4/4 (bundle = committed), 4 road-recruit images 200 on the preview, headless muted 390 px load 0 console errors, 0 ERROR log lines on the revision right after promotion.
+- Verified after promotion, at `5bdd23f` on a local server: full Deep Signal run through the real UI (`ui_playthrough.py --deep`, assist mode, muted, headless) OK in 1420 s, victory, ending `ending_noble_sacrifice`, 0 console/page errors.
+- Unverified: a played fight and Google sign-in on the production URL; a bot-taken road recruit (the bot picks the first open option = a decline, and its log does not name events, so a natural road-recruit scene is still unconfirmed); all sound, and fun/difficulty (owner).
+- Next: owner plays Deep Signal to Act 6 with `docs/test/mythos2_fun_check.md`.
+
 ## 2026-10-30 — Road recruits: one themed recruit scene per act from Act 3 (Claude Opus 5.5, owner direction)
 
 - **What** (owner: recruit freely, pick who deploys; deploy cap stays 2; a recruit event per act, random, at most once, with a trade-off, fitting each act's theme): `content/eventsRecruit.ts` — `a3_recruit` (ARK Spire: the next names on the list), `a4_recruit` (Glass Library: readers from failed loops), `a5_recruit` (scrap graveyard: half-woken androids), `a6_recruit` (First Record: half-erased connectors). Each rolls on the map like any event (weight 5 → on 40–58 % of that act's maps, measured over 2000 maps), never twice in an act. Recruiting costs +8 Trace (hint says "대기 합류" when both slots are full); the two authored options are the decline side (a small gift + a stat check against the act's watchers). The Act 2 scripted scene is unchanged. Four Codex-image illustrations (act art as the style reference).

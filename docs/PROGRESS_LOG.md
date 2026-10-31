@@ -1,6 +1,15 @@
 # Progress Log
 
-Last updated: 2026-10-31
+Last updated: 2026-11-01
+
+## 2026-11-01 — Relay reads true and can be reached (Claude Opus 5.5, owner: carry out the recommendation)
+
+- **Why**: merged plan Stage 3 item 3 (telegraph link, per-target preview, small-screen explanation) was reported done by omission. It was not, and the gap matched the rule's own discard condition, "misreads the real receiver".
+- **Fixed** (not deployed): the board kept showing the danger on the citizen and showed nothing on an enemy stand-in; aimed-card and move previews ignored the relay; a sweep over both tiles counted once. New pure `board/marks.ts` `boardAfter`, `expectedLoss`, `relayHit`, shared by board and panel. "대신 맞음 -N" chip, link lights up while carrying a hit, move chip on the relay. The rule explanation lasted 1.9 s: now a persistent one-line note above the sprites.
+- **Layout**: `outside_serving` and `outside_door` could not be walked to by turn 2 in 150/150 starts. Covers moved: serving (3,3) → (4,3), door (3,1) → (4,1). Now serving walk by T2 150/150, pickup walk T1 150/150, door push set up T1 150/150, guarded by `outside.test.ts`. No stat changes.
+- **Balance** (canonical): fresh 200 / 450, unchanged. Once-won, bot declines the route: 210 / 450, unchanged. Forced route not remeasured.
+- **Verified**: `marks.test.ts` incl. forecast equals direct hits through a real enemy phase on all three fights; `make check` (node 484, Python 338), `make test-e2e-v2`, `make playthrough-quick`; real clicks in the sandbox: hover and stand on the relay (-9 both), citizen danger gone, 390 px legible, 0 page errors. Enemy stand-in seen only with the AI patched at serve time to walk onto the tile (QA only, not in the code).
+- **Unverified**: a real push card onto the relay in the browser (engine and preview logic unit-tested); the note beside real sprites (art proxy was off in the dev server); fun. Limits: burning ground under the citizen is not redirected and not in the forecast; `proto_relay` stays boxed in, so test `enc=outside_serving`.
 
 ## 2026-10-31 — DLC 2 "Outside the List" built on the default rule (Claude Opus 5.5, owner: carry out the recommendation)
 

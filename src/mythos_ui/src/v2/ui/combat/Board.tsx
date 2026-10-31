@@ -13,9 +13,9 @@ import type { CombatState, ContentRegistry, Dir, Lang, Pos } from '../../engine/
 import type { FxItem, UnitFx } from './animator.ts'
 import { BoardFx } from './BoardFx.tsx'
 import { IntentLabels, IntentShapes, LockOns } from './board/intents.tsx'
-import { aggregateIntents, groundMarks } from './board/marks.ts'
+import { aggregateIntents, boardAfter, groundMarks, relayHit } from './board/marks.ts'
 import type { IntentView } from './board/marks.ts'
-import { MoveChip, PreviewChips } from './board/preview.tsx'
+import { MoveChip, PreviewChips, RelayChip } from './board/preview.tsx'
 import { BoardPlane, GroundBadges, GroundFire, GroundHazard, TileDefs } from './board/tiles.tsx'
 import { UnitSprite } from './board/units.tsx'
 import type { BoardGeom } from './geometry.ts'
@@ -67,8 +67,8 @@ export interface BoardProps {
   aimDir?: boolean
 }
 
-/** The relay tile and a line to the neutral it stands in for. */
-function RelayMark({ g, vc }: { g: BoardGeom; vc: CombatState }) {
+/** The relay tile and a line to the neutral it stands in for; the line lights up while it is carrying a hit. */
+function RelayMark({ g, vc, live }: { g: BoardGeom; vc: CombatState; live: boolean }) {
   if (!vc.relay) return null
   const mid = (p: Pos) => g.project(p.x + 0.5, p.y + 0.5)
   const from = mid(vc.relay)
@@ -77,7 +77,7 @@ function RelayMark({ g, vc }: { g: BoardGeom; vc: CombatState }) {
   return (
     <>
       <polygon points={pts(tileQuad(g, vc.relay, 0.06))} className="m2c-proto m2c-proto--relay" />
-      {to && <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className="m2c-proto-link" />}
+      {to && <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className={live ? 'm2c-proto-link is-live' : 'm2c-proto-link'} />}
     </>
   )
 }
@@ -87,6 +87,12 @@ export function Board({ registerBoard, ...props }: BoardProps) {
   // The animator removes the dead after their death beat; never drop a unit just because hp hit 0 mid-hit.
   const units = vc.units
   const { tileDmg, danger } = aggregateIntents(intents, vc)
+  // The relay answers for the neutral, on the board as the aimed card would leave it.
+  const relay = relayHit(intents, boardAfter(vc, preview))
+  if (relay) {
+    delete danger[relay.neutralUid]
+    danger[relay.proxyUid] = relay.hit
+  }
   const intentByUid: Record<string, IntentInfo> = {}
   for (const iv of intents) intentByUid[iv.uid] = iv.info
   const previewByUid: Record<string, CombatPreview['units'][number]> = {}
@@ -177,7 +183,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         {/* burning ground top overlay (magma cracks, slag crust, perimeter bridges above intent fills) */}
         <BoardPlane g={g} tiles={vc.tiles} part="fire" />
         {/* relay tile + its line to the neutral; the grid prototype is sandbox only */}
-        {vc.relay && <RelayMark g={g} vc={vc} />}
+        {vc.relay && <RelayMark g={g} vc={vc} live={!!relay} />}
         {vc.proto?.litFromX !== undefined && <text className="m2c-proto-note" x={g.width * 0.5} y={14} textAnchor="middle">{isLit(vc, { x: 6, y: 0 }) ? (props.lang === 'ko' ? '밝은 칸 공격 +2 · 어두운 칸 공격 −2 · 충돌 +2' : 'Lit: attacks +2 · Dark: attacks −2, bumps +2') : props.lang === 'ko' ? `암전 ${vc.proto.darkTurns}턴` : `Blackout ${vc.proto.darkTurns}`}</text>}
         {vc.proto?.litFromX !== undefined &&
           vc.tiles.flatMap((row, y) =>
@@ -262,6 +268,8 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         })}
         <LockOns g={g} intents={intents} vc={vc} C={C} focusEnemy={props.focusEnemy} dimIntents={props.dimIntents} firing={props.firing} />
         <PreviewChips g={g} vc={vc} C={C} preview={preview} />
+        {vc.relay && relay && <RelayChip g={g} at={vc.relay} hit={relay.hit} lang={props.lang} />}
+        {vc.relay && <div className="m2c-relaynote">{props.lang === 'ko' ? '점선 칸에 선 유닛이 대신 맞는다 · 적도 된다' : 'Whoever is on the dashed tile takes the hit. Enemies too.'}</div>}
         {/* move destination: ghost + what waits there */}
         {props.moveHover && <MoveChip g={g} vc={vc} at={props.moveHover} selectedUid={props.selectedUid} tileDmg={tileDmg} intents={intents} lang={props.lang} />}
         {/* direction picker */}

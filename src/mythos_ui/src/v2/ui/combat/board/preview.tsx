@@ -4,11 +4,12 @@
 import { Skull } from 'lucide-react'
 import type { CombatPreview } from '../../../engine/combat.ts'
 import { FIRE_BURN } from '../../../engine/effects.ts'
-import { posKey } from '../../../engine/grid.ts'
+import { posKey, samePos } from '../../../engine/grid.ts'
 import type { CombatState, ContentRegistry, Lang, Pos } from '../../../engine/types.ts'
 import type { BoardGeom } from '../geometry.ts'
 import { tileCenter, tileScale, unitScale } from '../geometry.ts'
 import { ShieldGlyph } from './glyphs.tsx'
+import { relayHit } from './marks.ts'
 import type { IntentView, TileMark } from './marks.ts'
 import { Ghost, PushArrow } from './units.tsx'
 import './preview.css'
@@ -45,6 +46,16 @@ export function PreviewChips({ g, vc, C, preview }: { g: BoardGeom; vc: CombatSt
   })
 }
 
+/** Small tag on the relay tile: this unit is taking the hit meant for the citizen. */
+export function RelayChip({ g, at, hit, lang }: { g: BoardGeom; at: Pos; hit: number; lang: Lang }) {
+  const c = tileCenter(g, at)
+  return (
+    <div className="m2c-relaychip" style={{ left: c.x, top: c.y + g.tw * 0.14 * tileScale(g, at) }}>
+      {lang === 'ko' ? '대신 맞음' : 'TAKES IT'} -{hit}
+    </div>
+  )
+}
+
 /** Move destination: the selected unit's ghost on the hovered move tile, and the damage / burn waiting there. */
 export function MoveChip(p: { g: BoardGeom; vc: CombatState; at: Pos; selectedUid: string | null; tileDmg: Map<string, TileMark>; intents: IntentView[]; lang: Lang }) {
   const { g, vc, at, tileDmg, intents } = p
@@ -62,11 +73,15 @@ export function MoveChip(p: { g: BoardGeom; vc: CombatState; at: Pos; selectedUi
           .filter((iv) => iv.info.move.pattern === 'track' && iv.info.windupLeft === 0 && iv.info.tiles.some((q) => q.x === at.x && q.y === at.y))
           .reduce((n, iv) => n + iv.info.damage, 0)
       : 0)
-  const dmg = Math.max(0, tileHit) + locked.reduce((n, iv) => n + iv.info.damage, 0) + (haz ? 2 : 0)
+  const lockHit = locked.reduce((n, iv) => n + iv.info.damage, 0) + (haz ? 2 : 0)
+  // Stepping onto the relay takes the citizen's hit as well as whatever lands on the tile.
+  const standIn = vc.relay && samePos(at, vc.relay) ? relayHit(intents, { ...vc, units: vc.units.map((u) => (u.uid === mu.uid ? { ...u, pos: at } : u)) }) : null
+  const dmg = (standIn ? standIn.hit : Math.max(0, tileHit)) + lockHit
   // Walking into burning ground sets you on fire.
   const burn = (vc.tiles[at.y]?.[at.x]?.fire ?? 0) > 0 && !mu.flying ? FIRE_BURN : 0
   const ko = p.lang === 'ko'
-  const parts = [dmg > 0 ? (ko ? `위험 -${dmg}` : `DANGER -${dmg}`) : '', burn > 0 ? (ko ? `화상 +${burn}` : `BURN +${burn}`) : ''].filter(Boolean)
+  const danger = standIn ? (ko ? `대신 맞음 -${dmg}` : `TAKES IT -${dmg}`) : ko ? `위험 -${dmg}` : `DANGER -${dmg}`
+  const parts = [dmg > 0 ? danger : '', burn > 0 ? (ko ? `화상 +${burn}` : `BURN +${burn}`) : ''].filter(Boolean)
   return (
     <>
       <Ghost g={g} u={mu} at={at} scale={1} move />

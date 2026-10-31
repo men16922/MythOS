@@ -41,6 +41,7 @@ import { EndTurnButton, HelpPopover, ItemSlots, KeyLegend, MomentumGauge, PileBu
 import { useCombatLayout } from './screen/layout.ts'
 import { BossSplash, CardGhosts, CardZoom, CombatBanner } from './screen/overlays.tsx'
 import { useTargeting } from './screen/targeting.ts'
+import { boardAfter } from './board/marks.ts'
 import { partyDanger, useIntentViews } from './screen/threat.ts'
 import { useCombatInput } from './screen/useCombatInput.ts'
 import { useEndTurnQueue } from './screen/useEndTurnQueue.ts'
@@ -133,7 +134,7 @@ export function CombatScreen(props: CombatScreenProps) {
   const hoverTile = hoverPos && !hoverUnit ? (vc.tiles[hoverPos.y]?.[hoverPos.x] ?? null) : null
   const hoverThreat = hoverPos ? (threatMap(vc, C)[posKey(hoverPos)] ?? 0) : 0
 
-  const danger = useMemo(() => partyDanger(vc.units, shownIntents, vc), [shownIntents, vc])
+  const danger = useMemo(() => partyDanger(vc.units, shownIntents, boardAfter(vc, preview)), [shownIntents, vc, preview])
 
   // ------------------------------------------------------------ playable cards
   const playable = useMemo(() => {

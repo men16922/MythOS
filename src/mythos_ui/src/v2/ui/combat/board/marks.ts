@@ -1,8 +1,9 @@
 // Board overlays as data: the intents per tile (damage, wind-up, pushes, void drops) and the tiles with a
 // countdown (burning ground, electrified hazards). Pure — the board's label / tile layers render these.
 
-import type { IntentInfo } from '../../../engine/combat.ts'
-import { add, dirToward, posKey } from '../../../engine/grid.ts'
+import type { CombatPreview, IntentInfo } from '../../../engine/combat.ts'
+import { gridDelta, relayProxy } from '../../../engine/effects.ts'
+import { add, dirToward, posKey, samePos } from '../../../engine/grid.ts'
 import type { CombatState, Dir, Pos, Tile, UnitState } from '../../../engine/types.ts'
 
 export interface IntentView {
@@ -65,6 +66,57 @@ export function aggregateIntents(intents: IntentView[], c: CombatState): { tileD
     if (t && t.dmg > 0) danger[u.uid] = t.dmg
   }
   return { tileDmg, danger }
+}
+
+/** The board once the aimed card has landed: pushed units on their landing tile, hp as predicted. */
+export function boardAfter(c: CombatState, preview: CombatPreview | null | undefined): CombatState {
+  if (!preview || !preview.units.some((r) => r.to || r.dies)) return c
+  const rows = new Map(preview.units.map((r) => [r.uid, r]))
+  return {
+    ...c,
+    units: c.units.map((u) => {
+      const r = rows.get(u.uid)
+      return r ? { ...u, pos: r.to ? { ...r.to } : u.pos, hp: r.hpAfter } : u
+    }),
+  }
+}
+
+const fires = (iv: IntentView): boolean => iv.info.windupLeft === 0 && (iv.unit.statuses.shock ?? 0) === 0 && iv.info.damage > 0
+
+/** Hp `u` stands to lose this enemy phase. Walks the hits in firing order so Mark counts (+N on the next hit, and Lock
+ *  On re-marks after each hit), then takes armor and current block off. `standsFor` is the neutral's tile when `u` is on
+ *  the relay: those hits land on `u` too, so a sweep over both tiles hits it twice. */
+export function expectedLoss(u: UnitState, intents: IntentView[], c: CombatState, standsFor?: Pos): number {
+  let mark = u.statuses.mark ?? 0
+  let total = 0
+  const delta = gridDelta(c, u.pos)
+  for (const iv of intents) {
+    if (!fires(iv)) continue
+    const hits = iv.info.tiles.filter((p) => (samePos(p, u.pos) || (!!standsFor && samePos(p, standsFor))) && !samePos(p, iv.unit.pos)).length
+    if (hits === 0) continue
+    for (let i = 0; i < hits; i++) {
+      total += Math.max(0, iv.info.damage + delta + mark - u.armor)
+      mark = 0
+    }
+    for (const e of iv.info.move.effects ?? []) if (e.kind === 'status' && e.status === 'mark' && !e.to) mark += e.amount
+  }
+  return Math.max(0, total - u.block)
+}
+
+export interface RelayHit {
+  neutralUid: string
+  proxyUid: string
+  /** Everything the unit on the relay stands to lose, its own tile included. */
+  hit: number
+}
+
+/** Who answers for the neutral this enemy phase; null unless a unit is on the relay and a fired attack is aimed at it. */
+export function relayHit(intents: IntentView[], c: CombatState): RelayHit | null {
+  const neutral = c.units.find((u) => u.side === 'neutral' && u.hp > 0)
+  const proxy = neutral && relayProxy(c, neutral)
+  if (!neutral || !proxy) return null
+  if (!intents.some((iv) => fires(iv) && iv.info.tiles.some((p) => samePos(p, neutral.pos) && !samePos(p, iv.unit.pos)))) return null
+  return { neutralUid: neutral.uid, proxyUid: proxy.uid, hit: expectedLoss(proxy, intents, c, neutral.pos) }
 }
 
 /** A tile with a countdown: burning ground (`fire` turns) and / or a temporary electrified hazard (`ttl`). */

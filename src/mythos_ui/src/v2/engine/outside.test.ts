@@ -2,11 +2,11 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { CONTENT as C } from '../content/index.ts'
-import { startCombat } from './combat.ts'
+import { legalMoves, startCombat } from './combat.ts'
 import { mapEncounters } from './map.ts'
 import { newProfile } from './meta.ts'
 import { advanceAct, enterNode, newRun, updateCombat } from './run.ts'
-import type { MetaProfile, RunState } from './types.ts'
+import type { MetaProfile, Pos, RunState } from './types.ts'
 
 const won: MetaProfile = { ...newProfile('t'), wins: 1 }
 
@@ -76,4 +76,32 @@ test('losing the citizens changes the ending, not the pay', () => {
   assert.equal(r.screen.kind === 'event' && r.screen.eventId, 'outside_last_meal_lost')
   const heal = (id: string) => C.events[id]?.options[0]?.success.effects
   assert.deepEqual(heal('outside_last_meal_kept'), heal('outside_last_meal_lost'))
+})
+
+test('every Relay fight leaves a way onto the tile: a walk by turn 2, or a push set up on turn 1', () => {
+  const key = (p: Pos): string => `${p.x},${p.y}`
+  for (const id of ['outside_serving', 'outside_pickup', 'outside_door']) {
+    for (const archetype of ['ghost', 'smuggler', 'echo_collector']) {
+      for (let seed = 1; seed <= 20; seed++) {
+        const c = startCombat(newRun(newProfile('t'), { archetype, paradox: 0, seed }, C), id, C)
+        const relay = c.relay as Pos
+        const party = c.units.filter((u) => u.side === 'party' && u.hp > 0)
+        const turnOne = new Set(party.flatMap((u) => [key(u.pos), ...legalMoves(c, u.uid).map(key)]))
+        const walks = party.some((u) => {
+          const from = u.pos
+          const reached = [from, ...legalMoves(c, u.uid)].some((p) => {
+            u.pos = p
+            return legalMoves(c, u.uid).some((q) => key(q) === key(relay))
+          })
+          u.pos = from
+          return reached
+        })
+        const pushes = c.units.some((e) => {
+          const [dx, dy] = [e.pos.x - relay.x, e.pos.y - relay.y]
+          return e.side === 'enemy' && e.hp > 0 && Math.abs(dx) + Math.abs(dy) === 1 && turnOne.has(key({ x: e.pos.x + dx, y: e.pos.y + dy }))
+        })
+        assert.ok(walks || pushes, `${id} ${archetype} seed ${seed}: the Relay is out of reach`)
+      }
+    }
+  }
 })

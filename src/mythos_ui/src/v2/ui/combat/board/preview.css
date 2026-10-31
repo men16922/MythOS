@@ -3,6 +3,35 @@
    move-destination chip.
    ===================================================================== */
 
+.m2c-relaychip {
+  position: absolute;
+  transform: translateX(-50%);
+  padding: 1px 6px;
+  background: rgba(10, 3, 8, 0.85);
+  border: 1px solid #ff7b9c;
+  color: #ffd5df;
+  font-family: var(--m2-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.m2c-relaynote {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  padding: 1px 8px;
+  background: rgba(4, 10, 18, 0.72);
+  color: #cfe9f2;
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+
 .m2c-pv {
   position: absolute;
   transform: translate(-50%, -100%);

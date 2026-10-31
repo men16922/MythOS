@@ -368,6 +368,14 @@ function offerable(run: RunState, C: ContentRegistry, id: string): boolean {
 const COMPANION_CARD_WEIGHT = 2.5
 const ARCHETYPE_CARD_WEIGHT = 1.8
 const RESONANCE_PULL = 3
+/** Outside the List (DLC 2): opened by the first escape, entered from an Act 2 event, closed at that act's last safehouse. */
+const OUTSIDE_OPEN = 'outside_open'
+const OUTSIDE_FLAG = 'outside'
+const OUTSIDE_CLOSED = 'outside_closed'
+const OUTSIDE_SAVED = 'outside_saved'
+const OUTSIDE_LOST = 'outside_lost'
+const OUTSIDE_STARTED = 'outside_started'
+const OUTSIDE_FIRST = 'outside_serving'
 function cardWeight(run: RunState, C: ContentRegistry, id: string): number {
   const def = C.cards[id]
   if (!def) return 0
@@ -480,6 +488,7 @@ export function conditionMet(run: RunState, cond: Condition | undefined, C: Cont
     return fail(`동료 ${cond.partySizeAtMost}명 이하`, `Party of ${cond.partySizeAtMost} or fewer`)
   if (cond.flag && !((run.flags[cond.flag] ?? 0) > 0)) return fail('조건 미충족', 'Condition not met')
   if (cond.notFlag && (run.flags[cond.notFlag] ?? 0) > 0) return fail('조건 미충족', 'Condition not met')
+  if (cond.opened && !((run.flags[cond.opened] ?? 0) > 0)) return fail('조건 미충족', 'Condition not met')
   if (cond.minTrace !== undefined && run.trace < cond.minTrace)
     return fail(`추적도 ${cond.minTrace} 이상`, `Trace ${cond.minTrace}+`)
   if (cond.maxTrace !== undefined && run.trace > cond.maxTrace)
@@ -583,6 +592,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     startedAt: opts.now ?? nowIso(),
   }
   if (daily) run.daily = daily
+  else if (profile.wins > 0) run.flags[OUTSIDE_OPEN] = 1
   else if (profile.recentEvents?.length) run.staleEvents = [...new Set(profile.recentEvents.flat())]
   // Companion mastery comes from the profile, never on a daily (it must be the same run for everybody).
   if (!daily) {
@@ -786,10 +796,16 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
     case 'combat':
     case 'elite':
     case 'boss': {
+      let chained = node.kind === 'combat' ? next.relayNext : undefined
+      if (chained) delete next.relayNext
+      else if (node.kind === 'combat' && next.flags[OUTSIDE_FLAG] && !next.flags[OUTSIDE_STARTED]) chained = OUTSIDE_FIRST
+      if (chained === OUTSIDE_FIRST) next.flags[OUTSIDE_STARTED] = 1
       const enc =
-        node.encounterId && C.encounters[node.encounterId]
-          ? node.encounterId
-          : fallbackEncounter(next, node.kind === 'combat' ? 'normal' : node.kind, C)
+        chained && C.encounters[chained]
+          ? chained
+          : node.encounterId && C.encounters[node.encounterId]
+            ? node.encounterId
+            : fallbackEncounter(next, node.kind === 'combat' ? 'normal' : node.kind, C)
       log(next, node.kind, C.encounters[enc]?.name ?? KIND_NOTE[node.kind])
       next.screen = { kind: 'combat', combat: beginCombat(next, enc, C), nodeKind: node.kind }
       break
@@ -806,6 +822,17 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
       next.screen = { kind: 'shop', stock: generateShop(next, C) }
       break
     case 'rest':
+      if ((next.flags[OUTSIDE_FLAG] ?? 0) > 0 && !next.flags[OUTSIDE_CLOSED]) {
+        // Outside the List ends here: the closing scene takes this safehouse's place and pays what the rest would have.
+        next.flags[OUTSIDE_CLOSED] = 1
+        delete next.relayNext
+        const kept = (next.flags[OUTSIDE_SAVED] ?? 0) > 0 && !next.flags[OUTSIDE_LOST]
+        const eventId = kept ? 'outside_last_meal_kept' : 'outside_last_meal_lost'
+        next.seenEvents.push(eventId)
+        log(next, 'event', C.events[eventId]?.title ?? KIND_NOTE.event)
+        next.screen = { kind: 'event', eventId, resolved: null, improvised: null }
+        break
+      }
       log(next, 'rest', KIND_NOTE.rest)
       next.screen = { kind: 'rest', done: false }
       break
@@ -881,6 +908,12 @@ function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: 
   if (noiseChoices.length > 0) reward.noiseChoices = noiseChoices
   const saved = combat.bonus?.def.kind === 'protect' && bonusAchieved(combat) ? C.encounters[combat.encounterId]?.neutral?.name : undefined
   if (saved) reward.saved = saved
+  const enc = C.encounters[combat.encounterId]
+  if (enc?.relay && (run.flags[OUTSIDE_FLAG] ?? 0) > 0) {
+    if (saved) run.flags[OUTSIDE_SAVED] = (run.flags[OUTSIDE_SAVED] ?? 0) + 1
+    else run.flags[OUTSIDE_LOST] = 1
+    if (enc.next) run.relayNext = enc.next
+  }
   return reward
 }
 
@@ -1029,6 +1062,16 @@ export function takeRewardConsumable(run: RunState, C: ContentRegistry): RunStat
 /** Acts a standard run plays. */
 export const STANDARD_ACTS = 3
 
+/** Hand the opened run's Act 2 map its Closing Time scene: the earliest event node, so taking it stays a choice of path.
+ *  Placed, never rolled: a rolled scene would reshuffle the events of every run that cannot see it. */
+function placeOutside(run: RunState): void {
+  if (run.act !== 2 || !run.flags[OUTSIDE_OPEN]) return
+  const node = Object.values(run.map.nodes)
+    .filter((n) => n.kind === 'event')
+    .sort((a, b) => a.row - b.row || a.col - b.col)[0]
+  if (node) node.eventId = 'outside_closing'
+}
+
 /** The run's final act: 3 on a standard run; a Deep Signal run continues through every act the content holds. */
 export function lastAct(run: Pick<RunState, 'mode'>, C: Pick<ContentRegistry, 'acts'>): number {
   if (!run.mode) return STANDARD_ACTS
@@ -1056,6 +1099,7 @@ function advanceAct(run: RunState, C: ContentRegistry): void {
   run.act = run.act + 1
   if (run.paradox >= 9) gainTrace(run, 10, C) // Paradox 9: tracked ahead
   run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents, avoid: run.staleEvents ?? [] })
+  placeOutside(run)
   placeDistrict(run, run.map, C)
   run.nodeId = null
   resetNodeStreams(run)

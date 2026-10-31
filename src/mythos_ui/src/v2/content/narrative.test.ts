@@ -38,7 +38,7 @@ const PICKERS = new Set<RunEffect['kind']>(['card_choice', 'remove_card'])
 
 const RECRUIT_ID = 'a2_recruit'
 const OPENING_ID = 'a1_opening'
-const SCRIPTED = new Set([RECRUIT_ID, OPENING_ID])
+const SCRIPTED = new Set([RECRUIT_ID, OPENING_ID, 'outside_closing', 'outside_last_meal_kept', 'outside_last_meal_lost'])
 
 function outcomes(e: EventDef): Outcome[] {
   return e.options.flatMap((o) => (o.failure ? [o.success, o.failure] : [o.success]))

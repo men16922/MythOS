@@ -173,3 +173,4 @@
 .m2c-proto--lit { fill: rgba(255, 226, 140, 0.11); }
 .m2c-proto--dark { fill: rgba(3, 6, 18, 0.5); }
 .m2c-proto-note { fill: #cfe9f2; font-size: 13px; pointer-events: none; }
+.m2c-proto-link { stroke: #8fe6ff; stroke-width: 2; stroke-dasharray: 4 5; opacity: 0.8; pointer-events: none; }

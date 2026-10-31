@@ -53,7 +53,7 @@ export function useIntentViews(vc: CombatState, view: ViewState, C: ContentRegis
  *  then takes armor and current block off — the raw tile sum under-read a marked Ghost by half. */
 export function partyDanger(units: UnitState[], shownIntents: IntentView[], proto?: CombatState): Record<string, number> {
   const out: Record<string, number> = {}
-  // DLC 2 prototype: whoever stands on the relay takes what was aimed at the neutral, so the danger moves with it.
+  // Whoever stands on the relay takes what was aimed at the neutral, so the danger moves with it.
   const neutral = units.find((x) => x.side === 'neutral' && x.hp > 0)
   const proxy = proto && neutral ? relayProxy(proto, neutral) : undefined
   for (const u of units) {

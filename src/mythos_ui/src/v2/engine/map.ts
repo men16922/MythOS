@@ -22,7 +22,7 @@ export const MAP_COLS = 4
 export const BOSS_ROW = MAP_ROWS
 
 /** Events that are opened by the run flow itself and never pre-rolled on the map. */
-export const SCRIPTED_EVENTS: ReadonlySet<string> = new Set(['a2_recruit', 'a1_opening'])
+export const SCRIPTED_EVENTS: ReadonlySet<string> = new Set(['a2_recruit', 'a1_opening', 'outside_closing', 'outside_last_meal_kept', 'outside_last_meal_lost'])
 
 /** Target share of each kind over rows 0..6 (rest is over-served by the all-rest row 6). */
 const MIX: Record<'event' | 'elite' | 'shop' | 'treasure', number> = { event: 22, elite: 10, shop: 8, treasure: 8 }

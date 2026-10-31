@@ -443,9 +443,9 @@ export interface HitOpts {
   cause?: 'burn' | 'bleed' | 'corrode' | 'hazard' | 'bump'
 }
 
-/** DLC 2 prototype: the unit standing on the relay tile, if any, takes direct enemy hits meant for the neutral. */
+/** The unit standing on the relay tile, if any, takes direct enemy hits meant for the neutral. */
 export function relayProxy(c: CombatState, victim: UnitState): UnitState | undefined {
-  const at = c.proto?.relay
+  const at = c.relay
   if (!at || victim.side !== 'neutral') return undefined
   return c.units.find((u) => u !== victim && u.hp > 0 && samePos(u.pos, at))
 }

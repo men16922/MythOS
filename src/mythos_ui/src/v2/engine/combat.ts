@@ -324,6 +324,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     c.units.push(partyUnit(m.id, m.id, def.name, def.sprite, pos, Math.min(m.hp, m.maxHp), m.maxHp, def.move))
   }
   if (enc.proto) c.proto = { ...enc.proto }
+  if (enc.relay) c.relay = { ...enc.relay }
   if (enc.neutral) {
     const n = enc.neutral
     const pos = unitAt(c, n.pos) || !isStandable(tileAt(c, n.pos)) ? nearestFreeTile(c, n.pos) : { ...n.pos }

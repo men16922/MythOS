@@ -363,7 +363,7 @@ function positionScore(c: CombatState, u: UnitState, def: EnemyDef, p: Pos, ctx:
   }
   s -= 1.2 * (ctx.threat.get(posKey(p)) ?? 0)
   if (ctx.incoming.has(posKey(p))) s -= 4
-  if (ctx.relay && samePos(p, ctx.relay)) s -= 100 // DLC 2 prototype: nobody walks onto the relay; they get pushed there
+  if (ctx.relay && samePos(p, ctx.relay)) s -= 100 // nobody walks onto the relay; they get pushed there
   return s
 }
 
@@ -516,7 +516,7 @@ export function planIntent(c: CombatState, C: ContentRegistry, u: UnitState, can
     targets,
     threat: telegraphThreat(c, C, u),
     incoming: new Set(c.incoming.map((i) => posKey(i.pos))),
-    ...(c.proto?.relay ? { relay: c.proto.relay } : {}),
+    ...(c.relay ? { relay: c.relay } : {}),
     heat: presenceHeat(c, targets),
   }
   const mobile = canMove && def.ai !== 'static' && u.move > 0 && (u.statuses.shock ?? 0) <= 0 && (u.statuses.freeze ?? 0) <= 0

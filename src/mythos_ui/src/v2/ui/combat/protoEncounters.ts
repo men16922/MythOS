@@ -20,7 +20,7 @@ export const PROTO_ENCOUNTERS: EncounterDef[] = [
     ],
     neutral: { name: t('명단의 시민', 'The Listed Citizen'), sprite: 'listed-citizen', hp: 14, pos: at(2, 2) },
     bonus: { kind: 'protect' },
-    proto: { relay: at(3, 2) },
+    relay: at(3, 2),
     intro: t(
       '점선 칸에 누군가 서 있으면, 시민을 겨눈 직접 공격을 그 유닛이 대신 맞는다. 적도 된다.',
       'Whoever stands on the dashed tile takes direct hits meant for the citizen. An enemy counts.',

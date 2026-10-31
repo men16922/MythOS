@@ -80,6 +80,8 @@ export interface RunSimResult {
   evolved: string[]
   /** Every recruited companion at the end, deployed first. */
   crew: string[]
+  /** Outside the List: 0 = not entered, else 1 + citizens kept alive. */
+  outside: number
 }
 
 /** Per-fight balance telemetry (see RunSimOptions.onFight). */
@@ -507,6 +509,7 @@ export function simulateRun(
     duos: run.duosFired?.length ?? 0,
     evolved: [...(run.evolved ?? [])],
     crew: [...run.party, ...(run.bench ?? [])].map((m) => m.id),
+    outside: run.flags.outside ? 1 + (run.flags.outside_saved ?? 0) : 0,
   }
   const killedBy = runKilledBy(run)
   if (killedBy) result.killedBy = killedBy

@@ -243,6 +243,9 @@ export const ART: {
     noise_gate_origin: 'v2/events/noise_gate_origin.webp',
     noise_gate_record: 'v2/events/noise_gate_record.webp',
     noise_gate_street: 'v2/events/noise_gate_street.webp',
+    outside_closing: 'v2/events/outside_closing.webp',
+    outside_last_meal_kept: 'v2/events/outside_last_meal_kept.webp',
+    outside_last_meal_lost: 'v2/events/outside_last_meal_lost.webp',
   },
   cutscenes: {
     bel_uncut_note: 'v2/cutscenes/bel_uncut_note.webp',

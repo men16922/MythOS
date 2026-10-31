@@ -6,7 +6,7 @@ Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (pau
 
 ## Next: DLC 2 pick (merged plan, 2026-10-31)
 
-`docs/plans/2026-10-31-dlc2-merged-plan.md`. `[x]` Stage 1 built (bot tempo terms, evolution/duo reachability + ✦, saved-neutral reward line, four Act 4–6 objective swaps, `enemyHpPct` 13, sandbox prototypes); not deployed. `[ ]` `[owner]` play `proto_relay` and `proto_blackout`, pick the DLC 2 rule (default: relay). `[ ]` `[owner]` deploy decision. `[ ]` `[owner]` F1–F4 verdict and art still open. `[ ]` re-check Devpost for a Gemini / Google Cloud challenge on 2026-12-01 (a contest pulls W2 ahead).
+`docs/plans/2026-10-31-dlc2-merged-plan.md`. `[x]` Stage 1 built (bot tempo terms, evolution/duo reachability + ✦, saved-neutral reward line, four Act 4–6 objective swaps, `enemyHpPct` 13, sandbox prototypes); not deployed. `[x]` Stage 3 built on the default rule (owner: carry out the recommendation): Relay route Outside the List in Act 2 after the first escape. `[ ]` `[owner]` play it and `proto_blackout`, confirm or reverse the rule. `[ ]` `[owner]` deploy decision. `[ ]` `[owner]` F1–F4 verdict and art still open. `[ ]` re-check Devpost for a Gemini / Google Cloud challenge on 2026-12-01 (a contest pulls W2 ahead).
 
 ## Priority 0 — S-rank pass (Argon review, 2026-10-25)
 

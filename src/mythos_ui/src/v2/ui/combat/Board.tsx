@@ -67,6 +67,21 @@ export interface BoardProps {
   aimDir?: boolean
 }
 
+/** The relay tile and a line to the neutral it stands in for. */
+function RelayMark({ g, vc }: { g: BoardGeom; vc: CombatState }) {
+  if (!vc.relay) return null
+  const mid = (p: Pos) => g.project(p.x + 0.5, p.y + 0.5)
+  const from = mid(vc.relay)
+  const neutral = vc.units.find((u) => u.side === 'neutral' && u.hp > 0)
+  const to = neutral ? mid(neutral.pos) : undefined
+  return (
+    <>
+      <polygon points={pts(tileQuad(g, vc.relay, 0.06))} className="m2c-proto m2c-proto--relay" />
+      {to && <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className="m2c-proto-link" />}
+    </>
+  )
+}
+
 export function Board({ registerBoard, ...props }: BoardProps) {
   const { g, vc, C, intents, preview } = props
   // The animator removes the dead after their death beat; never drop a unit just because hp hit 0 mid-hit.
@@ -161,8 +176,8 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         </g>
         {/* burning ground top overlay (magma cracks, slag crust, perimeter bridges above intent fills) */}
         <BoardPlane g={g} tiles={vc.tiles} part="fire" />
-        {/* DLC 2 prototype rules: sandbox only */}
-        {vc.proto?.relay && <polygon points={pts(tileQuad(g, vc.proto.relay, 0.06))} className="m2c-proto m2c-proto--relay" />}
+        {/* relay tile + its line to the neutral; the grid prototype is sandbox only */}
+        {vc.relay && <RelayMark g={g} vc={vc} />}
         {vc.proto?.litFromX !== undefined && <text className="m2c-proto-note" x={g.width * 0.5} y={14} textAnchor="middle">{isLit(vc, { x: 6, y: 0 }) ? (props.lang === 'ko' ? '밝은 칸 공격 +2 · 어두운 칸 공격 −2 · 충돌 +2' : 'Lit: attacks +2 · Dark: attacks −2, bumps +2') : props.lang === 'ko' ? `암전 ${vc.proto.darkTurns}턴` : `Blackout ${vc.proto.darkTurns}`}</text>}
         {vc.proto?.litFromX !== undefined &&
           vc.tiles.flatMap((row, y) =>

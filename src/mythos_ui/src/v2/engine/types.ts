@@ -320,11 +320,9 @@ export type BonusObjective =
   | { kind: 'environment'; count: number } // kill N enemies by push/bump/void/hazard/friendly fire
   | { kind: 'protect' } // the encounter's neutral unit survives
 
-/** DLC 2 prototype rules (engine/effects.ts). `relay`: a unit on this tile takes direct enemy hits meant for the neutral.
- *  `litFromX`: columns from here on are lit (attacks +2), the rest dark (attacks −2, bumps +2); killing the neutral
- *  (a 1-hp power node) shocks its four neighbours for 4 and blacks out the whole board for `darkTurns`. */
+/** DLC 2 prototype (engine/effects.ts). `litFromX`: columns from here on are lit (attacks +2), the rest dark (attacks −2,
+ *  bumps +2); killing the neutral (a 1-hp power node) shocks its four neighbours for 4 and blacks out the board for `darkTurns`. */
 export interface CombatProto {
-  relay?: Pos
   litFromX?: number
   darkTurns?: number
 }
@@ -348,6 +346,10 @@ export interface EncounterDef {
   intro?: Text
   /** Art-free DLC 2 prototype rules. Sandbox only: no encounter a run can reach sets this. */
   proto?: CombatProto
+  /** Relay tile: a unit standing here takes direct enemy hits meant for the neutral. */
+  relay?: Pos
+  /** Outside the List: the map's next plain fight this run becomes this encounter once this one is won. */
+  next?: string
   /** Never rolled onto a map (the Pack 3 secret boss: engine/run.ts secretBossGate starts it). */
   secret?: boolean
 }
@@ -456,6 +458,7 @@ export interface CombatState {
   undo?: string | null
   bonus?: { def: BonusObjective; progress: number; failed: boolean }
   proto?: CombatProto
+  relay?: Pos
   /** Credits banked during the fight (bounties, card effects). */
   credits: number
   /** Run-level trace accumulated during the fight (applied to the run on finish). */
@@ -711,6 +714,8 @@ export interface Condition {
   partySizeAtMost?: number
   flag?: string
   notFlag?: string
+  /** A flag the engine itself sets from the profile (no event does), e.g. a route opened by the first escape. */
+  opened?: string
   minTrace?: number
   maxTrace?: number
   stat?: { stat: StatKey; min: number }
@@ -916,6 +921,8 @@ export interface RunState {
   evolvedNew?: string[]
   /** The run's biggest turn. */
   bestTurn?: TurnRecord & { encounterId: string }
+  /** Outside the List: the encounter the next plain fight becomes (EncounterDef.next). */
+  relayNext?: string
   /** Enemy id IX rebuilt from the last death; it waits at the first elite fight from Act 2. */
   replica?: string
   /** Duo ultimates fired this run. */

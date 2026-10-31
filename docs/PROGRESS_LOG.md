@@ -4,9 +4,8 @@ Last updated: 2026-10-31
 
 ## 2026-10-31 — Baseline re-check at `d59cb0d` (Claude Opus 5.5, /sync follow-up)
 
-- **Verified**: `make check` green (node 458, Python 338, 12 skipped); `make playthrough-quick` OK in 122 s (5 map nodes with real fights, shop/safehouse/treasure/final choice → ending; muted, headless, local private server). `make frontend-build` left the tree clean (committed bundle = source).
-- **Fixed**: `AGENT_BRIEF.md` named Argon's fix by its pre-rebase hash `a4c31d9`; the commit on this branch is `6850225`.
-- **Production** `00167-yuh`: muted headless load of `/?sandbox=combat&enc=a1_n1_dodge` rendered; played a card + ended the turn: enemy phase hit, turn 2 drew a fresh hand, 0 console errors. A full sandbox fight (enemies→1hp) ended WON on turn 5. A click-only run (no dev hook) went setup → intro → event → recruit → directive → map → fight → defeat ending → Archive, 0 console errors. Unverified: Google sign-in, sound. All other open items wait on the owner's verdict or real-play data.
+- **Verified**: `make check` green (node 458, Python 338); `make playthrough-quick` OK in 122 s (muted, local). Fixed `AGENT_BRIEF.md`: Argon's fix is `6850225`, not the pre-rebase `a4c31d9`.
+- **Production** `00167-yuh` (muted headless, anonymous): sandbox fight won (enemies→1hp, turn 5); a click-only run (no dev hook) went setup → intro → event → recruit → directive → map → fight → defeat → Archive. 0 console errors. Unverified: Google sign-in, sound.
 
 ## 2026-10-31 — Fix `loops: 1` sim companion default & phone portrait ultimate HUD overlap (Gemini 4 Argon)
 

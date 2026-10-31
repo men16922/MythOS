@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-31
 
+## 2026-10-31 — Baseline re-check at `d59cb0d` (Claude Opus 5.5, /sync follow-up)
+
+- **Verified**: `make check` green (node 458, Python 338, 12 skipped); `make playthrough-quick` OK in 122 s (5 map nodes with real fights, shop/safehouse/treasure/final choice → ending; muted, headless, local private server). `make frontend-build` left the tree clean (committed bundle = source).
+- **Fixed**: `AGENT_BRIEF.md` named Argon's fix by its pre-rebase hash `a4c31d9`; the commit on this branch is `6850225`.
+- **Unverified**: a played fight and Google sign-in on production `00167-yuh` (`ui_playthrough.py` has no `--url`, it starts its own server), sound. All other open items wait on the owner's verdict or real-play data.
+
 ## 2026-10-31 — Fix `loops: 1` sim companion default & phone portrait ultimate HUD overlap (Gemini 4 Argon)
 
 - **Diagnosed & fixed (`loops: 1` sim drop)**: `newRun` forces `FIRST_COMPANION` (`se_rin`) on `loop === 1` (`profile.loops === 0`), while `loop >= 2` reads `opts.companion`. In the UI (`SetupScreen.tsx`), `compId` defaults to the first unlocked companion (`se_rin`), whereas `simulateRun` left `opts.companion` `undefined` — silently turning any `loops >= 1` profile sim into a solo Act 1 run (3-archetype mixed: `57 → 40 / 150`; 5-archetype: `50 → 42 / 150`). `simulateRun` now defaults `opts.companion === undefined` to `unlockedCompanions(profile, C)[0] ?? null` (`null` still runs solo), restoring `57 → 57 / 150` (hash-identical to `loops: 0`) with a regression test in `runSim.test.ts`.

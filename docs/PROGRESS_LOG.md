@@ -6,7 +6,7 @@ Last updated: 2026-10-31
 
 - **Verified**: `make check` green (node 458, Python 338, 12 skipped); `make playthrough-quick` OK in 122 s (5 map nodes with real fights, shop/safehouse/treasure/final choice → ending; muted, headless, local private server). `make frontend-build` left the tree clean (committed bundle = source).
 - **Fixed**: `AGENT_BRIEF.md` named Argon's fix by its pre-rebase hash `a4c31d9`; the commit on this branch is `6850225`.
-- **Production** `00167-yuh`: muted headless load of `/?sandbox=combat&enc=a1_n1_dodge` rendered the board, hand and tutorial, 0 console errors. Unverified: a played fight, Google sign-in, sound. All other open items wait on the owner's verdict or real-play data.
+- **Production** `00167-yuh`: muted headless load of `/?sandbox=combat&enc=a1_n1_dodge` rendered; played a card + ended the turn: enemy phase hit, turn 2 drew a fresh hand, 0 console errors. Unverified: a full fight, Google sign-in, sound. All other open items wait on the owner's verdict or real-play data.
 
 ## 2026-10-31 — Fix `loops: 1` sim companion default & phone portrait ultimate HUD overlap (Gemini 4 Argon)
 

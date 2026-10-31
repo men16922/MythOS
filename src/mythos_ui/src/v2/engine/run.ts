@@ -1093,14 +1093,14 @@ export function deepSignalOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<Conte
   return profile.wins > 0 && Object.keys(C.acts).some((k) => Number(k) > STANDARD_ACTS)
 }
 
-function advanceAct(run: RunState, C: ContentRegistry): void {
+export function advanceAct(run: RunState, C: ContentRegistry): void {
   run.growth = (run.growth ?? 0) + 1
   if ((run.autonomy ?? 0) >= 2) gainTrace(run, -AUTONOMY_ACT_SCRUB, C)
   run.act = run.act + 1
   if (run.paradox >= 9) gainTrace(run, 10, C) // Paradox 9: tracked ahead
   run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents, avoid: run.staleEvents ?? [] })
-  placeOutside(run)
   placeDistrict(run, run.map, C)
+  placeOutside(run) // after the districts: they take event nodes and drop the event on them
   run.nodeId = null
   resetNodeStreams(run)
   run.hp = clamp(1, run.maxHp, run.hp + Math.ceil((run.maxHp - run.hp) / 2))

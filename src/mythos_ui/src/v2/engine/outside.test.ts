@@ -5,7 +5,7 @@ import { CONTENT as C } from '../content/index.ts'
 import { startCombat } from './combat.ts'
 import { mapEncounters } from './map.ts'
 import { newProfile } from './meta.ts'
-import { enterNode, newRun, updateCombat } from './run.ts'
+import { advanceAct, enterNode, newRun, updateCombat } from './run.ts'
 import type { MetaProfile, RunState } from './types.ts'
 
 const won: MetaProfile = { ...newProfile('t'), wins: 1 }
@@ -32,6 +32,18 @@ test('the route opens with the first escape and never on a daily', () => {
   assert.equal(newRun(newProfile('t'), { archetype: 'ghost', paradox: 0, seed: 1 }, C).flags.outside_open, undefined)
   assert.equal(newRun(won, { archetype: 'ghost', paradox: 0, seed: 1 }, C).flags.outside_open, 1)
   assert.equal(newRun(won, { archetype: 'ghost', paradox: 0, seed: 1, daily: '2026-10-31' }, C).flags.outside_open, undefined)
+})
+
+test('Act 2 holds Closing Time on every opened run, with the district layer on too', () => {
+  const held = (crpg: boolean, seed: number): boolean => {
+    const r = newRun(won, { archetype: 'ghost', paradox: 0, seed, ...(crpg ? { crpg: { background: null } } : {}) }, C)
+    advanceAct(r, C)
+    return Object.values(r.map.nodes).some((n) => n.eventId === 'outside_closing')
+  }
+  for (let seed = 0; seed < 40; seed++) {
+    assert.equal(held(false, seed), true, `plain seed ${seed}`)
+    assert.equal(held(true, seed), true, `district seed ${seed}`)
+  }
 })
 
 test('its fights are never rolled onto a map', () => {

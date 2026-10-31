@@ -5,7 +5,7 @@ import { CONTENT } from '../content/index.ts'
 import { PROTO_ENCOUNTERS } from '../ui/combat/protoEncounters.ts'
 import { incomingDamage } from './combatSim.ts'
 import { startCombat } from './combat.ts'
-import { dealDamage, gridDelta, isLit, unitAt } from './effects.ts'
+import { applyEffects, dealDamage, gridDelta, isLit, unitAt } from './effects.ts'
 import { newProfile } from './meta.ts'
 import { newRun } from './run.ts'
 import type { CombatState, ContentRegistry, UnitState } from './types.ts'
@@ -43,6 +43,19 @@ test('relay: a unit on the tile takes the direct hit, enemy included; other dama
   assert.equal(e.hp, ehp - Math.max(0, 4 - e.armor))
   dealDamage(c, C, n, 2, { source: 'environment', ignoreBlock: true })
   assert.equal(n.hp, hp - 2)
+})
+
+test('relay: a debuff riding on the hit follows it to the stand-in; a party card on the citizen does not', () => {
+  const c = fight('proto_relay')
+  const n = neutral(c)
+  const [stand, shooter] = c.units.filter((u) => u.side === 'enemy') as [UnitState, UnitState]
+  stand.pos = { x: 3, y: 2 }
+  const rider = [{ kind: 'status', status: 'burn', amount: 2 }] as const
+  applyEffects(c, C, rider, { origin: shooter, side: 'enemy', impact: n.pos, tiles: [n.pos], source: 'enemy', attack: true })
+  assert.equal(n.statuses.burn, undefined)
+  assert.equal(stand.statuses.burn, 2)
+  applyEffects(c, C, rider, { origin: c.units.find((u) => u.side === 'party'), side: 'party', impact: n.pos, tiles: [n.pos], source: 'party', attack: true })
+  assert.equal(n.statuses.burn, 2)
 })
 
 test('grid: lit and dark change attacks, bumps only on dark, and the telegraph sum agrees', () => {

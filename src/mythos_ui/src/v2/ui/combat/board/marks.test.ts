@@ -121,7 +121,7 @@ test('the forecast is the hit that lands: real Relay fights through a real enemy
         const forecast = relayHit(views, c)
         if (!forecast) continue
         assert.equal(forecast.proxyUid, stander.uid)
-        // Direct hits only: burning ground is a separate tick the telegraph has never summed, and the Relay does not move it.
+        // Direct hits only: burn ticks are a separate step the telegraph has never summed.
         const events = endTurn(c, CONTENT).events
         const direct = (uid: string): number => events.reduce((sum, e) => sum + (e.t === 'damage' && e.uid === uid && e.source === 'enemy' && !e.cause ? e.amount : 0), 0)
         assert.equal(direct(stander.uid), forecast.hit, `${id} seed ${seed} ${side}`)

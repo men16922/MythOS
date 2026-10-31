@@ -894,8 +894,11 @@ export function effectTargets(c: CombatState, eff: Effect, res: Resolution): Uni
       // Purge List and marked itself). Buff statuses on 'target' tiles still reach the caster.
       const excludeOrigin =
         res.attack && (eff.kind === 'damage' || eff.kind === 'push' || (eff.kind === 'status' && DEBUFFS.has(eff.status)))
+      // A debuff riding on an enemy attack goes where the hit went: the relay's stand-in takes the burn too.
+      const rider = res.attack && res.side === 'enemy' && eff.kind === 'status' && DEBUFFS.has(eff.status)
       for (const p of effectTiles(eff, res)) {
-        const u = unitAt(c, p)
+        const on = unitAt(c, p)
+        const u = on && rider ? (relayProxy(c, on) ?? on) : on
         if (u && !out.includes(u) && !(excludeOrigin && u === res.origin)) out.push(u)
       }
       return out

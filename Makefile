@@ -8,7 +8,7 @@ COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
 .PHONY: vertex-cap-deploy setup frontend-setup clean lint python-lint frontend-lint format typecheck python-typecheck frontend-build \
-	test test-v2 test-db test-e2e-v2 gm-eval trailer trailer-cut cinematic cinematic-assets cinematic-prompts playthrough playthrough-quick verify-preview check check-auto check-skills sync-skills check-doc-budget \
+	test test-v2 test-db test-e2e-v2 gm-eval trailer trailer-cut cinematic cinematic-assets cinematic-prompts playthrough playthrough-quick verify-preview url-smoke check check-auto check-skills sync-skills check-doc-budget \
 	api api-stop api-cloud cloud-image cloud-run-local deploy deploy-preview \
 	android-web android-apk android-aab android-firebase android-emulator android-distribute android-icons \
 	firebase-web firebase-sha firebase-auth-domains push-schedule push-test \
@@ -368,6 +368,12 @@ playthrough-quick:
 # the committed bundle. Read-only; prints the promote command only when everything passes.
 verify-preview:
 	$(VENV)/bin/python scripts/dev/verify_preview.py
+
+# Plays the live game on a deployed URL through real clicks (sandbox fight + a short run; anonymous, muted). Run after verify-preview:
+#   make url-smoke URL=https://<service>.run.app
+url-smoke:
+	@test -n "$(URL)" || { echo "usage: make url-smoke URL=https://<service>.run.app"; exit 2; }
+	$(VENV)/bin/python scripts/dev/url_smoke.py --url "$(URL)"
 
 # Store trailer: records the real game (headless, muted, private ports) and cuts it with ffmpeg → outputs/trailer/mythos2_trailer.mp4.
 # `make trailer-cut` re-cuts the kept recordings only (captions, timing) without re-recording.

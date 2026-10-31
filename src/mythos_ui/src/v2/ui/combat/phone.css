@@ -604,28 +604,61 @@
 .is-port .m2c-sigburst span {
   word-break: keep-all; /* Korean otherwise breaks per syllable in the narrow cell */
 }
-.is-port .m2c-momentum {
-  position: relative;
-  z-index: 40; /* the ultimate chips float over the hand's lower edge */
+.is-port .m2c-bottom:has(.m2c-momentum.is-ready) {
+  grid-template-areas:
+    'hand hand hand hand'
+    'draw piles items items'
+    'orb mom mom end';
 }
-.is-port .m2c-ults {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 6px);
-  z-index: 5;
+.is-port .m2c-bottom:has(.m2c-momentum.is-ready) .m2c-items {
+  min-width: 0;
+}
+.is-port .m2c-momentum.is-ready {
+  width: 100%;
+  min-width: 0;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.is-port .m2c-momentum.is-ready .m2c-sigburst {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 6px 8px;
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+.is-port .m2c-momentum.is-ready .m2c-sigburst span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.is-port .m2c-ults,
+.is-port .m2c-ults.has-duo {
+  position: static;
+  flex: none;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
   margin-top: 0;
 }
-.is-port .m2c-ult {
+.is-port .m2c-ult,
+.is-port .m2c-ult.is-duo {
+  order: 0;
   flex: none;
   padding: 2px;
-  border-radius: 50%;
+  border-radius: 999px;
 }
 .is-port .m2c-ult img {
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
 }
 .is-port .m2c-ult span {
   display: none;
+}
+.is-port .m2c-bottom:has(.m2c-momentum.is-ready) .m2c-end {
+  padding: 0 10px;
+  font-size: 13.5px;
+  white-space: nowrap;
 }
 .is-port .m2c-items {
   grid-area: items;

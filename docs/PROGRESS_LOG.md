@@ -1,6 +1,12 @@
 # Progress Log
 
-Last updated: 2026-10-30
+Last updated: 2026-10-31
+
+## 2026-10-31 — Fix `loops: 1` sim companion default & phone portrait ultimate HUD overlap (Gemini 4 Argon)
+
+- **Diagnosed & fixed (`loops: 1` sim drop)**: `newRun` forces `FIRST_COMPANION` (`se_rin`) on `loop === 1` (`profile.loops === 0`), while `loop >= 2` reads `opts.companion`. In the UI (`SetupScreen.tsx`), `compId` defaults to the first unlocked companion (`se_rin`), whereas `simulateRun` left `opts.companion` `undefined` — silently turning any `loops >= 1` profile sim into a solo Act 1 run (3-archetype mixed: `57 → 40 / 150`; 5-archetype: `50 → 42 / 150`). `simulateRun` now defaults `opts.companion === undefined` to `unlockedCompanions(profile, C)[0] ?? null` (`null` still runs solo), restoring `57 → 57 / 150` (hash-identical to `loops: 0`) with a regression test in `runSim.test.ts`.
+- **Phone portrait ultimate HUD (`phone.css`)**: when `.m2c-momentum.is-ready` is active, `.is-port .m2c-bottom` now places `mom` (`.m2c-ults` + `.m2c-sigburst` in a single horizontal row) into Row 3 (`'orb mom mom end'`) and keeps `draw`, `piles`, and `items` in Row 2 (`'draw piles items items'`), eliminating the `position: absolute` overlap over the hand cards on both `390×844` and `375×667` (KO + EN across all 5 archetypes).
+- **Verified**: `make check` green (node 458, Python 338); `make test-e2e-v2` OK (daily replay verified); muted headless Playwright bounding-box & screenshot checks (`outputs/qa_phone_ults_390x844.png`, `outputs/qa_phone_ults_375x667.png`, 0 console/page errors).
 
 ## 2026-10-31 — Production promoted to `00167-yuh` (Claude Opus 5.5, owner: promote)
 
@@ -76,15 +82,3 @@ Last updated: 2026-10-30
 - **17 more** (DLC plan §11 target 60): archetype mastery III, companion ×5 wins, 30 daily days, 6 endings, codex 25, memories 11, 5 companions met, Paradox 3/7, Endless 3 laps, **boss without losing HP**, 5 terrain kills in one fight, 10 burst/ultimate fights in one loop, win with ≥600 credits / ≥13 implants / trace ≤30, solo win (no companion ever). Thresholds from 200 mixed-bot runs (wins: terrain/fight p95 3, bursts p95 7, credits p95 658, trace p5 40; ≥1 flawless boss in 30 % of runs).
 - **Fight feats**: `noteFightFeats` (`engine/achievements.ts`) writes `feat_*` run flags on each won fight in `updateCombat`; `RunSimResult.feats` exposes them. Sim A/B on 3 × 150 identical seeds: wins 72 / 61 / 83 before and after, result hashes identical → no gameplay effect.
 - Gates: `make check` green (node 411, Python 338); `make playthrough-quick` OK (124 s); `make test-e2e-v2` OK; muted screenshots desktop + 390 px (tab 1/60, 0 console errors). Not deployed.
-
-## 2026-10-29 — Achievements, first pass: 43 (Claude Opus 5.5, owner: "next priority, autonomously")
-
-- **What**: DLC plan §11 "업적", first pass — 43 achievements (`content/achievements.ts`): loops/wins/acts/daily days 9, endings 3 (secret First Record), collection 6 (codex, memories, companions met, shards), one-run challenges 9 (Paradox 5/10, Deep Signal win, Endless lap, daily win, 20 terrain kills, 5 elites, ≤40 damage taken, deck ≤18), plus one per archetype (5) and per companion (11), generated from content. Challenge thresholds set from the mixed-bot tally of 200 runs (wins: damage p5 30 / p50 84, terrain kills p95 20, deck p5 27).
-- **How**: declarative `AchievementCond` (`types.ts`), checked once in `applyRunEnd` (`engine/achievements.ts`) against the banked profile + the ended run; earned ids go to `profile.achievements` and the run's history row. Cosmetic only (no reward, no run state) → balance untouched by construction; `RunSimResult.tally` added for measuring. Existing profiles earn what they already qualify for on their next banked run. Also fixed: `migrateProfile` clamped history / last-death acts to 3 (Deep Signal reaches 6).
-- **UI**: Archive side tab "업적 n/43" (grouped, dim until earned, secret = ???); ending screen shows one small gold line of what this run earned (first 3 + count). No toast, no sound (UX-first).
-- Gates: `make check` green (node 409, Python 338); `make playthrough-quick` OK (209 s); `make test-e2e-v2` OK; muted headless screenshots desktop + 390 px phone (ending line, Archive tab, no horizontal overflow, 0 console errors). `gameplay-qa` not run (no combat/run change). Not deployed. Owner: names/wording and the 6-tab wrap on narrow screens unreviewed.
-
-## 2026-10-29 — `make test-e2e-v2` green again (Claude Opus 5.5)
-
-- Root cause was not "the first node is not a fight": a companion recruit scene (`RecruitScene`, `data-testid=recruit-scene`) opens over the map and swallowed the node click. `scripts/e2e_v2.py` now closes it with Escape (fails if it stays open) and clicks a reachable `combat`/`elite` node instead of the first reachable node.
-- Gates: `make test-e2e-v2` passed twice in a row (combat reached turn 4, daily replay verified), `make check` green (Python 338). Engine/UI code unchanged.

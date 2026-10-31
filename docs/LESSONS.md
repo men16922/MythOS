@@ -3,6 +3,7 @@
 Repo-specific things a future unattended iteration should know before repeating a mistake.
 One line per lesson, dated, newest on top. Lessons about the archived 1.x runtime were removed with it (branch `1.0`).
 
+- 2026-10-31: `newRun` forces `FIRST_COMPANION` (`se_rin`) only on `loop === 1` (`profile.loops === 0`) and on dailies; on `loops >= 1` an omitted `companion` starts a solo run (`party: []`, ~12–17 pts lower win rate). `simulateRun` now defaults `companion: undefined` to `unlockedCompanions(profile, C)[0]`; pass `companion: null` when intentionally testing a solo run.
 - 2026-10-31: an agent reviewer's report mixes real bugs with invented facts (Argon ranked implants by effects that do not exist). Check every claim against the code or the screen before acting. And never chain a commit onto a gate with `;`: gate with `if make check; then`.
 - 2026-10-30: greedy P5 cannot judge a strong implant, it sits at its ceiling (40 / 40 vs base 37 / 40 hid +22 pts): judge per-implant strength on mixed, canonical blocks, ≥ 450 runs. An ad-hoc seed block can also read 7 pts off the canonical one: compare the 35–45 % band on canonical seeds only.
 - 2026-10-30: `make verify-preview` compares `app.js`, which can stay byte-identical while the content chunk changes (`assets/fonts.js` holds engine + content here): to prove new code is served, hash the chunk that contains a new id on the preview. And `run.staleEvents`-style inputs must be copied onto the run at `newRun`, never read from the profile in the engine, or seeds stop reproducing.

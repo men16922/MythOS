@@ -1,5 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { newProfile } from './meta.ts'
 import { simulateRun } from './runSim.ts'
 import { FIXTURE as C } from './run.fixture.test.ts'
 
@@ -18,6 +19,11 @@ test('runSim plays whole fixture runs headless, deterministically', () => {
         assert.ok(r.killedBy && C.encounters[r.killedBy], 'defeats name the encounter')
       }
       assert.deepEqual(simulateRun(seed, 'ghost', C, policy), r, 'same seed → same result')
+      assert.deepEqual(
+        simulateRun(seed, 'ghost', C, policy, { profile: { ...newProfile('sim'), loops: 1 } }),
+        r,
+        'loops: 1 with no unlocks/deaths plays identically to loop 1 (starts with Se-rin unless companion: null)',
+      )
     }
   }
 })

@@ -10,7 +10,7 @@
 import { autoPlay } from './combatSim.ts'
 import { acceptThought, declineThought } from './thoughts.ts'
 import { acceptRoll, campScene, chooseDialogue, closeDialogue, dialogueOptions, districtPois, leaveDistrict, rerollDialogue, startCamp, visitPoi } from './crpg.ts'
-import { computeEchoes, newProfile, runKilledBy } from './meta.ts'
+import { computeEchoes, newProfile, runKilledBy, unlockedCompanions } from './meta.ts'
 import {
   applyImprovisation,
   availableEndings,
@@ -99,8 +99,8 @@ export interface RunSimOptions {
   maxTurns?: number
   /** Play that date's daily-seed run instead (the `seed` argument is then ignored). */
   daily?: string
-  /** Starting companion for a non-daily run after loop 1 (default: none, as before). */
-  companion?: string
+  /** Starting companion for a non-daily run after loop 1 (default: first unlocked companion, matching SetupScreen; pass null to go solo). */
+  companion?: string | null
   /** Deep Signal run (acts 4+): the sim profile counts as having won once, which opens the mode. */
   mode?: RunMode
   /** Anomaly mixer mix (2–3 mutator ids); like `mode`, the sim profile then counts as having won once. */
@@ -467,8 +467,9 @@ export function simulateRun(
   opts: RunSimOptions = {},
 ): RunSimResult {
   const profile = opts.profile ?? (opts.mode || opts.mutators ? { ...newProfile('sim'), wins: 1 } : newProfile('sim'))
+  const companion = opts.companion === undefined ? (unlockedCompanions(profile, C)[0] ?? null) : opts.companion
   const maxTurns = opts.maxTurns ?? 30
-  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily, companion: opts.companion, crpg: opts.crpg, mode: opts.mode, mutators: opts.mutators }, C)
+  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily, companion, crpg: opts.crpg, mode: opts.mode, mutators: opts.mutators }, C)
   for (const id of opts.startImplants ?? []) run = grantImplant(run, id, C)
   for (let step = 0; run.screen.kind !== 'ended'; step++) {
     if (step >= MAX_STEPS) throw new Error(`runSim: step limit on ${run.screen.kind} (seed ${seed})`)

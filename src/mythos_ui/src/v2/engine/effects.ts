@@ -1025,7 +1025,8 @@ function emitArea(c: CombatState, effects: readonly Effect[], res: Resolution): 
 function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resolution): void {
   switch (eff.kind) {
     case 'damage': {
-      const dmgAmt = eff.amount + statBonus(c, eff.statScale)
+      const dmgAmt = eff.amount + statBonus(c, eff.statScale) + (eff.perEnergy ?? 0) * c.energy
+      if (eff.perEnergy) c.energy = 0
       if (dmgAmt > 0) {
         // Environmental sources (held junk, hazards) carry no attacker: no weak/mark/armor interplay.
         const environmental = res.source === 'environment'
@@ -1095,6 +1096,18 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
         emit(c, { t: 'energy', amount: eff.amount })
       }
       return
+    case 'dash': {
+      const o = res.origin
+      if (!o || o.hp <= 0 || !res.dir || !res.impact) return
+      const path: Pos[] = [{ ...o.pos }]
+      for (let p = add(o.pos, res.dir); !samePos(p, res.impact) && !unitAt(c, p) && isStandable(tileAt(c, p)); p = add(p, res.dir)) path.push(p)
+      if (path.length < 2) return
+      emit(c, { t: 'move', uid: o.uid, path })
+      o.pos = { ...(path[path.length - 1] as Pos) }
+      tickMoveBleed(c, C, o)
+      if (o.hp > 0) enterGround(c, o)
+      return
+    }
     case 'teleport': {
       const o = res.origin
       const to = res.impact
@@ -1126,8 +1139,13 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       }
       for (const p of effectTiles(eff, res)) {
         const u = unitAt(c, p)
-        if (u?.side === 'enemy') redirectIntent(c, C, u)
+        if (u?.side !== 'enemy') continue
+        redirectIntent(c, C, u)
+        if (eff.mark) u.statuses.mark = (u.statuses.mark ?? 0) + eff.mark
       }
+      return
+    case 'bank_energy':
+      c.bankEnergy = true
       return
     case 'cancel_intent':
       for (const p of effectTiles(eff, res)) {

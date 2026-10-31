@@ -116,3 +116,6 @@
   font-weight: 800;
   animation: m2c-blink 0.9s ease-in-out infinite;
 }
+
+/* Energy that survives this turn (Surplus Capacitor, Bank Power): small, under the orb. */
+.m2c-energy-carry { position: absolute; left: 50%; bottom: -16px; transform: translateX(-50%); color: #ffd27a; font-size: 11px; font-style: normal; white-space: nowrap; pointer-events: none; }

@@ -117,7 +117,7 @@ export type AreaShape = 'single' | 'cross' | 'adjacent' | 'square' | 'row'
 
 export type Effect =
   /** Damage. `bonusVsMarked` adds damage when the victim is marked (on top of mark itself). */
-  | { kind: 'damage'; amount: number; to?: EffectScope; area?: AreaShape; pierce?: boolean; bonusVsMarked?: number; statScale?: StatScale }
+  | { kind: 'damage'; amount: number; to?: EffectScope; area?: AreaShape; pierce?: boolean; bonusVsMarked?: number; statScale?: StatScale; /** Spends all remaining energy for this much damage per point. */ perEnergy?: number }
   /**
    * Push 1+ tiles. 'away' = away from the owner (for area effects: away from the impact centre),
    * 'toward' = toward the owner (pull). A push into cover/unit/wall/edge stops the unit and BOTH take 1
@@ -137,7 +137,11 @@ export type Effect =
   | { kind: 'swap' }
   /** Target enemy's intent is turned around 180° (relative patterns) or re-aimed at the nearest other enemy (lob). */
   /** `to: 'all_enemies'` flips every living enemy's intent (an archetype burst); otherwise the targeted tiles. */
-  | { kind: 'redirect'; area?: AreaShape; to?: 'all_enemies' }
+  | { kind: 'redirect'; area?: AreaShape; to?: 'all_enemies'; /** Mark every enemy turned around. */ mark?: number }
+  /** All energy left at the end of this turn carries into the next. */
+  | { kind: 'bank_energy' }
+  /** The origin runs along the attack's line and stops beside the impact, or before anything in the way. */
+  | { kind: 'dash' }
   /** Target enemy's current intent is cancelled (it still re-telegraphs next enemy phase). */
   | { kind: 'cancel_intent'; area?: AreaShape }
   /** Target empty tile becomes cover with 2 hp. */
@@ -465,6 +469,8 @@ export interface CombatState {
   relay?: Pos
   /** Where the neutral is walking (EncounterDef.walkTo). */
   walkTo?: Pos
+  /** A card banked this turn's leftover energy (consumed at end of turn). */
+  bankEnergy?: boolean
   /** The neutral reached `walkTo` and left the board alive. */
   neutralSafe?: boolean
   /** Credits banked during the fight (bounties, card effects). */
@@ -579,6 +585,8 @@ export interface ImplantRules {
   coverToVoid?: boolean
   /** Block is not cleared at the start of the player's turn. */
   keepBlock?: boolean
+  /** Half the energy left at the end of the turn (rounded down, at most 2) carries into the next. */
+  overflow?: boolean
   /** The first card each turn resolves twice (powers excepted). */
   echoFirstCard?: boolean
   /** At most this many cards a turn. */

@@ -242,6 +242,14 @@ const UNCOMMON: ImplantDef[] = [
     passive: { stats: { agi: 1 } },
     triggers: [{ on: 'combat_start', effects: [{ kind: 'status', status: 'evade', amount: 1, to: 'connector' }] }],
   },
+  {
+    id: 'surplus_capacitor',
+    name: t('잉여 축전기', 'Surplus Capacitor'),
+    text: t('턴이 끝날 때 남은 에너지의 절반(내림, 최대 2)이 다음 턴으로 넘어간다.', 'At the end of your turn, half your leftover energy (rounded down, at most 2) carries into the next.'),
+    rarity: 'uncommon',
+    icon: 'v2/implants/surplus_capacitor.webp',
+    rules: { overflow: true },
+  },
 ]
 
 const RARE: ImplantDef[] = [

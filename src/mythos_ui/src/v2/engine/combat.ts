@@ -398,7 +398,7 @@ function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): vo
     if (echoBlock > 0) for (const u of livingParty(c)) gainBlock(c, u, echoBlock)
   }
   if (!first) gainMomentum(c, C, MOMENTUM_TURN)
-  // Unspent energy was dropped at end of turn; anything gained off-turn (e.g. on damage taken) carries over.
+  // What the end of the turn kept (carriedEnergy) and anything gained off-turn (e.g. on damage taken) carries over.
   const drain = rules.drainTurn ?? 0
   const energy = drain > 0 && c.turn % drain === 0 ? 0 : c.maxEnergy
   c.energy += energy
@@ -1007,6 +1007,12 @@ export function fireBurst(c: CombatState, C: ContentRegistry, companionUid?: str
   return next
 }
 
+/** Energy that survives the end of this turn: none, unless an implant or a card says so. */
+export function carriedEnergy(c: CombatState, C: ContentRegistry): number {
+  if (c.bankEnergy) return c.energy
+  return implantRules(c, C).overflow ? Math.min(2, Math.floor(c.energy / 2)) : 0
+}
+
 export function endTurnInPlace(c: CombatState, C: ContentRegistry): void {
   requirePlayer(c)
   c.undo = null
@@ -1029,7 +1035,8 @@ export function endTurnInPlace(c: CombatState, C: ContentRegistry): void {
     else c.discard.push(card)
   }
   c.hand = kept
-  c.energy = 0
+  c.energy = carriedEnergy(c, C)
+  delete c.bankEnergy
   for (const u of livingParty(c)) {
     decayStatus(u, 'shock')
     decayStatus(u, 'weak')

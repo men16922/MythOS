@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 364,
+ "codex_image_calls": 367,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -2914,6 +2914,13 @@
    ],
    "ts": "2026-10-25T17:35:52"
   },
+  "v2/cards/bank_power.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration, vertical 3:4. A hacker's gloved hands slotting a glowing battery cell into a scuffed wrist rack, saving its charge for later. Painterly cyberpunk game art, dark background, one clear focal subject, eye-level, natural proportions, restrained teal and amber glow. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:47:27"
+  },
   "v2/cards/bel_blackout.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3026,6 +3033,13 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
    ],
    "ts": "2026-10-25T17:32:44"
+  },
+  "v2/cards/discharge.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Card illustration, vertical 3:4. A figure in a rain-soaked alley releases a battery pack's whole charge in one arc of lightning from an outstretched hand. Painterly cyberpunk game art, dark background, one clear focal subject, eye-level, natural proportions, restrained teal and amber glow. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:47:27"
   },
   "v2/cards/doyun_brace.webp": {
    "generations": 1,
@@ -4624,6 +4638,13 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/implants/echo_lens.webp"
    ],
    "ts": "2026-10-30T21:43:27"
+  },
+  "v2/implants/surplus_capacitor.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Square item icon. A small scratched cylindrical capacitor implant with a half-full amber charge window, on a dark surface. Painterly cyberpunk game art, dark background, one clear focal subject, eye-level, natural proportions, restrained teal and amber glow. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:47:27"
   },
   "v2/implants/weightless_rig.webp": {
    "generations": 1,

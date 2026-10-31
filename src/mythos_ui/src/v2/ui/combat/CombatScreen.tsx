@@ -18,7 +18,7 @@ import './combat.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Layers, Maximize2, X } from 'lucide-react'
-import { canPlay, getUnit, threatMap, ultimatesReady } from '../../engine/combat.ts'
+import { canPlay, carriedEnergy, getUnit, threatMap, ultimatesReady } from '../../engine/combat.ts'
 import { glitchActive } from '../../engine/effects.ts'
 import { endTurn } from './recordedActions.ts'
 import { posKey, samePos } from '../../engine/grid.ts'
@@ -348,6 +348,7 @@ export function CombatScreen(props: CombatScreenProps) {
   // Energy orb drain/refill pulse.
   const orbRef = useRef<HTMLDivElement>(null)
   const shownEnergy = view.handHidden ? 0 : combat.energy
+  const carried = view.handHidden ? 0 : carriedEnergy(combat, C)
   const lastEnergy = useRef(shownEnergy)
   useEffect(() => {
     const el = orbRef.current
@@ -543,6 +544,7 @@ export function CombatScreen(props: CombatScreenProps) {
           <div ref={orbRef} className={`m2c-orb${shownEnergy > 0 && interactive ? ' is-live' : ''}${shownEnergy === 0 ? ' is-empty' : ''}`}>
             <b>{shownEnergy}</b>
             <span>/{combat.maxEnergy}</span>
+            {carried > 0 && <em className="m2c-energy-carry">{k ? `다음 턴 +${carried}` : `+${carried} next turn`}</em>}
             <i>{k ? '에너지' : 'ENERGY'}</i>
           </div>
           {legend && !compact && <KeyLegend k={k} />}

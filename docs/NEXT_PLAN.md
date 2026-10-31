@@ -4,6 +4,10 @@ Last updated: 2026-10-31
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
+## Next update (proposal, owner not yet approved)
+
+`docs/plans/2026-10-31-next-update-plan.md` — "청구서": earlier choices return as late scenes (cut W1). Starts only after the owner's verdict; a short five-question verdict is in its §1. `[ ]` re-check Devpost for a Gemini / Google Cloud challenge on 2026-12-01 (none found 2026-10-31; a contest pulls W2 ahead).
+
 ## Priority 0 — S-rank pass (Argon review, 2026-10-25)
 
 Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank = 7 axes; agent roles §5).

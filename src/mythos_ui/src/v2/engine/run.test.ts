@@ -213,7 +213,7 @@ test('growth points: spent on the map for +1 to a stat, never past the cap, neve
   run = spendGrowth(run, 'cha')
   assert.equal(run.stats.cha, cha + 1)
   assert.equal(run.growth, 1)
-  const capped = { ...run, stats: { ...run.stats, str: 10 } }
+  const capped = { ...run, stats: { ...run.stats, str: 20 } }
   assert.equal(spendGrowth(capped, 'str'), capped)
   const none = { ...run, growth: 0 }
   assert.equal(spendGrowth(none, 'agi'), none)
@@ -267,7 +267,7 @@ test('bonus objective, elite and boss rewards, act transition and recruit event'
   const echoesBefore = run.echoes
   run = leaveReward(run, C)
   assert.equal(run.act, 2)
-  assert.equal(run.growth, 1, 'clearing an act earns a growth point')
+  assert.equal(run.growth, 2, 'clearing an act earns two growth points')
   assert.equal(run.map.act, 2)
   assert.equal(run.nodeId, null)
   assert.equal(run.hp, 10 + 12, 'heals half the missing HP')
@@ -461,7 +461,7 @@ test('events: requirements, checks and immediate effects', () => {
   assert.ok(run.deck.some((c) => c.defId === 'r_a'))
   assert.ok(run.implants.includes('imp_c3'))
   assert.equal(run.stats.obs, 6, 'implant stat passive applied')
-  assert.equal(run.stats.str, 10, 'stats clamp at 10')
+  assert.equal(run.stats.str, 20, 'stats clamp at 20')
   assert.deepEqual(run.consumables, ['grenade'])
   assert.equal(run.party[0]?.bond, 2)
   assert.ok(run.deck.some((c) => c.defId === 'serin_bond'), 'bond 2 adds the bond card')

@@ -237,6 +237,7 @@ function applyOpeningPerks(c: CombatState, run: RunState, enc: EncounterDef, C: 
     if (perks.openEvade > 0) addStatus(c, conn, 'evade', perks.openEvade)
     if (perks.openFocus > 0) addStatus(c, conn, 'focus', perks.openFocus)
   }
+  if (perks.openMark > 0) for (const e of livingEnemies(c)) addStatus(c, e, 'mark', perks.openMark)
   const x = c as CombatStateExt
   if (perks.openDraw > 0) x.pendingDraw = (x.pendingDraw ?? 0) + perks.openDraw
   const rules = implantRules(run, C)
@@ -400,11 +401,15 @@ function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): vo
   if (!first) gainMomentum(c, C, MOMENTUM_TURN)
   // What the end of the turn kept (carriedEnergy) and anything gained off-turn (e.g. on damage taken) carries over.
   const drain = rules.drainTurn ?? 0
-  const energy = drain > 0 && c.turn % drain === 0 ? 0 : c.maxEnergy
+  const perks = perksOf(c)
+  const energy = (drain > 0 && c.turn % drain === 0 ? 0 : c.maxEnergy) + (first ? perks.openEnergy : 0)
   c.energy += energy
   emit(c, { t: 'energy', amount: energy })
+  const self = connectorOf(c)
+  if (self && perks.turnBlock > 0) gainBlock(c, self, perks.turnBlock)
+  if (self && perks.turnEvade > 0) addStatus(c, self, 'evade', perks.turnEvade)
   const x = c as CombatStateExt
-  const bonusDraw = x.pendingDraw ?? 0
+  const bonusDraw = (x.pendingDraw ?? 0) + perks.turnDraw
   delete x.pendingDraw
   drawCards(c, Math.max(0, c.handSize - c.hand.length) + bonusDraw)
   if (c.bonus?.def.kind === 'turn_limit' && c.turn > c.bonus.def.turns) c.bonus.failed = true
@@ -743,8 +748,15 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
     c.energy += 1
     emit(c, { t: 'energy', amount: 1 })
   }
-  if (def.owner !== 'any' && def.owner !== 'connector' && perksOf(c).companionRefund && !c.triggered['c:cha_refund']) {
-    c.triggered['c:cha_refund'] = 1
+  const perks = perksOf(c)
+  const chaKey = perks.refundEachTurn ? `t${c.turn}:cha_refund` : 'c:cha_refund'
+  if (def.owner !== 'any' && def.owner !== 'connector' && perks.companionRefund && !c.triggered[chaKey]) {
+    c.triggered[chaKey] = 1
+    c.energy += 1
+    emit(c, { t: 'energy', amount: 1 })
+  }
+  if (def.type === 'tactic' && perks.tacticRefund && !c.triggered['c:int_refund']) {
+    c.triggered['c:int_refund'] = 1
     c.energy += 1
     emit(c, { t: 'energy', amount: 1 })
   }

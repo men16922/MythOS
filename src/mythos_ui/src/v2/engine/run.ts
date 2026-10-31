@@ -106,7 +106,7 @@ const SHOP_SERVICE_STEP = 20
 const SHOP_REMOVALS_FLAG = 'shop_removals'
 const BONUS_CREDITS = 25
 const STAT_MIN = 1
-const STAT_MAX = 10
+export const STAT_MAX = 20
 
 type PoolRarity = 'common' | 'uncommon' | 'rare'
 type RarityWeights = Partial<Record<PoolRarity, number>>
@@ -1048,6 +1048,9 @@ export function takeRewardConsumable(run: RunState, C: ContentRegistry): RunStat
   })
 }
 
+/** Growth points for clearing an act; an elite gives 1. */
+const ACT_GROWTH = 2
+
 /** Acts a standard run plays. */
 export const STANDARD_ACTS = 3
 
@@ -1088,7 +1091,7 @@ export function deepSignalOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<Conte
 }
 
 export function advanceAct(run: RunState, C: ContentRegistry): void {
-  run.growth = (run.growth ?? 0) + 1
+  run.growth = (run.growth ?? 0) + ACT_GROWTH
   if ((run.autonomy ?? 0) >= 2) gainTrace(run, -AUTONOMY_ACT_SCRUB, C)
   run.act = run.act + 1
   if (run.paradox >= 9) gainTrace(run, 10, C) // Paradox 9: tracked ahead

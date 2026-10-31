@@ -520,9 +520,10 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
   let crit = false
   let evaded = 0
   if (o.attack) {
-    if (o.attacker?.uid === 'connector' && o.source === 'party') {
-      dmg += perksOf(c).attack
-    }
+    const fromSquad = o.source === 'party' && o.attacker?.side === 'party'
+    const perks = perksOf(c)
+    if (o.attacker?.uid === 'connector' && o.source === 'party') dmg += perks.attack
+    else if (fromSquad) dmg += perks.companionDamage
     if (o.source === 'party') dmg += implantRules(c, C).attackBonus ?? 0
     const mark = victim.statuses.mark ?? 0
     if (mark > 0) {
@@ -530,17 +531,20 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
       delete victim.statuses.mark
     }
     if (o.attacker && (o.attacker.statuses.weak ?? 0) > 0) dmg -= WEAK_PENALTY
-    if (o.attacker && (o.attacker.statuses.focus ?? 0) >= FOCUS_CRIT_THRESHOLD && dmg > 0) {
+    const critAt = FOCUS_CRIT_THRESHOLD - (o.source === 'party' ? perks.critEase : 0)
+    if (o.attacker && (o.attacker.statuses.focus ?? 0) >= critAt && dmg > 0) {
       crit = true
       const mult = BASE_CRIT_MULT + (o.source === 'party' ? activePassive(c, C, 'critMult') : 0)
       dmg = Math.ceil(dmg * mult)
-      addStatus(c, o.attacker, 'focus', -FOCUS_CRIT_THRESHOLD)
-      if (o.source === 'party') gainMomentum(c, C, MOMENTUM_CRIT)
+      addStatus(c, o.attacker, 'focus', -critAt)
+      if (o.source === 'party') {
+        gainMomentum(c, C, MOMENTUM_CRIT)
+        if (perks.critMark > 0) addStatus(c, victim, 'mark', perks.critMark)
+      }
     } else if (o.attacker && o.source === 'party' && dmg > 0) {
-      const fg = perksOf(c).focusPerHit
-      if (fg > 0) addStatus(c, o.attacker, 'focus', fg)
+      if (perks.focusPerHit > 0) addStatus(c, o.attacker, 'focus', perks.focusPerHit)
     }
-    if (!o.pierce && !crit) dmg -= victim.armor
+    if (!o.pierce && !crit) dmg -= Math.max(0, victim.armor - (o.attacker?.uid === 'connector' && o.source === 'party' ? perks.armorBreak : 0))
     if (dmg > 0 && (victim.statuses.evade ?? 0) > 0) {
       const after = Math.floor(dmg / 2)
       evaded = dmg - after
@@ -1058,7 +1062,7 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       plans.sort((a, b) => lead(b) - lead(a))
       const stopBefore = eff.dir === 'toward' ? res.origin?.uid : undefined
       const rules = implantRules(c, C)
-      const dist = (eff.distance ?? 1) + (res.side === 'party' ? (mutatorCombat(c).pushBonus ?? 0) + (rules.pushBonus ?? 0) : 0)
+      const dist = (eff.distance ?? 1) + (res.side === 'party' ? (mutatorCombat(c).pushBonus ?? 0) + (rules.pushBonus ?? 0) + perksOf(c).pushBonus : 0)
       for (const { u, d } of plans) pushUnit(c, C, u, d, dist, stopBefore, eff.slam ?? 0, eff.stun ?? false)
       const recoil = res.side === 'party' ? (rules.pushRecoil ?? 0) : 0
       const first = plans[0]

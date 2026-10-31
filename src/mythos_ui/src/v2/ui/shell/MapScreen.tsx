@@ -13,7 +13,7 @@ import { MapBanter } from './MapBanter.tsx'
 import { ThoughtCabinet } from './ThoughtCabinet.tsx'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
-import { actOf, lastAct } from '../../engine/run.ts'
+import { actOf, STAT_MAX, lastAct } from '../../engine/run.ts'
 import './map.css'
 
 const W = 600
@@ -237,7 +237,7 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
               {(['str', 'agi', 'int', 'cha', 'obs'] as const).map((k) => (
                 <button
                   key={k}
-                  disabled={(run.stats[k] ?? 0) >= 10}
+                  disabled={(run.stats[k] ?? 0) >= STAT_MAX}
                   onClick={() => {
                     sound('reward')
                     act(rx.spendGrowth(run, k))

@@ -22,6 +22,7 @@ import {
   eventOptions,
   grantImplant,
   spendGrowth,
+  STAT_MAX,
   leaveReward,
   leaveRest,
   leaveShop,
@@ -255,7 +256,7 @@ function decideMap(run: RunState, C: ContentRegistry): RunState {
   }
   if ((run.growth ?? 0) > 0) {
     // Specialise: the highest stat that can still grow.
-    const stat = (['str', 'agi', 'int', 'cha', 'obs'] as const).filter((k) => (run.stats[k] ?? 0) < 10).sort((a, b) => (run.stats[b] ?? 0) - (run.stats[a] ?? 0))[0]
+    const stat = (['str', 'agi', 'int', 'cha', 'obs'] as const).filter((k) => (run.stats[k] ?? 0) < STAT_MAX).sort((a, b) => (run.stats[b] ?? 0) - (run.stats[a] ?? 0))[0]
     const grown = stat ? spendGrowth(run, stat) : run
     if (grown !== run) return grown
   }

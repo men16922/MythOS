@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 367,
+ "codex_image_calls": 377,
  "codex_image_failed": 2,
  "image_calls": 317,
  "image_failed": 401,
@@ -2980,6 +2980,13 @@
    ],
    "ts": "2026-10-25T17:35:25"
   },
+  "v2/cards/called_shot.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). A sniper on a rooftop points two fingers at a distant target before taking aim. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:58:22"
+  },
   "v2/cards/concussion_kick.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3118,6 +3125,13 @@
    ],
    "ts": "2026-10-31T06:49:44"
   },
+  "v2/cards/heavy_hands.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). A broad-shouldered fighter tears a steel door panel off its hinges with bare hands. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:57:11"
+  },
   "v2/cards/io_cross_reference.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3185,6 +3199,13 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/packet_shot.webp"
    ],
    "ts": "2026-10-31T05:35:20"
+  },
+  "v2/cards/logic_bomb.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). A hacker tosses a small circuit-covered puck; it blooms into a tight orange flame on a drone. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:57:41"
   },
   "v2/cards/mass_hijack.webp": {
    "generations": 1,
@@ -3299,6 +3320,27 @@
    ],
    "ts": "2026-10-27T21:41:48"
   },
+  "v2/cards/quick_angle.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). A lean runner slides sideways past a corner, firing a pistol mid-step. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:57:01"
+  },
+  "v2/cards/rally_call.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). A young woman raises one hand in a rainy alley while three teammates turn toward her. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:57:58"
+  },
+  "v2/cards/read_the_gap.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). An eye behind a cracked visor traces a thin seam of light on an armored enforcer. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:58:14"
+  },
   "v2/cards/rem_deep_dream.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -3348,6 +3390,13 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/sprites/rem-ally-idle.webp"
    ],
    "ts": "2026-10-26T05:13:01"
+  },
+  "v2/cards/rewire.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Close view of hands re-routing corroded cables inside an open street junction box. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:57:47"
   },
   "v2/cards/rewrite_abyss.webp": {
    "generations": 1,
@@ -3472,6 +3521,27 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/cards/blink_strike.webp"
    ],
    "ts": "2026-10-25T17:34:26"
+  },
+  "v2/cards/shared_plan.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). Two teammates crouch shoulder to shoulder over a chalked map, then one aims down the alley. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:58:06"
+  },
+  "v2/cards/shoulder_through.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). A runner drops a shoulder and bursts through a security drone in a narrow alley. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:57:01"
+  },
+  "v2/cards/slip_guard.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, portrait, and do nothing else (no files, no code). A fighter leans a hair away from a baton strike, the weapon passing their cheek. Card illustration for a cyberpunk tactics game, vertical 3:4, painterly, dark background, one clear focal action, eye-level, natural proportions, one restrained effect. Neo-Seoul at night. Absolutely no text, no letters, no numbers, no logos, no UI, no frame.",
+   "refs": [],
+   "ts": "2026-11-01T07:57:15"
   },
   "v2/cards/tracer_barrage.webp": {
    "generations": 1,

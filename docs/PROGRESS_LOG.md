@@ -6,7 +6,7 @@ Last updated: 2026-10-31
 
 - **Built** (not deployed): Relay is a real rule (`EncounterDef.relay`, line + dashed tile, danger moves to the stand-in). After the first escape an Act 2 event node becomes Closing Time; entering swaps the next three plain fights for `outside_serving`, `outside_pickup`, `outside_door`; the last safehouse becomes One Bowl (nobody lost) or The Closed Counter, same pay. 2 Codex stills, no new enemies or cards. Off dailies.
 - **Balance** (canonical 3 × 150, mixed): fresh profile 200 / 450, unchanged. Rolling the scene instead read 208 with nothing else changed, so it is placed, never rolled. A once-won profile entering by force 209, declining 210; only 68 / 450 forced runs reached it, the bot cannot push enemies onto the tile, so this says nothing about fun.
-- **Verified**: engine tests for the flow, opening, dailies; event and fight screens in a muted browser. Unverified: the route end to end in the real UI, tone, the owner's verdict.
+- **Verified**: engine tests for the flow, opening, dailies; the whole route in the real UI, muted, 0 console errors: Closing Time → `outside_serving` → `outside_pickup` → `outside_door` → plain fights → One Bowl (nobody lost) and The Closed Counter (one lost), on separate runs. The test set the map nodes, profile and act through the dev hook, kept the bot alive and wore foes down, so reaching the route naturally on a real map is covered by engine tests only. Unverified: tone, fun, the owner's verdict.
 
 ## 2026-10-31 — DLC 2 proposals merged, Stage 1 built (Claude Opus 5.5, owner: "결과 나오면 추천안대로 알아서 수행해")
 

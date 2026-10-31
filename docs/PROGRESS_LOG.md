@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-01
 
+## 2026-11-01 — Production promoted to `00169-fih` (Claude Opus 5.5, owner: deploy)
+
+- `00169-fih` (`git-sha=e50d6fa`, Stage 1 + DLC 2) at 100 % pinned, rollback `00167-yuh`. Owner ordered it before the play verdict; that verdict, F1–F4 and art stay open. `make verify-preview` 5/5; `make url-smoke` on the preview and on production: sandbox fight won, run flow to the end, 0 console errors, anonymous and muted.
+- Unverified on production: the Act 2 route itself (needs a won profile), Google sign-in, sound.
+
 ## 2026-11-01 — Relay reads true and can be reached (Claude Opus 5.5, owner: carry out the recommendation)
 
 - **Why**: merged plan Stage 3 item 3 (telegraph link, per-target preview, small-screen explanation) was reported done by omission. It was not, and the gap matched the rule's own discard condition, "misreads the real receiver".

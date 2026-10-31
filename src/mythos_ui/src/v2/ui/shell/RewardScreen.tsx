@@ -1,4 +1,5 @@
 // Mythos 2.0 — post-combat rewards (credits, card picks, implant, consumable) and the standalone card_reward screen.
+import { gearLine } from '../components/gearLine.ts'
 import { art } from '../components/art.ts'
 import { Coins, Layers, Package, Sparkles } from 'lucide-react'
 import { useState } from 'react'
@@ -93,6 +94,20 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
             </button>
           )}
 
+          {(reward.gear || reward.levelUps) && (
+            <p className="m2-rnote" style={delay()}>
+              {reward.gear && C.gear?.[reward.gear] && (
+                <span>
+                  {ko ? '장비 획득' : 'Gear'} <b>{tr(C.gear[reward.gear]?.name, lang)}</b> · {gearLine(C.gear[reward.gear]?.mods ?? {}, lang)}
+                </span>
+              )}
+              {reward.levelUps?.map((u) => (
+                <span key={u.id}>
+                  <b>{tr(C.companions[u.id]?.name, lang)}</b> {ko ? `레벨 ${u.level}` : `level ${u.level}`}
+                </span>
+              ))}
+            </p>
+          )}
           {reward.cardChoices.map((choices, gi) => (
             <button
               key={gi}

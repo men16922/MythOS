@@ -77,6 +77,7 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
           <div className="m2-actintro__kicker">{lang === 'ko' ? `${run.act}막` : `Act ${run.act}`}</div>
           <h1 className="m2-actintro__name">{tr(actDef?.name, lang)}</h1>
           <p className="m2-actintro__sub">{tr(actDef?.subtitle, lang)}</p>
+          {run.act === 4 && <p className="m2-actintro__sub">{lang === 'ko' ? '이제 동료 셋이 함께 출격할 수 있다' : 'Three companions can deploy from here on'}</p>}
           {(run.lap ?? 0) === 0 && (actDef?.gift ?? []).length > 0 && (
             <p className="m2-actintro__gift" data-testid="act-gift">
               {lang === 'ko' ? '덱에 추가: ' : 'Added to your deck: '}

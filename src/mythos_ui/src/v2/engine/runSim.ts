@@ -23,6 +23,7 @@ import {
   grantImplant,
   spendGrowth,
   STAT_MAX,
+  equipGear,
   leaveReward,
   leaveRest,
   leaveShop,
@@ -253,6 +254,17 @@ function decideMap(run: RunState, C: ContentRegistry): RunState {
   if (run.thoughts?.offer) {
     const carried = acceptThought(run)
     return carried !== run ? carried : declineThought(run)
+  }
+  // Wear the best unworn piece on the first empty slot, connector first.
+  const worn = new Set(Object.values(run.worn ?? {}).flatMap((w) => Object.values(w)))
+  const spare = (run.gear ?? []).filter((id) => !worn.has(id))
+  for (const id of spare) {
+    const slot = C.gear?.[id]?.slot
+    const who = slot && ['connector', ...run.party.map((m) => m.id)].find((w) => !run.worn?.[w]?.[slot])
+    if (slot && who) {
+      const on = equipGear(run, who, slot, id, C)
+      if (on !== run) return on
+    }
   }
   if ((run.growth ?? 0) > 0) {
     // Specialise: the highest stat that can still grow.

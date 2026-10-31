@@ -2,6 +2,7 @@
 // what each does in a fight, the four choice axes, the Signal Burst, and the crew with bond, approval and the
 // first impression they formed. Read-only; opened from the top bar portrait.
 import { REP_TIER, repTier } from '../../engine/crpg.ts'
+import { STAT_MAX } from '../../engine/run.ts'
 import type { ChoiceAxis, ContentRegistry, Faction, FirstImpression, Lang, RunState, StatKey } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
 import { L, tr } from '../common/lang.ts'
@@ -86,8 +87,8 @@ export function CharacterSheet({ run, C, lang, onClose }: Props) {
             {STAT_ORDER.map((k, i) => (
               <li key={k}>
                 <span className="m2-sheet__stat">{tr(STAT_NAME[k], lang)}</span>
-                <span className="m2-sheet__pips" aria-label={`${run.stats[k]}/10`}>
-                  {Array.from({ length: 10 }, (_, n) => (
+                <span className="m2-sheet__pips" aria-label={`${run.stats[k]}/${STAT_MAX}`}>
+                  {Array.from({ length: STAT_MAX }, (_, n) => (
                     <i key={n} className={n < run.stats[k] ? 'is-on' : ''} />
                   ))}
                 </span>

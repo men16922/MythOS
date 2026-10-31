@@ -1,16 +1,20 @@
-// Mythos 2.0 — the party screen: every recruited companion, who is deployed (two slots) and who waits on the bench.
-// Swapping is a map-only action (engine `setDeployment`); elsewhere the screen is read-only. Benched companions keep
-// their HP and bond, rest at the safehouse, and their cards sit fights out.
-import { Users } from 'lucide-react'
-import type { ContentRegistry, Lang, PartyMember, RunState } from '../../engine/types.ts'
+// Mythos 2.0 — the party screen. One place for everyone in the crew: pick a person on the left, and the right shows their
+// level, stats, gear and the inventory for the slot in hand. Everything that changes the crew is map-only (engine `onScreen`);
+// elsewhere the same screen reads as a record. Benched companions keep their HP, level and bond, and their gear.
+import { Shield, Swords, Users } from 'lucide-react'
+import { useState } from 'react'
+import { MAX_COMPANION_LEVEL, companionStats, levelOf, xpToNext } from '../../engine/companionLevel.ts'
+import { STAT_MAX, partySlots } from '../../engine/run.ts'
+import type { ContentRegistry, GearDef, GearSlot, Lang, PartyMember, RunState, StatKey, Stats } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
-import { tr } from '../common/lang.ts'
-import { MAX_PARTY } from '../../engine/run.ts'
+import { L, tr } from '../common/lang.ts'
 import { rx } from '../shell/rx.ts'
 import { companionSprite } from './format.ts'
+import { gearLine } from './gearLine.ts'
 import { HpBar } from './HpBar.tsx'
 import { Modal } from './Modal.tsx'
 import { sound } from './sound.ts'
+import { statPerkLines } from './statPerkLines.ts'
 import './party.css'
 
 interface Props {
@@ -21,68 +25,88 @@ interface Props {
   onClose: () => void
 }
 
+const CONNECTOR = 'connector'
+const STATS: { key: StatKey; name: ReturnType<typeof L> }[] = [
+  { key: 'str', name: L('근력', 'STR') },
+  { key: 'agi', name: L('민첩', 'AGI') },
+  { key: 'int', name: L('지능', 'INT') },
+  { key: 'cha', name: L('매력', 'CHA') },
+  { key: 'obs', name: L('관찰', 'OBS') },
+]
+const SLOTS: { slot: GearSlot; name: ReturnType<typeof L> }[] = [
+  { slot: 'weapon', name: L('무기', 'Weapon') },
+  { slot: 'armor', name: L('보호구', 'Armor') },
+]
+
+function StatBars({ stats, perks, onGrow, lang }: { stats: Stats; perks?: [string, string][]; onGrow?: (k: StatKey) => void; lang: Lang }) {
+  return (
+    <ul className="m2-pt__stats">
+      {STATS.map(({ key, name }, i) => (
+        <li key={key}>
+          <span className="m2-pt__statname">{tr(name, lang)}</span>
+          <span className="m2-pt__bar" aria-label={`${stats[key]}/${STAT_MAX}`}>
+            <i style={{ width: `${(stats[key] / STAT_MAX) * 100}%` }} />
+            {[10, 15].map((n) => (
+              <em key={n} style={{ left: `${(n / STAT_MAX) * 100}%` }} />
+            ))}
+          </span>
+          <b className="m2-mono">{stats[key]}</b>
+          {onGrow && (
+            <button type="button" className="m2-pt__plus" disabled={stats[key] >= STAT_MAX} onClick={() => onGrow(key)} aria-label={`${tr(name, lang)} +1`}>
+              +
+            </button>
+          )}
+          {perks?.[i]?.[1] && <small>{perks[i]?.[1]}</small>}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 export function PartyModal({ run, C, lang, onChange, onClose }: Props) {
   const ko = lang === 'ko'
   const editable = run.screen.kind === 'map'
+  const [who, setWho] = useState(CONNECTOR)
+  const [slot, setSlot] = useState<GearSlot>('weapon')
+  const slots = partySlots(run)
   const deployed = run.party.map((m) => m.id)
   const bench = run.bench ?? []
-  const full = deployed.length >= MAX_PARTY
+  const member: PartyMember | undefined = [...run.party, ...bench].find((m) => m.id === who)
+  const def = member ? C.companions[member.id] : undefined
+  const arch = C.archetypes[run.archetype]
+  const growth = run.growth ?? 0
+  const wornBy = (id: string): string | undefined => Object.entries(run.worn ?? {}).find(([, w]) => Object.values(w).includes(id))?.[0]
+  const nameOf = (id: string): string => (id === CONNECTOR ? tr(arch?.name, lang) : tr(C.companions[id]?.name, lang))
 
-  const apply = (ids: string[]) => {
-    const next = rx.setDeployment(run, ids)
+  const apply = (next: RunState) => {
     if (next === run) return sound('error')
     sound('ui_click')
     onChange(next)
   }
 
-  const card = (m: PartyMember, isDeployed: boolean) => {
-    const def = C.companions[m.id]
-    if (!def) return null
+  const rosterRow = (id: string, m: PartyMember | undefined, tag: string) => {
+    const img = id === CONNECTOR ? (arch?.sprite ?? 'player-noise') : companionSprite(id, C)
+    const hp = m ? m.hp : run.hp
+    const maxHp = m ? m.maxHp : run.maxHp
     return (
-      <li key={m.id} className={`m2-partycard${isDeployed ? ' is-deployed' : ''}`}>
-        <img src={portrait(companionSprite(m.id, C))} alt="" />
-        <div className="m2-partycard__body">
-          <div className="m2-partycard__head">
-            <b>{tr(def.name, lang)}</b>
-            <small>{tr(def.role, lang)}</small>
-            <span className="m2-bondpips" title={ko ? '유대' : 'Bond'}>
-              {[1, 2, 3].map((i) => (
-                <i key={i} className={i <= m.bond ? 'is-on' : ''} />
-              ))}
-            </span>
-          </div>
-          <div className="m2-partycard__hp">
-            <HpBar hp={m.hp} max={m.maxHp} small label={false} />
-            <span className="m2-mono">
-              {m.hp}/{m.maxHp}
-            </span>
-          </div>
-          {def.combatPassive && (
-            <p>
-              <b>{tr(def.combatPassive.name, lang)}</b> · {tr(def.combatPassive.text, lang)}
-            </p>
-          )}
-          <p className="m2-partycard__passive">{tr(def.passiveText, lang)}</p>
-        </div>
-        {editable &&
-          (isDeployed ? (
-            <button type="button" className="m2-btn m2-btn--ghost m2-partycard__act" onClick={() => apply(deployed.filter((id) => id !== m.id))}>
-              {ko ? '대기로' : 'Bench'}
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="m2-btn m2-partycard__act"
-              disabled={full}
-              title={full ? (ko ? '먼저 출격 중인 동료 한 명을 대기로 돌린다' : 'Bench a deployed companion first') : undefined}
-              onClick={() => apply([...deployed, m.id])}
-            >
-              {ko ? '출격' : 'Deploy'}
-            </button>
-          ))}
+      <li key={id}>
+        <button type="button" className={`m2-pt__person${who === id ? ' is-on' : ''}`} onClick={() => setWho(id)}>
+          <img src={portrait(img)} alt="" />
+          <span className="m2-pt__personbody">
+            <b>{nameOf(id)}</b>
+            <small>{tag}</small>
+            <HpBar hp={hp} max={maxHp} small label={false} />
+          </span>
+        </button>
       </li>
     )
   }
+
+  const worn = run.worn?.[who] ?? {}
+  const pieces: GearDef[] = (run.gear ?? []).flatMap((id) => {
+    const g = C.gear?.[id]
+    return g && g.slot === slot ? [g] : []
+  })
 
   return (
     <Modal
@@ -91,34 +115,118 @@ export function PartyModal({ run, C, lang, onChange, onClose }: Props) {
       title={
         <span className="m2-party__title">
           <Users size={16} aria-hidden="true" /> {ko ? '파티' : 'Party'}
+          {growth > 0 && <span className="m2-pt__points">{ko ? `성장 포인트 ${growth}` : `${growth} growth`}</span>}
         </span>
       }
     >
-      <p className="m2-party__note">
-        {editable
-          ? ko
-            ? `출격은 최대 ${MAX_PARTY}명. 출격한 동료만 싸우고, 패시브와 카드를 빌려준다. 대기 중인 동료의 카드는 전투에서 뽑히지 않는다. 체력과 유대는 그대로 남고, 휴식처에서는 모두 함께 쉰다.`
-            : `Up to ${MAX_PARTY} deployed. Only deployed companions fight and lend their passives and cards; a benched companion's cards are not drawn. HP and bond carry over, and everyone rests at the safehouse.`
-          : ko
-            ? '편성은 작전 지도에서만 바꿀 수 있다.'
-            : 'Change the line-up on the map.'}
-      </p>
-      <h3 className="m2-party__label">
-        {ko ? '출격' : 'Deployed'} <span className="m2-mono">{deployed.length}/{MAX_PARTY}</span>
-      </h3>
-      {run.party.length ? (
-        <ul className="m2-party__list">{run.party.map((m) => card(m, true))}</ul>
-      ) : (
-        <p className="m2-party__empty">{ko ? '혼자 간다.' : 'Going alone.'}</p>
-      )}
-      <h3 className="m2-party__label">
-        {ko ? '대기' : 'Bench'} <span className="m2-mono">{bench.length}</span>
-      </h3>
-      {bench.length ? (
-        <ul className="m2-party__list">{bench.map((m) => card(m, false))}</ul>
-      ) : (
-        <p className="m2-party__empty">{ko ? '대기 중인 동료가 없다. 2막 초입에서, 3막부터는 막마다 가끔 사건으로 새 동료를 만난다.' : 'Nobody on the bench. New companions wait at the start of Act 2, and from Act 3 now and then at an event.'}</p>
-      )}
+      <div className="m2-pt">
+        <aside className="m2-pt__roster">
+          <h3>
+            {ko ? '출격' : 'Deployed'} <span className="m2-mono">{deployed.length}/{slots}</span>
+          </h3>
+          <ul>
+            {rosterRow(CONNECTOR, undefined, ko ? '접속자' : 'Connector')}
+            {run.party.map((m) => rosterRow(m.id, m, ko ? `레벨 ${levelOf(m)}` : `Level ${levelOf(m)}`))}
+          </ul>
+          {bench.length > 0 && <h3>{ko ? '대기' : 'Bench'}</h3>}
+          <ul>{bench.map((m) => rosterRow(m.id, m, ko ? `레벨 ${levelOf(m)}` : `Level ${levelOf(m)}`))}</ul>
+        </aside>
+
+        <section className="m2-pt__detail">
+          <header className="m2-pt__head">
+            <img src={portrait(member ? companionSprite(member.id, C) : (arch?.sprite ?? 'player-noise'))} alt="" />
+            <div>
+              <h2>{nameOf(who)}</h2>
+              <p>{member ? tr(def?.role, lang) : tr(arch?.tagline, lang)}</p>
+              {member && (
+                <p className="m2-pt__level">
+                  <b>{ko ? `레벨 ${levelOf(member)}` : `Level ${levelOf(member)}`}</b>
+                  {levelOf(member) < MAX_COMPANION_LEVEL ? (ko ? ` · 다음까지 승리 ${xpToNext(member)}` : ` · ${xpToNext(member)} wins to next`) : ko ? ' · 최대' : ' · Max'}
+                  {' · '}
+                  {ko ? '유대' : 'Bond'} {member.bond}/3
+                </p>
+              )}
+              {member && editable && (
+                <div className="m2-pt__acts">
+                  {deployed.includes(member.id) ? (
+                    <button type="button" className="m2-btn m2-btn--ghost" onClick={() => apply(rx.setDeployment(run, deployed.filter((id) => id !== member.id)))}>
+                      {ko ? '대기로' : 'Bench'}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="m2-btn"
+                      disabled={deployed.length >= slots}
+                      title={deployed.length >= slots ? (ko ? '먼저 출격 중인 동료 한 명을 대기로 돌린다' : 'Bench a deployed companion first') : undefined}
+                      onClick={() => apply(rx.setDeployment(run, [...deployed, member.id]))}
+                    >
+                      {ko ? '출격' : 'Deploy'}
+                    </button>
+                  )}
+                  {levelOf(member) < MAX_COMPANION_LEVEL && (
+                    <button type="button" className="m2-btn m2-btn--ghost" disabled={growth <= 0} onClick={() => apply(rx.trainCompanion(run, member.id, C))}>
+                      {ko ? '훈련 (성장 포인트 1)' : 'Train (1 growth)'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </header>
+
+          {member && def ? (
+            <>
+              <StatBars lang={lang} stats={companionStats(def, levelOf(member))} />
+              {def.combatPassive && (
+                <p className="m2-pt__passive">
+                  <b>{tr(def.combatPassive.name, lang)}</b> · {tr(def.combatPassive.text, lang)}
+                </p>
+              )}
+              <p className="m2-pt__hint">{ko ? '레벨 3: 개전 방어막 · 레벨 5: 개전 기세' : 'Level 3: start block · Level 5: start Momentum'}</p>
+            </>
+          ) : (
+            <StatBars lang={lang} stats={run.stats} perks={statPerkLines(run.stats, lang)} {...(editable && growth > 0 ? { onGrow: (k: StatKey) => apply(rx.spendGrowth(run, k)) } : {})} />
+          )}
+
+          <div className="m2-pt__slots">
+            {SLOTS.map(({ slot: s, name }) => {
+              const on = worn[s] ? C.gear?.[worn[s] as string] : undefined
+              return (
+                <button key={s} type="button" className={`m2-pt__slot${slot === s ? ' is-on' : ''}`} onClick={() => setSlot(s)}>
+                  {s === 'weapon' ? <Swords size={16} aria-hidden="true" /> : <Shield size={16} aria-hidden="true" />}
+                  <span>
+                    <small>{tr(name, lang)}</small>
+                    <b>{on ? tr(on.name, lang) : ko ? '비어 있음' : 'Empty'}</b>
+                    {on && <small>{gearLine(on.mods, lang)}</small>}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          <ul className="m2-pt__inv">
+            {pieces.length === 0 && <li className="m2-pt__empty">{ko ? '가진 장비가 없다. 엘리트, 보스, 상점에서 얻는다.' : 'Nothing here yet. Elites, bosses and shops carry gear.'}</li>}
+            {pieces.map((g) => {
+              const owner = wornBy(g.id)
+              const mine = owner === who
+              return (
+                <li key={g.id}>
+                  <button
+                    type="button"
+                    className={`m2-pt__item is-${g.rarity}${mine ? ' is-mine' : ''}`}
+                    disabled={!editable}
+                    onClick={() => apply(rx.equipGear(run, who, slot, mine ? null : g.id, C))}
+                  >
+                    <b>{tr(g.name, lang)}</b>
+                    <span>{gearLine(g.mods, lang)}</span>
+                    {owner && <small>{mine ? (ko ? '착용 중 · 눌러서 해제' : 'Worn · tap to remove') : ko ? `${nameOf(owner)} 착용 중` : `On ${nameOf(owner)}`}</small>}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          {!editable && <p className="m2-pt__hint">{ko ? '편성과 장비는 작전 지도에서만 바꿀 수 있다.' : 'Change the line-up and gear on the map.'}</p>}
+        </section>
+      </div>
     </Modal>
   )
 }

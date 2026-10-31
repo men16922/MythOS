@@ -10,10 +10,12 @@ import { ENEMIES as BASE_ENEMIES } from './enemies.ts'
 import { ENCOUNTERS as BASE_ENCOUNTERS } from './encounters.ts'
 import { IMPLANTS as BASE_IMPLANTS } from './implants.ts'
 import { COMPANIONS as BASE_COMPANIONS } from './companions.ts'
+import { COMPANION_STATS } from './companionStats.ts'
 import { NEW_COMPANION_CARDS, NEW_COMPANION_EVENTS, NEW_COMPANIONS } from './packs/new_companions/index.ts'
 import { ARCHETYPES as BASE_ARCHETYPES } from './archetypes.ts'
 import { NEW_ARCHETYPE_CARDS, NEW_ARCHETYPE_IMPLANTS, NEW_ARCHETYPES } from './packs/new_archetypes/index.ts'
 import { DUOS } from './duos.ts'
+import { GEAR } from './gear.ts'
 import { EVOLUTIONS, EVOLVED_CARDS } from './evolutions.ts'
 import { EVENTS as BASE_EVENTS } from './events.ts'
 import { OUTSIDE_ACT, OUTSIDE_CARDS, OUTSIDE_ENCOUNTERS, OUTSIDE_ENEMIES, OUTSIDE_EVENTS, OUTSIDE_ROUTE, OUTSIDE_ROUTE_EVENTS } from './packs/outside_list/index.ts'
@@ -36,7 +38,7 @@ import { ORIGIN_ACT, ORIGIN_ENCOUNTERS, ORIGIN_ENDINGS, ORIGIN_ENEMIES, ORIGIN_E
 const CARDS = [...BASE_CARDS, ...REWRITE_CARDS, ...NEW_COMPANION_CARDS, ...NEW_ARCHETYPE_CARDS, ...EVOLVED_CARDS, ...OUTSIDE_CARDS]
 const IMPLANTS = [...BASE_IMPLANTS, ...NEW_ARCHETYPE_IMPLANTS]
 const ARCHETYPES = [...BASE_ARCHETYPES, ...NEW_ARCHETYPES]
-const COMPANIONS = [...BASE_COMPANIONS, ...NEW_COMPANIONS]
+const COMPANIONS = [...BASE_COMPANIONS, ...NEW_COMPANIONS].map((c) => ({ ...c, stats: COMPANION_STATS[c.id] }))
 const ENEMIES = [...BASE_ENEMIES, ...GLASS_ENEMIES, ...MACHINE_ENEMIES, ...ORIGIN_ENEMIES, ...OUTSIDE_ENEMIES]
 const ENCOUNTERS = [...BASE_ENCOUNTERS, ...OUTSIDE_ENCOUNTERS, ...GLASS_ENCOUNTERS, ...MACHINE_ENCOUNTERS, ...ORIGIN_ENCOUNTERS]
 const EVENTS = [...BASE_EVENTS, ...OUTSIDE_EVENTS, ...OUTSIDE_ROUTE_EVENTS, ...GLASS_EVENTS, ...MACHINE_EVENTS, ...ORIGIN_EVENTS, ...NEW_COMPANION_EVENTS]
@@ -63,6 +65,7 @@ export const CONTENT: ContentRegistry = {
   archetypes: byId(ARCHETYPES),
   acts: ACTS,
   routes: { [OUTSIDE_ROUTE]: OUTSIDE_ACT },
+  gear: byId(GEAR),
   endings: byId(ENDINGS),
   unlocks: byId(UNLOCKS),
   paradox: PARADOX,
@@ -75,7 +78,7 @@ export const CONTENT: ContentRegistry = {
   achievements: byId(buildAchievements(ARCHETYPES, COMPANIONS)),
   // Balance 2026-10-25 (docs/plans/2026-10-25-argon-review-and-s-rank-plan.md): the 5-stat perks, Evade/Crit and the
   // larger card/implant pool made the party much stronger than the authored enemy numbers assumed.
-  tuning: { enemyHpPct: 13, eliteHpPct: 20, bossHpPct: -10, dmgFromAct: 1, rage: { elite: 3, boss: 2, fromTurn: 3 }, acts: { 2: { hpPct: 10, dmg: 0 }, 3: { hpPct: 22, dmg: 0 }, 4: { hpPct: 45, dmg: 3 }, 5: { hpPct: 70, dmg: 4 }, 6: { hpPct: 85, dmg: 6 } } },
+  tuning: { enemyHpPct: 13, eliteHpPct: 20, bossHpPct: -10, dmgFromAct: 1, rage: { elite: 3, boss: 2, fromTurn: 3 }, acts: { 2: { hpPct: 22, dmg: 1 }, 3: { hpPct: 46, dmg: 3 }, 4: { hpPct: 105, dmg: 7 }, 5: { hpPct: 150, dmg: 10 }, 6: { hpPct: 190, dmg: 13 } }, routes: { [OUTSIDE_ROUTE]: { hpPct: 8 } } },
 }
 
 export { CARDS, CONSUMABLES, ENEMIES, ENCOUNTERS, IMPLANTS, COMPANIONS, ARCHETYPES }

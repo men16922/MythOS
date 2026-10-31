@@ -18,10 +18,10 @@ const COMBAT: Record<string, AnyFn> = { playCard, moveUnit, undoMove, endTurn, u
 const RUN_ACTIONS = new Set([
   'visitPoi', 'leaveDistrict', 'chooseDialogue', 'rerollDialogue', 'acceptRoll', 'closeDialogue', 'startCamp',
   'acceptThought', 'declineThought', 'forgetThought', 'selectDirective', 'claimDirective',
-  'continueActIntro', 'enterNode', 'spendGrowth', 'abandon', 'discardConsumable', 'setDeployment',
+  'continueActIntro', 'enterNode', 'spendGrowth', 'abandon', 'discardConsumable', 'setDeployment', 'trainCompanion', 'equipGear',
   'takeCredits', 'takeCard', 'takeImplant', 'takeConsumable', 'leaveReward', 'chooseCardReward',
   'chooseOption', 'improvise', 'leaveEvent',
-  'buyCard', 'buyImplant', 'buyConsumable', 'shopRemove', 'shopHeal', 'shopScrub', 'leaveShop',
+  'buyGear', 'buyCard', 'buyImplant', 'buyConsumable', 'shopRemove', 'shopHeal', 'shopScrub', 'leaveShop',
   'restHeal', 'restUpgrade', 'restScrub', 'restBond', 'restCraft', 'leaveRest',
   'openTreasure', 'leaveTreasure', 'pickCard', 'cancelPick', 'chooseEnding',
 ])

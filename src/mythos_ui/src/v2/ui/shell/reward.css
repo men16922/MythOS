@@ -229,3 +229,6 @@
   color: var(--m2-gold, #e8c66a);
   font-size: 0.85em;
 }
+
+.m2-rnote { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 8px; color: var(--m2-ink-2); font-size: 13px; }
+.m2-rnote b { color: #ffd27a; }

@@ -11,6 +11,7 @@ import { implantRules } from './implantRules.ts'
 import { setPassives } from './implantSets.ts'
 import { mutatorCombat } from './mutators.ts'
 import { type StatPerks, statPerks } from './statPerks.ts'
+import { levelDamage } from './companionLevel.ts'
 import type {
   TurnRecord,
   GlitchKind,
@@ -89,9 +90,9 @@ export function perksOf(c: CombatState): StatPerks {
   return statPerks(c.runStats)
 }
 
-export function statBonus(c: CombatState, scale: StatScale | undefined): number {
+export function statBonus(c: CombatState, scale: StatScale | undefined, origin?: UnitState): number {
   if (!scale) return 0
-  const val = c.runStats?.[scale.stat] ?? 0
+  const val = (origin?.stats ?? c.runStats)?.[scale.stat] ?? 0
   if (scale.div && scale.div > 0) return Math.max(0, Math.floor(val / scale.div))
   return Math.max(0, Math.floor(val * (scale.mult ?? 1)))
 }
@@ -522,8 +523,9 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
   if (o.attack) {
     const fromSquad = o.source === 'party' && o.attacker?.side === 'party'
     const perks = perksOf(c)
+    if (fromSquad) dmg += o.attacker?.gearDamage ?? 0
     if (o.attacker?.uid === 'connector' && o.source === 'party') dmg += perks.attack
-    else if (fromSquad) dmg += perks.companionDamage
+    else if (fromSquad) dmg += perks.companionDamage + levelDamage(o.attacker?.level ?? 1)
     if (o.source === 'party') dmg += implantRules(c, C).attackBonus ?? 0
     const mark = victim.statuses.mark ?? 0
     if (mark > 0) {
@@ -1029,7 +1031,7 @@ function emitArea(c: CombatState, effects: readonly Effect[], res: Resolution): 
 function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resolution): void {
   switch (eff.kind) {
     case 'damage': {
-      const dmgAmt = eff.amount + statBonus(c, eff.statScale) + (eff.perEnergy ?? 0) * c.energy
+      const dmgAmt = eff.amount + statBonus(c, eff.statScale, res.origin) + (eff.perEnergy ?? 0) * c.energy
       if (eff.perEnergy) c.energy = 0
       if (dmgAmt > 0) {
         // Environmental sources (held junk, hazards) carry no attacker: no weak/mark/armor interplay.
@@ -1072,7 +1074,7 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       return
     }
     case 'block': {
-      const blkAmt = eff.amount + statBonus(c, eff.statScale)
+      const blkAmt = eff.amount + statBonus(c, eff.statScale, res.origin)
       for (const u of effectTargets(c, eff, res)) gainBlock(c, u, blkAmt)
       return
     }
@@ -1081,7 +1083,7 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       return
     case 'status': {
       const isDot = eff.status === 'burn' || eff.status === 'bleed' || eff.status === 'corrode'
-      let stAmt = eff.amount + statBonus(c, eff.statScale)
+      let stAmt = eff.amount + statBonus(c, eff.statScale, res.origin)
       if (isDot && res.side === 'party' && stAmt > 0) stAmt += perksOf(c).dot
       for (const u of effectTargets(c, eff, res)) addStatus(c, u, eff.status, stAmt)
       return

@@ -24,6 +24,7 @@ import type {
   RunState,
   StatKey,
   Text,
+  GearSlot,
 } from '../../engine/types.ts'
 
 type R = RunState
@@ -70,6 +71,8 @@ export const rxCore = {
   discardConsumable: (r: R, index: number, C: C): R => Run.discardConsumable(r, index, C),
   /** Who is deployed (map only; at most two, in slot order); everyone else is benched. */
   setDeployment: (r: R, ids: string[]): R => Run.setDeployment(r, ids),
+  trainCompanion: (r: R, id: string, C: C): R => Run.trainCompanion(r, id, C),
+  equipGear: (r: R, who: string, slot: GearSlot, gearId: string | null, C: C): R => Run.equipGear(r, who, slot, gearId, C),
   /** Every recruited companion, deployed first, then the bench. */
   roster: (r: R): PartyMember[] => Run.roster(r),
 
@@ -93,6 +96,7 @@ export const rxCore = {
   improviseChance: (r: R, imp: { stat: StatKey; dc: number }): number => Run.checkChance(r, imp.stat, Math.max(3, Math.min(9, Math.round(imp.dc)) - autonomyDc(r))),
 
   // ---------------------------------------------------------- shop
+  buyGear: (r: R, index: number, C: C): R => Run.buyGear(r, index, C),
   buyCard: (r: R, index: number, C: C): R => Run.shopBuyCard(r, index, C),
   buyImplant: (r: R, index: number, C: C): R => Run.shopBuyImplant(r, index, C),
   buyConsumable: (r: R, index: number, C: C): R => Run.shopBuyConsumable(r, index, C),

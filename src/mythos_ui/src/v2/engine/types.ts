@@ -378,6 +378,13 @@ export interface IntentState {
 }
 
 export interface UnitState {
+  /** Extra damage on this unit's direct attacks, from its weapon. */
+  gearDamage?: number
+  /** Block gained as the first turn starts, from gear and level. */
+  openBlock?: number
+  /** A companion's own stats and level, frozen for this fight. The connector reads `CombatState.runStats`. */
+  stats?: Stats
+  level?: number
   /** IX's rebuild of last loop's killer: marked on the board. */
   replica?: boolean
   uid: string
@@ -612,6 +619,8 @@ export interface ImplantDef {
 // ---------------------------------------------------------------- companions & archetypes
 
 export interface CompanionDef {
+  /** Their own five stats at level 1 (content/companionStats.ts; absent in test doubles). */
+  stats?: Stats
   id: string
   name: Text
   alias: Text
@@ -843,9 +852,39 @@ export interface PartyMember {
   hp: number
   maxHp: number
   bond: number // 0..3 this run
+  /** 1..5 this run (engine/companionLevel.ts). Absent = 1. */
+  level?: number
+  /** Deployed wins so far this run. */
+  xp?: number
 }
 
+export type GearSlot = 'weapon' | 'armor'
+
+export interface GearMods {
+  /** Extra damage on this person's direct attacks. */
+  damage?: number
+  /** Flat damage reduction. */
+  armor?: number
+  move?: number
+  openBlock?: number
+  openFocus?: number
+  openEvade?: number
+  thorns?: number
+}
+
+export interface GearDef {
+  id: string
+  name: Text
+  slot: GearSlot
+  rarity: 'common' | 'uncommon' | 'rare'
+  mods: GearMods
+}
+
+/** Gear on one person; the key is 'connector' or a companion id. */
+export type Worn = Partial<Record<GearSlot, string>>
+
 export interface ShopStock {
+  gear?: { gearId: string; price: number; sold: boolean }[]
   cards: { cardId: string; price: number; sold: boolean }[]
   implants: { implantId: string; price: number; sold: boolean }[]
   consumables: { id: string; price: number; sold: boolean }[]
@@ -861,6 +900,10 @@ export interface RewardState {
   implantChoices: string[] // pick 1 (elite: 1 option shown; boss: pick 1 of 3)
   /** This fight closed a noise gate: pick 1 of these forbidden implants, on top of the fight's own reward. */
   noiseChoices?: string[]
+  /** Gear this fight left behind (already in the run's inventory). */
+  gear?: string
+  /** Companions who levelled up in this fight. */
+  levelUps?: { id: string; level: number }[]
   /** The neutral a met `protect` bonus kept alive: the reward row names them instead of "bonus objective". */
   saved?: Text
   consumable?: string
@@ -943,6 +986,10 @@ export interface RunState {
   /** Outside the List: the encounter the next plain fight becomes (EncounterDef.next). */
   /** The parallel act this run took in place of its current act (ContentRegistry.routes). */
   route?: string
+  /** Every piece of gear this run owns, worn or not. */
+  gear?: string[]
+  /** Who wears what. */
+  worn?: Record<string, Worn>
   /** Enemy id IX rebuilt from the last death; it waits at the first elite fight from Act 2. */
   replica?: string
   /** Duo ultimates fired this run. */
@@ -1408,6 +1455,8 @@ export interface ContentRegistry {
   companions: Record<string, CompanionDef>
   archetypes: Record<string, ArchetypeDef>
   acts: Record<ActId, ActDef>
+  /** Gear (absent in test doubles = none drops). */
+  gear?: Record<string, GearDef>
   /** Parallel acts by route id: same place in the run as `of.act`, its own title and content (absent in test doubles). */
   routes?: Record<string, ActDef>
   endings: Record<string, EndingDef>
@@ -1431,6 +1480,8 @@ export interface ContentRegistry {
 }
 
 export interface EnemyTuning {
+  /** Extra enemy HP % while a run is on a parallel act. */
+  routes?: Record<string, { hpPct: number }>
   /** +% max HP for every enemy. */
   enemyHpPct: number
   /** Extra +% max HP for elites and bosses. */

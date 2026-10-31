@@ -109,3 +109,57 @@
   color: var(--m2-ink-2);
   font-size: 11.5px;
 }
+
+/* The party screen (2026-11-01): crew on the left, the chosen person on the right. */
+.m2-pt { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px; min-height: 460px; }
+.m2-pt__points { margin-left: 8px; padding: 1px 8px; border: 1px solid rgba(255, 210, 122, 0.5); color: #ffd27a; font-size: 12px; }
+.m2-pt__roster h3 { margin: 0 0 6px; color: var(--m2-ink-2); font-size: 12px; letter-spacing: 0.08em; }
+.m2-pt__roster ul { display: flex; flex-direction: column; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
+.m2-pt__person { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border: 1px solid rgba(143, 230, 255, 0.14); background: rgba(6, 18, 24, 0.6); color: inherit; text-align: left; cursor: pointer; }
+.m2-pt__person.is-on { border-color: #8fe6ff; background: rgba(143, 230, 255, 0.1); }
+.m2-pt__person img { width: 42px; height: 42px; object-fit: cover; object-position: top; }
+.m2-pt__personbody { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.m2-pt__personbody b { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.m2-pt__personbody small { color: var(--m2-mute); font-size: 11px; }
+.m2-pt__detail { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.m2-pt__head { display: flex; gap: 14px; }
+.m2-pt__head img { flex: none; width: 104px; height: 104px; object-fit: cover; object-position: top; border: 1px solid rgba(143, 230, 255, 0.2); }
+.m2-pt__head h2 { margin: 0; font-size: 20px; }
+.m2-pt__head p { margin: 2px 0 0; color: var(--m2-mute); font-size: 12.5px; }
+.m2-pt__head .m2-pt__level { color: var(--m2-ink-2); }
+.m2-pt__acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.m2-pt__stats { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.m2-pt__stats li { display: grid; grid-template-columns: 40px minmax(0, 1fr) 26px 24px; align-items: center; gap: 8px; font-size: 13px; }
+.m2-pt__stats small { grid-column: 2 / -1; color: var(--m2-mute); font-size: 11.5px; line-height: 1.35; }
+.m2-pt__statname { color: var(--m2-ink-2); }
+.m2-pt__bar { position: relative; height: 8px; background: rgba(143, 230, 255, 0.1); }
+.m2-pt__bar i { position: absolute; inset: 0 auto 0 0; background: #8fe6ff; }
+.m2-pt__bar em { position: absolute; top: -2px; bottom: -2px; width: 1px; background: rgba(255, 210, 122, 0.7); }
+.m2-pt__plus { width: 22px; height: 22px; border: 1px solid #ffd27a; background: none; color: #ffd27a; cursor: pointer; }
+.m2-pt__plus:disabled { opacity: 0.3; cursor: default; }
+.m2-pt__passive, .m2-pt__hint { margin: 0; color: var(--m2-mute); font-size: 12px; line-height: 1.45; }
+.m2-pt__slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.m2-pt__slot { display: flex; gap: 8px; align-items: flex-start; padding: 8px; border: 1px solid rgba(143, 230, 255, 0.16); background: rgba(6, 18, 24, 0.6); color: inherit; text-align: left; cursor: pointer; }
+.m2-pt__slot.is-on { border-color: #8fe6ff; }
+.m2-pt__slot span { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.m2-pt__slot small { color: var(--m2-mute); font-size: 11px; }
+.m2-pt__slot b { font-size: 13px; }
+.m2-pt__inv { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; max-height: 190px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
+.m2-pt__empty { grid-column: 1 / -1; color: var(--m2-mute); font-size: 12px; }
+.m2-pt__item { display: flex; flex-direction: column; gap: 1px; width: 100%; height: 100%; padding: 6px 8px; border: 1px solid rgba(255, 255, 255, 0.1); border-left: 3px solid #9fb2b8; background: rgba(6, 18, 24, 0.6); color: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.m2-pt__item.is-uncommon { border-left-color: #8fe6ff; }
+.m2-pt__item.is-rare { border-left-color: #ffd27a; }
+.m2-pt__item.is-mine { background: rgba(143, 230, 255, 0.1); }
+.m2-pt__item:disabled { cursor: default; }
+.m2-pt__item small { color: var(--m2-mute); font-size: 10.5px; }
+
+@media (max-width: 640px) {
+  .m2-pt { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .m2-pt__roster { display: flex; gap: 6px; overflow-x: auto; }
+  .m2-pt__roster h3 { display: none; }
+  .m2-pt__roster ul { flex-direction: row; margin: 0; }
+  .m2-pt__person { width: 132px; }
+  .m2-pt__head img { width: 72px; height: 72px; }
+  .m2-pt__slots { grid-template-columns: minmax(0, 1fr); }
+  .m2-pt__inv { max-height: none; }
+}

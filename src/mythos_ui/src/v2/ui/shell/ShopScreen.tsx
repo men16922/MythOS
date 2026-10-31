@@ -1,4 +1,5 @@
 // Mythos 2.0 — black market: cards, implants, consumables, and services (remove / heal / scrub).
+import { gearLine } from '../components/gearLine.ts'
 import { art } from '../components/art.ts'
 import { Eraser, HeartPulse, Scissors } from 'lucide-react'
 import { useState } from 'react'
@@ -161,6 +162,30 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
                       {s.sold ? <span className="m2-price is-sold">{ko ? '판매됨' : 'Sold'}</span> : <Price value={s.price} credits={credits} />}
                     </button>
                   </Tooltip>
+                )
+              })}
+            </div>
+          </section>
+
+          <section className="m2-shop__shelf">
+            <h2>{ko ? '장비' : 'Gear'}</h2>
+            <div className="m2-shop__row">
+              {(stock.gear ?? []).map((s, i) => {
+                const def = C.gear?.[s.gearId]
+                if (!def) return null
+                const key = `g${i}`
+                return (
+                  <button
+                    key={key}
+                    className={`m2-shop__good${s.sold ? ' is-sold' : ''}${bought === key ? ' is-bought' : ''}`}
+                    disabled={s.sold}
+                    onMouseEnter={() => sound('ui_hover')}
+                    onClick={() => buy(key, s.price, () => rx.buyGear(run, i, C))}
+                  >
+                    <span className="m2-shop__goodname">{tr(def.name, lang)}</span>
+                    <small>{gearLine(def.mods, lang)}</small>
+                    {s.sold ? <span className="m2-price is-sold">{ko ? '판매됨' : 'Sold'}</span> : <Price value={s.price} credits={credits} />}
+                  </button>
                 )
               })}
             </div>

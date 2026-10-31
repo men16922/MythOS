@@ -84,6 +84,7 @@ import {
   winCombat,
   walkNeutral,
 } from './effects.ts'
+import { LEVEL3_BLOCK, LEVEL5_MOMENTUM, MAX_COMPANION_LEVEL, companionStats, levelOf } from './companionLevel.ts'
 import { effectiveIntentDamage, enemiesTelegraph, findMove, fireIntent, intentGeometry } from './intents.ts'
 
 export { tileAt, unitAt, getUnit, livingEnemies, livingParty, connectorOf } from './effects.ts'
@@ -164,7 +165,7 @@ function scalingFor(run: RunState, C: ContentRegistry): CombatScaling {
   const actTune = tune?.acts?.[run.act]
   const lap = run.lap ?? 0 // Endless Signal laps: +40 % HP, +2 damage, Rage a turn earlier and +1 stronger each
   return {
-    hpPct: (tune?.enemyHpPct ?? 0) + (actTune?.hpPct ?? 0) + ENDLESS_HP_PER_LAP * lap + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
+    hpPct: (tune?.enemyHpPct ?? 0) + (actTune?.hpPct ?? 0) + (run.route ? (tune?.routes?.[run.route]?.hpPct ?? 0) : 0) + ENDLESS_HP_PER_LAP * lap + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
     elitePct: (tune?.eliteHpPct ?? 0) + (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
     dmg: (implantRules(run, C).enemyAttackBonus ?? 0) + (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (actTune?.dmg ?? 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0) + (run.paradox >= 10 ? 1 : 0) + ENDLESS_DMG_PER_LAP * lap,
     ...(tune?.eliteDmg ? { eliteDmg: tune.eliteDmg } : {}),
@@ -238,6 +239,23 @@ function applyOpeningPerks(c: CombatState, run: RunState, enc: EncounterDef, C: 
     if (perks.openFocus > 0) addStatus(c, conn, 'focus', perks.openFocus)
   }
   if (perks.openMark > 0) for (const e of livingEnemies(c)) addStatus(c, e, 'mark', perks.openMark)
+  for (const u of livingParty(c)) {
+    for (const id of Object.values(run.worn?.[u.uid] ?? {})) {
+      const m = C.gear?.[id]?.mods
+      if (!m) continue
+      u.gearDamage = (u.gearDamage ?? 0) + (m.damage ?? 0)
+      u.armor += m.armor ?? 0
+      u.move += m.move ?? 0
+      u.openBlock = (u.openBlock ?? 0) + (m.openBlock ?? 0)
+      if (m.openFocus) addStatus(c, u, 'focus', m.openFocus)
+      if (m.openEvade) addStatus(c, u, 'evade', m.openEvade)
+      if (m.thorns) addStatus(c, u, 'thorns', m.thorns)
+    }
+  }
+  for (const u of c.units) {
+    if ((u.level ?? 1) >= 3) u.openBlock = (u.openBlock ?? 0) + LEVEL3_BLOCK
+    if ((u.level ?? 1) >= MAX_COMPANION_LEVEL) gainMomentum(c, C, LEVEL5_MOMENTUM)
+  }
   const x = c as CombatStateExt
   if (perks.openDraw > 0) x.pendingDraw = (x.pendingDraw ?? 0) + perks.openDraw
   const rules = implantRules(run, C)
@@ -323,7 +341,10 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     if (!def) continue
     const pos = deployTile(c, PREFERRED_COMPANION_TILES)
     if (!pos) continue
-    c.units.push(partyUnit(m.id, m.id, def.name, def.sprite, pos, Math.min(m.hp, m.maxHp), m.maxHp, def.move))
+    const unit = partyUnit(m.id, m.id, def.name, def.sprite, pos, Math.min(m.hp, m.maxHp), m.maxHp, def.move)
+    unit.level = levelOf(m)
+    unit.stats = companionStats(def, unit.level)
+    c.units.push(unit)
   }
   if (enc.proto) c.proto = { ...enc.proto }
   if (enc.relay) c.relay = { ...enc.relay }
@@ -395,6 +416,7 @@ function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): vo
     if (chaBlock > 0) {
       for (const u of livingParty(c)) if (u.uid !== 'connector') gainBlock(c, u, chaBlock)
     }
+    for (const u of livingParty(c)) if (u.openBlock) gainBlock(c, u, u.openBlock)
     const echoBlock = c.triggered[OPENING_BLOCK_KEY] ?? 0
     if (echoBlock > 0) for (const u of livingParty(c)) gainBlock(c, u, echoBlock)
   }

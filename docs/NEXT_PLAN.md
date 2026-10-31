@@ -4,9 +4,9 @@ Last updated: 2026-10-31
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
-## Next: party and growth rework (owner, 2026-11-01)
+## Next: owner plays the 2026-11-01 build
 
-`docs/plans/2026-11-01-party-growth-plan.md`. Owner asked for all of it. Order: `[ ]` overcharge + Han rework → `[ ]` stats to 20 with perks → `[ ]` companion levels → `[ ]` three companions from Act 4 → `[ ]` gear → `[ ]` new party screen. DLC 2 is now a parallel Act 2 (`docs/plans/2026-11-01-dlc2-parallel-act-plan.md`): `[x]` built on `mythos-2.0`, not deployed. `[ ]` `[owner]` play it, then art (~40 images).
+`[x]` built on `main`, not deployed: DLC 2 parallel Act 2 (`docs/plans/2026-11-01-dlc2-parallel-act-plan.md`), party and growth rework (`docs/plans/2026-11-01-party-growth-plan.md`). `[ ]` `[owner]` deploy call: production still has the short route with the false "3 fights" hint, the broken Freeze and the old stats. `[ ]` `[owner]` play it (`docs/test/mythos2_fun_check.md` §12), then DLC 2 art (~40) and gear icons. `[ ]` Deep Signal reads 32.7 %, over its 20–30 target, and Act 3 / 6 bosses run 10 turns: re-tune after a human run.
 
 ## Next: DLC 2 pick (merged plan, 2026-10-31)
 

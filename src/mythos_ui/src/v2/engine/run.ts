@@ -22,6 +22,7 @@ import { turnScore } from './effects.ts'
 import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, repTier, takeCombatMods } from './crpg.ts'
 import { advanceDirectiveOnWin } from './directives.ts'
 import { AUTONOMY_ACT_SCRUB, autonomyDc, autonomyLevel, echoEffects, echoOffers, worldEchoFor } from './legacy.ts'
+import { MAX_COMPANION_LEVEL, gainXp, levelOf, trainLevel } from './companionLevel.ts'
 import { advanceThoughts, offerThought } from './thoughts.ts'
 import { dailySeed, isDateKey } from './daily.ts'
 import { actEventPool, generateActMap, mapEncounters } from './map.ts'
@@ -71,6 +72,8 @@ import type {
   RunLogEntry,
   RunScreen,
   ActDef,
+  GearDef,
+  GearSlot,
   RunMode,
   RunState,
   ShopStock,
@@ -83,6 +86,8 @@ import type {
 
 export const MAX_CONSUMABLES = 3
 export const MAX_PARTY = 2
+/** Companions deployed at once on this act: a third joins from Act 4 (owner 2026-11-01). */
+export const partySlots = (run: Pick<RunState, 'act'>): number => (run.act >= 4 ? MAX_PARTY + 1 : MAX_PARTY)
 export const MAX_TRACE = 100
 export const FORCED_ERASURE = 'ending_forced_erasure'
 export const NOBLE_SACRIFICE = 'ending_noble_sacrifice'
@@ -281,7 +286,7 @@ function joinCompanion(run: RunState, id: string, C: ContentRegistry): boolean {
   // Mastery II: you already know each other — start at bond 1 (the bond card is one safehouse closer).
   const member: PartyMember = { id, hp: def.maxHp, maxHp: def.maxHp, bond: tier >= 2 ? 1 : 0 }
   // A full party sends the newcomer to the bench; the player swaps on the map.
-  if (run.party.length < MAX_PARTY) run.party.push(member)
+  if (run.party.length < partySlots(run)) run.party.push(member)
   else (run.bench ??= []).push(member)
   for (const card of def.cards) addCard(run, card, C)
   applyConcretePassive(run, def.passive)
@@ -382,6 +387,19 @@ function cardWeight(run: RunState, C: ContentRegistry, id: string): number {
   if (def.owner !== 'any' && def.owner !== 'connector') return COMPANION_CARD_WEIGHT
   const base = def.archetype === run.archetype ? ARCHETYPE_CARD_WEIGHT : 1
   return resonantCard(run, C, id) ? base * RESONANCE_PULL : base
+}
+
+const GEAR_WEIGHTS = { elite: { common: 55, uncommon: 35, rare: 10 }, boss: { uncommon: 60, rare: 40 } } as const
+const GEAR_PRICE = { common: 60, uncommon: 95, rare: 150 } as const
+const SHOP_GEAR = 2
+
+/** A piece this run does not own yet; null once it owns them all. */
+function rollGear(h: RngHolder, run: RunState, C: ContentRegistry, weights: Partial<Record<GearDef['rarity'], number>>, exclude: readonly string[] = []): string | null {
+  const left = Object.values(C.gear ?? {}).filter((g) => !run.gear?.includes(g.id) && !exclude.includes(g.id))
+  if (left.length === 0) return null
+  const rarities = (Object.keys(weights) as GearDef['rarity'][]).filter((r) => left.some((g) => g.rarity === r))
+  const rarity = rarities.length > 0 ? pickWeighted(h, rarities, (r) => weights[r] ?? 0) : undefined
+  return pick(h, left.filter((g) => !rarity || g.rarity === rarity)).id
 }
 
 /** Recipes still open this run. Starter cards sit in every deck, so their recipes need no help and get no pull. */
@@ -896,6 +914,11 @@ function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: 
   }
   if (consumable) reward.consumable = consumable
   if (noiseChoices.length > 0) reward.noiseChoices = noiseChoices
+  const gear = tier === 'normal' ? undefined : rollGear(h, run, C, GEAR_WEIGHTS[tier])
+  if (gear) {
+    reward.gear = gear
+    ;(run.gear ??= []).push(gear)
+  }
   const saved = combat.bonus?.def.kind === 'protect' && bonusAchieved(combat) ? C.encounters[combat.encounterId]?.neutral?.name : undefined
   if (saved) reward.saved = saved
   const enc = C.encounters[combat.encounterId]
@@ -945,9 +968,14 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
 
   const connector = combat.units.find((u) => u.uid === 'connector')
   next.hp = clamp(1, next.maxHp, connector?.hp ?? next.hp)
+  const levelUps: { id: string; level: number }[] = []
   for (const m of next.party) {
     const u = combat.units.find((x) => x.uid === m.id && x.side === 'party')
     m.hp = u && u.hp > 0 ? clamp(1, m.maxHp, u.hp) : 1
+    if (u && u.hp > 0 && gainXp(m)) {
+      levelUps.push({ id: m.id, level: levelOf(m) })
+      log(next, 'start', t(`${C.companions[m.id]?.name.ko ?? m.id} 레벨 ${levelOf(m)}`, `${C.companions[m.id]?.name.en ?? m.id} level ${levelOf(m)}`))
+    }
   }
   next.consumables = combat.consumables.filter((id) => C.consumables[id]).slice(0, MAX_CONSUMABLES)
   if ((combat.parts ?? 0) > 0) next.parts = (next.parts ?? 0) + (combat.parts ?? 0)
@@ -983,7 +1011,9 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
       return next
     }
   }
-  next.screen = { kind: 'reward', reward: buildReward(next, combat, nodeKind, C, noisePaid) }
+  const reward = buildReward(next, combat, nodeKind, C, noisePaid)
+  if (levelUps.length > 0) reward.levelUps = levelUps
+  next.screen = { kind: 'reward', reward }
   return next
 }
 
@@ -1054,6 +1084,15 @@ const ACT_GROWTH = 2
 /** Acts a standard run plays. */
 export const STANDARD_ACTS = 3
 
+/** An act can change the slots: the bench fills a new one, and an Endless lap back to Act 1 benches the extra. */
+function fitDeployment(run: RunState): void {
+  const slots = partySlots(run)
+  const bench = (run.bench ??= [])
+  while (run.party.length > slots) bench.unshift(run.party.pop() as PartyMember)
+  while (run.party.length < slots && bench.length > 0) run.party.push(bench.shift() as PartyMember)
+  if (bench.length === 0) delete run.bench
+}
+
 /** The act a run is standing in: its parallel route when it took one. */
 export function actOf(run: Pick<RunState, 'act' | 'route'>, C: Pick<ContentRegistry, 'acts' | 'routes'>): ActDef | undefined {
   return (run.route ? C.routes?.[run.route] : undefined) ?? C.acts[run.act]
@@ -1098,6 +1137,7 @@ export function advanceAct(run: RunState, C: ContentRegistry): void {
   run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents, avoid: run.staleEvents ?? [] })
   placeDistrict(run, run.map, C)
   delete run.route
+  fitDeployment(run)
   run.nodeId = null
   resetNodeStreams(run)
   run.hp = clamp(1, run.maxHp, run.hp + Math.ceil((run.maxHp - run.hp) / 2))
@@ -1204,7 +1244,7 @@ function noiseOption(run: RunState, option: EventOption): EventOption {
 function optionList(run: RunState, def: EventDef, C: ContentRegistry): EventOption[] {
   if (def.noise) return def.options.map((o, i) => (i === 0 ? noiseOption(run, o) : o))
   if (!isRecruitScene(def)) return def.options
-  const benched = run.party.length >= MAX_PARTY
+  const benched = run.party.length >= partySlots(run)
   const extra = recruitCandidates(run, C)
     .map((id) => recruitOption(id, C, benched, def.recruit?.trace ?? 0))
     .filter((o): o is EventOption => o !== null)
@@ -1516,6 +1556,12 @@ export function generateShop(run: RunState, C: ContentRegistry): ShopStock {
     return { implantId: id, price: price(randInt(h, lo, hi), discount), sold: false }
   })
 
+  const gear: NonNullable<ShopStock['gear']> = []
+  for (let i = 0; i < SHOP_GEAR; i++) {
+    const id = rollGear(h, run, C, GEAR_WEIGHTS.elite, gear.map((g) => g.gearId))
+    if (id) gear.push({ gearId: id, price: price(GEAR_PRICE[C.gear?.[id]?.rarity ?? 'common'], discount), sold: false })
+  }
+
   const consumables = sample(
     h,
     Object.values(C.consumables).filter((c) => c.rarity !== 'special' && c.rarity !== 'starter'),
@@ -1677,7 +1723,7 @@ export const leaveRest: SimpleReducer = (run) =>
  */
 export function setDeployment(run: RunState, ids: readonly string[]): RunState {
   const all = roster(run)
-  if (ids.length > MAX_PARTY || new Set(ids).size !== ids.length || ids.some((id) => !all.some((m) => m.id === id))) return run
+  if (ids.length > partySlots(run) || new Set(ids).size !== ids.length || ids.some((id) => !all.some((m) => m.id === id))) return run
   return onScreen(run, 'map', (next) => {
     const crew = roster(next)
     const same = next.party.length === ids.length && next.party.every((m, i) => m.id === ids[i])
@@ -1696,6 +1742,44 @@ export function spendGrowth(run: RunState, stat: StatKey): RunState {
     next.growth = (next.growth ?? 0) - 1
     addStat(next.stats, stat, 1)
     log(next, 'start', t(`성장: ${STAT_LABEL[stat]} +1`, `Growth: ${STAT_LABEL[stat]} +1`))
+  })
+}
+
+/** Spend one growth point to raise a recruited companion a level. Map only. */
+export function trainCompanion(run: RunState, id: string, C: ContentRegistry): RunState {
+  const m = roster(run).find((p) => p.id === id)
+  if ((run.growth ?? 0) <= 0 || !m || levelOf(m) >= MAX_COMPANION_LEVEL) return run
+  return onScreen(run, 'map', (next) => {
+    const member = roster(next).find((p) => p.id === id) as PartyMember
+    next.growth = (next.growth ?? 0) - 1
+    trainLevel(member)
+    log(next, 'start', t(`훈련: ${C.companions[id]?.name.ko ?? id} 레벨 ${levelOf(member)}`, `Training: ${C.companions[id]?.name.en ?? id} level ${levelOf(member)}`))
+  })
+}
+
+/** Who can wear gear: the connector and every recruited companion, deployed or not. */
+const wearers = (run: RunState): string[] => ['connector', ...roster(run).map((m) => m.id)]
+
+/** Put a piece on someone, or `null` to clear that slot. It leaves whoever wore it; what it replaces stays owned. Map only. */
+export function equipGear(run: RunState, who: string, slot: GearSlot, gearId: string | null, C: ContentRegistry): RunState {
+  if (!wearers(run).includes(who)) return run
+  if (gearId !== null && (C.gear?.[gearId]?.slot !== slot || !run.gear?.includes(gearId))) return run
+  return onScreen(run, 'map', (next) => {
+    const worn = (next.worn ??= {})
+    if (gearId !== null) for (const w of Object.values(worn)) if (w[slot] === gearId) delete w[slot]
+    const mine = (worn[who] ??= {})
+    if (gearId === null) delete mine[slot]
+    else mine[slot] = gearId
+  })
+}
+
+export function buyGear(run: RunState, index: number, C: ContentRegistry): RunState {
+  return onScreen(run, 'shop', (next, s) => {
+    const item = s.stock.gear?.[index]
+    if (!item || item.sold || next.credits < item.price || !C.gear?.[item.gearId]) return false
+    next.credits -= item.price
+    item.sold = true
+    ;(next.gear ??= []).push(item.gearId)
   })
 }
 

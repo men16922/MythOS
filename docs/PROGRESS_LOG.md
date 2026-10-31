@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-31
 
+## 2026-10-31 — Independent DLC 2 proposal (Gemini 4 Argon / agy overnight)
+
+- **Changed**: `docs/plans/2026-10-31-dlc2-proposals/argon.md` (113 lines, Korean, nine required headings): reverse-engineered `v2/engine`, `v2/content`, `branch 1.0`, and 90-run reachability (`starterRuns: 45/90` vs `nonStarterRuns: 5/90` with 6/9 non-starter evolutions at `0/90`, 8/12 duos and 5/11 companion ultimates having effects ignored by `combatSim.ts` `spendGauge`/`evaluate`, and 0 neutral/survive objectives across all 47 Acts 4–6 encounters + 0 CRPG districts in Acts 5–6). Proposed reachability/evaluator fixes, interactive board cores, and DLC 2 《세계:접속 — 역류 (Counter-Signal)》 (parallel 3-act campaign with Lit/Dark grid illumination) starting with an art-free `proto_blackout` sandbox prototype. Own seed marked `[x]` in `docs/NEXT_PLAN.md`.
+- **Verified**: `make check` green; `10-diff-scope` and `40-image-identity` clean. Unverified: owner feel/verdict and Claude's merge.
+
 ## 2026-10-31 — Independent DLC 2 proposal (Astra / Codex overnight)
 
 - **Changed**: `docs/plans/2026-10-31-dlc2-proposals/astra.md`, a Korean proposal with nine required headings (131 lines): existing protection feedback first, then an art-free civilian damage-redirection prototype and a bounded replacement chapter. Own seed marked `[blocked]` in `NEXT_PLAN.md`; one sandbox lesson recorded; no runtime changes.

@@ -11,7 +11,7 @@ Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (pau
 ## Overnight seeds — proposals (2026-10-31, owner request)
 
 - `[ ]` `[auto:codex]` `[blocked]` Write astra.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/astra.md exists with the nine headings the brief lists, make check green. Blocker (gate/test): `make check` exits 2; 3 `test_verify_preview` tests fail at `tests/test_verify_preview.py:39` with loopback `socket.bind` PermissionError (sandbox); isolated rerun reproduces all 3. Proposal saved; resume by rerunning the gate where loopback binding is permitted.
-- `[ ]` `[auto:agy]` Write argon.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/argon.md exists with the nine headings the brief lists, make check green.
+- `[x]` `[auto:agy]` Write argon.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/argon.md exists with the nine headings the brief lists, make check green.
 - `[ ]` `[auto:claude]` Write claude.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/claude.md exists with the nine headings the brief lists, make check green.
 
 ## Priority 0 — S-rank pass (Argon review, 2026-10-25)

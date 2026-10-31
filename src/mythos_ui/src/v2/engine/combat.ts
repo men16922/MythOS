@@ -323,6 +323,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     if (!pos) continue
     c.units.push(partyUnit(m.id, m.id, def.name, def.sprite, pos, Math.min(m.hp, m.maxHp), m.maxHp, def.move))
   }
+  if (enc.proto) c.proto = { ...enc.proto }
   if (enc.neutral) {
     const n = enc.neutral
     const pos = unitAt(c, n.pos) || !isStandable(tileAt(c, n.pos)) ? nearestFreeTile(c, n.pos) : { ...n.pos }
@@ -904,6 +905,7 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
 
   // d. next player turn
   c.turn += 1
+  if (c.proto?.darkTurns) c.proto.darkTurns -= 1
   if (enc) announceIncoming(c, enc)
   beginPlayerTurn(c, C, false)
 }

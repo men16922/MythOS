@@ -194,7 +194,7 @@ if mission_match:
 lane_scope = {
     "claude": ["src/", "tests/", "harness/", "scripts/overnight/", "docs/", "Makefile", "pyproject.toml"],
     "codex": ["src/", "tests/", "resources/", "scripts/", "docs/", "Makefile"],
-    "agy": ["outputs/agy/", "resources/", "tests/", "docs/plans/2026-10-31-dlc2-proposals/", "docs/NEXT_PLAN.md", "docs/PROGRESS_LOG.md"],
+    "agy": ["outputs/agy/", "resources/", "tests/"],
     "kiro": ["src/", "tests/", "docs/", "scripts/", "Makefile"],
     "opencode": ["src/", "tests/", "docs/", "scripts/", "Makefile"],
 }

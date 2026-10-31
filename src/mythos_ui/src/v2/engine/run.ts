@@ -367,11 +367,28 @@ function offerable(run: RunState, C: ContentRegistry, id: string): boolean {
 /** Character identity: party-companion cards and own-archetype cards come up more often than generic ones. */
 const COMPANION_CARD_WEIGHT = 2.5
 const ARCHETYPE_CARD_WEIGHT = 1.8
+const RESONANCE_PULL = 3
 function cardWeight(run: RunState, C: ContentRegistry, id: string): number {
   const def = C.cards[id]
   if (!def) return 0
   if (def.owner !== 'any' && def.owner !== 'connector') return COMPANION_CARD_WEIGHT
-  return def.archetype === run.archetype ? ARCHETYPE_CARD_WEIGHT : 1
+  const base = def.archetype === run.archetype ? ARCHETYPE_CARD_WEIGHT : 1
+  return resonantCard(run, C, id) ? base * RESONANCE_PULL : base
+}
+
+/** Recipes still open this run. Starter cards sit in every deck, so their recipes need no help and get no pull. */
+function openRecipes(run: RunState, C: ContentRegistry) {
+  return Object.values(C.evolutions ?? {}).filter((e) => C.cards[e.card]?.rarity !== 'starter' && !run.evolved?.includes(e.id))
+}
+
+/** This card is the missing half of an evolution whose implant is held. The result stays secret. */
+export function resonantCard(run: RunState, C: ContentRegistry, id: string): boolean {
+  return openRecipes(run, C).some((e) => e.card === id && run.implants.includes(e.implant))
+}
+
+/** This implant is the missing half of an evolution whose card is in the deck. The result stays secret. */
+export function resonantImplant(run: RunState, C: ContentRegistry, id: string): boolean {
+  return openRecipes(run, C).some((e) => e.implant === id && run.deck.some((k) => k.defId === e.card))
 }
 
 function rollCards(h: RngHolder, run: RunState, C: ContentRegistry, count: number, weights: RarityWeights): string[] {
@@ -411,7 +428,7 @@ function rollImplant(
   // Build commitment: within the chosen rarity, a piece of a set you already hold is more likely to be offered.
   const held = setCounts(run.implants)
   const lean = (ids: string[]): string => {
-    const set = (id: string): number => ((held[implantSetOf(id)?.id ?? ''] ?? 0) > 0 ? SET_PULL : 1)
+    const set = (id: string): number => ((held[implantSetOf(id)?.id ?? ''] ?? 0) > 0 ? SET_PULL : 1) * (resonantImplant(run, C, id) ? RESONANCE_PULL : 1)
     return pickWeighted(h, ids, set)
   }
   if (tiers.length > 0) return lean(of(pickWeighted(h, tiers, (r) => weights[r] ?? 0)))
@@ -862,6 +879,8 @@ function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: 
   }
   if (consumable) reward.consumable = consumable
   if (noiseChoices.length > 0) reward.noiseChoices = noiseChoices
+  const saved = combat.bonus?.def.kind === 'protect' && bonusAchieved(combat) ? C.encounters[combat.encounterId]?.neutral?.name : undefined
+  if (saved) reward.saved = saved
   return reward
 }
 
@@ -1080,7 +1099,13 @@ export interface EventOptionView {
 /** Companions a recruit scene offers (≤ 2, deterministic per run + act + Endless lap). */
 export function recruitCandidates(run: RunState, C: ContentRegistry): string[] {
   const pool = run.pools.companions.filter((id) => C.companions[id] && !roster(run).some((m) => m.id === id))
-  return sample({ rng: hashSeed(`${run.seed}:recruit:${run.act}${run.lap ? `:${run.lap}` : ''}`) }, pool, 2)
+  const h = { rng: hashSeed(`${run.seed}:recruit:${run.act}${run.lap ? `:${run.lap}` : ''}`) }
+  const picked = sample(h, pool, 2)
+  // Someone with a duo partner already on the crew always gets a seat: a duo should be something a run can find.
+  const crew = roster(run).map((m) => m.id)
+  const partners = pool.filter((id) => Object.values(C.duos ?? {}).some((d) => d.pair.includes(id) && d.pair.some((o) => crew.includes(o))))
+  if (partners.length > 0 && !picked.some((id) => partners.includes(id))) picked[picked.length - 1] = pick(h, partners)
+  return picked
 }
 
 /** The scripted Act 2 scene or a road recruit (EventDef.recruit). */

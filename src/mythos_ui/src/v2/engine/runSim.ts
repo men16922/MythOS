@@ -12,6 +12,7 @@ import { acceptThought, declineThought } from './thoughts.ts'
 import { acceptRoll, campScene, chooseDialogue, closeDialogue, dialogueOptions, districtPois, leaveDistrict, rerollDialogue, startCamp, visitPoi } from './crpg.ts'
 import { computeEchoes, newProfile, runKilledBy, unlockedCompanions } from './meta.ts'
 import {
+  setDeployment,
   applyImprovisation,
   availableEndings,
   chooseEnding,
@@ -75,6 +76,10 @@ export interface RunSimResult {
   feats: Record<string, number>
   /** Distinct duo ultimates fired this run. */
   duos: number
+  /** Evolved card ids this run (reachability reports). */
+  evolved: string[]
+  /** Every recruited companion at the end, deployed first. */
+  crew: string[]
 }
 
 /** Per-fight balance telemetry (see RunSimOptions.onFight). */
@@ -250,6 +255,13 @@ function decideMap(run: RunState, C: ContentRegistry): RunState {
     const stat = (['str', 'agi', 'int', 'cha', 'obs'] as const).filter((k) => (run.stats[k] ?? 0) < 10).sort((a, b) => (run.stats[b] ?? 0) - (run.stats[a] ?? 0))[0]
     const grown = stat ? spendGrowth(run, stat) : run
     if (grown !== run) return grown
+  }
+  // Deploy a duo when the crew holds one, as a player hunting it would.
+  const crew = [...run.party, ...(run.bench ?? [])].map((m) => m.id)
+  const duo = Object.values(C.duos ?? {}).find((d) => d.pair.every((id) => crew.includes(id)))
+  if (duo && !duo.pair.every((id) => run.party.some((m) => m.id === id))) {
+    const deployed = setDeployment(run, duo.pair)
+    if (deployed !== run) return deployed
   }
   const options = reachableNodes(run)
   const look = (id: string): number => {
@@ -493,6 +505,8 @@ export function simulateRun(
     tally: { ...run.tally },
     feats: Object.fromEntries(Object.entries(run.flags).filter(([k]) => k.startsWith('feat_'))),
     duos: run.duosFired?.length ?? 0,
+    evolved: [...(run.evolved ?? [])],
+    crew: [...run.party, ...(run.bench ?? [])].map((m) => m.id),
   }
   const killedBy = runKilledBy(run)
   if (killedBy) result.killedBy = killedBy

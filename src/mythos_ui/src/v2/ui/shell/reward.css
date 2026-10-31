@@ -224,3 +224,8 @@
 .m2-reward--cards {
   align-content: center;
 }
+
+.m2-resonant--inline {
+  color: var(--m2-gold, #e8c66a);
+  font-size: 0.85em;
+}

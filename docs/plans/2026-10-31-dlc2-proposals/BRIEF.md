@@ -4,7 +4,7 @@ Owner request: Claude, Astra (Codex) and Argon (agy) each write a concrete, inde
 
 ## Deliverable
 
-Write exactly one file in this directory, in **Korean**, under 200 lines: `astra.md` (Codex lane), `argon.md` (agy lane) or `claude.md` (Claude lane). Tick your own seed in `docs/NEXT_PLAN.md` and add one short entry to `docs/PROGRESS_LOG.md`. Change nothing else: no code, content, config, tests or other docs. This is a proposal, not an implementation.
+Write exactly one file in this directory, in **Korean**, under 200 lines: `astra.md` (Codex lane), `argon.md` (agy lane) or `claude-proposal.md` (Claude lane, renamed: `claude.md` loads as a project `CLAUDE.md` on this case-insensitive disk). Tick your own seed in `docs/NEXT_PLAN.md` and add one short entry to `docs/PROGRESS_LOG.md`. Change nothing else: no code, content, config, tests or other docs. This is a proposal, not an implementation.
 
 **Independence:** do not open the other agents' proposal files in this directory, even if they exist. Do not open `docs/plans/2026-10-31-next-update-plan.md` either; it is one agent's earlier draft and would anchor you. A proposal that repeats the known backlog adds nothing, so bring your own judgment.
 

@@ -62,7 +62,9 @@ export const MACHINE_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'scrapyard',
     enemies: [foe('recycler', 5, 2), foe('scrap_hound', 4, 0), foe('scrap_hound', 4, 4)],
     terrain: [...tiles('void', [3, 2]), ...tiles('cover', [2, 0], [2, 4])],
-    intro: t('압착기는 한 턴 모아 2칸 날려 보낸다. 날아갈 방향에 구덩이가 있는지 봐.', 'The recycler winds up and throws you 2 tiles. Check whether a pit waits in that direction.'),
+    reinforcements: [{ turn: 3, enemies: [foe('scrap_hound', 6, 2)] }],
+    objective: { kind: 'survive', turns: 4 },
+    intro: t('압착장이 과열됐다. 네 턴 버티면 문이 열린다. 압착기는 한 턴 모아 2칸 날려 보낸다.', 'The compactor is overheating. Hold four turns and the gate opens. The recycler winds up and throws you 2 tiles.'),
   },
   {
     id: 'a5_n2_cranes',

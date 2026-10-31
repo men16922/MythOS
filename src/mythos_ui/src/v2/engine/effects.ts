@@ -402,8 +402,14 @@ export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause
     fireTrigger(c, C, 'enemy_killed', deathPos)
     if (environmental) fireTrigger(c, C, 'environment_kill', deathPos)
     if (C.enemies[u.defId]?.tier === 'boss') collapseWithBoss(c, C)
-  } else if (u.side === 'neutral' && c.bonus?.def.kind === 'protect') {
-    c.bonus.failed = true
+  } else if (u.side === 'neutral') {
+    if (c.bonus?.def.kind === 'protect') c.bonus.failed = true
+    if (c.proto?.litFromX !== undefined) {
+      c.proto.darkTurns = 2
+      for (const v of [...c.units]) {
+        if (v.hp > 0 && Math.abs(v.pos.x - deathPos.x) + Math.abs(v.pos.y - deathPos.y) === 1) dealDamage(c, C, v, 4, { source: 'environment' })
+      }
+    }
   }
   checkEnd(c, C)
 }
@@ -437,10 +443,33 @@ export interface HitOpts {
   cause?: 'burn' | 'bleed' | 'corrode' | 'hazard' | 'bump'
 }
 
+/** DLC 2 prototype: the unit standing on the relay tile, if any, takes direct enemy hits meant for the neutral. */
+export function relayProxy(c: CombatState, victim: UnitState): UnitState | undefined {
+  const at = c.proto?.relay
+  if (!at || victim.side !== 'neutral') return undefined
+  return c.units.find((u) => u !== victim && u.hp > 0 && samePos(u.pos, at))
+}
+
+/** DLC 2 prototype: a lit tile during the grid rule. */
+export function isLit(c: CombatState, p: Pos): boolean {
+  const from = c.proto?.litFromX
+  return from !== undefined && p.x >= from && !c.proto?.darkTurns
+}
+
+/** DLC 2 prototype: what the grid adds to an attack landing on this tile. */
+export function gridDelta(c: CombatState, p: Pos): number {
+  if (c.proto?.litFromX === undefined) return 0
+  return isLit(c, p) ? 2 : -2
+}
+
 /** Apply one damage instance. Returns hp actually lost. */
 export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState, amount: number, o: HitOpts): number {
   if (victim.hp <= 0) return 0
+  const proxy = o.attack && o.source === 'enemy' ? relayProxy(c, victim) : undefined
+  if (proxy) return dealDamage(c, C, proxy, amount, o)
   let dmg = amount
+  if (o.attack) dmg += gridDelta(c, victim.pos)
+  if (o.cause === 'bump' && c.proto?.litFromX !== undefined && !isLit(c, victim.pos)) dmg += 2
   let crit = false
   let evaded = 0
   if (o.attack) {

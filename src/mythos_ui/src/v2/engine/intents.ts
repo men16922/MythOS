@@ -226,6 +226,7 @@ interface AiContext {
   /** posKey → damage already telegraphed onto that tile by other enemies. */
   threat: Map<string, number>
   incoming: Set<string>
+  relay?: Pos
   /**
    * posKey → how likely a party unit ends its next turn there: 1 where it stands now, less on tiles it can
    * reach (more on tiles next to an enemy — where it would stand to attack). Lets lanes/areas value zoning.
@@ -362,6 +363,7 @@ function positionScore(c: CombatState, u: UnitState, def: EnemyDef, p: Pos, ctx:
   }
   s -= 1.2 * (ctx.threat.get(posKey(p)) ?? 0)
   if (ctx.incoming.has(posKey(p))) s -= 4
+  if (ctx.relay && samePos(p, ctx.relay)) s -= 100 // DLC 2 prototype: nobody walks onto the relay; they get pushed there
   return s
 }
 
@@ -507,12 +509,14 @@ export function planIntent(c: CombatState, C: ContentRegistry, u: UnitState, can
   const phase = u.phase ?? 0
   // Moves on cooldown (or locked behind a later boss phase) are out; with none left the enemy only repositions.
   const usable = def.moves.filter((m) => (m.minPhase ?? 0) <= phase && (m.weight ?? 1) > 0 && (u.cooldowns?.[m.id] ?? 0) <= 0)
-  const targets = opponentsOf(c, 'enemy')
+  // The DLC 2 grid prototype's power node is the player's tool, not a target.
+  const targets = opponentsOf(c, 'enemy').filter((t) => c.proto?.litFromX === undefined || t.side !== 'neutral')
   const ai = combatStream(c, 'ai')
   const ctx: AiContext = {
     targets,
     threat: telegraphThreat(c, C, u),
     incoming: new Set(c.incoming.map((i) => posKey(i.pos))),
+    ...(c.proto?.relay ? { relay: c.proto.relay } : {}),
     heat: presenceHeat(c, targets),
   }
   const mobile = canMove && def.ai !== 'static' && u.move > 0 && (u.statuses.shock ?? 0) <= 0 && (u.statuses.freeze ?? 0) <= 0

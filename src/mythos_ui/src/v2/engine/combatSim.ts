@@ -24,7 +24,7 @@ import {
   ultimatesReady,
   type TargetOption,
 } from './combat.ts'
-import { getUnit, livingEnemies, livingParty, sprintEvade, tileAt, unitAt } from './effects.ts'
+import { getUnit, gridDelta, livingEnemies, livingParty, relayProxy, sprintEvade, tileAt, unitAt } from './effects.ts'
 import { effectiveIntentDamage, findMove, intentGeometry } from './intents.ts'
 
 /**
@@ -57,7 +57,8 @@ function spendGauge(c: CombatState, C: ContentRegistry): void {
   for (const uid of options) {
     const trial = leanClone(c)
     burstInPlace(trial, C, uid)
-    const score = evaluate(trial, C)
+    // Same tempo terms as bestCardAction: a draw or an energy is worth the same from an ultimate as from a card.
+    const score = evaluate(trial, C) + 2 * (trial.hand.length - c.hand.length) + 2.5 * (trial.energy - c.energy)
     if (!best || score > best.score) best = { score, uid }
   }
   if (best) burstInPlace(c, C, best.uid)
@@ -129,9 +130,10 @@ export function incomingDamage(c: CombatState, C: ContentRegistry): Map<string, 
     const dmg = effectiveIntentDamage(e, move)
     const hasRider = move.pattern === 'charge' || (move.effects ?? []).some((x) => x.kind === 'push')
     for (const p of intentGeometry(c, e, move, intent).tiles) {
-      const v = unitAt(c, p)
+      const on = unitAt(c, p)
+      const v = on ? (relayProxy(c, on) ?? on) : undefined
       if (!v || v === e) continue
-      let hit = Math.max(0, dmg - v.armor) + (dmg > 0 ? (v.statuses.mark ?? 0) : 0)
+      let hit = Math.max(0, dmg + gridDelta(c, v.pos) - v.armor) + (dmg > 0 ? (v.statuses.mark ?? 0) : 0)
       if ((v.statuses.evade ?? 0) > 0) hit = Math.floor(hit / 2)
       const n = hit + (hasRider ? 0.5 : 0)
       if (n > 0) addTo(v, n)

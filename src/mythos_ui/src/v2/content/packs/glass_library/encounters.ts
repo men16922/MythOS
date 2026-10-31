@@ -40,8 +40,9 @@ export const GLASS_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'library',
     enemies: [foe('return_collector', 5, 1), foe('lost_reader', 4, 2), foe('lost_reader', 4, 4), foe('page_wolf', 6, 3)],
     terrain: [...tiles('hazard', [2, 1], [3, 3]), ...tiles('void', [4, 0])],
-    bonus: { kind: 'environment', count: 2 },
-    intro: t('수거기의 갈고리가 위험 지대 위로 당긴다. 끌려가는 길을 봐.', 'The collector hooks you across live lamps. Watch the path you get dragged along.'),
+    neutral: { name: t('금서 반납 수레', 'The Returns Cart'), sprite: 'maintenance-drone', hp: 12, pos: at(1, 2) },
+    bonus: { kind: 'protect' },
+    intro: t('아직 굴러가는 반납 수레 하나. 실린 책은 이 복도를 나가야 한다. 수거기의 갈고리가 위험 지대 위로 당긴다.', 'One returns cart still rolls. Its books have to leave this corridor. The collector hooks across live lamps.'),
   },
   {
     id: 'a4_n1_stacks',

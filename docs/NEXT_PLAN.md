@@ -4,15 +4,9 @@ Last updated: 2026-10-31
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
-## Next update (proposal, owner not yet approved)
+## Next: DLC 2 pick (merged plan, 2026-10-31)
 
-`docs/plans/2026-10-31-next-update-plan.md` — "청구서": earlier choices return as late scenes (cut W1). Starts only after the owner's verdict; a short five-question verdict is in its §1. `[ ]` re-check Devpost for a Gemini / Google Cloud challenge on 2026-12-01 (none found 2026-10-31; a contest pulls W2 ahead).
-
-## Overnight seeds — proposals (2026-10-31, owner request)
-
-- `[ ]` `[auto:codex]` `[blocked]` Write astra.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/astra.md exists with the nine headings the brief lists, make check green. Blocker (gate/test): `make check` exits 2; 3 `test_verify_preview` tests fail at `tests/test_verify_preview.py:39` with loopback `socket.bind` PermissionError (sandbox); isolated rerun reproduces all 3. Proposal saved; resume by rerunning the gate where loopback binding is permitted.
-- `[x]` `[auto:agy]` Write argon.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/argon.md exists with the nine headings the brief lists, make check green.
-- `[x]` `[auto:claude]` Write claude.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/claude.md exists with the nine headings the brief lists, make check green.
+`docs/plans/2026-10-31-dlc2-merged-plan.md`. `[x]` Stage 1 built (bot tempo terms, evolution/duo reachability + ✦, saved-neutral reward line, four Act 4–6 objective swaps, `enemyHpPct` 13, sandbox prototypes); not deployed. `[ ]` `[owner]` play `proto_relay` and `proto_blackout`, pick the DLC 2 rule (default: relay). `[ ]` `[owner]` deploy decision. `[ ]` `[owner]` F1–F4 verdict and art still open. `[ ]` re-check Devpost for a Gemini / Google Cloud challenge on 2026-12-01 (a contest pulls W2 ahead).
 
 ## Priority 0 — S-rank pass (Argon review, 2026-10-25)
 

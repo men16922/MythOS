@@ -14,9 +14,11 @@ export interface CardChoiceProps {
   skipLabel?: string
   title?: string
   fast?: boolean
+  /** Marks a card that completes something held. Quiet: the result stays secret. */
+  resonant?: (cardId: string) => boolean
 }
 
-export function CardChoice({ choices, C, lang, onPick, onSkip, skipLabel, title, fast }: CardChoiceProps) {
+export function CardChoice({ choices, C, lang, onPick, onSkip, skipLabel, title, fast, resonant }: CardChoiceProps) {
   const [shown, setShown] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
   useEffect(() => {
@@ -55,6 +57,11 @@ export function CardChoice({ choices, C, lang, onPick, onSkip, skipLabel, title,
               style={{ ['--i' as string]: i - (choices.length - 1) / 2 }}
             >
               <CardView def={def} upgraded={false} lang={lang} size="lg" onClick={() => pick(id)} onMouseEnter={() => sound('card_hover')} />
+              {resonant?.(id) && (
+                <span className="m2-resonant" title={lang === 'ko' ? '지닌 것과 공명한다' : 'Resonates with something you hold'}>
+                  ✦
+                </span>
+              )}
             </div>
           )
         })}

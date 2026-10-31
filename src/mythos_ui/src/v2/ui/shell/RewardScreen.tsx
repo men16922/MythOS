@@ -8,7 +8,7 @@ import { CardChoice } from '../components/CardChoice.tsx'
 import { ImplantSetNote } from '../components/ImplantSetNote.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { sound } from '../components/sound.ts'
-import { lastAct } from '../../engine/run.ts'
+import { lastAct, resonantCard, resonantImplant } from '../../engine/run.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 import './reward.css'
@@ -112,7 +112,11 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
                 {ko ? '프로토콜 하나를 덱에 추가' : 'Add a protocol to your deck'}
                 {/* A second card group only comes from a met bonus objective (engine/run.ts buildReward). */}
                 <small>
-                  {gi > 0 && <span className="m2-rrow__bonus">{ko ? '★ 보너스 목표 달성 · ' : '★ Bonus objective · '}</span>}
+                  {gi > 0 && (
+                    <span className="m2-rrow__bonus">
+                      {reward.saved ? (ko ? `★ ${tr(reward.saved, lang)} 생존 · ` : `★ ${tr(reward.saved, lang)} made it · `) : ko ? '★ 보너스 목표 달성 · ' : '★ Bonus objective · '}
+                    </span>
+                  )}
                   {ko ? `${choices.length}장 중 1장` : `1 of ${choices.length}`}
                 </small>
               </span>
@@ -142,6 +146,7 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
                   </span>
                   <span className="m2-rrow__label">
                     {tr(def.name, lang)}
+                    {resonantImplant(run, C, id) && <span className="m2-resonant--inline"> ✦</span>}
                     <small>{tr(def.text, lang)}</small>
                     <ImplantSetNote implantId={id} owned={run.implants} lang={lang} />
                   </span>
@@ -173,7 +178,10 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
                       }}
                     >
                       <ImplantIcon def={def} lang={lang} size={52} noTip flash={flashImplant === id} />
-                      <b>{tr(def.name, lang)}</b>
+                      <b>
+                        {tr(def.name, lang)}
+                        {resonantImplant(run, C, id) && <span className="m2-resonant--inline"> ✦</span>}
+                      </b>
                       <small>{tr(def.text, lang)}</small>
                     </button>
                   )
@@ -275,6 +283,7 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
             lang={lang}
             fast={settings.fastAnim}
             title={ko ? '덱에 추가할 프로토콜' : 'Add a protocol'}
+            resonant={(id) => resonantCard(run, C, id)}
             onPick={(id) => {
               act(rx.takeCard(run, openGroup, id, C))
               setOpenGroup(null)
@@ -301,6 +310,7 @@ export function CardRewardScreen({ run, C, lang, settings, act }: ScreenProps) {
         lang={lang}
         fast={settings.fastAnim}
         title={ko ? '프로토콜 하나를 덱에 추가' : 'Add a protocol to your deck'}
+        resonant={(id) => resonantCard(run, C, id)}
         onPick={(id) => act(rx.chooseCardReward(run, id, C))}
         onSkip={() => act(rx.chooseCardReward(run, null, C))}
       />

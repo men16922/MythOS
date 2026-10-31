@@ -133,7 +133,7 @@ export function CombatScreen(props: CombatScreenProps) {
   const hoverTile = hoverPos && !hoverUnit ? (vc.tiles[hoverPos.y]?.[hoverPos.x] ?? null) : null
   const hoverThreat = hoverPos ? (threatMap(vc, C)[posKey(hoverPos)] ?? 0) : 0
 
-  const danger = useMemo(() => partyDanger(vc.units, shownIntents), [shownIntents, vc.units])
+  const danger = useMemo(() => partyDanger(vc.units, shownIntents, vc), [shownIntents, vc])
 
   // ------------------------------------------------------------ playable cards
   const playable = useMemo(() => {

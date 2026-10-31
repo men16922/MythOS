@@ -1,6 +1,6 @@
 # 다음 업데이트 계획 — "청구서"
 
-작성일: 2026-10-31 · 상태: **제안, 오너 승인 전. 착수는 오너 판정 뒤** · 근거: `docs/plans/2026-10-30-next-content-expansion-plan.md`의 W1~W4, `docs/test/mythos2_fun_check.md`, 현재 코드 대조.
+작성일: 2026-10-31 · 상태: **대체됨.** `docs/plans/2026-10-31-dlc2-merged-plan.md`가 현재 계획이다. 이 내용은 그 §6의 후보로 남았다 · 근거: `docs/plans/2026-10-30-next-content-expansion-plan.md`의 W1~W4, `docs/test/mythos2_fun_check.md`, 현재 코드 대조.
 
 ## 0. 결론
 

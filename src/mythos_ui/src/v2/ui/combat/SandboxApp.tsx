@@ -9,9 +9,10 @@ import type { CombatState, Lang, RunState } from '../../engine/types.ts'
 import { configureAudio, unlockAudio } from '../common/audio.ts'
 import { CombatScreen } from './CombatScreen.tsx'
 import { TUTORIAL_KEY } from './describe.ts'
+import { PROTO_ENCOUNTERS } from './protoEncounters.ts'
 import './sandbox.css'
 
-const C = CONTENT
+const C = { ...CONTENT, encounters: { ...CONTENT.encounters, ...Object.fromEntries(PROTO_ENCOUNTERS.map((e) => [e.id, e])) } }
 
 function build(archetype: string, encounterId: string, extra: boolean, seed: number): { run: RunState; combat: CombatState } | { error: string } {
   try {

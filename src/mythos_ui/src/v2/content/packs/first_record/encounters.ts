@@ -61,8 +61,9 @@ export const ORIGIN_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'origin',
     enemies: [foe('eraser_unit', 4, 1), foe('eraser_unit', 4, 3), foe('code_scribe', 6, 2)],
     terrain: [...tiles('cover', [2, 0], [2, 2], [2, 4])],
-    bonus: { kind: 'environment', count: 1 },
-    intro: t('소거기는 줄째로 지운다. 당신의 엄폐물도 함께.', 'Erasers wipe whole rows — your cover with them.'),
+    reinforcements: [{ turn: 3, enemies: [foe('eraser_unit', 6, 0)] }],
+    objective: { kind: 'survive', turns: 4 },
+    intro: t('소거가 끝날 때까지 네 턴. 소거기는 줄째로 지운다. 당신의 엄폐물도 함께.', 'Four turns until the erasure ends. Erasers wipe whole rows, your cover with them.'),
   },
   {
     id: 'a6_n2_drafts',
@@ -72,7 +73,9 @@ export const ORIGIN_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'origin',
     enemies: [foe('draft_soldier', 4, 0), foe('draft_soldier', 4, 4), foe('loop_echo', 6, 2)],
     terrain: [...tiles('void', [3, 2]), ...tiles('hazard', [5, 1], [5, 3])],
-    intro: t('완성되지 못한 병사들. 구덩이를 써서 초안째로 지워 버려라.', 'Unfinished soldiers. Write a pit and strike them out, draft and all.'),
+    neutral: { name: t('남은 필경사', 'The Last Scribe'), sprite: 'listed-citizen', hp: 14, pos: at(1, 2) },
+    bonus: { kind: 'protect' },
+    intro: t('완성되지 못한 병사들 사이에 필경사가 아직 쓰고 있다. 구덩이를 써서 초안째로 지워 버려라.', 'Among the unfinished soldiers, a scribe is still writing. Write a pit and strike them out, draft and all.'),
   },
   {
     id: 'a6_n2_blank_city',

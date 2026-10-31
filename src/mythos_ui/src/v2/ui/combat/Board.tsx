@@ -6,6 +6,7 @@
 import type { CSSProperties } from 'react'
 import { ChevronsRight, CircleDot } from 'lucide-react'
 import type { CombatPreview, IntentInfo } from '../../engine/combat.ts'
+import { isLit } from '../../engine/effects.ts'
 import { posKey } from '../../engine/grid.ts'
 import { GRID_H, GRID_W } from '../../engine/types.ts'
 import type { CombatState, ContentRegistry, Dir, Lang, Pos } from '../../engine/types.ts'
@@ -160,6 +161,13 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         </g>
         {/* burning ground top overlay (magma cracks, slag crust, perimeter bridges above intent fills) */}
         <BoardPlane g={g} tiles={vc.tiles} part="fire" />
+        {/* DLC 2 prototype rules: sandbox only */}
+        {vc.proto?.relay && <polygon points={pts(tileQuad(g, vc.proto.relay, 0.06))} className="m2c-proto m2c-proto--relay" />}
+        {vc.proto?.litFromX !== undefined && <text className="m2c-proto-note" x={g.width * 0.5} y={14} textAnchor="middle">{isLit(vc, { x: 6, y: 0 }) ? (props.lang === 'ko' ? '밝은 칸 공격 +2 · 어두운 칸 공격 −2 · 충돌 +2' : 'Lit: attacks +2 · Dark: attacks −2, bumps +2') : props.lang === 'ko' ? `암전 ${vc.proto.darkTurns}턴` : `Blackout ${vc.proto.darkTurns}`}</text>}
+        {vc.proto?.litFromX !== undefined &&
+          vc.tiles.flatMap((row, y) =>
+            row.map((_, x) => <polygon key={`pr${x}-${y}`} points={pts(tileQuad(g, { x, y }, 0.03))} className={`m2c-proto ${isLit(vc, { x, y }) ? 'm2c-proto--lit' : 'm2c-proto--dark'}`} />),
+          )}
         {/* reinforcement drop zones */}
         {props.incoming.map((r, i) => (
           <polygon key={`in${i}`} points={pts(tileQuad(g, r.pos, 0.1))} className="m2c-incoming" />

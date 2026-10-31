@@ -23,6 +23,7 @@
   perspective: 1200px;
 }
 .m2-choice__slot {
+  position: relative;
   opacity: 0;
   transform: translateY(60px) rotateY(80deg) scale(0.8);
   transition:
@@ -62,4 +63,17 @@
 .m2-choice__slot.is-dropped {
   opacity: 0;
   transform: translateY(80px) scale(0.85);
+}
+
+/* A card or implant that completes something held: one small mark, nothing else. */
+.m2-resonant {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  z-index: 2;
+  color: var(--m2-gold, #e8c66a);
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 0 6px rgba(232, 198, 106, 0.6);
 }

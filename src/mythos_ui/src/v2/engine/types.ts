@@ -320,6 +320,15 @@ export type BonusObjective =
   | { kind: 'environment'; count: number } // kill N enemies by push/bump/void/hazard/friendly fire
   | { kind: 'protect' } // the encounter's neutral unit survives
 
+/** DLC 2 prototype rules (engine/effects.ts). `relay`: a unit on this tile takes direct enemy hits meant for the neutral.
+ *  `litFromX`: columns from here on are lit (attacks +2), the rest dark (attacks −2, bumps +2); killing the neutral
+ *  (a 1-hp power node) shocks its four neighbours for 4 and blacks out the whole board for `darkTurns`. */
+export interface CombatProto {
+  relay?: Pos
+  litFromX?: number
+  darkTurns?: number
+}
+
 export interface EncounterDef {
   id: string
   act: ActId
@@ -337,6 +346,8 @@ export interface EncounterDef {
   objective?: { kind: 'eliminate' } | { kind: 'survive'; turns: number }
   /** Short line shown on the combat intro banner. */
   intro?: Text
+  /** Art-free DLC 2 prototype rules. Sandbox only: no encounter a run can reach sets this. */
+  proto?: CombatProto
   /** Never rolled onto a map (the Pack 3 secret boss: engine/run.ts secretBossGate starts it). */
   secret?: boolean
 }
@@ -444,6 +455,7 @@ export interface CombatState {
   /** Snapshot for undoing the last move (cleared when a card is played). */
   undo?: string | null
   bonus?: { def: BonusObjective; progress: number; failed: boolean }
+  proto?: CombatProto
   /** Credits banked during the fight (bounties, card effects). */
   credits: number
   /** Run-level trace accumulated during the fight (applied to the run on finish). */
@@ -825,6 +837,8 @@ export interface RewardState {
   implantChoices: string[] // pick 1 (elite: 1 option shown; boss: pick 1 of 3)
   /** This fight closed a noise gate: pick 1 of these forbidden implants, on top of the fight's own reward. */
   noiseChoices?: string[]
+  /** The neutral a met `protect` bonus kept alive: the reward row names them instead of "bonus objective". */
+  saved?: Text
   consumable?: string
   echoes: number
   taken: { credits: boolean; cards: boolean[]; implant: boolean; consumable: boolean; noise?: boolean }

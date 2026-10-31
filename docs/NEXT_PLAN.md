@@ -8,6 +8,12 @@ Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (pau
 
 `docs/plans/2026-10-31-next-update-plan.md` — "청구서": earlier choices return as late scenes (cut W1). Starts only after the owner's verdict; a short five-question verdict is in its §1. `[ ]` re-check Devpost for a Gemini / Google Cloud challenge on 2026-12-01 (none found 2026-10-31; a contest pulls W2 ahead).
 
+## Overnight seeds — proposals (2026-10-31, owner request)
+
+- `[ ]` `[auto:codex]` Write astra.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/astra.md exists with the nine headings the brief lists, make check green.
+- `[ ]` `[auto:agy]` Write argon.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/argon.md exists with the nine headings the brief lists, make check green.
+- `[ ]` `[auto:claude]` Write claude.md as docs/plans/2026-10-31-dlc2-proposals/BRIEF.md says. Done: docs/plans/2026-10-31-dlc2-proposals/claude.md exists with the nine headings the brief lists, make check green.
+
 ## Priority 0 — S-rank pass (Argon review, 2026-10-25)
 
 Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank = 7 axes; agent roles §5).

@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-31
 
+## 2026-10-31 — Independent DLC 2 proposal (Astra / Codex overnight)
+
+- **Changed**: `docs/plans/2026-10-31-dlc2-proposals/astra.md`, a Korean proposal with nine required headings (131 lines): existing protection feedback first, then an art-free civilian damage-redirection prototype and a bounded replacement chapter. Own seed marked `[blocked]` in `NEXT_PLAN.md`; one sandbox lesson recorded; no runtime changes.
+- **Verified / Blocked**: read-back, nine headings, five-line summary, under-200-line limit and citation paths checked; lint/types/build and node 458/458 passed. `make check` exited 2: Python ran 338 tests, 12 skipped, 3 errors, all `test_verify_preview` at line 39 (`socket.bind`, `PermissionError: [Errno 1] Operation not permitted`). Isolated discovery reproduced 3/3 errors. `10-diff-scope` passed before the blocker note; final scope/budget checked before the blocked commit.
+- **Limits / Next**: proposal only; implementation, fun, balance, tone and art acceptance unverified. Resume by rerunning `make check` in an environment permitting loopback binding, then mark the seed done only on exit 0. Claude's merge and the owner's content verdict remain separate.
+
 ## 2026-10-31 — `make url-smoke` + next update plan (Claude, owner: "다음 업데이트 계획")
 
 - **Added** `scripts/dev/url_smoke.py` / `make url-smoke URL=…`: a sandbox fight and a short run through real clicks on any deployed URL, without the dev-only `window.__m2`. On production `00167-yuh`: both PASS, 0 console errors (failed-resource lines are filtered). Anonymous clients send no saves or GM calls under `auth: google` (`net/api.ts` `identityHeaders`; a network capture of the run start saw only `GET /api/v2/config`). Not covered: sound, sign-in.

@@ -1,5 +1,6 @@
 // Mythos 2.0 — title: the city in the rain, the wordmark, and the ways in (continue, new loop, today's seed + its
 // leaderboard, archive), with the Google account chip in the corner.
+import { actOf } from '../../engine/run.ts'
 import { art } from '../components/art.ts'
 import { Archive, CalendarDays, Play, RotateCcw, Settings, Trophy } from 'lucide-react'
 import logoUrl from '../../../assets/mythos-logo-concept.png'
@@ -37,7 +38,7 @@ export function TitleScreen({ profile, run, savedAt, C, today, daily, onContinue
   const lang = profile.settings.lang
   const ko = lang === 'ko'
   const arch = run ? C.archetypes[run.archetype] : undefined
-  const actDef = run ? C.acts[run.act] : undefined
+  const actDef = run ? actOf(run, C) : undefined
   const hover = () => sound('ui_hover')
 
   return (

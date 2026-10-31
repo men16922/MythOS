@@ -1,4 +1,5 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
+import { actOf } from '../../engine/run.ts'
 import { art } from '../components/art.ts'
 import { BookOpen, CloudCheck, Cog, Coins, Heart, Layers, Menu, MessagesSquare, ScrollText, Settings, Shuffle, Users } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -68,7 +69,7 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSheet, onSett
   const hiddenImplants = run.implants.slice(0, firstShown)
   const archetype = C.archetypes[run.archetype]
   const floor = run.nodeId ? (run.map.nodes[run.nodeId]?.row ?? 0) + 1 : 0
-  const actDef = C.acts[run.act]
+  const actDef = actOf(run, C)
   // Codex entries the Code Rewrite ending asks for (content/endings.ts).
   const CODEX_GOAL = Math.max(0, ...Object.values(C.endings).map((e) => e.requires?.minCodex ?? 0))
   return (

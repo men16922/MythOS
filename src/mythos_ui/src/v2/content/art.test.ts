@@ -11,15 +11,18 @@ import { CONTENT as C } from './index.ts'
 import { ART, CARD_ART, CONSUMABLE_ART, IMPLANT_ART, MUSIC } from '../ui/common/artManifest.ts'
 
 const missing = (ids: string[], have: Record<string, string>) => ids.filter((id) => !have[id])
+// Outside the List borrows its art until the owner has played the rule (docs/plans/2026-11-01-dlc2-parallel-act-plan.md §4).
+// Remove these filters when its art lands. The borrowed paths themselves are checked by narrative.test / content.test.
+const own = <T extends { route?: string }>(r: Record<string, T>): string[] => Object.keys(r).filter((id) => !r[id]?.route)
 
 test('every card, implant and consumable has generated art', () => {
-  assert.deepEqual(missing(Object.keys(C.cards), CARD_ART), [])
+  assert.deepEqual(missing(own(C.cards), CARD_ART), [])
   assert.deepEqual(missing(Object.keys(C.implants), IMPLANT_ART), [])
   assert.deepEqual(missing(Object.keys(C.consumables), CONSUMABLE_ART), [])
 })
 
 test('every event, act and ending has generated art', () => {
-  assert.deepEqual(missing(Object.keys(C.events), ART.events), [])
+  assert.deepEqual(missing(own(C.events), ART.events), [])
   assert.deepEqual(missing(Object.keys(C.acts), ART.acts), [])
   assert.deepEqual(missing(Object.keys(C.endings), ART.endings), [])
 })

@@ -1,4 +1,5 @@
 // Mythos 2.0 — ending + run summary: ending art, text, Echo tally count-up, stats, chronicle.
+import { actOf } from '../../engine/run.ts'
 import { art } from '../components/art.ts'
 import { Award, Check, Copy, Sparkles, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -136,7 +137,7 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
         result: (run.flags.abandoned ?? 0) > 0 ? 'abandoned' : ended?.result,
         ending: tr(ending?.title, lang),
         act: run.act,
-        actName: tr(C.acts[run.act]?.name, lang),
+        actName: tr(actOf(run, C)?.name, lang),
         party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
         kills: run.tally.kills,
         // not "floors": the model read 24 as the tower's height ("24층 높이의 ARK 첨탑")

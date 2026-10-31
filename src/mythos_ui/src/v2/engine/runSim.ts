@@ -195,6 +195,7 @@ function effectValue(run: RunState, e: RunEffect, C: ContentRegistry): number {
     case 'stat':
       return 0.5 * e.amount
     case 'flag':
+    case 'route':
       return 0.2
     case 'axis':
       return 0.3

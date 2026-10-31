@@ -98,7 +98,8 @@ export function expectedLoss(u: UnitState, intents: IntentView[], c: CombatState
       total += Math.max(0, iv.info.damage + delta + mark - u.armor)
       mark = 0
     }
-    for (const e of iv.info.move.effects ?? []) if (e.kind === 'status' && e.status === 'mark' && !e.to) mark += e.amount
+    // A unit on the relay can catch its own shot; the mark on that shot skips its origin (effects.ts effectTargets).
+    if (iv.uid !== u.uid) for (const e of iv.info.move.effects ?? []) if (e.kind === 'status' && e.status === 'mark' && !e.to) mark += e.amount
   }
   return Math.max(0, total - u.block)
 }

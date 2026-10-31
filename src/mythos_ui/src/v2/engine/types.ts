@@ -178,7 +178,7 @@ export type CardType = 'attack' | 'skill' | 'tactic' | 'power' | 'junk'
 export type TargetMode =
   | { mode: 'none' }
   | { mode: 'self' }
-  | { mode: 'ally'; range: number }
+  | { mode: 'ally'; range: number; /** Citizens count too. */ neutral?: boolean }
   | { mode: 'melee' }
   | { mode: 'line'; range: number }
   | { mode: 'beam'; range: number }
@@ -217,6 +217,8 @@ export interface CardDef extends CardFace {
   archetype?: string
   /** Only offered from this act on (Pack 3 Rewrite cards: Act 6). */
   minAct?: number
+  /** Joins the run's pool when this parallel act is taken; never in a pool before that. */
+  route?: string
 }
 
 export interface CardInstance {
@@ -348,8 +350,10 @@ export interface EncounterDef {
   proto?: CombatProto
   /** Relay tile: a unit standing here takes direct enemy hits meant for the neutral. */
   relay?: Pos
-  /** Outside the List: the map's next plain fight this run becomes this encounter once this one is won. */
-  next?: string
+  /** The neutral walks here, one tile after each enemy phase; on arrival it leaves the board, safe. */
+  walkTo?: Pos
+  /** Belongs to a parallel act (ContentRegistry.routes): only that route's map rolls it. */
+  route?: string
   /** Never rolled onto a map (the Pack 3 secret boss: engine/run.ts secretBossGate starts it). */
   secret?: boolean
 }
@@ -459,6 +463,10 @@ export interface CombatState {
   bonus?: { def: BonusObjective; progress: number; failed: boolean }
   proto?: CombatProto
   relay?: Pos
+  /** Where the neutral is walking (EncounterDef.walkTo). */
+  walkTo?: Pos
+  /** The neutral reached `walkTo` and left the board alive. */
+  neutralSafe?: boolean
   /** Credits banked during the fight (bounties, card effects). */
   credits: number
   /** Run-level trace accumulated during the fight (applied to the run on finish). */
@@ -750,6 +758,7 @@ export type RunEffect =
   | { kind: 'echoes'; amount: number } // meta currency earned this run
   | { kind: 'axis'; axis: ChoiceAxis; amount?: number } // lean along a choice axis (Deep Signal endings)
   | { kind: 'noise'; fights: number } // a noise gate: this act's mutator for N won fights, then a forbidden implant
+  | { kind: 'route'; id: string } // take a parallel act: the current act's map is dealt again from that route's content
 
 export interface Outcome {
   text: Text
@@ -770,6 +779,8 @@ export interface EventOption {
 export interface EventDef {
   id: string
   acts: ActId[]
+  /** Belongs to a parallel act: rolled only on that route's map, never on the plain act. */
+  route?: string
   title: Text
   image: string // 'scenes/night_market.png'
   speaker?: string // companion / character id for portrait
@@ -922,7 +933,8 @@ export interface RunState {
   /** The run's biggest turn. */
   bestTurn?: TurnRecord & { encounterId: string }
   /** Outside the List: the encounter the next plain fight becomes (EncounterDef.next). */
-  relayNext?: string
+  /** The parallel act this run took in place of its current act (ContentRegistry.routes). */
+  route?: string
   /** Enemy id IX rebuilt from the last death; it waits at the first elite fight from Act 2. */
   replica?: string
   /** Duo ultimates fired this run. */
@@ -1388,6 +1400,8 @@ export interface ContentRegistry {
   companions: Record<string, CompanionDef>
   archetypes: Record<string, ArchetypeDef>
   acts: Record<ActId, ActDef>
+  /** Parallel acts by route id: same place in the run as `of.act`, its own title and content (absent in test doubles). */
+  routes?: Record<string, ActDef>
   endings: Record<string, EndingDef>
   unlocks: Record<string, MetaUnlockDef>
   paradox: ParadoxDef[]

@@ -16,6 +16,8 @@ test('bestiary and card codex can be completed: every entry is reachable in play
     for (const id of cardPool(all, a.id, C)) reach.add(id)
     for (const id of a.startingDeck) reach.add(id)
   }
+  // A parallel act's cards join the pool when the route is taken (run.ts takeRoute).
+  for (const c of Object.values(C.cards)) if (c.route && C.routes?.[c.route]) reach.add(c.id)
   for (const id of codexCardIds(C)) assert.ok(reach.has(id), `codex card ${id} is in no archetype pool or starting deck`)
 })
 

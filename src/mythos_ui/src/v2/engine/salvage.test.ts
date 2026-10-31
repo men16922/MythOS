@@ -3,13 +3,33 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { CONTENT as C } from '../content/index.ts'
-import { legalMoves, startCombat } from './combat.ts'
+import { endTurn, legalMoves, startCombat } from './combat.ts'
 import { killUnit } from './effects.ts'
 import { newProfile } from './meta.ts'
 import { canCraft, CRAFT_RECIPES, newRun, restCraft } from './run.ts'
 import type { RunState } from './types.ts'
 
 const NOW = '2026-10-26T00:00:00.000Z'
+
+test('freeze: Freeze N costs an enemy N moves, the one it would make this enemy phase included', () => {
+  const moves = (freeze: number): number => {
+    let moved = 0
+    for (let seed = 1; seed <= 12; seed++) {
+      const c = startCombat(newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed, now: NOW }, C), 'a2_n1_wraiths', C)
+      const before = c.units.filter((u) => u.side === 'enemy').map((u) => ({ ...u, statuses: { ...u.statuses, freeze } }))
+      c.units = c.units.map((u) => before.find((b) => b.uid === u.uid) ?? u)
+      const after = endTurn(c, C)
+      moved += before.filter((b) => {
+        const u = after.units.find((x) => x.uid === b.uid)
+        return u && (u.pos.x !== b.pos.x || u.pos.y !== b.pos.y)
+      }).length
+      assert.equal(after.units.find((u) => u.side === 'enemy')?.statuses.freeze ?? 0, Math.max(0, freeze - 1), 'one stack per enemy phase')
+    }
+    return moved
+  }
+  assert.ok(moves(0) > 0, 'these enemies walk when free')
+  assert.equal(moves(1), 0)
+})
 
 test('freeze: a frozen party unit cannot move but the fight goes on', () => {
   const run = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 1, now: NOW }, C)

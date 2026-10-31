@@ -443,6 +443,53 @@ export interface HitOpts {
   cause?: 'burn' | 'bleed' | 'corrode' | 'hazard' | 'bump'
 }
 
+/** The next tile on the neutral's shortest free walk to `walkTo`, or null while it has to wait. Floor only: it will not
+ *  step onto live wire or fire, and it waits behind anyone in the way. Shared by the engine and the board's preview. */
+export function walkStep(c: CombatState): Pos | null {
+  const n = c.walkTo ? c.units.find((u) => u.side === 'neutral' && u.hp > 0) : undefined
+  const goal = c.walkTo
+  if (!n || !goal) return null
+  const free = (p: Pos): boolean => {
+    const tile = tileAt(c, p)
+    return tile?.kind === 'floor' && !(tile.fire ?? 0) && !unitAt(c, p)
+  }
+  const around = (p: Pos): Pos[] => DIRS.map((d) => add(p, d))
+  const seen = new Set([posKey(goal)])
+  let ring: Pos[] = [goal]
+  while (ring.length > 0) {
+    const step = ring.find((p) => around(p).some((q) => samePos(q, n.pos)))
+    if (step) return free(step) ? { ...step } : null
+    ring = ring.flatMap(around).filter((q) => {
+      if (seen.has(posKey(q)) || !free(q)) return false
+      seen.add(posKey(q))
+      return true
+    })
+  }
+  return null
+}
+
+/** The neutral takes one step after the enemy phase, the relay keeping its spacing while it can stand on the board.
+ *  On arrival it leaves, safe: the protect bonus can no longer fail, and the relay goes with it. */
+export function walkNeutral(c: CombatState): void {
+  const n = c.units.find((u) => u.side === 'neutral' && u.hp > 0)
+  const step = n ? walkStep(c) : null
+  if (!n || !step) return
+  const from = { ...n.pos }
+  n.pos = step
+  emit(c, { t: 'move', uid: n.uid, path: [from, { ...step }] })
+  if (c.relay) {
+    const moved = { x: c.relay.x + step.x - from.x, y: c.relay.y + step.y - from.y }
+    const tile = tileAt(c, moved)
+    if (tile && tile.kind !== 'cover' && tile.kind !== 'void') c.relay = moved
+  }
+  if (c.walkTo && samePos(step, c.walkTo)) {
+    c.units = c.units.filter((u) => u !== n)
+    c.neutralSafe = true
+    delete c.relay
+    delete c.walkTo
+  }
+}
+
 /** The unit standing on the relay tile, if any, takes direct enemy hits meant for the neutral. */
 export function relayProxy(c: CombatState, victim: UnitState): UnitState | undefined {
   const at = c.relay

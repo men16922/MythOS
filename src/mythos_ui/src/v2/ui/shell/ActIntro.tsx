@@ -9,11 +9,11 @@ import { narrateLine, type GmLine } from './gm.ts'
 import { logComms } from '../common/commsLog.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
-import { lastAct } from '../../engine/run.ts'
+import { actOf, lastAct } from '../../engine/run.ts'
 import './actintro.css'
 
 export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
-  const actDef = C.acts[run.act]
+  const actDef = actOf(run, C)
   const introLines = tr(actDef?.intro, lang).split('\n').filter(Boolean)
   // Re-entries end with how this loop's starting companion found you (content/openings.ts).
   const opening = openingLines(run).map((l) => tr(l, lang))

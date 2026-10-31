@@ -2,6 +2,14 @@
 
 Last updated: 2026-11-01
 
+## 2026-11-01 — DLC 2 rebuilt as a parallel Act 2 (Claude Opus 5.5, owner: "DLC 치고는 볼륨이 너무 작은데" → parallel act)
+
+- **Why**: the route shipped as 3 fights, 3 events, 0 new enemies, and its "3 fights" claim was false: over 450 Act 2 maps / 2,553 paths the route gave 0 fights on 10 %, 1 on 35.5 %, 2 on 39.6 %, 3+ on 14.9 %; 5.8 % of maps had no fight on any path and still played the sad ending. Browser QA had only walked a path holding all three. Production `00169-fih` still shows this until the next deploy.
+- **Built** (not deployed): `run.route` keeps `run.act` 2 and deals the map from the route's content. Closing Time now comes before Act 2's title. Pack `content/packs/outside_list/`: 12 enemies, 14 fights (3 Relay, 2 escorts, 1 hold, 2 streets, 1 event, 3 elites, 2 bosses), 12 events (Astra, reviewed), 12 cards that join the pool when the route is taken. New rule: an escort citizen walks after the enemy phase, the Relay with it (`EncounterDef.walkTo`). `ally` cards can opt into citizens. Art is borrowed; `art.test.ts` filters `route` content until the owner has played the rule.
+- **Freeze bug** (owner: "체감이 없는데"): enemies decayed Freeze before their move step, so Freeze 1 stopped no move: 265 / 360 enemies changed tile with or without it. Now 0 / 360. Decay moved after the telegraph.
+- **Balance** (canonical 3 × 150, mixed): fresh 200 / 450, digest identical to `e50d6fa`. Once-won declining 209 / 450. Once-won route forced 233 → 220 / 450 after HP +10–15 %, main hits +1, two bonuses dropped, holds +1 turn; Act 2 cleared 315 vs 299 declining. Bots do not push into the Relay, so human numbers are unknown. Deep Signal not re-measured after the Freeze fix.
+- **Verified**: `make check`, `make test-e2e-v2`, `make playthrough-quick` all 0; route through the real UI from Act 1 to Act 3, 0 console errors; all 14 fights opened at 390 px, 0 errors. Unverified: fun, sound, production.
+
 ## 2026-11-01 — Production promoted to `00169-fih` (Claude Opus 5.5, owner: deploy)
 
 - `00169-fih` (`git-sha=e50d6fa`, Stage 1 + DLC 2) at 100 % pinned, rollback `00167-yuh`. Owner ordered it before the play verdict; that verdict, F1–F4 and art stay open. `make verify-preview` 5/5; `make url-smoke` on the preview and on production: sandbox fight won, run flow to the end, 0 console errors, anonymous and muted.
@@ -76,12 +84,3 @@ Last updated: 2026-11-01
 - **Balance** (canonical 3 × 150): the full payout read 207 / 450 = 46.0 %, over the band, so the gate now costs 8 HP (was 6): 202 / 450 = 44.9 %, in band. `hollow_world`: restoring a heal read 59.8 %, so it stays as it was at 53.3 %; Argon's "trap" call does not match the numbers.
 - Not changed: weak duos and evolutions Argon named, phone ultimate chips over the hand, Omega's reboot staying a banner, and its "too strong / too weak" calls that rest on feel.
 
-## 2026-10-31 — F3 IX interference + replica, F4 card evolutions + best turn (Claude Opus 5.5, `/goal`, plan defaults)
-
-- **What**: IX bends the game at boss phases (`phases[].glitch`, `engine/effects.ts glitchActive`): card names masked, pushes reversed through the next player turn (HUD badge, previews agree), Omega's fake restart using the 1.0 boot lines. IX's replica of last loop's killer (non-boss, HP ×1.3, damage +1, 80 ₵) at the first elite from Act 2, named in the fight intro and on the unit. 12 card evolutions (`content/evolutions.ts`, card + implant, secret, map note, codex tab). Best turn (damage + kills × 6) on the ending and in the share text. 12 Codex card images, `scripts/v2_assets/gen_evolved_cards.py`.
-- **Changed from the plan**: best turn is a text line, not an animated replay. The replica is a single authored reappearance with no hierarchy (Nemesis patent caution, plan §F3); review before any paid release.
-- **Balance** (canonical 3 × 150): without F3/F4 187 → with 197 / 450 (43.8 %, band OK). Replica cost measured separately: 41 → 36 / 150 on a `loops: 1` profile. That profile alone reads 54 → 41 / 150 against a fresh one, unrelated to this work and not investigated.
-- `9e89e58` reached `main` and a preview with `make check` red (an empty card upgrade; a one-line command chained past the failure); fixed in the next commit, production untouched.
-- Gates after the fix: `make check` green (node 457, Python 338); `make playthrough-quick` OK; `make test-e2e-v2` OK; real UI: reverse badge + mask at IX, replica intro + stats, evolution note + deck swap, 0 console errors. All 12 duo cut-ins seen through a real fight; `night_watch` art regenerated twice (face hidden by the band, then an off-tone pose).
-- Real UI after the fix: evolved card in a hand; a played card crossing IX's phases (47 → 42 HP, reverse active); Omega's reboot banner through a played card and its animation; final `night_watch` cut-in, 0 console errors.
-- Unverified: sound; feel; a real fight and sign-in on the preview or production. Art unapproved: 27 + 12 images. Not promoted.

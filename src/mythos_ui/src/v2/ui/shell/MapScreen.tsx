@@ -13,7 +13,7 @@ import { MapBanter } from './MapBanter.tsx'
 import { ThoughtCabinet } from './ThoughtCabinet.tsx'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
-import { lastAct } from '../../engine/run.ts'
+import { actOf, lastAct } from '../../engine/run.ts'
 import './map.css'
 
 const W = 600
@@ -47,7 +47,7 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
   const reachable = useMemo(() => new Set(rx.reachable(run)), [run])
   const visited = useMemo(() => new Set(run.visited), [run.visited])
   const scrollRef = useRef<HTMLDivElement>(null)
-  const actDef = C.acts[run.act]
+  const actDef = actOf(run, C)
   const tier = traceTier(run.trace)
   const dir = useMemo(() => rx.directiveState(run), [run])
 

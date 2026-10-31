@@ -248,7 +248,7 @@ test('effect references point at known ids', () => {
         case 'combat': {
           const act = e.acts[0]
           assert.ok(act !== undefined && e.acts.length === 1, `${e.id}: combat events belong to one act`)
-          assert.equal(fx.encounterId, AMBUSH[act], `${e.id}: wrong ambush for act ${act}`)
+          assert.equal(fx.encounterId, e.route ? `${e.route}_event_ambush` : AMBUSH[act], `${e.id}: wrong ambush for act ${act}`)
           break
         }
         case 'card':

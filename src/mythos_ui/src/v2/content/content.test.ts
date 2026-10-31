@@ -127,7 +127,7 @@ test('quotas (design doc §5)', () => {
   assert.ok(ENEMIES.length >= 14, `enemies ${ENEMIES.length}`)
   assert.ok(ENEMIES.filter((e) => e.tier === 'boss').length >= 3)
   for (const act of [1, 2, 3] as const) {
-    const of = (k: EncounterDef['kind']) => ENCOUNTERS.filter((e) => e.act === act && e.kind === k && !EVENT_FIGHTS.has(e.id))
+    const of = (k: EncounterDef['kind']) => ENCOUNTERS.filter((e) => e.act === act && e.kind === k && !e.route && !EVENT_FIGHTS.has(e.id))
     assert.ok(of('normal').length >= 6, `act ${act} normals`)
     assert.ok(of('elite').length >= 3, `act ${act} elites`)
     assert.ok(of('boss').length >= 1, `act ${act} boss`)

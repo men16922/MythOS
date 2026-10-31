@@ -37,6 +37,8 @@ export interface MapOptions {
   exclude?: readonly string[]
   /** Event ids of the last loops — preferred against, ahead of `exclude`, never forbidden. */
   avoid?: readonly string[]
+  /** Parallel act: deal this route's fights and events instead of the plain act's. */
+  route?: string
 }
 
 export function mapNodeId(act: number, row: number, col: number): string {
@@ -66,9 +68,9 @@ export function generateActMap(act: ActId, rng: RngHolder, C: ContentRegistry, o
 
   const parents = parentIndex(nodes)
   assignKinds(rng, nodes, parents)
-  rollEncounters(act, rng, C, nodes, parents)
-  rollEvents(act, rng, C, nodes, opts.exclude ?? [], opts.avoid ?? [])
-  const bosses = mapEncounters(act, 'boss', C)
+  rollEncounters(act, rng, C, nodes, parents, opts.route)
+  rollEvents(act, rng, C, nodes, opts.exclude ?? [], opts.avoid ?? [], opts.route)
+  const bosses = mapEncounters(act, 'boss', C, opts.route)
   const boss = nodes[bossId]
   if (boss && bosses.length > 0) boss.encounterId = pick(rng, bosses).id
 
@@ -243,9 +245,9 @@ export function eventFightIds(C: ContentRegistry): Set<string> {
 }
 
 /** Map-eligible encounters of an act and kind (event-only fights excluded). */
-export function mapEncounters(act: number, kind: EncounterDef['kind'], C: ContentRegistry): EncounterDef[] {
+export function mapEncounters(act: number, kind: EncounterDef['kind'], C: ContentRegistry, route?: string): EncounterDef[] {
   const eventOnly = eventFightIds(C)
-  return Object.values(C.encounters).filter((e) => e.act === act && e.kind === kind && !e.secret && !eventOnly.has(e.id))
+  return Object.values(C.encounters).filter((e) => e.act === act && e.kind === kind && !e.secret && !eventOnly.has(e.id) && e.route === route)
 }
 
 function rollEncounters(
@@ -254,9 +256,10 @@ function rollEncounters(
   C: ContentRegistry,
   nodes: Record<string, MapNode>,
   parents: Record<string, string[]>,
+  route?: string,
 ): void {
   const byKind = (kind: 'normal' | 'elite'): string[] =>
-    mapEncounters(act, kind, C)
+    mapEncounters(act, kind, C, route)
       .sort((a, b) => encounterDifficulty(a, C) - encounterDifficulty(b, C))
       .map((e) => e.id)
   const pools = { combat: byKind('normal'), elite: byKind('elite') }
@@ -292,14 +295,14 @@ function rollEncounters(
 }
 
 /** Events that may be pre-rolled for this act (scripted and zero-weight events excluded). */
-export function actEventPool(act: number, C: ContentRegistry): EventDef[] {
+export function actEventPool(act: number, C: ContentRegistry, route?: string): EventDef[] {
   return Object.values(C.events).filter(
-    (e) => e.acts.includes(act) && !SCRIPTED_EVENTS.has(e.id) && (e.weight ?? 1) > 0,
+    (e) => e.acts.includes(act) && !SCRIPTED_EVENTS.has(e.id) && (e.weight ?? 1) > 0 && e.route === route,
   )
 }
 
-function rollEvents(act: number, rng: RngHolder, C: ContentRegistry, nodes: Record<string, MapNode>, exclude: readonly string[], avoid: readonly string[]): void {
-  const pool = actEventPool(act, C)
+function rollEvents(act: number, rng: RngHolder, C: ContentRegistry, nodes: Record<string, MapNode>, exclude: readonly string[], avoid: readonly string[], route?: string): void {
+  const pool = actEventPool(act, C, route)
   if (pool.length === 0) return
   const used = new Set<string>()
   const excluded = new Set(exclude)

@@ -70,6 +70,7 @@ import type {
   RunEffect,
   RunLogEntry,
   RunScreen,
+  ActDef,
   RunMode,
   RunState,
   ShopStock,
@@ -368,14 +369,13 @@ function offerable(run: RunState, C: ContentRegistry, id: string): boolean {
 const COMPANION_CARD_WEIGHT = 2.5
 const ARCHETYPE_CARD_WEIGHT = 1.8
 const RESONANCE_PULL = 3
-/** Outside the List (DLC 2): opened by the first escape, entered from an Act 2 event, closed at that act's last safehouse. */
+/** Outside the List (DLC 2): opened by the first escape, offered as Act 2 begins, closed at that act's safehouses. */
 const OUTSIDE_OPEN = 'outside_open'
-const OUTSIDE_FLAG = 'outside'
+const OUTSIDE_ROUTE = 'outside'
+const OUTSIDE_CHOICE = 'outside_closing'
 const OUTSIDE_CLOSED = 'outside_closed'
 const OUTSIDE_SAVED = 'outside_saved'
 const OUTSIDE_LOST = 'outside_lost'
-const OUTSIDE_STARTED = 'outside_started'
-const OUTSIDE_FIRST = 'outside_serving'
 function cardWeight(run: RunState, C: ContentRegistry, id: string): number {
   const def = C.cards[id]
   if (!def) return 0
@@ -719,7 +719,7 @@ function clearCurrentNode(run: RunState): void {
 }
 
 function fallbackEncounter(run: RunState, kind: 'normal' | 'elite' | 'boss', C: ContentRegistry): string {
-  const list = mapEncounters(run.act, kind, C)
+  const list = mapEncounters(run.act, kind, C, run.route)
   const any = list.length > 0 ? list : Object.values(C.encounters).filter((e) => e.kind === kind)
   if (any.length === 0) throw new Error(`run: no ${kind} encounter for act ${run.act}`)
   return pick(runStream(run, 'encounter'), any).id
@@ -742,7 +742,7 @@ export function resolveEventId(run: RunState, node: MapNode, C: ContentRegistry)
   const pre = node.eventId ? C.events[node.eventId] : undefined
   if (usable(pre) && !run.seenEvents.includes(pre.id)) return pre.id
   const onMap = new Set(Object.values(run.map.nodes).map((n) => n.eventId))
-  const pool = actEventPool(run.act, C).filter(usable)
+  const pool = actEventPool(run.act, C, run.route).filter(usable)
   const tiers = [
     pool.filter((e) => !run.seenEvents.includes(e.id) && !onMap.has(e.id)),
     pool.filter((e) => !run.seenEvents.includes(e.id)),
@@ -796,16 +796,7 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
     case 'combat':
     case 'elite':
     case 'boss': {
-      let chained = node.kind === 'combat' ? next.relayNext : undefined
-      if (chained) delete next.relayNext
-      else if (node.kind === 'combat' && next.flags[OUTSIDE_FLAG] && !next.flags[OUTSIDE_STARTED]) chained = OUTSIDE_FIRST
-      if (chained === OUTSIDE_FIRST) next.flags[OUTSIDE_STARTED] = 1
-      const enc =
-        chained && C.encounters[chained]
-          ? chained
-          : node.encounterId && C.encounters[node.encounterId]
-            ? node.encounterId
-            : fallbackEncounter(next, node.kind === 'combat' ? 'normal' : node.kind, C)
+      const enc = node.encounterId && C.encounters[node.encounterId] ? node.encounterId : fallbackEncounter(next, node.kind === 'combat' ? 'normal' : node.kind, C)
       log(next, node.kind, C.encounters[enc]?.name ?? KIND_NOTE[node.kind])
       next.screen = { kind: 'combat', combat: beginCombat(next, enc, C), nodeKind: node.kind }
       break
@@ -822,11 +813,10 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
       next.screen = { kind: 'shop', stock: generateShop(next, C) }
       break
     case 'rest':
-      if ((next.flags[OUTSIDE_FLAG] ?? 0) > 0 && !next.flags[OUTSIDE_CLOSED]) {
+      if (next.route === OUTSIDE_ROUTE && !next.flags[OUTSIDE_CLOSED]) {
         // Outside the List ends here: the closing scene takes this safehouse's place and pays what the rest would have.
         next.flags[OUTSIDE_CLOSED] = 1
-        delete next.relayNext
-        const kept = (next.flags[OUTSIDE_SAVED] ?? 0) > 0 && !next.flags[OUTSIDE_LOST]
+        const kept = (next.flags[OUTSIDE_SAVED] ?? 0) >= (next.flags[OUTSIDE_LOST] ?? 0)
         const eventId = kept ? 'outside_last_meal_kept' : 'outside_last_meal_lost'
         next.seenEvents.push(eventId)
         log(next, 'event', C.events[eventId]?.title ?? KIND_NOTE.event)
@@ -909,10 +899,9 @@ function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: 
   const saved = combat.bonus?.def.kind === 'protect' && bonusAchieved(combat) ? C.encounters[combat.encounterId]?.neutral?.name : undefined
   if (saved) reward.saved = saved
   const enc = C.encounters[combat.encounterId]
-  if (enc?.relay && (run.flags[OUTSIDE_FLAG] ?? 0) > 0) {
-    if (saved) run.flags[OUTSIDE_SAVED] = (run.flags[OUTSIDE_SAVED] ?? 0) + 1
-    else run.flags[OUTSIDE_LOST] = 1
-    if (enc.next) run.relayNext = enc.next
+  if (enc?.route === OUTSIDE_ROUTE && combat.bonus?.def.kind === 'protect') {
+    const tally = saved ? OUTSIDE_SAVED : OUTSIDE_LOST
+    run.flags[tally] = (run.flags[tally] ?? 0) + 1
   }
   return reward
 }
@@ -1062,14 +1051,19 @@ export function takeRewardConsumable(run: RunState, C: ContentRegistry): RunStat
 /** Acts a standard run plays. */
 export const STANDARD_ACTS = 3
 
-/** Hand the opened run's Act 2 map its Closing Time scene: the earliest event node, so taking it stays a choice of path.
- *  Placed, never rolled: a rolled scene would reshuffle the events of every run that cannot see it. */
-function placeOutside(run: RunState): void {
-  if (run.act !== 2 || !run.flags[OUTSIDE_OPEN]) return
-  const node = Object.values(run.map.nodes)
-    .filter((n) => n.kind === 'event')
-    .sort((a, b) => a.row - b.row || a.col - b.col)[0]
-  if (node) node.eventId = 'outside_closing'
+/** The act a run is standing in: its parallel route when it took one. */
+export function actOf(run: Pick<RunState, 'act' | 'route'>, C: Pick<ContentRegistry, 'acts' | 'routes'>): ActDef | undefined {
+  return (run.route ? C.routes?.[run.route] : undefined) ?? C.acts[run.act]
+}
+
+/** Take a parallel act before its first node: the same map skeleton, dealt from the route's fights and events, and the
+ *  route's cards join this run's pool. A save caught mid-act keeps the map it is on. */
+function takeRoute(run: RunState, id: string, C: ContentRegistry): void {
+  if (run.nodeId !== null || !C.routes?.[id]) return
+  run.route = id
+  run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents, avoid: run.staleEvents ?? [], route: id })
+  run.pools.cards.push(...Object.values(C.cards).filter((c) => c.route === id && !run.pools.cards.includes(c.id)).map((c) => c.id))
+  log(run, 'start', C.routes[id].name)
 }
 
 /** The run's final act: 3 on a standard run; a Deep Signal run continues through every act the content holds. */
@@ -1100,7 +1094,7 @@ export function advanceAct(run: RunState, C: ContentRegistry): void {
   if (run.paradox >= 9) gainTrace(run, 10, C) // Paradox 9: tracked ahead
   run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents, avoid: run.staleEvents ?? [] })
   placeDistrict(run, run.map, C)
-  placeOutside(run) // after the districts: they take event nodes and drop the event on them
+  delete run.route
   run.nodeId = null
   resetNodeStreams(run)
   run.hp = clamp(1, run.maxHp, run.hp + Math.ceil((run.maxHp - run.hp) / 2))
@@ -1108,6 +1102,12 @@ export function advanceAct(run: RunState, C: ContentRegistry): void {
   log(run, 'start', C.acts[run.act]?.name ?? t(`${run.act}막`, `Act ${run.act}`))
   if ((run.lap ?? 0) === 0) for (const id of C.acts[run.act]?.gift ?? []) addCard(run, id, C)
   run.screen = { kind: 'act_intro' }
+  // The first escape opens the parallel Act 2: the choice comes before the act's title, so the title can be the route's.
+  const choice = C.events[OUTSIDE_CHOICE]
+  if (run.act === 2 && !run.seenEvents.includes(OUTSIDE_CHOICE) && choice && conditionMet(run, choice.requires, C).ok) {
+    run.seenEvents.push(OUTSIDE_CHOICE)
+    run.screen = { kind: 'event', eventId: OUTSIDE_CHOICE, resolved: null, improvised: null }
+  }
 }
 
 /** Leave the reward (untaken credits are pocketed). After a boss: next act or the final choice. */
@@ -1289,6 +1289,9 @@ export function applyImmediate(run: RunState, effects: readonly RunEffect[], C: 
       case 'flag':
         run.flags[e.key] = e.value ?? 1
         break
+      case 'route':
+        takeRoute(run, e.id, C)
+        break
       case 'axis':
         addAxis(run, e.axis, e.amount ?? 1)
         break
@@ -1467,8 +1470,9 @@ export function openFollowUps(next: RunState, effects: readonly RunEffect[], tai
 export function continueEvent(run: RunState, C: ContentRegistry): RunState {
   if (run.screen.kind !== 'event' || !run.screen.resolved) return run
   const deferred = eventDeferred(run.screen, C)
+  const tail: RunScreen = run.screen.eventId === OUTSIDE_CHOICE ? { kind: 'act_intro' } : { kind: 'map' }
   const next = clone(run)
-  queueDeferred(next, deferred, { kind: 'map' }, C)
+  queueDeferred(next, deferred, tail, C)
   return next
 }
 

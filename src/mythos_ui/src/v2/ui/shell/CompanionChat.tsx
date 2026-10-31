@@ -2,6 +2,7 @@
 // say up to four short things and the companion answers in voice (AI GM, authored fallback on any miss).
 // Pure flavour: nothing here touches the run (the bond +1 was already granted by the rest reducer).
 
+import { actOf } from '../../engine/run.ts'
 import { MessageCircle, SendHorizontal } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/types.ts'
@@ -94,7 +95,7 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening, lo
           bondLines: def.bondLines.slice(0, Math.max(1, bond)).map((l) => tr(l, lang)),
           bond,
           act: run.act,
-          actName: tr(C.acts[run.act]?.name, lang),
+          actName: tr(actOf(run, C)?.name, lang),
           log: run.log
             .slice(-5)
             .map((e) => tr(e.note, lang))

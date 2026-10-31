@@ -82,6 +82,7 @@ import {
   tileAt,
   unitAt,
   winCombat,
+  walkNeutral,
 } from './effects.ts'
 import { effectiveIntentDamage, enemiesTelegraph, findMove, fireIntent, intentGeometry } from './intents.ts'
 
@@ -325,6 +326,7 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
   }
   if (enc.proto) c.proto = { ...enc.proto }
   if (enc.relay) c.relay = { ...enc.relay }
+  if (enc.walkTo) c.walkTo = { ...enc.walkTo }
   if (enc.neutral) {
     const n = enc.neutral
     const pos = unitAt(c, n.pos) || !isStandable(tileAt(c, n.pos)) ? nearestFreeTile(c, n.pos) : { ...n.pos }
@@ -552,7 +554,7 @@ function rawOptions(c: CombatState, origin: UnitState, mode: TargetMode): Resolv
     case 'self':
       return [{ pos: { ...o }, tiles: [], base: [{ ...o }], impact: { ...o } }]
     case 'ally':
-      return livingParty(c)
+      return [...livingParty(c), ...(mode.neutral ? c.units.filter((u) => u.side === 'neutral' && u.hp > 0) : [])]
         .filter((u) => manhattan(u.pos, o) <= mode.range)
         .map((u) => ({ pos: { ...u.pos }, tiles: [], base: [{ ...u.pos }], impact: { ...u.pos } }))
     case 'melee':
@@ -879,10 +881,10 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
   for (const e of livingEnemies(c)) {
     decayStatus(e, 'shock')
     decayStatus(e, 'weak')
-    decayStatus(e, 'freeze')
     if (isStrong(C, e)) decayStatus(e, 'stun')
   }
   growRage(c, C)
+  walkNeutral(c)
   if (enc) {
     const arriving = wavesArrivingAfter(enc, c.turn)
     c.incoming = []
@@ -899,6 +901,7 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
   enemiesTelegraph(c, C, true)
   for (const e of livingEnemies(c)) {
     decayStatus(e, 'stun')
+    decayStatus(e, 'freeze') // after the move step: Freeze N costs N moves, as the cards promise
     const guard = e.statuses.guard ?? 0
     if (guard > 0) gainBlock(c, e, guard)
   }

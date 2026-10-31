@@ -16,7 +16,7 @@ import { NEW_ARCHETYPE_CARDS, NEW_ARCHETYPE_IMPLANTS, NEW_ARCHETYPES } from './p
 import { DUOS } from './duos.ts'
 import { EVOLUTIONS, EVOLVED_CARDS } from './evolutions.ts'
 import { EVENTS as BASE_EVENTS } from './events.ts'
-import { OUTSIDE_ENCOUNTERS, OUTSIDE_EVENTS } from './eventsOutside.ts'
+import { OUTSIDE_ACT, OUTSIDE_CARDS, OUTSIDE_ENCOUNTERS, OUTSIDE_ENEMIES, OUTSIDE_EVENTS, OUTSIDE_ROUTE, OUTSIDE_ROUTE_EVENTS } from './packs/outside_list/index.ts'
 import { LORE as BASE_LORE } from './lore.ts'
 import { DEEP_LORE } from './packs/deep_lore.ts'
 import { ENDINGS as BASE_ENDINGS } from './endings.ts'
@@ -33,13 +33,13 @@ import { ORIGIN_ACT, ORIGIN_ENCOUNTERS, ORIGIN_ENDINGS, ORIGIN_ENEMIES, ORIGIN_E
 
 // Content packs (Deep Signal acts 4+) join the base content here, so every registry, export and integrity test
 // sees one merged set. Standard runs never reach a pack's act (engine/run.ts lastAct).
-const CARDS = [...BASE_CARDS, ...REWRITE_CARDS, ...NEW_COMPANION_CARDS, ...NEW_ARCHETYPE_CARDS, ...EVOLVED_CARDS]
+const CARDS = [...BASE_CARDS, ...REWRITE_CARDS, ...NEW_COMPANION_CARDS, ...NEW_ARCHETYPE_CARDS, ...EVOLVED_CARDS, ...OUTSIDE_CARDS]
 const IMPLANTS = [...BASE_IMPLANTS, ...NEW_ARCHETYPE_IMPLANTS]
 const ARCHETYPES = [...BASE_ARCHETYPES, ...NEW_ARCHETYPES]
 const COMPANIONS = [...BASE_COMPANIONS, ...NEW_COMPANIONS]
-const ENEMIES = [...BASE_ENEMIES, ...GLASS_ENEMIES, ...MACHINE_ENEMIES, ...ORIGIN_ENEMIES]
+const ENEMIES = [...BASE_ENEMIES, ...GLASS_ENEMIES, ...MACHINE_ENEMIES, ...ORIGIN_ENEMIES, ...OUTSIDE_ENEMIES]
 const ENCOUNTERS = [...BASE_ENCOUNTERS, ...OUTSIDE_ENCOUNTERS, ...GLASS_ENCOUNTERS, ...MACHINE_ENCOUNTERS, ...ORIGIN_ENCOUNTERS]
-const EVENTS = [...BASE_EVENTS, ...OUTSIDE_EVENTS, ...GLASS_EVENTS, ...MACHINE_EVENTS, ...ORIGIN_EVENTS, ...NEW_COMPANION_EVENTS]
+const EVENTS = [...BASE_EVENTS, ...OUTSIDE_EVENTS, ...OUTSIDE_ROUTE_EVENTS, ...GLASS_EVENTS, ...MACHINE_EVENTS, ...ORIGIN_EVENTS, ...NEW_COMPANION_EVENTS]
 const ENDINGS = [...BASE_ENDINGS, ...ORIGIN_ENDINGS]
 const LORE = [...BASE_LORE, ...DEEP_LORE]
 const ACTS: Record<ActId, ActDef> = { ...BASE_ACTS, 4: GLASS_ACT, 5: MACHINE_ACT, 6: ORIGIN_ACT }
@@ -62,6 +62,7 @@ export const CONTENT: ContentRegistry = {
   companions: byId(COMPANIONS),
   archetypes: byId(ARCHETYPES),
   acts: ACTS,
+  routes: { [OUTSIDE_ROUTE]: OUTSIDE_ACT },
   endings: byId(ENDINGS),
   unlocks: byId(UNLOCKS),
   paradox: PARADOX,

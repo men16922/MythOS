@@ -292,6 +292,7 @@ export function cardPool(profile: MetaProfile, archetype: string, C: ContentRegi
       (c) =>
         (c.rarity === 'common' || c.rarity === 'uncommon' || c.rarity === 'rare') &&
         c.type !== 'junk' &&
+        !c.route && // a parallel act's cards join the pool when that route is taken (run.ts takeRoute)
         // Companion-owned reward cards ride along; the run only offers them while that companion is in the party.
         (c.owner === 'any' || c.owner === 'connector' || !!C.companions[c.owner]) &&
         (c.archetype === undefined || c.archetype === archetype) &&

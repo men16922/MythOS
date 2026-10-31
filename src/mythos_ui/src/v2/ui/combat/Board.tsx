@@ -6,7 +6,7 @@
 import type { CSSProperties } from 'react'
 import { ChevronsRight, CircleDot } from 'lucide-react'
 import type { CombatPreview, IntentInfo } from '../../engine/combat.ts'
-import { isLit } from '../../engine/effects.ts'
+import { isLit, walkStep } from '../../engine/effects.ts'
 import { posKey } from '../../engine/grid.ts'
 import { GRID_H, GRID_W } from '../../engine/types.ts'
 import type { CombatState, ContentRegistry, Dir, Lang, Pos } from '../../engine/types.ts'
@@ -67,17 +67,29 @@ export interface BoardProps {
   aimDir?: boolean
 }
 
+/** An escort's exit, and the tile the neutral steps to after the enemy phase (nothing while it has to wait). */
+function WalkMark({ g, vc }: { g: BoardGeom; vc: CombatState }) {
+  if (!vc.walkTo) return null
+  const step = walkStep(vc)
+  return (
+    <>
+      <polygon points={pts(tileQuad(g, vc.walkTo, 0.06))} className="m2c-proto m2c-proto--exit" />
+      {step && <polygon points={pts(tileQuad(g, step, 0.2))} className="m2c-proto m2c-proto--step" />}
+    </>
+  )
+}
+
 /** The relay tile and a line to the neutral it stands in for; the line lights up while it is carrying a hit. */
 function RelayMark({ g, vc, live }: { g: BoardGeom; vc: CombatState; live: boolean }) {
-  if (!vc.relay) return null
+  const neutral = vc.units.find((u) => u.side === 'neutral' && u.hp > 0)
+  if (!vc.relay || !neutral) return null
   const mid = (p: Pos) => g.project(p.x + 0.5, p.y + 0.5)
   const from = mid(vc.relay)
-  const neutral = vc.units.find((u) => u.side === 'neutral' && u.hp > 0)
-  const to = neutral ? mid(neutral.pos) : undefined
+  const to = mid(neutral.pos)
   return (
     <>
       <polygon points={pts(tileQuad(g, vc.relay, 0.06))} className="m2c-proto m2c-proto--relay" />
-      {to && <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className={live ? 'm2c-proto-link is-live' : 'm2c-proto-link'} />}
+      <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className={live ? 'm2c-proto-link is-live' : 'm2c-proto-link'} />
     </>
   )
 }
@@ -184,6 +196,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         <BoardPlane g={g} tiles={vc.tiles} part="fire" />
         {/* relay tile + its line to the neutral; the grid prototype is sandbox only */}
         {vc.relay && <RelayMark g={g} vc={vc} live={!!relay} />}
+        <WalkMark g={g} vc={vc} />
         {vc.proto?.litFromX !== undefined && <text className="m2c-proto-note" x={g.width * 0.5} y={14} textAnchor="middle">{isLit(vc, { x: 6, y: 0 }) ? (props.lang === 'ko' ? '밝은 칸 공격 +2 · 어두운 칸 공격 −2 · 충돌 +2' : 'Lit: attacks +2 · Dark: attacks −2, bumps +2') : props.lang === 'ko' ? `암전 ${vc.proto.darkTurns}턴` : `Blackout ${vc.proto.darkTurns}`}</text>}
         {vc.proto?.litFromX !== undefined &&
           vc.tiles.flatMap((row, y) =>
@@ -269,7 +282,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         <LockOns g={g} intents={intents} vc={vc} C={C} focusEnemy={props.focusEnemy} dimIntents={props.dimIntents} firing={props.firing} />
         <PreviewChips g={g} vc={vc} C={C} preview={preview} />
         {vc.relay && relay && <RelayChip g={g} at={vc.relay} hit={relay.hit} lang={props.lang} />}
-        {vc.relay && <div className="m2c-relaynote">{props.lang === 'ko' ? '점선 칸에 선 유닛이 대신 맞는다 · 적도 된다' : 'Whoever is on the dashed tile takes the hit. Enemies too.'}</div>}
+        {vc.relay && vc.units.some((u) => u.side === 'neutral' && u.hp > 0) && <div className="m2c-relaynote">{props.lang === 'ko' ? `점선 칸에 선 유닛이 대신 맞는다 · 적도 된다${vc.walkTo ? ' · 시민은 적 차례 뒤 초록 칸으로 걷는다' : ''}` : `Whoever is on the dashed tile takes the hit. Enemies too.${vc.walkTo ? ' The citizen walks to the green tile after the enemy turn.' : ''}`}</div>}
         {/* move destination: ghost + what waits there */}
         {props.moveHover && <MoveChip g={g} vc={vc} at={props.moveHover} selectedUid={props.selectedUid} tileDmg={tileDmg} intents={intents} lang={props.lang} />}
         {/* direction picker */}

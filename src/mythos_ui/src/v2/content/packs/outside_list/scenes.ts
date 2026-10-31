@@ -1,77 +1,16 @@
-// Outside the List (DLC 2, "명단 밖의 사람들"): opened by the first escape, entered from one Act 2 event. Three Relay fights
-// (a unit on the dashed tile takes direct hits meant for the citizen, enemy included) take the place of that act's next
-// plain fights, and the scene below takes the place of its last safehouse, paying what that rest would have. No new
-// enemies, cards or currency: the point is the push that keeps someone's evening going.
-import type { EncounterDef, EventDef, Pos, Text } from '../engine/types.ts'
+// Pack 4 — the three scripted scenes of Outside the List: the choice before Act 2's title and the two endings that take
+// the place of its first safehouse, paying what that rest would have. Losing someone is never a numeric penalty.
+import type { EventDef, Text } from '../../../engine/types.ts'
+import { OUTSIDE_ROUTE } from './act.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
-const at = (x: number, y: number): Pos => ({ x, y })
-const foe = (id: string, x: number, y: number): { id: string; pos: Pos } => ({ id, pos: at(x, y) })
-const cover = (x: number, y: number): { pos: Pos; kind: 'cover' } => ({ pos: at(x, y), kind: 'cover' })
-
-export const OUTSIDE_ENCOUNTERS: EncounterDef[] = [
-  {
-    id: 'outside_serving',
-    act: 2,
-    kind: 'normal',
-    secret: true,
-    name: t('마지막 배식', 'Last Serving'),
-    backdrop: 'undercity',
-    enemies: [foe('purge_drone', 5, 1), foe('shock_trooper', 6, 3)],
-    terrain: [cover(3, 1), cover(4, 3)],
-    neutral: { name: t('배식 담당', 'The Server'), sprite: 'listed-citizen', hp: 14, pos: at(2, 2) },
-    relay: at(3, 2),
-    next: 'outside_pickup',
-    bonus: { kind: 'protect' },
-    intro: t(
-      '배식 담당은 국자를 놓지 않는다. 점선 칸에 선 누군가가 대신 맞는다. 적을 밀어 넣어도 된다.',
-      'The server will not put the ladle down. Whoever stands on the dashed tile takes the hit instead. Push an enemy in, if you can.',
-    ),
-  },
-  {
-    id: 'outside_pickup',
-    act: 2,
-    kind: 'normal',
-    secret: true,
-    name: t('수거 종료', 'Last Pickup'),
-    backdrop: 'undercity',
-    enemies: [foe('shock_trooper', 5, 2), foe('purge_drone', 6, 0), foe('glitch_echo', 4, 4)],
-    terrain: [cover(2, 0), cover(3, 3)],
-    neutral: { name: t('세탁물 수거원', 'The Laundry Runner'), sprite: 'listed-citizen', hp: 12, pos: at(1, 1) },
-    relay: at(2, 1),
-    next: 'outside_door',
-    reinforcements: [{ turn: 3, enemies: [foe('purge_drone', 6, 4)] }],
-    bonus: { kind: 'protect' },
-    intro: t(
-      '수거원이 장치를 끄기 전에는 자리를 뜨지 않는다. 오늘 치 빨래가 아직 남았다.',
-      'The runner will not leave until the machine is off. Tonight’s load is not done.',
-    ),
-  },
-  {
-    id: 'outside_door',
-    act: 2,
-    kind: 'normal',
-    secret: true,
-    name: t('문을 잡는 사람', 'Holding the Door'),
-    backdrop: 'undercity',
-    enemies: [foe('purge_drone', 5, 1), foe('purge_drone', 5, 3), foe('shock_trooper', 6, 2)],
-    terrain: [cover(4, 1), cover(3, 4)],
-    neutral: { name: t('문지기', 'The Doorkeeper'), sprite: 'listed-citizen', hp: 16, pos: at(2, 3) },
-    relay: at(3, 3),
-    reinforcements: [{ turn: 3, enemies: [foe('glitch_echo', 6, 4)] }],
-    bonus: { kind: 'protect' },
-    intro: t(
-      '다들 나갈 때까지 문은 그 사람 손에 있다. 관리망은 그 손부터 지우려 한다.',
-      'The door stays in their hands until everyone is out. The grid means to erase the hands first.',
-    ),
-  },
-]
 
 export const OUTSIDE_EVENTS: EventDef[] = [
   {
     id: 'outside_closing',
     acts: [2],
-    weight: 0, // placed by the engine (run.ts placeOutside): rolling it would reshuffle every fresh run's events
+    weight: 0, // opened by the engine as Act 2 begins (run.ts advanceAct), never rolled
+    improvise: false,
     requires: { opened: 'outside_open', notFlag: 'outside' },
     gmHints: ['구역 영업 종료 방송', '명단에 없는 사람들의 배식 줄', '국자를 놓지 않는 배식 담당'],
     title: t('영업 종료', 'Closing Time'),
@@ -83,13 +22,13 @@ export const OUTSIDE_EVENTS: EventDef[] = [
     options: [
       {
         label: t('배식대 앞에 선다', 'Stand at the counter'),
-        hint: t('이번 막의 전투 3회가 바뀐다', 'Changes this act’s next 3 fights'),
+        hint: t('2막이 「명단 밖의 사람들」로 바뀐다', 'Act 2 becomes Outside the List'),
         success: {
           text: t(
             '멀리서 수거 드론이 방향을 튼다. 국자를 든 사람이 말한다. “오늘 배식은 끝내고 갈 거예요.” 다음 싸움은 여기서 벌어진다.',
             'Far off, a purge drone changes course. The one with the ladle says, “I am finishing tonight’s serving before I go.” The next fight happens here.',
           ),
-          effects: [{ kind: 'flag', key: 'outside' }],
+          effects: [{ kind: 'flag', key: 'outside' }, { kind: 'route', id: OUTSIDE_ROUTE }],
         },
       },
       {

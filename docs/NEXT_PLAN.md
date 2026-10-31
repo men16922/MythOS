@@ -4,6 +4,10 @@ Last updated: 2026-10-31
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
+## Next: party and growth rework (owner, 2026-11-01)
+
+`docs/plans/2026-11-01-party-growth-plan.md`. Owner asked for all of it. Order: `[ ]` overcharge + Han rework → `[ ]` stats to 20 with perks → `[ ]` companion levels → `[ ]` three companions from Act 4 → `[ ]` gear → `[ ]` new party screen. DLC 2 is now a parallel Act 2 (`docs/plans/2026-11-01-dlc2-parallel-act-plan.md`): `[x]` built on `mythos-2.0`, not deployed. `[ ]` `[owner]` play it, then art (~40 images).
+
 ## Next: DLC 2 pick (merged plan, 2026-10-31)
 
 `docs/plans/2026-10-31-dlc2-merged-plan.md`. `[x]` Stage 1 built (bot tempo terms, evolution/duo reachability + ✦, saved-neutral reward line, four Act 4–6 objective swaps, `enemyHpPct` 13, sandbox prototypes); not deployed. `[x]` Stage 3 built on the default rule (owner: carry out the recommendation): Relay route Outside the List in Act 2 after the first escape. `[ ]` `[owner]` play it and `proto_blackout`, confirm or reverse the rule. `[x]` deployed on owner order 2026-11-01: `00169-fih`. `[ ]` `[owner]` F1–F4 verdict and art still open. `[ ]` re-check Devpost for a Gemini / Google Cloud challenge on 2026-12-01 (a contest pulls W2 ahead).

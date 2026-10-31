@@ -27,7 +27,9 @@
   background: rgba(4, 10, 18, 0.72);
   color: #cfe9f2;
   font-size: 13px;
-  white-space: nowrap;
+  width: max-content;
+  max-width: 96%;
+  text-align: center;
   pointer-events: none;
   z-index: 2;
 }

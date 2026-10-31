@@ -351,7 +351,7 @@ function companionWhisperText(compId: string, ev: EventDef, lang: Lang): string 
       <div className="m2-event__panel">
         <h1 className="m2-event__title">{tr(ev.title, lang)}</h1>
         <Typewriter className="m2-event__text" text={tr(ev.text, lang)} cps={settings.fastAnim ? 400 : 110} onDone={() => setIntroDone(`${ev.id}:${run.rng}`)} />
-        {leadComp && leadCompId && !done && (
+        {leadComp && leadCompId && !done && (ev.improvise !== false || ev.id === 'a1_opening') && (
           <div className="m2-comp-whisper" data-testid="companion-whisper">
             <img src={portrait(leadComp.sprite)} alt="" />
             <div>

@@ -2,10 +2,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { CONTENT as C } from '../content/index.ts'
-import { endTurn, moveUnit, rewindTurn, startCombat, threatMap } from './combat.ts'
+import { endTurn, moveUnit, partyOrigins, playCard, rewindTurn, selectableTargets, startCombat, threatMap } from './combat.ts'
 import { perksOf, unitAt } from './effects.ts'
 import { newProfile } from './meta.ts'
-import { availableEndings, newRun, seaOpen } from './run.ts'
+import { availableEndings, newRun, SEA_LOGS, SEA_SECRET, SEA_SECRET_WON, seaOpen, secretBossGate } from './run.ts'
 import { squadTacticFor } from './squad.ts'
 import { floodsNext, tideLevel } from './tide.ts'
 import { mapEncounters } from './map.ts'
@@ -109,4 +109,43 @@ test('a standard run never sees the sea: no card, implant, gear or consumable le
   assert.equal(seaGear.length, 20)
   assert.ok(Object.values(C.implants).filter((i) => i.route).length >= 12)
   assert.equal(Object.values(C.consumables).filter((c) => c.route).length, 4)
+})
+
+test('rewinding undoes a played card: same hand, same energy, and the same draw afterwards', () => {
+  const profile = open
+  const r = newRun(profile, { archetype: 'navigator', paradox: 0, seed: 7 }, C)
+  const c = startCombat(r, 'a1_n1_dodge', C)
+  assert.equal(c.rewind?.left, 1)
+  let played = c
+  for (const card of c.hand) {
+    const origin = partyOrigins(c, C, card.uid)[0]
+    const opt = origin ? selectableTargets(c, C, card.uid, origin)[0] : undefined
+    if (!origin || !opt) continue
+    const next = playCard(c, C, card.uid, origin, opt)
+    if (next !== c) {
+      played = next
+      break
+    }
+  }
+  assert.notEqual(played, c)
+  assert.ok(played.energy < c.energy || played.hand.length < c.hand.length)
+  const back = rewindTurn(played)
+  assert.deepEqual(back.hand, c.hand)
+  assert.equal(back.energy, c.energy)
+  assert.deepEqual(back.draw, c.draw)
+  assert.equal(back.rewind?.left, 0)
+  const again = endTurn(back, C)
+  assert.equal(again.turn, endTurn({ ...c, rewind: { left: 0 } }, C).turn)
+})
+
+test('the three logs open the secret fight, and winning it opens the hidden ending', () => {
+  const base: RunState = { ...newRun(open, { archetype: 'ghost', paradox: 0, seed: 11, mode: 'sea' }, C), act: 6, route: 'sea_6' }
+  assert.equal(secretBossGate(base, C), false)
+  const flags = Object.fromEntries(SEA_LOGS.map((k) => [k, 1]))
+  const carrying = { ...base, flags: { ...base.flags, ...flags } }
+  assert.equal(secretBossGate(carrying, C), true)
+  assert.ok(C.encounters[SEA_SECRET]?.secret)
+  const hidden = (run: RunState) => availableEndings(run, C).find((v) => v.ending.id === 'ending_sea_unwritten')
+  assert.equal(hidden(carrying)?.available ?? false, false)
+  assert.equal(hidden({ ...carrying, flags: { ...carrying.flags, [SEA_SECRET_WON]: 1 } })?.available, true)
 })

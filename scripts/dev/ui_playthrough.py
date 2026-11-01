@@ -445,8 +445,10 @@ def play_one(
     deep: bool = False,
     sea: bool = False,
     secret: bool = False,
+    sea_secret: bool = False,
 ) -> tuple[bool, str, Counter]:
     seen: Counter = Counter()
+    sea = sea or sea_secret
     page.goto(f"{base}/?mute=1")
     page.evaluate(
         "() => { for (const k of Object.keys(localStorage)) if (k.startsWith('mythos2')) localStorage.removeItem(k); localStorage.setItem('mythos2.mute','1') }"
@@ -462,6 +464,10 @@ def play_one(
     if os.environ.get("PLAYTHROUGH_LANG") == "en":  # English pass (text review)
         page.evaluate(
             "() => window.__m2.setProfile((p) => ({ ...p, settings: { ...p.settings, lang: 'en' } }))"
+        )
+    if sea_secret:
+        page.evaluate(
+            "() => window.__m2.setProfile((p) => ({ ...p, unlocks: [...p.unlocks, 'unlock_navigator', 'unlock_mujin', 'unlock_seo_ha', 'unlock_parang'] }))"
         )
     if deep or secret or sea:
         # Deep Signal opens after the first win; `--secret` also carries every First Record shard into the loop.
@@ -483,6 +489,8 @@ def play_one(
         page.locator(
             ".m2-bgs button", has_text=re.compile("쓰이지 않은 바다|The Unwritten Sea")
         ).first.click()
+    if sea_secret:
+        page.locator(".m2-arch", has_text=re.compile("항해사|Navigator")).first.click()
     elif deep or secret:
         page.locator(".m2-bgs button", has_text=re.compile("딥 시그널|Deep Signal")).first.click()
     page.get_by_role("button", name=re.compile(r"^\s*(접속|Connect)\s*$")).first.click()
@@ -507,6 +515,11 @@ def play_one(
             )
             if os.environ.get("PLAYTHROUGH_DEBUG"):
                 print("   god:", res)
+        if sea_secret and st["kind"] not in ("none", "ended"):
+            # The logs are events a dumb bot may miss; hand them over so the run must reach the secret fight.
+            page.evaluate(
+                "() => { const r = window.__m2.run; if (r && !r.flags.sea_log_3) window.__m2.setRun({ ...r, flags: { ...r.flags, sea_log_1: 1, sea_log_2: 1, sea_log_3: 1 } }) }"
+            )
         if secret and st.get("act") == 6:
             # The bot does not steer the story axes; give it the insight the First Connector's gate asks for.
             page.evaluate(
@@ -598,6 +611,11 @@ def main() -> int:
         help="play The Unwritten Sea (6 acts; the profile is given its first win)",
     )
     ap.add_argument(
+        "--sea-secret",
+        action="store_true",
+        help="The Unwritten Sea as the Navigator with all three logs: reach the secret Unwritten fight",
+    )
+    ap.add_argument(
         "--secret",
         action="store_true",
         help="Deep Signal with every First Record shard and enough insight: reach the secret First Connector fight",
@@ -671,6 +689,7 @@ def main() -> int:
                     args.deep,
                     args.sea,
                     args.secret,
+                    args.sea_secret,
                 )
                 if ok and kind_of(page) != "ended":
                     try:

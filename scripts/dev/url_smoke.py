@@ -117,9 +117,13 @@ def run_flow(page: Page, base: str, max_seconds: float) -> tuple[bool, str]:
                 or "Forced Erasure" in page.locator("body").inner_text()
             ):
                 return fought, " → ".join(seen) + " → end"
+            # Enabled buttons only: a collected reward stays on screen as a disabled "Taken" row, which also matches 'Take'.
             click(
                 page,
-                "button:has-text('Skip'), button:has-text('Leave both'), button:has-text('Continue'), button:has-text('Take'), button:has-text('Leave')",
+                ", ".join(
+                    f"button:not([disabled]):has-text('{label}')"
+                    for label in ("Skip", "Leave both", "Continue", "Take", "Leave")
+                ),
             )
     return False, "timed out: " + " → ".join(seen)
 

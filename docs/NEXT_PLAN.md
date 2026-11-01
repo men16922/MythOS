@@ -1,12 +1,12 @@
 # Next Plan
 
-Last updated: 2026-10-31
+Last updated: 2026-11-01
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
-## Next: owner plays the 2026-11-01 build
+## Next: after the 2026-11-01 deploy
 
-`[x]` built on `main`, not deployed: DLC 2 parallel Act 2 (`docs/plans/2026-11-01-dlc2-parallel-act-plan.md`), party and growth rework (`docs/plans/2026-11-01-party-growth-plan.md`). `[ ]` `[owner]` deploy call: production still has the short route with the false "3 fights" hint, the broken Freeze and the old stats. `[ ]` `[owner]` play it (`docs/test/mythos2_fun_check.md` §12), then DLC 2 art (~40) and gear icons. `[ ]` Deep Signal reads 32.7 %, over its 20–30 target, and Act 3 / 6 bosses run 10 turns: re-tune after a human run.
+Plan and order: `docs/plans/2026-11-01-next-steps-plan.md`. `[x]` DLC 2 parallel Act 2 + party and growth rework deployed on owner order: `00171-yuj`. `[ ]` find why the production `url-smoke` run flow timed out once. `[ ]` bot trains and picks gear, then re-tune (Deep 32.7 %, target 20–30; Act 3 / 6 bosses 9.7 / 10.0 turns, line 9). `[ ]` check gear rows and Act 4 three-companion deployment in the real UI. `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §12, then DLC 2 art (~40), gear icons, adopted reverse-engineering findings.
 
 ## Next: DLC 2 pick (merged plan, 2026-10-31)
 

@@ -1494,6 +1494,6 @@ export interface EnemyTuning {
   rage?: { elite: number; boss: number; fromTurn: number }
   /** Extra +% max HP for bosses only (on top of eliteHpPct). */
   bossHpPct?: number
-  /** Per-act extras for the Deep Signal acts (4+): every enemy +hpPct % HP and +dmg damage in that act. */
-  acts?: Record<number, { hpPct?: number; dmg?: number }>
+  /** Per-act extras: every enemy +hpPct % HP and +dmg damage in that act; `bossHpPct` shortens or lengthens that act's boss alone. */
+  acts?: Record<number, { hpPct?: number; dmg?: number; bossHpPct?: number }>
 }

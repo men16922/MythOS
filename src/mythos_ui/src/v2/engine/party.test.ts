@@ -7,7 +7,8 @@ import { MAX_COMPANION_LEVEL, companionStats, gainXp, levelOf, trainLevel, xpToN
 import { dealDamage, statBonus } from './effects.ts'
 import { newProfile } from './meta.ts'
 import { advanceAct, equipGear, newRun, partySlots, setDeployment, trainCompanion, updateCombat } from './run.ts'
-import type { CombatState, MetaProfile, PartyMember, RunState, UnitState } from './types.ts'
+import { gearTarget } from './runSim.ts'
+import type { CombatState, ContentRegistry, MetaProfile, PartyMember, RunState, UnitState } from './types.ts'
 
 const allOpen: MetaProfile = { ...newProfile('t'), wins: 1, unlocks: Object.keys(C.unlocks) }
 const run = (): RunState => newRun(allOpen, { archetype: 'ghost', paradox: 0, seed: 8 }, C)
@@ -165,4 +166,21 @@ test('an elite or boss leaves gear, a plain fight does not, and nothing drops tw
   const all = Object.keys(C.gear ?? {})
   const full = win('elite', 'a1_elite_rust_hulk', all)
   assert.equal(full.screen.kind === 'reward' && full.screen.reward.gear, undefined)
+})
+
+test('the sim bot upgrades gear on the weakest wearer and leaves stronger pieces alone', () => {
+  const r: RunState = { ...run(), gear: ['wp_pipe', 'wp_rail'], worn: { connector: { weapon: 'wp_rail' } } }
+  const others = r.party.map((m) => m.id)
+  assert.deepEqual(gearTarget(r, 'wp_pipe', C), others[0] ? { who: others[0], slot: 'weapon' } : undefined)
+  const full = { ...r, party: [], worn: { connector: { weapon: 'wp_rail' } } }
+  assert.equal(gearTarget(full, 'wp_pipe', C), undefined)
+})
+
+test('an act can shorten its boss without touching the rest of the act', () => {
+  const r: RunState = { ...run(), act: 3 }
+  const boss = Object.values(C.encounters).find((e) => e.kind === 'boss' && e.act === 3 && !e.route)
+  assert.ok(boss)
+  const noBossCut: ContentRegistry = { ...C, tuning: { ...(C.tuning as NonNullable<ContentRegistry['tuning']>), acts: { ...C.tuning?.acts, 3: { hpPct: 46, dmg: 3 } } } }
+  const tough = (reg: ContentRegistry): number => Math.max(...startCombat(r, boss.id, reg).units.filter((u) => u.side === 'enemy').map((u) => u.maxHp))
+  assert.ok(tough(C) < tough(noBossCut))
 })

@@ -78,7 +78,7 @@ export const CONTENT: ContentRegistry = {
   achievements: byId(buildAchievements(ARCHETYPES, COMPANIONS)),
   // Balance 2026-10-25 (docs/plans/2026-10-25-argon-review-and-s-rank-plan.md): the 5-stat perks, Evade/Crit and the
   // larger card/implant pool made the party much stronger than the authored enemy numbers assumed.
-  tuning: { enemyHpPct: 13, eliteHpPct: 20, bossHpPct: -10, dmgFromAct: 1, rage: { elite: 3, boss: 2, fromTurn: 3 }, acts: { 2: { hpPct: 22, dmg: 1 }, 3: { hpPct: 46, dmg: 3 }, 4: { hpPct: 105, dmg: 7 }, 5: { hpPct: 150, dmg: 10 }, 6: { hpPct: 190, dmg: 13 } }, routes: { [OUTSIDE_ROUTE]: { hpPct: 8 } } },
+  tuning: { enemyHpPct: 13, eliteHpPct: 20, bossHpPct: -10, dmgFromAct: 1, rage: { elite: 3, boss: 2, fromTurn: 3 }, acts: { 2: { hpPct: 22, dmg: 1 }, 3: { hpPct: 46, dmg: 3, bossHpPct: -30 }, 4: { hpPct: 130, dmg: 9 }, 5: { hpPct: 190, dmg: 14, bossHpPct: -20 }, 6: { hpPct: 240, dmg: 17, bossHpPct: -70 } }, routes: { [OUTSIDE_ROUTE]: { hpPct: 8 } } },
 }
 
 export { CARDS, CONSUMABLES, ENEMIES, ENCOUNTERS, IMPLANTS, COMPANIONS, ARCHETYPES }

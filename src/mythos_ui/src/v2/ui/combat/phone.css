@@ -443,7 +443,7 @@
 }
 .is-port .m2c-pu {
   flex: 1 1 0;
-  min-width: 96px;
+  min-width: 82px; /* four people fit a 375 px phone without scrolling */
 }
 /* inspector: a one-line peek between board and hand; tap it to open a sheet over the hand */
 .is-port .m2c-right {

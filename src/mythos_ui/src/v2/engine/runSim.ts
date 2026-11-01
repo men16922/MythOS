@@ -10,6 +10,7 @@
 import { autoPlay } from './combatSim.ts'
 import { acceptThought, declineThought } from './thoughts.ts'
 import { acceptRoll, campScene, chooseDialogue, closeDialogue, dialogueOptions, districtPois, leaveDistrict, rerollDialogue, startCamp, visitPoi } from './crpg.ts'
+import { levelOf } from './companionLevel.ts'
 import { computeEchoes, newProfile, runKilledBy, unlockedCompanions } from './meta.ts'
 import {
   setDeployment,
@@ -23,7 +24,10 @@ import {
   grantImplant,
   spendGrowth,
   STAT_MAX,
+  buyGear,
   equipGear,
+  partySlots,
+  trainCompanion,
   leaveReward,
   leaveRest,
   leaveShop,
@@ -52,7 +56,7 @@ import {
   updateCombat,
   MAX_CONSUMABLES, canCraft, restCraft
 } from './run.ts'
-import type { CardInstance, ChoiceAxis, ContentRegistry, DialogueOutcome, MapNode, MetaProfile, Outcome, RunEffect, RunScreen, RunState, RunMode } from './types.ts'
+import type { CardInstance, ChoiceAxis, ContentRegistry, DialogueOutcome, GearSlot, MapNode, MetaProfile, Outcome, RunEffect, RunScreen, RunState, RunMode } from './types.ts'
 
 export type SimPolicy = 'greedy' | 'basic' | 'mixed'
 
@@ -250,34 +254,66 @@ function firstAccepted(run: RunState, tries: ((r: RunState) => RunState)[]): Run
   return run
 }
 
+/** What a player reads off the party screen: damage and armor first, opening bonuses after. */
+function gearScore(id: string | undefined, C: ContentRegistry): number {
+  const m = id ? C.gear?.[id]?.mods : undefined
+  if (!m) return 0
+  return (m.damage ?? 0) * 3 + (m.armor ?? 0) * 3 + (m.move ?? 0) * 2 + (m.openBlock ?? 0) * 0.5 + (m.openFocus ?? 0) + (m.openEvade ?? 0) * 1.5 + (m.thorns ?? 0)
+}
+
+function spareGear(run: RunState): string[] {
+  const worn = new Set(Object.values(run.worn ?? {}).flatMap((w) => Object.values(w)))
+  return (run.gear ?? []).filter((id) => !worn.has(id))
+}
+
+/** The deployed person this piece helps most: an empty slot, else the weakest worn piece it beats. Connector wins ties. */
+export function gearTarget(run: RunState, id: string, C: ContentRegistry): { who: string; slot: GearSlot } | undefined {
+  const slot = C.gear?.[id]?.slot
+  if (!slot) return undefined
+  const score = gearScore(id, C)
+  const scored = ['connector', ...run.party.map((m) => m.id)].map((who) => ({ who, current: gearScore(run.worn?.[who]?.[slot], C) }))
+  const worst = scored.reduce((a, b) => (b.current < a.current ? b : a))
+  return worst.current < score ? { who: worst.who, slot } : undefined
+}
+
 function decideMap(run: RunState, C: ContentRegistry): RunState {
   if (run.thoughts?.offer) {
     const carried = acceptThought(run)
     return carried !== run ? carried : declineThought(run)
   }
-  // Wear the best unworn piece on the first empty slot, connector first.
-  const worn = new Set(Object.values(run.worn ?? {}).flatMap((w) => Object.values(w)))
-  const spare = (run.gear ?? []).filter((id) => !worn.has(id))
-  for (const id of spare) {
-    const slot = C.gear?.[id]?.slot
-    const who = slot && ['connector', ...run.party.map((m) => m.id)].find((w) => !run.worn?.[w]?.[slot])
-    if (slot && who) {
-      const on = equipGear(run, who, slot, id, C)
+  // Wear each spare piece on whoever it improves most, worst-equipped first, replacing weaker gear as a player would.
+  for (const id of spareGear(run).sort((a, b) => gearScore(b, C) - gearScore(a, C))) {
+    const upgrade = gearTarget(run, id, C)
+    if (upgrade) {
+      const on = equipGear(run, upgrade.who, upgrade.slot, id, C)
       if (on !== run) return on
     }
   }
   if ((run.growth ?? 0) > 0) {
-    // Specialise: the highest stat that can still grow.
+    // A two-point payout trains the least-levelled deployed companion up to level 3; the rest specialises the connector.
+    const behind = [...run.party].sort((a, b) => levelOf(a) - levelOf(b))[0]
+    if ((run.growth ?? 0) >= 2 && behind && levelOf(behind) < 3) {
+      const trained = trainCompanion(run, behind.id, C)
+      if (trained !== run) return trained
+    }
     const stat = (['str', 'agi', 'int', 'cha', 'obs'] as const).filter((k) => (run.stats[k] ?? 0) < STAT_MAX).sort((a, b) => (run.stats[b] ?? 0) - (run.stats[a] ?? 0))[0]
     const grown = stat ? spendGrowth(run, stat) : run
     if (grown !== run) return grown
   }
-  // Deploy a duo when the crew holds one, as a player hunting it would.
+  // Deploy a duo when the crew holds one, as a player hunting it would, and fill any open slot.
   const crew = [...run.party, ...(run.bench ?? [])].map((m) => m.id)
+  const deployedIds = run.party.map((m) => m.id)
+  const slots = partySlots(run)
   const duo = Object.values(C.duos ?? {}).find((d) => d.pair.every((id) => crew.includes(id)))
-  if (duo && !duo.pair.every((id) => run.party.some((m) => m.id === id))) {
-    const deployed = setDeployment(run, duo.pair)
+  if (duo && !duo.pair.every((id) => deployedIds.includes(id))) {
+    const lineup = [...duo.pair, ...deployedIds.filter((id) => !duo.pair.includes(id))].slice(0, slots)
+    const deployed = setDeployment(run, lineup)
     if (deployed !== run) return deployed
+  }
+  const waiting = run.bench?.[0]
+  if (waiting && deployedIds.length < slots) {
+    const filled = setDeployment(run, [...deployedIds, waiting.id])
+    if (filled !== run) return filled
   }
   const options = reachableNodes(run)
   const look = (id: string): number => {
@@ -316,6 +352,12 @@ function decideShop(run: RunState, s: ScreenOf<'shop'>, C: ContentRegistry): Run
     .filter(({ it }) => !it.sold)
     .sort((a, b) => (IMPLANT_SCORE[C.implants[b.it.implantId]?.rarity ?? ''] ?? 0) - (IMPLANT_SCORE[C.implants[a.it.implantId]?.rarity ?? ''] ?? 0))
   for (const { i } of implants) tries.push((r) => shopBuyImplant(r, i, C))
+  // Gear only when it would go on someone at once and nothing spare already fills that slot.
+  ;(stock.gear ?? [])
+    .map((it, i) => ({ it, i }))
+    .filter(({ it }) => !it.sold && gearTarget(run, it.gearId, C) && !spareGear(run).some((id) => C.gear?.[id]?.slot === C.gear?.[it.gearId]?.slot))
+    .sort((a, b) => gearScore(b.it.gearId, C) - gearScore(a.it.gearId, C))
+    .forEach(({ i }) => tries.push((r) => buyGear(r, i, C)))
   const cards = stock.cards
     .map((it, i) => ({ it, i }))
     .filter(({ it }) => !it.sold && cardScore(it.cardId, C) >= 2)

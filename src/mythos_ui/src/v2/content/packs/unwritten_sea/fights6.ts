@@ -1279,6 +1279,7 @@ export const SEA6_ENCOUNTERS: EncounterDef[] = [
   },
   {
     id: 'sea6_b_lightkeeper',
+    secret: true,
     act: 6,
     route: 'sea_6',
     kind: 'boss',

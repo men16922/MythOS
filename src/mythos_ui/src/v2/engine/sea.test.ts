@@ -5,7 +5,7 @@ import { CONTENT as C } from '../content/index.ts'
 import { endTurn, moveUnit, partyOrigins, playCard, rewindTurn, selectableTargets, startCombat, threatMap } from './combat.ts'
 import { perksOf, unitAt } from './effects.ts'
 import { newProfile } from './meta.ts'
-import { availableEndings, newRun, SEA_LOGS, SEA_SECRET, SEA_SECRET_WON, seaOpen, secretBossGate } from './run.ts'
+import { availableEndings, newRun, SEA_FINAL, SEA_FINAL_MET, SEA_LOGS, SEA_SECRET, SEA_SECRET_WON, seaOpen, secretBossGate, updateCombat } from './run.ts'
 import { squadTacticFor } from './squad.ts'
 import { floodsNext, tideLevel } from './tide.ts'
 import { mapEncounters } from './map.ts'
@@ -81,7 +81,7 @@ test('the third depth runs on its own acts from Act 4 and ends on its own ending
   assert.equal(r.mode, 'sea')
   for (const act of [4, 5, 6] as const) {
     const route = `sea_${act}`
-    for (const kind of ['normal', 'elite', 'boss'] as const) assert.ok(mapEncounters(act, kind, C, route).length >= (kind === 'normal' ? 10 : 3), `${route} ${kind}`)
+    for (const kind of ['normal', 'elite', 'boss'] as const) assert.ok(mapEncounters(act, kind, C, route).length >= (kind === 'normal' ? 10 : act === 6 && kind === 'boss' ? 2 : 3), `${route} ${kind}`)
   }
   const end: RunState = { ...r, act: 6, route: 'sea_6', axes: { humanity: 4 } as RunState['axes'] }
   const ids = availableEndings(end, C).map((v) => v.ending.id)
@@ -148,4 +148,23 @@ test('the three logs open the secret fight, and winning it opens the hidden endi
   const hidden = (run: RunState) => availableEndings(run, C).find((v) => v.ending.id === 'ending_sea_unwritten')
   assert.equal(hidden(carrying)?.available ?? false, false)
   assert.equal(hidden({ ...carrying, flags: { ...carrying.flags, [SEA_SECRET_WON]: 1 } })?.available, true)
+})
+
+test('the sea always ends with the Lightkeeper, then the secret fight for whoever holds the logs', () => {
+  assert.ok(C.encounters[SEA_FINAL]?.secret, 'never rolled onto a map')
+  assert.ok(!mapEncounters(6, 'boss', C, 'sea_6').some((e) => e.id === SEA_FINAL))
+  const start: RunState = { ...newRun(open, { archetype: 'ghost', paradox: 0, seed: 11, mode: 'sea' }, C), act: 6, route: 'sea_6' }
+  const logs = Object.fromEntries(SEA_LOGS.map((k) => [k, 1]))
+  const win = (r: RunState, id: string): RunState => {
+    const fight: CombatState = { ...startCombat(r, id, C), phase: 'won' }
+    return updateCombat({ ...r, screen: { kind: 'combat', combat: fight, nodeKind: 'boss' } }, fight, C)
+  }
+  const road = mapEncounters(6, 'boss', C, 'sea_6')[0]?.id ?? ''
+  const keeper = win({ ...start, flags: { ...start.flags, ...logs } }, road)
+  assert.equal(keeper.screen.kind === 'combat' && keeper.screen.combat.encounterId, SEA_FINAL)
+  assert.equal(keeper.flags[SEA_FINAL_MET], 1)
+  const secret = win(keeper, SEA_FINAL)
+  assert.equal(secret.screen.kind === 'combat' && secret.screen.combat.encounterId, SEA_SECRET)
+  const plain = win(win(start, road), SEA_FINAL)
+  assert.equal(plain.screen.kind, 'final_choice')
 })

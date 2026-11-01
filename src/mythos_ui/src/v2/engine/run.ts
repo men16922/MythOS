@@ -1002,7 +1002,15 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
     // After the final boss nothing is left to spend loot on: straight to the ending choice.
     if (next.act >= lastAct(next, C) && next.mode !== 'endless') {
       if (combat.encounterId === secretEncounter(next)) next.flags[next.mode === 'sea' ? SEA_SECRET_WON : SECRET_WON_FLAG] = 1
-      else clearCurrentNode(next)
+      else if (combat.encounterId !== SEA_FINAL) clearCurrentNode(next)
+      if (next.mode === 'sea' && C.encounters[SEA_FINAL] && !next.flags[SEA_FINAL_MET]) {
+        // The light is always the last door: whoever guarded the road, the Lightkeeper is waiting behind them.
+        next.flags[SEA_FINAL_MET] = 1
+        next.hp = clamp(1, next.maxHp, next.hp + Math.ceil((next.maxHp - next.hp) / 2))
+        log(next, 'combat', C.encounters[SEA_FINAL]!.name)
+        next.screen = { kind: 'combat', combat: beginCombat(next, SEA_FINAL, C), nodeKind: 'boss' }
+        return next
+      }
       if (secretBossGate(next, C)) {
         // The signal does not cut out: someone is still connected. Half the missing HP back, then the last fight.
         next.flags[next.mode === 'sea' ? SEA_SECRET_MET : SECRET_MET_FLAG] = 1
@@ -1866,6 +1874,9 @@ export const SECRET_MET_FLAG = 'first_connector_met'
 export const SECRET_WON_FLAG = 'first_connector_won'
 /** The Unwritten waits past the Lightkeeper for whoever carries all three logs. */
 export const SEA_SECRET = 'sea6_b_unwritten'
+/** Act 6 of the sea always ends at the lighthouse, after the road's guardian. */
+export const SEA_FINAL = 'sea6_b_lightkeeper'
+export const SEA_FINAL_MET = 'sea_keeper_met'
 export const SEA_SECRET_MET = 'sea_unwritten_met'
 export const SEA_SECRET_WON = 'sea_unwritten_won'
 export const SEA_LOGS = ['sea_log_1', 'sea_log_2', 'sea_log_3']

@@ -395,7 +395,7 @@ const SHOP_GEAR = 2
 
 /** A piece this run does not own yet; null once it owns them all. */
 function rollGear(h: RngHolder, run: RunState, C: ContentRegistry, weights: Partial<Record<GearDef['rarity'], number>>, exclude: readonly string[] = []): string | null {
-  const left = Object.values(C.gear ?? {}).filter((g) => !run.gear?.includes(g.id) && !exclude.includes(g.id))
+  const left = Object.values(C.gear ?? {}).filter((g) => (!g.route || run.route === g.route || run.mode === 'sea') && !run.gear?.includes(g.id) && !exclude.includes(g.id))
   if (left.length === 0) return null
   const rarities = (Object.keys(weights) as GearDef['rarity'][]).filter((r) => left.some((g) => g.rarity === r))
   const rarity = rarities.length > 0 ? pickWeighted(h, rarities, (r) => weights[r] ?? 0) : undefined
@@ -467,8 +467,8 @@ function rollImplant(
 
 const CONSUMABLE_WEIGHT: Partial<Record<string, number>> = { common: 3, uncommon: 2, rare: 1 }
 
-function rollConsumable(h: RngHolder, C: ContentRegistry): string | null {
-  const list = Object.values(C.consumables).filter((c) => c.rarity !== 'special' && c.rarity !== 'starter')
+function rollConsumable(h: RngHolder, run: Pick<RunState, 'mode'>, C: ContentRegistry): string | null {
+  const list = Object.values(C.consumables).filter((c) => c.rarity !== 'special' && c.rarity !== 'starter' && (!c.route || run.mode === 'sea'))
   if (list.length === 0) return null
   return pickWeighted(h, list, (c) => CONSUMABLE_WEIGHT[c.rarity] ?? 1).id
 }
@@ -653,7 +653,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     if (junk) addCard(run, junk, C)
   }
   for (let i = 0; i < (mut.startConsumable ?? 0); i++) {
-    const id = rollConsumable(runStream(run, 'reward'), C)
+    const id = rollConsumable(runStream(run, 'reward'), run, C)
     if (id) gainConsumable(run, id, C)
   }
 
@@ -700,6 +700,8 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   if (removes > 0 && run.deck.length > removes) {
     run.screen = { kind: 'card_pick', purpose: 'remove', count: removes, returnTo: { kind: 'act_intro' } }
   }
+  const marked = !daily ? run.party.find((m) => profile.fallen?.includes(m.id)) : undefined
+  if (marked) run.residue = marked.id
   return run
 }
 
@@ -894,7 +896,7 @@ function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: 
   }
 
   const consumableChance = tier === 'normal' ? 0.25 : tier === 'elite' ? 0.5 : 0
-  const consumable = consumableChance > 0 && rand(h) < consumableChance ? rollConsumable(h, C) : null
+  const consumable = consumableChance > 0 && rand(h) < consumableChance ? rollConsumable(h, run, C) : null
 
   if (bonusAchieved(combat)) {
     const extra = rollCards(h, run, C, choiceCount, tier === 'boss' ? CARD_WEIGHTS.boss : CARD_WEIGHTS.bonus)
@@ -944,6 +946,8 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   next.tally.damageTaken += combat.stats.damageTaken
   next.tally.cardsPlayed += combat.stats.cardsPlayed
   noteFightBestiary(next, combat, C)
+  const down = combat.units.filter((u) => u.side === 'party' && u.uid !== 'connector' && u.hp <= 0).map((u) => u.uid)
+  if (down.length > 0) next.fell = [...new Set([...(next.fell ?? []), ...down])]
   const turn = combat.bestTurn
   if (turn && turnScore(turn) > (next.bestTurn ? turnScore(next.bestTurn) : 0)) next.bestTurn = { ...turn, encounterId: combat.encounterId }
   if (combat.phase === 'won' && combat.replicaUid) {
@@ -953,7 +957,7 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   if (combat.duoFired && !next.duosFired?.includes(combat.duoFired)) next.duosFired = [...(next.duosFired ?? []), combat.duoFired]
   const name = C.encounters[combat.encounterId]?.name ?? KIND_NOTE[nodeKind]
 
-  if (combat.phase === 'lost' && combat.encounterId === SECRET_ENCOUNTER) {
+  if (combat.phase === 'lost' && combat.encounterId === secretEncounter(next)) {
     // Losing to the First Connector does not undo the win: the record stays closed, the ending choice remains.
     next.hp = 1
     next.screen = { kind: 'final_choice' }
@@ -997,14 +1001,14 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
     }
     // After the final boss nothing is left to spend loot on: straight to the ending choice.
     if (next.act >= lastAct(next, C) && next.mode !== 'endless') {
-      if (combat.encounterId === SECRET_ENCOUNTER) next.flags[SECRET_WON_FLAG] = 1
+      if (combat.encounterId === secretEncounter(next)) next.flags[next.mode === 'sea' ? SEA_SECRET_WON : SECRET_WON_FLAG] = 1
       else clearCurrentNode(next)
       if (secretBossGate(next, C)) {
         // The signal does not cut out: someone is still connected. Half the missing HP back, then the last fight.
-        next.flags[SECRET_MET_FLAG] = 1
+        next.flags[next.mode === 'sea' ? SEA_SECRET_MET : SECRET_MET_FLAG] = 1
         next.hp = clamp(1, next.maxHp, next.hp + Math.ceil((next.maxHp - next.hp) / 2))
-        log(next, 'combat', C.encounters[SECRET_ENCOUNTER]!.name)
-        next.screen = { kind: 'combat', combat: beginCombat(next, SECRET_ENCOUNTER, C), nodeKind: 'boss' }
+        log(next, 'combat', C.encounters[secretEncounter(next)]!.name)
+        next.screen = { kind: 'combat', combat: beginCombat(next, secretEncounter(next), C), nodeKind: 'boss' }
         return next
       }
       next.screen = { kind: 'final_choice' }
@@ -1105,6 +1109,7 @@ function takeRoute(run: RunState, id: string, C: ContentRegistry): void {
   run.route = id
   run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents, avoid: run.staleEvents ?? [], route: id })
   run.pools.cards.push(...Object.values(C.cards).filter((c) => c.route === id && !run.pools.cards.includes(c.id)).map((c) => c.id))
+  run.pools.implants.push(...Object.values(C.implants).filter((i) => i.route === id && !run.pools.implants.includes(i.id)).map((i) => i.id))
   log(run, 'start', C.routes[id].name)
 }
 
@@ -1324,7 +1329,7 @@ export function applyImmediate(run: RunState, effects: readonly RunEffect[], C: 
         break
       }
       case 'consumable': {
-        const id = e.id ?? rollConsumable(runStream(run, 'event'), C)
+        const id = e.id ?? rollConsumable(runStream(run, 'event'), run, C)
         if (id) gainConsumable(run, id, C)
         break
       }
@@ -1572,7 +1577,7 @@ export function generateShop(run: RunState, C: ContentRegistry): ShopStock {
 
   const consumables = sample(
     h,
-    Object.values(C.consumables).filter((c) => c.rarity !== 'special' && c.rarity !== 'starter'),
+    Object.values(C.consumables).filter((c) => c.rarity !== 'special' && c.rarity !== 'starter' && (!c.route || run.mode === 'sea')),
     3,
   ).map((c) => ({ id: c.id, price: jitter(c.price > 0 ? c.price : randInt(h, 35, 70)), sold: false }))
 
@@ -1692,7 +1697,7 @@ export function restCraft(run: RunState, recipe: CraftRecipe, C: ContentRegistry
     const h = runStream(next, 'reward')
     if (recipe === 'patch') next.hp = Math.min(next.maxHp, next.hp + 8)
     else if (recipe === 'assemble') {
-      const id = rollConsumable(h, C)
+      const id = rollConsumable(h, run, C)
       if (!id || !gainConsumable(next, id, C)) return false
     } else {
       const id = rollImplant(h, next, C, { common: 3, uncommon: 2, rare: 1 })
@@ -1859,6 +1864,12 @@ export const RECORDS_NEEDED = 7
 export const SECRET_ENCOUNTER = 'a6_secret_first_connector'
 export const SECRET_MET_FLAG = 'first_connector_met'
 export const SECRET_WON_FLAG = 'first_connector_won'
+/** The Unwritten waits past the Lightkeeper for whoever carries all three logs. */
+export const SEA_SECRET = 'sea6_b_unwritten'
+export const SEA_SECRET_MET = 'sea_unwritten_met'
+export const SEA_SECRET_WON = 'sea_unwritten_won'
+export const SEA_LOGS = ['sea_log_1', 'sea_log_2', 'sea_log_3']
+const secretEncounter = (run: Pick<RunState, 'mode'>): string => (run.mode === 'sea' ? SEA_SECRET : SECRET_ENCOUNTER)
 /** Insight needed for the secret fight (bosses and elites feed resilience, so "leading" would be out of reach). */
 export const SECRET_INSIGHT = 5
 
@@ -1868,6 +1879,7 @@ export function recordCount(run: Pick<RunState, 'flags'>): number {
 
 /** The First Connector waits after the last Deep Signal boss: all First Record shards and insight ≥ SECRET_INSIGHT. */
 export function secretBossGate(run: RunState, C: ContentRegistry): boolean {
+  if (run.mode === 'sea') return !!C.encounters[SEA_SECRET] && !run.flags[SEA_SECRET_MET] && SEA_LOGS.every((k) => run.flags[k])
   if (run.mode !== 'deep' || !C.encounters[SECRET_ENCOUNTER] || run.flags[SECRET_MET_FLAG]) return false
   if (recordCount(run) < RECORDS_NEEDED) return false
   return (run.axes?.insight ?? 0) >= SECRET_INSIGHT

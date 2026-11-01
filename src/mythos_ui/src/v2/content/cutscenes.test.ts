@@ -39,7 +39,7 @@ test('texts: bilingual, a few sentences, no mechanics numbers, titles short', ()
   }
 })
 
-const POLITE = new Set(['kai', 'io', 'doyun', 'rem'])
+const POLITE = new Set(['kai', 'io', 'doyun', 'rem', 'seo_ha'])
 
 test('each companion keeps their speech register in the dialogue', () => {
   const polite = /(요|니다|세요)[.”"?!]/

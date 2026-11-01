@@ -1,0 +1,1377 @@
+{
+ "images": {
+  "v2/events/sea4_ev_hook.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One middle-aged Korean dock rigger in worn work clothes kneeling beside a massive crane hook, holding a pry bar beside a trapped lunch box. Dry concrete dock, intact paint above the rusted underside. One restrained effect: a few falling rust flakes. No other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_tide_table.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean harbor duty clerk at a cramped desk, pencil poised over an old tide table beside a mechanical alarm clock. Window overlooking dusty stairs. One restrained effect: a faint amber alarm light. Paper markings illegible, no other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_work_boots.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One worn rubber work boot hanging upside down from a dry dock railing, repaired lining visible at the opening. Empty dock wall receding behind it. One restrained effect: a thin fall of dust from the sole. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_buoy.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One battered navigation buoy lying in a completely dry concrete channel, longitudinal scratches on its body and a taut mooring line leading inland. One restrained effect: a small pool of inspection light across the scratches. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_high_cot.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean lodging caretaker fitting a screw beneath a bed fixed at shoulder height inside an empty shipping container. A pale horizontal stain near the ceiling, dusty floor and folded ladder. One restrained effect: a slight glint on the screw. No other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_supper_seat.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean lodging caretaker lowering a dining chair from a wall bracket in a modest dockworkers dining room. Small soup burner and old heating pipes in the background. One restrained effect: a narrow wisp of steam at a leaking valve. No other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_seized_coat.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One older Korean tailor examining the cuff of a repaired coat laid across a counter. A blank seizure tag catches loose threads beside a closed collection hatch. One restrained effect: a muted amber timer light. No other people, no letters or readable markings, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_salt_wall.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean industrial medic scraping a narrow waist-high band of salt crystals from a wall into a shallow dish. An empty infirmary cot and capped freshwater pipe in the background. One restrained effect: a small fall of white crystal grains. No other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_wet_roster.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean attendance clerk carefully separating damp roster pages with blotting paper at an old harbor desk. Dry window frame and silent copier behind the desk. One restrained effect: a subdued wet sheen along the bottom page. All writing illegible, no other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_roster_window.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean customs reception clerk behind plain glass, hand resting uncertainly above a rubber stamp beside a rotating submission tray. A schematic harbor map with an obvious blank gap but no labels. One restrained effect: a small green terminal light. No other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_survivor_allowance.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One elderly Korean dock pensioner erasing a form at a narrow claims desk, tired face carrying a dry hint of amusement. A portable foghorn tucked beneath the desk. One restrained effect: a dim red rejection light on the terminal. All forms blank or illegible, no other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_bottle_ring.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One empty glass bottle standing mouth down on a dry wooden measuring-room bench, a narrow damp ring around its lip. Scraped plaster wall and desk shadow in the background. One restrained effect: a tiny condensation bead at the rim. No people, no markings, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_classroom.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean night-school teacher holding brown chalk over a childlike harbor drawing, a small blue patch still visible beneath the drawn hull. Modest empty classroom with a plain attendance camera. One restrained effect: a few suspended chalk grains. No other people, no letters or numbers, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_brake.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One stocky Korean dock mechanic pressing a jammed buffer brake plate with a work boot, pointing toward a trapped wearable support device. A deep empty dock beyond the buffer. One restrained effect: a faint oil sheen on the plate. No other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_ration_scale.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean canteen cook adjusting an old mechanical serving scale beside a capped pipe where a tank once stood. Bare counter and a plain bowl. One restrained effect: a small wisp of steam from the bowl. Scale face unmarked, no other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_diving_board.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean bathhouse caretaker holding a duster beside an old springboard over a completely drained rectangular basin. Peeling paint exposes traces of an old depth scale without readable characters. One restrained effect: a faint drift of plaster powder. No other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_export_index.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean customs accountant aligning the cut edges of a long paper roll across a utilitarian desk, one shoe holding the trailing paper in place. A calculator and plain audit terminal nearby. One restrained effect: a tiny amber warning light. All entries illegible, no other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_pillow_seam.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One older Korean laundry worker stitching a waterproof pillow, an air bladder and underarm straps partly exposed at the seam. Small dock lodging workroom with folded cloth. One restrained effect: a slight reflected glint on the sewing needle. No other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_memorial_stone.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One Korean mourner paused with a paintbrush above a small memorial stone beside an empty chair outside dock lodging. White paint partly covers shallow carved grooves. One restrained effect: a single fresh paint drip. Carving unreadable, no other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_compass.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One old departure-room compass with its case open, a bent spindle beneath glass bearing overlapping painted direction marks without letters. A sealed doorway blurred in the background. One restrained effect: a narrow reflected highlight along the needle. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_shift_knot.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one middle-aged female longshore worker as the sole subject on a flooded barge landing in Haemun, her hands paused halfway through a mooring knot, practical patched workwear, muted industrial colors, one restrained effect: a thin gray wash around her boots, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_seam_allowance.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one older seamstress as the sole subject at a small barge repair stall, carefully holding an inside-out child-sized sleeve, worn scissors resting nearby, quiet concentration, one restrained effect: a faint gray wet sheen on her fingertips, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_borrowed_name.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one seated human-shaped Residue as the sole subject at a flooded bus stop in Haemun, ordinary clothing and an incomplete face with a clearly formed mouth, calm pleading posture, one restrained effect: a slight watery blur at the edges of the figure, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_tide_columns.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one male breakwater attendant as the sole subject studying a folded tide table beside concrete steps, one finger resting beyond the printed grid, battered work jacket, one restrained effect: a narrow gray splash at the lowest step, all paper markings indistinct, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_broken_handle.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one young male longshore worker as the sole subject bracing a loaded handcart with his boot on a sloping wooden ramp, broken handle and strained shoulders, one restrained effect: gray water dripping from his trouser cuffs, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_bottle_seller.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one elderly bottle seller as the sole subject beneath a weathered awning at a barge market, holding a small stoppered bottle toward daylight, familiar tired face and practical layered clothes, one restrained effect: a small gray ripple inside the glass, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_empty_stall.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one fish seller as the sole subject leaning away from a rent scanner in a cramped floating market stall, damp apron and an expression of offended disbelief, one restrained effect: a small amber scanner light on his cheek, terminal display dark and unreadable, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_buoy_hand.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one battered navigation buoy as the sole subject beside a concrete breakwater, a compact mechanical rescue hand unfolding from its casing, ordinary maritime engineering and frayed rope, one restrained effect: a narrow gray wake touching its base, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_room_203.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one worn interior door handle as the sole subject in an otherwise bare flooded apartment, chipped paint and traces of former furniture on the wall, one restrained effect: a single gray droplet hanging beneath the handle, no people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_name_called.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one female net mender as the sole subject at the foot of a narrow exterior stairway in a flooded neighborhood, netting needle held tightly against her work apron, alert searching expression, one restrained effect: a faint water reflection on the lower wall, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_salt_palms.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one male barge cook as the sole subject beside a small griddle, inspecting salt caught in the creases of his open palm, worn kitchen clothes and a puzzled expression, one restrained effect: a small wisp of steam above the griddle, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_doorway_line.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one female resident as the sole subject at a metal flood shelter entrance, reaching an empty hand behind her at the height of a small child, damp sleeve rolled back to reveal faint finger marks, one restrained effect: gray water gathering around her shoes, no second figure, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_crane_hook.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one rusty crane hook as the sole subject suspended at human chin height above a market hoist platform, heavy industrial weight and frayed lifting gear, one restrained effect: a single falling droplet from the hook tip, no people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_wet_roll.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one female school clerk as the sole subject pressing a soaked attendance sheet flat on a classroom desk, evacuation bedding softly out of focus behind her, one restrained effect: water seeping beneath her hand, all paper markings indistinct, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_foghorn_breath.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one male night attendant as the sole subject beside an industrial foghorn valve on a breakwater platform, hand on the wheel and chest lifted for a long breath, one restrained effect: a faint curl of condensed breath, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_other_key.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one female plumber as the sole subject kneeling beside an old apartment emergency locker, two fingertips poised over a battered tool case, practical waterproof workwear, one restrained effect: a thin gray trickle from an access hatch, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_canteen_token.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one older female longshore canteen cook as the sole subject removing scallions from a meal at an empty seat, crowded practical kitchen and rocking barge interior, one restrained effect: a small thread of steam from the plate, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_drain_knocks.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one heavy circular drain cover as the sole subject in a cramped breakwater drainage room, worn bolts and ankle-deep gray water, one restrained effect: three close ripples touching the metal edge, no people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_blank_container.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one female map repairer as the sole subject kneeling inside an empty shipping container on a flooded lot, tracing a rough house layout on the floor with one fingertip, open doorway and unfinished room outlines, one restrained effect: a shallow gray wash reaching her hand, no second figure, no lettering, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea5_ev_surgeon_grip.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions, one female prosthetics maker as the sole subject at a practical breakwater repair bench, studying her own precise surgical grip while a compact assist unit rests nearby, worn dry gloves laid aside, one restrained effect: a single gray droplet at her wrist, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_hook_transfer.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. A single middle-aged Korean longshore worker in a worn lifting harness, standing on an offshore steel walkway, bare dry hands held away from damp work gloves. One restrained effect: a thin band of harbor mist. Muted industrial colors, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_coat_hem.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. A single Korean seamstress seated at a compact sewing machine, carefully turning up the hem of a heavy charcoal watch coat in a cramped lighthouse repair room. One restrained effect: a small warm pool of task light. No text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_missing_hours.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single worn paper tide chart as the subject on an angled inspection desk, abstract timing marks with no legible characters, subsea station architecture softly out of focus. One restrained effect: a faint cool indicator reflection. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_inward_buoy.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single weathered navigation buoy mounted beside an offshore walkway, its hooded lamp directed toward a dry landward platform. One restrained effect: a narrow pale beam through light fog. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_coffin_rent.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. A single tired Korean longshore porter sitting upright beside a plain utilitarian coffin used as temporary sleeping furniture, an ordinary pillow under one arm, a small blank adhesive label on the lid. One restrained effect: dim amber shelter lighting. Quiet bureaucratic dark humor, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_wet_names.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single waterlogged paper list held in a wall-mounted drying clip outside a sealed shelter door, indistinct ink marks with no readable characters. One restrained effect: a droplet catching weak light at the lower edge. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_dry_sump.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single cluster of salt crystals on the rim of a steel drainage sump, municipal pipes and thick subsea cables blurred behind it. One restrained effect: a faint gray reflection from water below. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_sealed_voice.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single sealed glass bottle containing dull gray water on a dry shelter bench, secure storage compartments blurred in the background. One restrained effect: a gentle internal ripple. No faces in the water, no people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_foghorn_pitch.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single old industrial foghorn with a manual lever, bolted beside an offshore staircase. One restrained effect: a thin veil of sea fog behind its mouth. Subdued steel and ochre palette, no people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_lens_cradle.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single massive lighthouse lens resting in an aging mechanical cradle, worn bearings and a compact service arm visible beneath it. One restrained effect: a narrow pale reflection through the glass. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_borrowed_shift.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. A single young adult Korean harbor resident gripping a stiff watch handle with both hands, exhausted posture, dry sleeves, patched watertight door behind her. One restrained effect: a soft amber duty light. No text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_second_supper.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single covered supper tray at the edge of a modest lighthouse dining table, an empty place setting softly out of focus beside it. One restrained effect: a small trace of warmth escaping beneath the lid. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_two_signatures.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single old folded agreement on a hand-powered archive reader, two separate abstract signature impressions with no legible writing, worn paper fibers and metal fittings. One restrained effect: a weak warm reading light. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_copy_window.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. A single elderly Korean Keeper in a plain weatherproof coat at a small reception window, one dry hand resting beside a public-access switch, restrained weary expression. One restrained effect: a muted green indicator glow. No text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_wrong_size.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. A single adult Korean harbor runner seated on a dry repair platform, examining an ill-fitting left shoe with cut insole pieces near one foot. One restrained effect: soft workshop light on the hands. No text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_handwheel.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. A single exhausted Korean duty Keeper gripping a large drainage handwheel, cramped fingers and braced shoulders, enclosed offshore maintenance corridor. One restrained effect: a dim red indicator reflection on steel. No text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_covered_coast.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single heavy cloth draped over the lower half of an old wall map, only a small unlabeled stretch of coastline exposed beneath the edge. One restrained effect: soft side lighting across the fabric. No people, no readable symbols, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_name_first.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. A single adult Korean survivor seated at a utilitarian washstand, one wrist loosely secured with a broad safety strap, the other hand resting beside dry gauze. One restrained effect: a cool overhead reflection on the basin. Dignified and non-graphic, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_warm_bench.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level. A single worn heated bench inside an empty shipping container converted into a lighthouse shelter, exposed repair pipe beneath the seat, simple insulated walls. One restrained effect: a small amber heating indicator. No people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea6_ev_return_stair.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. A single weathered Korean Keeper standing between two plain chalk lanes on an offshore staircase, calm tired posture, distant gray horizon. One restrained effect: faint lighthouse illumination across the stair edge. No other figures, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/cards/sea_salt_palm.webp": {
+   "prompt": "One dockworker with a salt-crusted cybernetic palm thrust forward, braced for a downward shove. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_frayed_rope.webp": {
+   "prompt": "One length of frayed mooring rope coiled into a striking loop, sharp metallic fibers exposed. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_stern_line.webp": {
+   "prompt": "One heavy stern line with an integrated magnetic clasp, its taut curve suggesting a powerful downward pull. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_dry_footing.webp": {
+   "prompt": "One harbor runner balancing on one foot, boots wet and coat hem edged with salt. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_deck_signal.webp": {
+   "prompt": "One longshore worker giving a clear directional hand gesture with a luminous glove. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_watch_bell.webp": {
+   "prompt": "One battered brass watch bell with a small embedded amber circuit and a salt-stiffened clapper. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_tide_reserve.webp": {
+   "prompt": "One translucent pressure vessel holding dark seawater beneath a sealed copper cap, a faint charge gathering inside. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_brine_shell.webp": {
+   "prompt": "One curved translucent brine membrane held within a corroded metal rim, pale salt crystals along its edge. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_winch_leverage.webp": {
+   "prompt": "One portable dock winch with a long steel lever, chipped enamel and taut internal cable. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_salt_sight.webp": {
+   "prompt": "One retired harbor pilot studying a white salt streak across a cybernetic palm. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_breaker_ram.webp": {
+   "prompt": "One heavy hydraulic dock ram with a wet blunt face and compressed pressure chambers. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_cleat_lock.webp": {
+   "prompt": "One iron mooring cleat wound tightly with cutting wire, corrosion polished away at the contact points. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_red_soundings.webp": {
+   "prompt": "One harbor runner lunging forward with a blood-stained forearm and a taut cable at the waist. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_pilot_exchange.webp": {
+   "prompt": "One elderly female harbor pilot turning sharply with an outstretched guiding hand, weathered oilskin coat. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_slack_water.webp": {
+   "prompt": "One still-water tide gauge with a mechanical float resting between corroded rails, no markings. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_stored_surge.webp": {
+   "prompt": "One sealed wave accumulator bulging with compressed gray seawater, copper ribs under strain. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_low_water_sweep.webp": {
+   "prompt": "One longshore worker swinging a long deck squeegee low across the body, salt spray tracing the motion. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_drowned_names.webp": {
+   "prompt": "One indistinct human figure formed from gray seawater, fragile facial contours and salt crystals suggesting a forgotten person. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_last_tide.webp": {
+   "prompt": "One old mechanical tide clock with an unmarked face and a single amber pointer held at its final notch. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/cards/sea_harbor_turn.webp": {
+   "prompt": "One retired female harbor pilot leaning into a decisive turn, one arm shielding the chest and the other directing a change of course. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "600x800"
+  },
+  "v2/implants/sea_salt_ratchet.webp": {
+   "prompt": "One compact neural ratchet implant with salt crystals caught between its steel teeth. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_bilge_float.webp": {
+   "prompt": "One buoyant implant capsule with a cork outer ring and a tiny sealed mechanical float. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_watch_escapement.webp": {
+   "prompt": "One miniature brass escapement implant with an amber oscillator and surgical contacts. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_brine_reservoir.webp": {
+   "prompt": "One translucent implant reservoir filled halfway with gray brine, a ceramic valve sealing its neck. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_red_depth_gauge.webp": {
+   "prompt": "One rib-mounted depth gauge implant with a crimson fluid chamber and an unmarked pressure diaphragm. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_lee_anchor.webp": {
+   "prompt": "One anchor-shaped sternum implant with broad protective flukes and flexible silver contacts. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_mooring_nerve.webp": {
+   "prompt": "One looped artificial nerve threaded through a miniature mooring ring, amber pulses under wet insulation. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_fender_lattice.webp": {
+   "prompt": "One flexible rib implant resembling a ship fender, black rubber cells enclosing a copper lattice. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_salvage_lung.webp": {
+   "prompt": "One artificial lung with a barnacle-textured ceramic shell and translucent air chambers. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_fog_compass.webp": {
+   "prompt": "One compass-shaped ocular implant with an unmarked face, a suspended needle and clouded glass. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_return_spool.webp": {
+   "prompt": "One neural memory spool wound with wet silver filament, a single damaged contact exposing dark copper. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/implants/sea_ballast_heart.webp": {
+   "prompt": "One heavy artificial heart with ballast chambers full of gray seawater and a restrained amber glow. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_boat_hook.webp": {
+   "prompt": "One telescoping boat hook with a chipped steel tip and insulated cybernetic grip. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_caulk_mallet.webp": {
+   "prompt": "One wooden shipwright caulking mallet reinforced with corroded metal bands. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_oyster_knife.webp": {
+   "prompt": "One short oyster knife with a thick salt-stained blade and a guarded industrial handle. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_sounding_rod.webp": {
+   "prompt": "One segmented sounding rod with an unmarked ceramic tip and a dim amber sensor. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_cable_shears.webp": {
+   "prompt": "One heavy pair of hydraulic submarine cable shears with wide steel jaws. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_capstan_bar.webp": {
+   "prompt": "One long capstan bar with a flattened iron end and a worn rubber grip. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_rivet_driver.webp": {
+   "prompt": "One compact pneumatic hull rivet gun with a scarred pressure chamber and copper tubing. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_grapnel.webp": {
+   "prompt": "One folding salvage grapnel with four hooked steel flukes and an integrated cable socket. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_harpoon.webp": {
+   "prompt": "One pneumatic harpoon launcher with a barbed steel shaft and a brine-stained pressure cylinder. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_sea_line_thrower.webp": {
+   "prompt": "One rescue line launcher with a compact cable drum and a blunt weighted projectile. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_cork_vest.webp": {
+   "prompt": "One worn cork life vest with sealed flotation blocks and a small industrial clasp. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_oilskin.webp": {
+   "prompt": "One empty dark oilskin coat with a high collar, wet folds and salt along its seams. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_net_apron.webp": {
+   "prompt": "One heavy net mender apron with reinforced mesh panels and frayed protective edging. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_pilot_goggles.webp": {
+   "prompt": "One pair of harbor pilot goggles with amber lenses and a corroded metal bridge. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_diving_corselet.webp": {
+   "prompt": "One old diving corselet with a broad brass neck ring and layered pressure plates. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_deck_boots.webp": {
+   "prompt": "One deck boot with a deep anti-slip sole, steel ankle brace and dried salt deposits. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_storm_bib.webp": {
+   "prompt": "One empty storm bib overall with thick waterproof panels and reinforced chest buckles. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_barnacle_guard.webp": {
+   "prompt": "One armored forearm sleeve covered in hardened ceramic growths resembling barnacles. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_pressure_suit.webp": {
+   "prompt": "One empty articulated pressure suit with a sealed collar and layered flexible armor. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_sea_salvage_harness.webp": {
+   "prompt": "One powered salvage harness with compact hydraulic hip joints and a padded steel back frame. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/consumables/sea_salt_ampoule.webp": {
+   "prompt": "One sealed medical ampoule of pale saline with a ceramic injector tip and no label. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/consumables/sea_line_charge.webp": {
+   "prompt": "One disposable mooring line pressure cartridge with a tightly wound cutting filament. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/consumables/sea_fog_canister.webp": {
+   "prompt": "One squat harbor fog canister with a corroded valve and a faint mist escaping its nozzle. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "v2/consumables/sea_sealed_cell.webp": {
+   "prompt": "One waterproof industrial battery cell with ceramic seals and a recessed amber charge window. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "size": "512x512"
+  },
+  "characters/mujin.png": {
+   "prompt": "Portrait of Mujin, a Korean crane operator and dock foreman in his fifties, broad weathered face, short iron-gray hair, faded orange work jacket, reinforced gloves resting below the frame, tired attentive eyes, dry industrial harbor background. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a faint warm reflection along one cheek. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1024x1280"
+  },
+  "characters/seo-ha.png": {
+   "prompt": "Portrait of Seo-ha, a Korean retired harbor pilot in her sixties, silver hair tied low, sun-weathered face, dark teal waterproof coat with a high collar, practical layered clothes, a small dry smile, empty dock passage behind her. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one soft reflected glint in her eyes. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1024x1280"
+  },
+  "characters/parang.png": {
+   "prompt": "Portrait of Parang, an androgynous Korean child about eleven, ordinary child proportions, uneven dark hair, oversized faded blue raincoat, bare unadorned face, salt-damp cuffs, quiet watchful expression, gray harbor wall behind. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a single faint pale reflection along one wet sleeve. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1024x1280"
+  },
+  "characters/navigator.png": {
+   "prompt": "Portrait of the Navigator, an androgynous Korean adult connector in a weathered navy expedition coat, short dark hair, practical flotation harness, compact wrist instrument without visible markings, observant composed expression, erased harbor behind. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a faint amber glow from the wrist instrument. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1024x1280"
+  },
+  "v2/implants/tide_table.webp": {
+   "prompt": "Square inventory illustration of a palm-sized weathered brass tide-table implant, layered concentric mechanical rings and a blank ceramic inset, no labels or readable markings, resting on dark waterproof fabric. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one small amber indicator glow. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "512x512"
+  },
+  "v2/cards/mujin_shoulder_in.webp": {
+   "prompt": "Square card illustration of Mujin in a faded orange dock jacket driving his shoulder into an armored Customs unit on a narrow quay, grounded stance and visible weight. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a small puff of concrete dust at contact. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/mujin_hook_line.webp": {
+   "prompt": "Square card illustration of Mujin pulling a taut crane-hook line caught around a Customs machine, the worn steel hook and gloved hands clearly readable. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one brief spark where the hook catches metal. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/mujin_container_drop.webp": {
+   "prompt": "Square card illustration of Mujin guiding a lowered empty freight container into a gap between dock lanes, the container forming solid cover, clear believable suspension cables. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a narrow cloud of dust beneath the settling container. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/mujin_deadweight.webp": {
+   "prompt": "Square card illustration of Mujin bringing a compact industrial counterweight down onto a Customs machine at arm’s reach, heavy controlled motion and solid footing. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one small spray of rust flakes at impact. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/mujin_clear_the_quay.webp": {
+   "prompt": "Square card illustration of Mujin releasing a suspended steel cargo beam across a crowded dock lane, nearby machines losing their footing, clearly readable lateral force. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a single low ribbon of dust along the beam’s path. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/seo_ha_pass_the_wake.webp": {
+   "prompt": "Square card illustration of silver-haired Seo-ha stepping into a threatened ally’s place while guiding the ally behind her, faded teal coat, practical movement on a wet quay. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one small wake curling around their boots. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/seo_ha_read_the_tide.webp": {
+   "prompt": "Square card illustration of Seo-ha crouching to study the waterline against a corroded dock wall, silver hair tied low, calm attention rather than a magical pose. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a faint reflected ripple of light beneath her eyes. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/seo_ha_safe_channel.webp": {
+   "prompt": "Square card illustration of Seo-ha pointing an ally through a narrow dry passage between flooded dock foundations, protective body position and clear destination. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one thin ripple crossing the abandoned route. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/seo_ha_harbor_shelter.webp": {
+   "prompt": "Square card illustration of Seo-ha gathering exhausted travelers behind a heavy harbor windbreak, readable faces and practical layered clothing, enclosing solid shapes. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a small sheet of spray breaking against the outside wall. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/seo_ha_last_crossing.webp": {
+   "prompt": "Square card illustration of Seo-ha staying behind the last traveler at a narrow harbor crossing, one hand extended to guide the group, dangerous gray water close below. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a single soft lamp reflection along the safe passage. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/parang_take_mark.webp": {
+   "prompt": "Square card illustration of Parang in an oversized blue raincoat reaching toward a marked Customs machine, one small hand extended, ordinary child anatomy and a serious expression. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one dim red mark mirrored between the machine and the child’s sleeve. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/parang_other_shore.webp": {
+   "prompt": "Square card illustration of Parang and a Customs unit exchanging places across a short wet dock passage, opposing footprints make the change legible, no duplicate bodies. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one narrow distortion in the puddle between their positions. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/parang_borrow_ache.webp": {
+   "prompt": "Square card illustration of Parang touching a wounded machine’s casing and then holding a small hand against a blue sleeve, tenderness and burden, no visible gore. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one fine red thread of light between the casing and the sleeve. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/parang_salt_pulse.webp": {
+   "prompt": "Square card illustration of Parang bracing a trembling wrist and extending the other palm toward a Customs machine, oversized faded raincoat, pain conveyed through posture, no gore. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a single compact pale pulse leaving the open palm. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/parang_last_borrow.webp": {
+   "prompt": "Square card illustration of Parang standing small and steady before several hostile machines in a dark harbor lane, eyes open, raincoat held close, the burden visible in the posture. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one translucent band of overlapping remembered faces passing behind the child. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_sound_depth.webp": {
+   "prompt": "Square card illustration of the Navigator lowering a weighted sounding line beside an industrial quay, navy coat and compact wrist instrument, careful practical inspection. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one small ring spreading where the weight touches water. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_chart_course.webp": {
+   "prompt": "Square card illustration of the Navigator and an ally changing places at a narrow dock junction, the Navigator indicating a safe route with an open hand. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one faint amber reflection from the wrist instrument. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_slack_water.webp": {
+   "prompt": "Square card illustration of the Navigator waiting beside a motionless stretch of harbor water, grounded patient posture, navy expedition coat and practical harness. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one lingering ripple settling against the quay. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_tow_line.webp": {
+   "prompt": "Square card illustration of the Navigator hauling a taut industrial towline attached to a Customs machine, the machine pulled off its firing position, readable tension. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one brief spark beneath a dragging metal foot. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_give_way.webp": {
+   "prompt": "Square card illustration of the Navigator stepping aside to open a narrow passage for an ally, protective hand against the quay wall, practical coordinated movement. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one small splash under the ally’s advancing boot. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_bearing_shot.webp": {
+   "prompt": "Square card illustration of the Navigator aiming a compact practical sidearm down a long empty dock lane, steady stance, visible alignment between arm and target. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one restrained amber aiming point on distant armor. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_night_watch.webp": {
+   "prompt": "Square card illustration of the Navigator keeping anchor watch while companions rest behind a solid dock barrier, navy coat, tired alert eyes, compact composition. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one warm pool of light from a sheltered lamp. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_reserve_wind.webp": {
+   "prompt": "Square card illustration of the Navigator closing a compact mechanical charge reservoir at the wrist, deliberate preparation, scuffed navy sleeve and brass fittings. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one soft amber glow under the reservoir’s seam. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_cross_current.webp": {
+   "prompt": "Square card illustration of a crosswise harbor current forcing machines away from a dock intersection while the Navigator directs the timing from stable footing. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one restrained band of disturbed water through the center. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/cards/navigator_safe_harbor.webp": {
+   "prompt": "Square card illustration of the Navigator ushering the whole party behind a thick breakwater while leaving space for the last companion, grounded protective composition. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one low sheet of spray against the seaward wall. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "600x800"
+  },
+  "v2/events/sea_arc_mujin_1.webp": {
+   "prompt": "Wide narrative still at the dry harbor floor, Mujin in a faded orange work jacket and an adult traveler straining at a manual crane brake, a single rusted hook suspended low between them, eye-level view of their effort. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a faint trickle of rust dust from the brake housing. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_arc_mujin_2.webp": {
+   "prompt": "Wide narrative still inside a flooded workers’ dormitory, Mujin touching a wet shift list on a failing wall while an adult companion stands close, the list has only indistinct unreadable strokes, water below their knees. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one small ripple against the wall. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_arc_mujin_3.webp": {
+   "prompt": "Wide narrative still beneath the last lighthouse, Mujin sitting on the threshold of an empty freight container beside an adult companion, the bare interior plainly visible, weathered hands finally relaxed. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a thin veil of sea mist passing through the open doorway. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_arc_seo_ha_1.webp": {
+   "prompt": "Wide narrative still at the dry harbor dormitories, silver-haired Seo-ha in a faded teal coat showing a tide table to travelers, the paper contains abstract unreadable markings only, practical concern on her face. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one shallow tongue of water reaching the ground behind them. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_arc_seo_ha_2.webp": {
+   "prompt": "Wide narrative still at a flooded residential entrance, Seo-ha and an adult traveler bracing a displaced channel buoy, empty dark windows beyond, the buoy is the scene’s sole prominent prop. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one small reflected buoy light trembling on the water. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_arc_seo_ha_3.webp": {
+   "prompt": "Wide narrative still outside the last lighthouse, Seo-ha’s weathered hand resting beside a foghorn lever, an adult companion close enough to offer a hand, her face wet and composed, no vessel visible. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a single soft bank of fog beyond the railing. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_arc_parang_1.webp": {
+   "prompt": "Wide narrative still outside a Customs warehouse, a wet child in an oversized faded blue raincoat sitting at adult eye level on a low loading ledge, an unmarked seizure sticker on one sleeve, a traveler kneeling nearby. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one small droplet falling from the sleeve. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_arc_parang_2.webp": {
+   "prompt": "Wide narrative still in a barge market, Parang offering a single salt crystal to an adult traveler’s open hand, ordinary child proportions, quiet uncertainty, blurred stalls without signs. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one faint warm reflection inside the salt crystal. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_arc_parang_3.webp": {
+   "prompt": "Wide narrative still at the lighthouse lens, Parang and an adult traveler holding their hands near the glass at the child’s eye level, the blue raincoat and small fingers distinct, restrained intimate composition. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: one faint sequence of remembered human faces reflected within the lens. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "size": "1600x900"
+  },
+  "v2/recruit/mujin.webp": {
+   "prompt": "Wide 1600 by 900 narrative still, painterly cyberpunk realism, eye level, natural proportions. Mujin, a broad Korean dock foreman in his fifties with short iron-gray hair, a faded orange work jacket and heavy work boots, braces an empty industrial cargo trolley on a sloping freight platform at the southern edge of Neo-Seoul. An adult traveler approaches from the safe side. Clear wheel placement, believable weight and restrained physical effort. Corroded infrastructure, muted amber work lights and cold gray daylight. The trolley is the sole prominent prop. No text, lettering, logos or watermarks.",
+   "size": "1600x900"
+  },
+  "v2/recruit/seo_ha.webp": {
+   "prompt": "Wide 1600 by 900 narrative still, painterly cyberpunk realism, eye level, natural proportions. Seo-ha, a Korean retired harbor pilot in her sixties with silver hair tied low, a weathered face and a faded teal waterproof coat, crouches at a southern freight tunnel entrance and draws a single short chalk line on a damp wall. Shallow water is about to cover the line. An adult traveler waits on dry ground behind her. Practical caution, subdued teal industrial lighting and ordinary human anatomy. The chalk is the sole prominent handheld prop. No text, lettering, numerals, logos or watermarks.",
+   "size": "1600x900"
+  },
+  "v2/recruit/parang.webp": {
+   "prompt": "Wide 1600 by 900 narrative still, painterly cyberpunk realism, eye level at the seated child, natural proportions. Parang, an androgynous Korean child about eleven with uneven dark hair, an oversized faded blue raincoat and scuffed shoes, sits beneath an industrial freight line trying to tie one loose shoelace. An adult traveler kneels nearby and steadies one loop while the child pulls the other. Small ordinary hands with anatomically correct fingers, careful attention and tentative companionship. Damp concrete and restrained reflected harbor light. The shoelace is the sole focal prop. No text, lettering, logos or watermarks.",
+   "size": "1600x900"
+  },
+  "v2/cutscenes/mujin_open_gloves.webp": {
+   "prompt": "Wide 1600 by 900 quiet safehouse still, painterly cyberpunk realism, eye level, natural proportions. Mujin, a broad Korean man in his fifties with short iron-gray hair and a faded orange work jacket, sits beside an adult traveler near a warm air vent. Both gently straighten the fingers of a single pair of stiff wet work gloves placed before the vent. Mujin’s bare hands are weathered and anatomically correct. Small practical gesture of trust, subdued amber warmth against cool industrial walls. The gloves are the sole focal prop. No text, lettering, logos or watermarks.",
+   "size": "1600x900"
+  },
+  "v2/cutscenes/mujin_pulled_chair.webp": {
+   "prompt": "Wide 1600 by 900 quiet safehouse still, painterly cyberpunk realism, eye level, natural proportions. Mujin, a broad Korean dock foreman in his fifties with short iron-gray hair and a faded orange work jacket, sleeps leaning back in a plain sturdy chair pulled close to a seated adult traveler. The safehouse doorway is distant at the edge of the composition. Relaxed weathered hands, believable resting posture and tired facial muscles. Low warm light, modest industrial shelter. The chair is the sole prominent prop. No text, lettering, logos or watermarks.",
+   "size": "1600x900"
+  },
+  "v2/cutscenes/seo_ha_quiet_kettle.webp": {
+   "prompt": "Wide 1600 by 900 quiet safehouse still, painterly cyberpunk realism, eye level, natural proportions. Seo-ha, a Korean woman in her sixties with silver hair tied low, a weathered kind face and a faded teal waterproof coat, sits beside an adult traveler listening to a plain kettle recently removed from the heat. Her hands rest folded in her lap and her expression eases into quiet relief. A faint wisp of steam, sheltered amber lighting and worn industrial walls. The kettle is the sole prominent prop. No text, lettering, logos or watermarks.",
+   "size": "1600x900"
+  },
+  "v2/cutscenes/seo_ha_folded_towel.webp": {
+   "prompt": "Wide 1600 by 900 quiet safehouse still, painterly cyberpunk realism, eye level beside a low resting platform, natural proportions. Seo-ha, a Korean retired harbor pilot in her sixties with silver hair tied low and a faded teal coat, lies resting with a folded plain towel supporting her neck. A seated adult traveler gently smooths one corner of the towel. Her eyes are closed and her face is relaxed. Intimate restrained composition, soft predawn light and a modest industrial interior. The towel is the sole focal prop. No text, lettering, logos or watermarks.",
+   "size": "1600x900"
+  },
+  "v2/cutscenes/parang_window_circle.webp": {
+   "prompt": "Wide 1600 by 900 quiet safehouse still, painterly cyberpunk realism, eye level at the child, natural proportions. Parang, an androgynous Korean child about eleven with uneven dark hair and an oversized faded blue raincoat, draws two imperfect circles with a fingertip on a condensation-covered window. An adult traveler’s hand has placed a simple dot nearby. Small ordinary hands, absorbed curiosity and a hint of satisfaction. Cool glass against warm sheltered light. Only simple circles and dots on the glass, no symbols resembling writing. No text, lettering, logos or watermarks.",
+   "size": "1600x900"
+  },
+  "v2/cutscenes/parang_morning_name.webp": {
+   "prompt": "Wide 1600 by 900 quiet safehouse still, painterly cyberpunk realism, eye level beside a low sleeping platform, natural proportions. Parang, an androgynous Korean child about eleven with uneven dark hair and an oversized faded blue raincoat, lies asleep with one small hand relaxed beside a blue sleeve. An adult traveler sits nearby, dimming a small plain nightlight. Ordinary child anatomy, gentle breathing suggested by a natural resting posture, protected domestic quiet within a worn industrial shelter. The nightlight is the sole prominent prop. No text, lettering, logos or watermarks.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_log_1.webp": {
+   "prompt": "A water-warped notebook covered in layered seizure tags on the bottom shelf of a dim customs store. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_ix_warning.webp": {
+   "prompt": "A rusted payphone at the end of a dry wharf, its cut cord trailing on salt-crusted concrete, ringing, cranes far behind. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_log_2.webp": {
+   "prompt": "An old man at a barge stall with a magnifier pushed up on his forehead, unlabeled bottles each holding one point of light, gray water around the barge. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_drowned_roll.webp": {
+   "prompt": "A pale human shape on flooded residential stairs holding a wet paper roll, standing exactly where the gray water ends. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_log_3.webp": {
+   "prompt": "An arm-thick undersea cable rising through a steel station floor, a kneeling shift worker writing in a log beside it, fog beyond the railings. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1600x900"
+  },
+  "v2/events/sea_lamp_room.webp": {
+   "prompt": "A small round room at the top of a spiral stair, two tea cups on a table, one steaming, a slow lighthouse beam crossing the window. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1600x900"
+  },
+  "v2/ending/ending_sea_return.webp": {
+   "prompt": "Wide cinematic ending illustration. You put out the light. In days the gray water climbs the drains to Neo-Seoul. People stop on their way to work and weep, calling names they do not know. The city cannot work for a while. And for the first time it starts to ask who these people were. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/ending/ending_sea_keeper.webp": {
+   "prompt": "Wide cinematic ending illustration. The Lightkeeper smiles one last time and hands over the log. You sit in the lamp room and turn the light every twelve seconds. Neo-Seoul sleeps and knows nothing. Your crew come by boat now and then and leave food. You write down how far the water came. Today too, without fail. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/ending/ending_sea_wall.webp": {
+   "prompt": "Wide cinematic ending illustration. You neither put out the light nor keep it. You carry stone with the people of Haemun. On tide days they stand in the water in shifts, each taking on as much memory as they can bear, then stepping back. They just call it the shift. The log gains a name a line at a time. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/ending/ending_sea_chart.webp": {
+   "prompt": "Wide cinematic ending illustration. You put the tide table on every screen in Neo-Seoul. When the water comes in, when it goes out, and why. At first nobody believes it. By next month children know the times by heart. What frightens people still frightens them. But now they know when it comes. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/ending/ending_sea_promise.webp": {
+   "prompt": "Wide cinematic ending illustration. You open the old line in the lamp room. IX answers. “I did not expect anyone to remember this promise.” You and your crew sit between two administrators and rewrite it. Whatever is erased leaves a mark where it was. The sea goes back on the map. Two small clauses take three days. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/ending/ending_sea_bottle.webp": {
+   "prompt": "Wide cinematic ending illustration. You change nothing. The light turns. On the way back you fill one bottle. On a street in Neo-Seoul you open it and let a passing child smell it. “What is this?” the child asks. You take a long time choosing the answer. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/ending/ending_sea_unwritten.webp": {
+   "prompt": "Wide cinematic ending illustration. What rose from the seabed was no monster. It was every erased person calling each other’s names until they became one voice. When it quiets the horizon appears. The crew mend a boat. You head where no map goes. Neo-Seoul’s record ends here. Yours begins here, for the first time. Nobody is writing it for you. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/art/sea4.webp": {
+   "prompt": "Wide act title illustration. The Dry Harbor: The blank at the south edge of the map. A wide establishing view of a forgotten Korean port city. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/map/sea_4.webp": {
+   "prompt": "Tall top-down weathered nautical survey map with no writing. The Dry Harbor: The blank at the south edge of the map. A wide establishing view of a forgotten Korean port city. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1080x1920"
+  },
+  "v2/arena/sea_4.webp": {
+   "prompt": "Wide empty battlefield backdrop seen at eye level, no people. The Dry Harbor: The blank at the south edge of the map. A wide establishing view of a forgotten Korean port city. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1600x900"
+  },
+  "v2/art/sea5.webp": {
+   "prompt": "Wide act title illustration. The Tide Line: Water that no record mentions is coming back. A wide establishing view of a forgotten Korean port city. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/map/sea_5.webp": {
+   "prompt": "Tall top-down weathered nautical survey map with no writing. The Tide Line: Water that no record mentions is coming back. A wide establishing view of a forgotten Korean port city. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1080x1920"
+  },
+  "v2/arena/sea_5.webp": {
+   "prompt": "Wide empty battlefield backdrop seen at eye level, no people. The Tide Line: Water that no record mentions is coming back. A wide establishing view of a forgotten Korean port city. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1600x900"
+  },
+  "v2/art/sea6.webp": {
+   "prompt": "Wide act title illustration. The Last Lighthouse: The light that hides the horizon. A wide establishing view of a forgotten Korean port city. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/map/sea_6.webp": {
+   "prompt": "Tall top-down weathered nautical survey map with no writing. The Last Lighthouse: The light that hides the horizon. A wide establishing view of a forgotten Korean port city. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1080x1920"
+  },
+  "v2/arena/sea_6.webp": {
+   "prompt": "Wide empty battlefield backdrop seen at eye level, no people. The Last Lighthouse: The light that hides the horizon. A wide establishing view of a forgotten Korean port city. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1600x900"
+  },
+  "v2/boss/sea4_b_foreman_crane.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body tactical game unit sprite of The Foreman Crane, a towering autonomous harbor crane on four grounded walking outriggers, weathered dark teal operator cab with an empty chair visible inside, long articulated boom and rusted hook hanging forward, small amber courtesy lamps and cream customs seal bands, imposing readable boss silhouette, three-quarter view, entire crane including boom hook and feet visible, plain light gray background, no lettering, no UI. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/boss/sea4_b_commissioner_gong.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body tactical game unit sprite of Commissioner Gong, a composed older Korean customs commissioner in a formal dark teal harbor coat, holding a thick bundle of sealed papers close to the chest and a narrow official stamp in the other hand, multiple vermilion wax seals and cream envelopes, courteous expression with cold attentive eyes, grounded readable boss silhouette, three-quarter view, entire figure visible, plain light gray background, no readable text, no UI. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/boss/sea4_b_container_king.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body tactical game unit sprite of The Container King, an enormous grounded humanoid machine assembled from stacked shipping containers, broad hinged container doors forming arms and a jagged crown of corner fittings, heavy articulated steel legs, weathered dark teal paint, cream seizure tape and vermilion customs seals, small amber inspection eyes and tucked welding rods, imposing readable boss silhouette, three-quarter view, entire body and feet visible, plain light gray background, no lettering, no UI. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/boss/sea5_b_rust_whale.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body boss tactical game unit sprite of the Rust Whale, a colossal whale-shaped cargo salvage machine supported by short articulated seabed legs, overlapping rusted hull plates, dense barnacles, a cargo-hold ribcage and one tired amber eye, searching for home rather than hunting, complete whale silhouette including tail and legs, three-quarter view, plain light gray background, no text, no scenery. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/boss/sea5_b_buoy_queen.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body boss tactical game unit sprite of the Buoy Queen, a tall grounded figure assembled from faded harbor buoys, human memory and corroded mooring chains, bell-shaped layered skirt ending in broad ballast feet, crown of small navigation bells and open welcoming hands, sorrowful face reflected in cloudy glass, faded red and sea gray, entire unit visible, three-quarter view, plain light gray background, no text, no scenery. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/boss/sea5_b_surge_eater.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body boss tactical game unit sprite of the Surge Eater, an enormous grounded humanoid flood-control machine with a sluice-gate chest holding dark gray water and faint human silhouettes, heavy anchored feet and broad arms bracing to contain a wave, tired compassionate posture, corroded iron and pale foam details, entire unit visible, three-quarter view, plain light gray background, no text, no scenery. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/boss/sea6_b_foghorn.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body game unit sprite of The Foghorn, a huge weathered brass harbor horn mounted on a compact iron bellows chassis with grounded dragging skids, two exhausted sailors integrated into its side platforms working the pumps in shifts. Entire combined boss unit visible, strong horizontal horn silhouette, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/boss/sea6_b_lens_saint.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body game unit sprite of the Saint of the Lens, a weary human Keeper in a long salt-stained ceremonial work coat, holding a large cracked circular Fresnel lens with both bare hands, folded mechanical shutters rising behind the shoulders like an incomplete halo. Grounded feet visible, solemn protective posture, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/boss/sea6_b_lightkeeper.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body game unit sprite of The Lightkeeper, an ancient harbor management AI embodied in a worn human-sized lighthouse maintenance chassis, a kind tired faceplate beneath a small rotating lantern crown, long weathered keeper coat and one hand extended in a gentle request to stop. Grounded feet and entire body visible, restrained warm amber light, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/boss/sea6_b_unwritten.webp": {
+   "prompt": "Wide boss reveal splash, the figure centred and imposing, calm dark space around it. Full-body game unit sprite of The Unwritten, a fragile grounded human-shaped accumulation of gray seawater and erased memories, overlapping incomplete sailor faces within a translucent torso, a torn ordinary harbor coat taking shape around the shoulders, one open hand asking for direction. Complete body and wavering feet visible, mournful rather than monstrous, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1920x1080"
+  },
+  "v2/ult/mujin.webp": {
+   "prompt": "Wide cut-in illustration, head to knees, face in the centre third. Mujin: Unload Everything. Deal 6 to every enemy and push them 1 tile away from Mujin. Bumps deal +1. Mujin gains 6 block. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1280x720"
+  },
+  "v2/ult/seo_ha.webp": {
+   "prompt": "Wide cut-in illustration, head to knees, face in the centre third. Seo-ha: Bring Everyone In. Every ally gains 5 block and Evade 1. All allies may move again. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1280x720"
+  },
+  "v2/ult/parang.webp": {
+   "prompt": "Wide cut-in illustration, head to knees, face in the centre third. Parang: The Night That Came All at Once. Parang takes 3 piercing damage. Deal 6 to every enemy. Draw 2. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1280x720"
+  },
+  "v2/ult/navigator.webp": {
+   "prompt": "Wide cut-in illustration, head to knees, face in the centre third. Navigator: The Channel Home. Every ally gains 6 block and may move again. Gain 1 energy. Carry all energy left at turn end into the next turn. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1280x720"
+  },
+  "v2/ult/duo_sea_load_bearing.webp": {
+   "prompt": "Wide duo cut-in, both characters in the centre third. Those Who Hold. Deal 5 to every enemy and push them 2 tiles away from Mujin. Bumps deal +2. Every ally gains 6 block. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1280x720"
+  },
+  "v2/ult/duo_sea_unlisted_channel.webp": {
+   "prompt": "Wide duo cut-in, both characters in the centre third. The Unlisted Channel. Every ally gains 6 block and Evade 1, and may move again. Draw 2. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1280x720"
+  },
+  "v2/ult/duo_sea_sleep_until_morning.webp": {
+   "prompt": "Wide duo cut-in, both characters in the centre third. Sleep Until Morning. Every enemy gains Weak 2 and Freeze 1. Every ally gains 5 block. Draw 1. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "1280x720"
+  },
+  "v2/gear/wp_pipe.webp": {
+   "prompt": "Icon of Iron Pipe, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_wrench.webp": {
+   "prompt": "Icon of Socket Wrench, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_ladle.webp": {
+   "prompt": "Icon of Serving Ladle, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_flare.webp": {
+   "prompt": "Icon of Flare Pistol, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_cutter.webp": {
+   "prompt": "Icon of Bolt Cutter, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_baton.webp": {
+   "prompt": "Icon of Seized Baton, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_nailgun.webp": {
+   "prompt": "Icon of Nail Gun, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_gauntlet.webp": {
+   "prompt": "Icon of Hydraulic Gauntlet, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_rail.webp": {
+   "prompt": "Icon of Pocket Railgun, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/wp_mono.webp": {
+   "prompt": "Icon of Monofilament Blade, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_vest.webp": {
+   "prompt": "Icon of Stab Vest, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_poncho.webp": {
+   "prompt": "Icon of Rain Poncho, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_apron.webp": {
+   "prompt": "Icon of Heavy Apron, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_visor.webp": {
+   "prompt": "Icon of Target Visor, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_plate.webp": {
+   "prompt": "Icon of Riot Plate, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_boots.webp": {
+   "prompt": "Icon of Runner Boots, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_coat.webp": {
+   "prompt": "Icon of Lead-Lined Coat, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_spikes.webp": {
+   "prompt": "Icon of Spiked Pauldrons, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_mesh.webp": {
+   "prompt": "Icon of Nano Mesh, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/gear/ar_frame.webp": {
+   "prompt": "Icon of Exo Frame, one object on a dark plain background. Painterly cinematic concept art, cyberpunk harbor noir, natural proportions, no text, no letters, no logos, no UI, no frame.",
+   "size": "512x512"
+  },
+  "v2/events/outside_ev_shutter.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary shutter repairer in a faded blue work jacket crouches beside a kiosk shutter caught a handspan above the floor, studying its bent track with a socket wrench. The shutter and a wooden brace frame the worker against a softly unfocused Neo-Seoul market platform after closing; one restrained effect is a narrow amber inspection-light sweep across the metal, no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_laundry_cart.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one laundry runner in a plum waterproof apron leans into the left handle of a loaded laundry cart on the Undercity Market ferry ramp after closing. A mustard-yellow towel tied to the handle and a brick beneath the troublesome right wheel anchor the composition; one restrained effect is a thin trickle from a wet laundry sack, no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_barber.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one tired neighborhood barber in a washed burgundy apron pauses with a comb and closed scissors beside an empty chair after closing in Neo-Seoul's Undercity Market. Angle the mirror toward an empty alley so it introduces no second figure; one restrained effect is a soft amber patrol-light reflection along the mirror's edge, no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_gas_ring.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary noodle cook in a stained cream apron straightens a short wire beside a shut-off burner, with the last portions resting in a strainer at the edge of the frame. Set the scene inside a cramped Undercity Market stall after closing, with worn steel and a curled blank sealing strip; one restrained effect is a faint wisp of steam from the noodles, no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_pawn_ticket.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: a single worn ivory die with one conspicuously rounded corner rests on the blank reverse of a pawn ticket, the focal object on a scratched counter in Neo-Seoul's Undercity Market after closing. Keep the pawnshop shelving and a safe on a moving blanket softly unfocused; one restrained effect is a faint amber security-light reflection on the die, no people and no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_break_schedule.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one open dented lunch box is the central object on a municipal clerk's break table behind the shuttered Undercity Market shops. An idle rubber stamp, a folded sheet with its blank reverse facing up and a dark radio remain subordinate around it; one restrained effect is a slender curl of steam from the rice, no people and no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_chair_door.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one battered dining chair is wedged firmly beneath the handle of an iron service door in a narrow Undercity Market laundry passage after closing. Emphasize chipped green paint, bent tubular legs and the practical angle of the brace; one restrained effect is a narrow amber patrol-light band beneath the door, no people and no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_bulletin_board.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one neighborhood caretaker in a faded olive cardigan carefully presses the curling corner of a blank removal sheet onto a battered bulletin board in the Undercity Market transfer passage. Layered paper backs and a paste pot suggest a board kept useful by daily care; one restrained effect is a soft cyan reflection along the wet paste, no writing, lettering or text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_homework.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one school-age child with a short pencil tucked behind an ear holds a steel ruler across a closed, unmarked notebook at a packing table beneath the Undercity Market bridge after closing. Use ordinary clothes, a folded school bag and an awning cord caught above the desk lamp; one restrained effect is a warm pool of lamplight on the child's hands, no other people and no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_early_amp.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one scuffed portable guitar amplifier with a repaired plum fabric grille stands beside the shuttered used-record stall in Neo-Seoul's Undercity Market after closing. Its cable disappears beneath an empty chair, while the speaker seems to anticipate an unheard performance; one restrained effect is a slight vibration at the grille's center, no people, sound symbols or text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_compensation_form.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary meal server in a faded rust apron pins an entirely blank paper form to a stainless serving counter with the bowl of a long ladle. A dark municipal terminal sits unfocused at the edge of the closed Undercity Market stall; one restrained effect is a single water droplet falling from the ladle onto the paper, no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_ev_shared_charger.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one laundry runner in a plum waterproof apron gently offers an unplugged charging cable at a repair-shop workbench behind Neo-Seoul's Undercity Market after closing. A clean folded dressing, a mustard-yellow towel and a small kettle establish a practical place to rest; one restrained effect is a faint ribbon of kettle steam, no other people and no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_closing.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary meal server in a faded rust apron keeps a long ladle poised over a battered soup pot, glancing toward a ceiling loudspeaker in an Undercity Market back alley after closing. Frame the person through the modest serving hatch with dark shutters behind; one restrained effect is a thin curl of soup steam, no other figures and no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_last_meal_kept.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one slightly open stainless lunch box containing a simple warm meal sits on the wiped counter of a closed Undercity Market serving stall. A small folded note shows only its blank reverse beneath the box, with quiet warm practical lighting; one restrained effect is a delicate thread of steam escaping the lid, no people and no text.",
+   "size": "1600x900"
+  },
+  "v2/events/outside_last_meal_lost.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one battered aluminum soup pot with its lid carefully seated stands on an unlit burner at an abandoned Undercity Market serving counter after closing. A clean ladle hangs unfocused behind it, with cool gray steel and faded cream tile conveying uncertain absence; one restrained effect is a single drying droplet beneath the ladle, no people and no text.",
+   "size": "1600x900"
+  },
+  "v2/cards/ol_cut_in_line.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary market worker in a faded teal jacket steps decisively forward with a padded forearm extended to clear space in a narrow Undercity Market back alley after closing. Keep the pose grounded and the silhouette readable against closed shutters; one restrained effect is a short puff of dust at the planted shoe, no other figures and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_ladle_hook.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one long stainless soup ladle with a hooked handle catches an unoccupied cart rail in a shuttered Neo-Seoul market service passage. Emphasize the useful curve, scratched bowl and taut diagonal composition; one restrained effect is a short motion blur at the hooked tip, no people and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_cart_shove.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one battered steel laundry cart rolls forcefully across a narrow Undercity Market alley after closing, its broad mustard rubber bumper leading the composition. Keep the cart empty and its crooked front caster clearly visible; one restrained effect is a low streak of disturbed dust behind the wheels, no people and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_hold_this.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary laundry runner in a plum apron braces a folded quilt firmly across their chest like an improvised shield in the Undercity Market after closing. Emphasize the quilt's thick indigo stitching and the worker's practical, balanced stance; one restrained effect is a faint pale-blue protective sheen along the quilt's outer edge, no other figures and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_step_aside.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary shutter repairer in a faded blue jacket makes a small controlled sidestep into a recessed market doorway, keeping a socket wrench tucked close to the body. Show a clear open lane beside the worker and realistic weight on the supporting foot; one restrained effect is a light dust scuff beneath the moving shoe, no other figures and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_leftovers.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one chipped cream bowl of leftover broth with a few noodles and scallion pieces sits within reach on a stainless Undercity Market serving counter after closing. Use modest portions, worn utensils kept outside the focal plane and warm practical light; one restrained effect is a thin curl of steam, no people and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_shift_change.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary market worker in a charcoal utility vest steps into a freshly vacated position beside a serving hatch, shoulders squared and palms open to take over. A worn rectangular floor patch and closed shutters make the change of position clear without another figure; one restrained effect is a small pale-blue protective glint at the worker's shoulder, no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_pot_lid.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one oversized dented aluminum pot lid is wedged upright into a pavement seam as improvised cover in the Undercity Market back alley after closing. Emphasize its broad circular silhouette, blackened handle and scratched rolled edge; one restrained effect is a faint pale-blue shimmer along the rim, no people and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_last_call.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary noodle cook in a stained cream apron raises a firm open palm toward the viewer while standing in the hatch of a nearly closed market stall. Keep the expression calm and insistent, with cooking equipment subdued in the background; one restrained effect is a narrow amber service light fading above the hatch, no other figures and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_double_shift.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one exhausted laundry runner in a plum waterproof apron plants both feet and drives a shoulder forward with the practiced force of someone finishing a second shift in Neo-Seoul's market back alleys. Keep the hands empty and the anatomy grounded, with a closed corrugated shutter framing the figure; one restrained effect is a compact burst of dust at the rear heel, no other figures and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_everyone_out.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one ordinary market doorkeeper in a worn ochre work coat holds an iron service door open and extends a flat hand outward to clear the escape route after closing. Use the dark doorway and a simple metal threshold to frame the protective stance; one restrained effect is a shallow pale-blue pressure ripple spreading from the raised palm, no other figures and no text.",
+   "size": "600x800"
+  },
+  "v2/cards/ol_wrong_address.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one portable municipal inspection lamp on a swivel bracket has been physically turned to face the closed shutter behind it in an Undercity Market alley. Emphasize the reversed hinge, scuffed cream casing and exposed copper fastener; one restrained effect is its narrow amber beam falling harmlessly onto the shutter, no people, arrows or text.",
+   "size": "600x800"
+  },
+  "v2/art/outside.webp": {
+   "prompt": "Wide 21:9 title illustration in painterly cyberpunk realism, eye level and natural proportions, showing the back alleys of Neo-Seoul's Undercity Market after closing time. A modest serving counter with a rust-aproned cook anchors the left foreground; farther along, a plum-aproned laundry runner steadies a cart with a mustard-yellow towel, and a blue-jacketed shutter repairer finishes aligning a corrugated door. At the distant bend, courteous cream-and-teal shop-closing machines wait in orderly formation beneath small amber service beacons, their maintenance tools neatly lowered. Build depth with patched awnings, tiled service walls, bundled utilities and shuttered stalls, using warm kitchen light against cool petrol-blue shadows and one restrained thread of steam above the soup pot. Preserve quiet dark space across the upper middle for a later title overlay, emphasize ordinary work continuing under procedural menace, and include no text or logos.",
+   "size": "1920x1080"
+  }
+ },
+ "sprites": [
+  {
+   "key": "sea-seal-mite",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a tiny grounded customs sealing machine, six short brass legs, a red rubber stamp mouth and one roll of cream seizure tape, politely poised to stamp a parcel, rusted Haemun dry harbor cyberpunk design, readable silhouette, restrained charcoal teal and vermilion palette, three-quarter view, entire unit visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-tally-cart",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a small grounded customs tally cart, four narrow wheels, a receipt dispenser and a neat stack of numbered metal inspection plates, tiny articulated arm offering a ticket, worn industrial harbor machinery, readable silhouette, charcoal teal and vermilion accents, three-quarter view, entire unit visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-seal-clerk",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a courteous human customs clerk in a faded dark teal harbor uniform, sleeves carefully buttoned, carrying a seizure-label applicator like a pistol and a slim sealed folder, salt-stained shoes and vermilion seal accents, grounded practical cyberpunk design, readable silhouette, three-quarter view, entire figure visible, plain light gray background, no readable text, no UI."
+  },
+  {
+   "key": "sea-hook-inspector",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a harbor customs inspector with a compact cable winch strapped to the waist, long rusted inspection hook held forward in a courteous beckoning pose, dark teal uniform and heavy rubber boots, cream seizure tape on the winch, readable grounded silhouette, three-quarter view, entire figure and hook visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-customs-forklift",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of an autonomous customs forklift, squat armored chassis on four solid wheels, two raised steel forks, a small courteous face lamp and sealed inspection compartment, scarred dark teal paint with vermilion customs seals, heavy grounded industrial silhouette, three-quarter view, entire vehicle and forks visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-tariff-drone",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a small flying customs tariff drone, circular ducted rotors, a single amber inspection lens and a dangling ticket applicator, cream paper tabs and dark teal armored casing, visibly airborne with a compact readable silhouette, rusted harbor cyberpunk style, three-quarter view, entire machine visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-inspection-scanner",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a stationary cargo inspection scanner on a low steel skid, armored dark teal cabinet with a narrow horizontal amber emitter and folding measurement arms, thick exposed cables and salt corrosion, heavy grounded silhouette, harbor customs equipment, three-quarter view, entire machine visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-tape-warden",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a courteous customs enforcement officer carrying a wide seizure-tape launcher, cream tape stretched between two short batons, dark teal waterproof uniform and rubber boots, vermilion stamped fasteners, practical dry harbor cyberpunk design, readable grounded silhouette, three-quarter view, entire figure and equipment visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-cargo-shielder",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a bonded warehouse cargo keeper, broad human clerk in a padded dark teal coat, portable shield projector shaped like a locked freight case in one hand and a heavy manifest board in the other, modest cream tape and red seal details, grounded harbor cyberpunk silhouette, three-quarter view, entire figure visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-solvent-examiner",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a customs forensic examiner in a salt-stained teal protective coat, sealed respirator, glass sample bottles and a long-handled solvent sprayer, polite measured posture, corroded brass fittings and restrained amber fluid accents, readable grounded silhouette, three-quarter view, entire figure visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-seizure-spool",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a grounded autonomous seizure-tape spool, large cream tape reel mounted on two short articulated legs, exposed serrated metal tape wrapped around its dark teal core, small courteous amber face lamp, vermilion seal hub, compact readable industrial harbor silhouette, three-quarter view, entire machine visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-container-press",
+   "kind": "elite",
+   "subject": "Full-body tactical game unit sprite of a heavy autonomous container compression machine, two massive hydraulic jaws surrounding a squat dark teal torso, four short grounded stabilizer legs, cream seizure tape stretched across the jaws and red stamped inspection plates, rusted dry harbor machinery, readable elite silhouette, three-quarter view, entire machine visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-chief-examiner",
+   "kind": "elite",
+   "subject": "Full-body tactical game unit sprite of a senior human customs examiner, immaculate dark teal long coat over worn harbor boots, holding a thick sealed summons folder and a precision inspection baton, small shoulder projector with an amber lens, courteous upright posture, vermilion wax seals, readable grounded elite silhouette, three-quarter view, entire figure visible, plain light gray background, no readable text, no UI."
+  },
+  {
+   "key": "sea-gantry-auditor",
+   "kind": "elite",
+   "subject": "Full-body tactical game unit sprite of a flying harbor gantry inspection machine, compact rectangular dark teal body suspended between four ducted lift rotors, articulated measuring arms and a long dangling cargo hook, amber scanning slit and cream sealing bands, visibly airborne elite silhouette, three-quarter view, entire unit and cable visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-seizure-marshal",
+   "kind": "elite",
+   "subject": "Full-body tactical game unit sprite of a human customs seizure marshal, reinforced dark teal harbor uniform, heavy grounded boots, rectangular warrant shield and a short restraint baton, sealed document case on the belt, polite but implacable stance, rust and vermilion accents, readable elite silhouette, three-quarter view, entire figure visible, plain light gray background, no readable text, no UI."
+  },
+  {
+   "key": "sea-foreman-crane",
+   "kind": "boss",
+   "subject": "Full-body tactical game unit sprite of The Foreman Crane, a towering autonomous harbor crane on four grounded walking outriggers, weathered dark teal operator cab with an empty chair visible inside, long articulated boom and rusted hook hanging forward, small amber courtesy lamps and cream customs seal bands, imposing readable boss silhouette, three-quarter view, entire crane including boom hook and feet visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-commissioner-gong",
+   "kind": "boss",
+   "subject": "Full-body tactical game unit sprite of Commissioner Gong, a composed older Korean customs commissioner in a formal dark teal harbor coat, holding a thick bundle of sealed papers close to the chest and a narrow official stamp in the other hand, multiple vermilion wax seals and cream envelopes, courteous expression with cold attentive eyes, grounded readable boss silhouette, three-quarter view, entire figure visible, plain light gray background, no readable text, no UI."
+  },
+  {
+   "key": "sea-container-king",
+   "kind": "boss",
+   "subject": "Full-body tactical game unit sprite of The Container King, an enormous grounded humanoid machine assembled from stacked shipping containers, broad hinged container doors forming arms and a jagged crown of corner fittings, heavy articulated steel legs, weathered dark teal paint, cream seizure tape and vermilion customs seals, small amber inspection eyes and tucked welding rods, imposing readable boss silhouette, three-quarter view, entire body and feet visible, plain light gray background, no lettering, no UI."
+  },
+  {
+   "key": "sea-brine-mite",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a small barnacled maintenance mite, six rusted mechanical legs, salt-encrusted shell and a dim amber inspection eye, searching rather than threatening, restrained gray and oxidized teal palette, readable silhouette, three-quarter view, entire unit visible, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-name-scrap",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a knee-high human-shaped fragment made from wet paper and pale translucent seawater, incomplete face and gently reaching hands, a lost person trying to remember a name, no readable writing, muted gray and faded blue, readable silhouette, three-quarter view, plain light gray background, no scenery."
+  },
+  {
+   "key": "sea-hook-tender",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a barnacled dock maintenance automaton with a winch torso, long articulated hook arm and worn worker boots, patiently reaching to moor something that is no longer there, rust orange and dull sea green, distinct hook silhouette, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-bell-jelly",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a floating jellyfish drone, translucent glass bell enclosing an old brass chime and tiny guidance lamp, four long cable filaments hanging freely, weathered and quietly searching, gray lavender and oxidized brass, all filaments visible, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-borrowed-face",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of an erased harbor resident formed from gray water, wearing a soaked ordinary coat and an ill-fitting smooth porcelain face, one hand offered in uncertain recognition, human proportions and a sorrowful posture, pale blue-gray palette, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-barnacle-hauler",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a squat heavy cargo automaton covered in dense white barnacles, broad loading arms and a dented chest cradle holding an empty parcel harness, visibly slow and burdened, rust brown and chalk white, entire feet and arms visible, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-salt-chorister",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a slender erased harbor singer formed from salt crystals and mist, a cracked public-address speaker embedded in an old raincoat collar, hands cupped as if keeping a fragile memory alive, muted ivory and gray teal, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-cable-mourner",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a hunched harbor repair machine wearing tangled underwater cables like mourning cloth, holding a circular wreath of frayed wire, ceramic terminals and tiny cold sparks, solemn rather than aggressive, charcoal and desaturated blue, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-breakwater-ram",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a compact walking salvage tug with two sturdy mechanical legs, a broad battered bow plate and a softly glowing navigation eye, barnacles along its shoulders, looking for a missing berth, dull red rust and faded green, clear charging silhouette, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-blank-caller",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of an erased harbor resident in a waterlogged municipal coat, blank oval face and a small handheld speaking horn held close to the mouth, waiting for an answer with an open palm, translucent gray body with subdued amber details, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-name-diver",
+   "kind": "enemy",
+   "subject": "Full-body tactical game unit sprite of a forgotten salvage diver in a patched old pressure suit, cloudy round helmet with an indistinct human face, thin retrieval cords trailing from both wrists, salt deposits and careful searching posture, faded navy and tarnished brass, all limbs visible, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-tether-dredger",
+   "kind": "elite",
+   "subject": "Full-body elite tactical game unit sprite of a massive barnacled street-dredging automaton, four anchored mechanical legs, a crane-like spine and bundled retrieval cables ending in blunt salvage hooks, carrying fragments of lost household objects, imposing but purposeful, rust iron and gray shell, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-crown-jelly",
+   "kind": "elite",
+   "subject": "Full-body elite tactical game unit sprite of a large floating jellyfish drone with a crown-shaped ring of broken navigation lamps, layered translucent bell and long ribbonlike electrode tentacles, an exhausted guardian appearance, pale violet and tarnished silver, entire tentacles visible, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-doorway-colossus",
+   "kind": "elite",
+   "subject": "Full-body elite tactical game unit sprite of a towering humanoid salvage machine carrying a complete corroded house doorway across its shoulders, thick barnacled limbs and a hollow chest resembling an abandoned entry hall, protective stooped posture, weathered concrete gray and rust, entire frame and feet visible, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-memorial-loom",
+   "kind": "elite",
+   "subject": "Full-body elite tactical game unit sprite of a mobile memorial loom built from corroded harbor machinery, four delicate jointed legs, weaving arms arranging blank wet ribbons into small human outlines, a dim warm lamp at its center, mournful craftsmanship, gray teal and aged brass, three-quarter view, plain light gray background, no readable writing, no scenery."
+  },
+  {
+   "key": "sea-rust-whale",
+   "kind": "boss",
+   "subject": "Full-body boss tactical game unit sprite of the Rust Whale, a colossal whale-shaped cargo salvage machine supported by short articulated seabed legs, overlapping rusted hull plates, dense barnacles, a cargo-hold ribcage and one tired amber eye, searching for home rather than hunting, complete whale silhouette including tail and legs, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-buoy-queen",
+   "kind": "boss",
+   "subject": "Full-body boss tactical game unit sprite of the Buoy Queen, a tall grounded figure assembled from faded harbor buoys, human memory and corroded mooring chains, bell-shaped layered skirt ending in broad ballast feet, crown of small navigation bells and open welcoming hands, sorrowful face reflected in cloudy glass, faded red and sea gray, entire unit visible, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-surge-eater",
+   "kind": "boss",
+   "subject": "Full-body boss tactical game unit sprite of the Surge Eater, an enormous grounded humanoid flood-control machine with a sluice-gate chest holding dark gray water and faint human silhouettes, heavy anchored feet and broad arms bracing to contain a wave, tired compassionate posture, corroded iron and pale foam details, entire unit visible, three-quarter view, plain light gray background, no text, no scenery."
+  },
+  {
+   "key": "sea-wick-novice",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a slight Haemun lighthouse novice in a patched gray oilskin robe, carrying a long brass wick holder with a tiny amber flame, damp boots and a tentative prayer posture. Grounded human silhouette, readable at small tactical scale, three-quarter view facing left, painterly cyberpunk maritime style, restrained amber and slate palette, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-bell-tender",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a tired lighthouse watch bell tender in a hooded tarred sailor coat, holding a compact hand bell connected to a small chest-mounted pressure bellows. Grounded stance, clear silhouette, three-quarter view facing left, painterly cyberpunk maritime style, oxidized brass and wet charcoal fabric, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-fog-lamplighter",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a Haemun Keeper lamplighter wearing a long waterproof apron and smoked goggles, swinging a perforated brass censer that leaks a small curl of pale gray fog, an unlit service lamp at the belt. Grounded human figure, readable tactical silhouette, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-lens-guard",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a lighthouse lens guard in layered salt-stained harbor armor, carrying a shoulder-braced optical rifle with a round amber sighting lens and mechanical shutters. Grounded human stance, distinct circular lens silhouette, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-beam-pylon",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a compact grounded harbor navigation beam pylon, a heavy iron pedestal on short dragging skids with a large rotating Fresnel lens head and exposed brass shutter gears. Entire base and head visible, no wings or hover effects, readable tactical silhouette, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-watch-sailor",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of an exhausted lighthouse watch sailor in a patched navy oilskin coat, one hand raised in a practiced shift prayer and the other holding a short watch baton, plain knotted cord around the wrist. Grounded human silhouette, three-quarter view facing left, painterly cyberpunk maritime style, weathered cloth and dull brass details, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-anchor-penitent",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a stocky lighthouse penitent carrying a small rusted anchor across one shoulder, a heavy chain wound around a padded forearm, bent knees and weighted waterproof boots. Grounded human figure, clear anchor silhouette, three-quarter view facing left, painterly cyberpunk maritime style, iron gray and muted amber accents, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-glass-wader",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a lean Haemun watch sailor in a short oilskin coat and tall articulated boots edged with broken optical glass, leaning forward into a running stance with a glass-edged boarding tool. Both feet and complete body visible, grounded human design, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-prism-gull",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a small airborne navigation automaton shaped like a gull, faceted glass wings around a brass skeleton and a single downward-pointing amber tracking lens. Entire bird visible with wings spread, compact readable flying silhouette, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-salt-diver",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a grounded harbor cable diver in a weathered pressure suit, rounded brass helmet with a narrow amber viewport, carrying a long brine projector attached to a corroded backpack tank. Heavy boots and complete body visible, three-quarter view facing left, painterly cyberpunk maritime style, salt deposits and faded teal fabric, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-shutter-verger",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a lighthouse chapel verger in layered charcoal work robes, carrying a jagged folding optical shutter like a ritual staff, small sharp lens fragments secured around the sleeves. Grounded human stance, readable angular silhouette, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-lens-warden",
+   "kind": "elite",
+   "subject": "Full-body game unit sprite of an imposing lighthouse lens warden in thick overlapping iron armor, holding a large cold-white Fresnel projector in both hands, concentric glass plates framing the shoulders. Grounded human figure with heavy boots, broad readable silhouette, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-anchor-prior",
+   "kind": "elite",
+   "subject": "Full-body game unit sprite of a massive lighthouse prior in a salt-stiffened ceremonial oilskin mantle, bearing an iron anchor almost as tall as the body with a thick chain looped over one shoulder. Grounded human stance and full boots visible, solemn working-sailor appearance, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-fog-cantor",
+   "kind": "elite",
+   "subject": "Full-body game unit sprite of an elderly lighthouse cantor in a patched gray weatherproof robe, holding a brass speaking trumpet at the chest and raising two fingers to call the next watch, thin service cords hanging from the sleeves. Grounded human figure, no magical wings, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-lantern-seraph",
+   "kind": "elite",
+   "subject": "Full-body game unit sprite of an airborne lighthouse service automaton with a suspended lantern torso, articulated brass wing vanes and a narrow white optical lens, resembling a solemn mechanical angel built from harbor equipment. Entire flying body visible, distinct winged silhouette, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-foghorn",
+   "kind": "boss",
+   "subject": "Full-body game unit sprite of The Foghorn, a huge weathered brass harbor horn mounted on a compact iron bellows chassis with grounded dragging skids, two exhausted sailors integrated into its side platforms working the pumps in shifts. Entire combined boss unit visible, strong horizontal horn silhouette, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-lens-saint",
+   "kind": "boss",
+   "subject": "Full-body game unit sprite of the Saint of the Lens, a weary human Keeper in a long salt-stained ceremonial work coat, holding a large cracked circular Fresnel lens with both bare hands, folded mechanical shutters rising behind the shoulders like an incomplete halo. Grounded feet visible, solemn protective posture, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-lightkeeper",
+   "kind": "boss",
+   "subject": "Full-body game unit sprite of The Lightkeeper, an ancient harbor management AI embodied in a worn human-sized lighthouse maintenance chassis, a kind tired faceplate beneath a small rotating lantern crown, long weathered keeper coat and one hand extended in a gentle request to stop. Grounded feet and entire body visible, restrained warm amber light, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "sea-unwritten",
+   "kind": "boss",
+   "subject": "Full-body game unit sprite of The Unwritten, a fragile grounded human-shaped accumulation of gray seawater and erased memories, overlapping incomplete sailor faces within a translucent torso, a torn ordinary harbor coat taking shape around the shoulders, one open hand asking for direction. Complete body and wavering feet visible, mournful rather than monstrous, three-quarter view facing left, painterly cyberpunk maritime style, isolated on a plain background, no text, no scenery."
+  },
+  {
+   "key": "mujin",
+   "kind": "party",
+   "subject": "Full-body tactical game sprite of Mujin, a broad Korean dock foreman in his fifties with short iron-gray hair, faded orange work jacket, reinforced gloves, sturdy work trousers and heavy boots, standing at ease but attentive, hands naturally lowered, facing right, eye-level camera, transparent background, 512 by 768 canvas, whole body within frame, feet aligned 18 pixels above the bottom edge, consistent identity and clothing across all poses. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a faint reflected teal rim light along one edge of the clothing. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "refs": [
+    "resources/neo-seoul/characters/mujin.png"
+   ]
+  },
+  {
+   "key": "seo-ha",
+   "kind": "party",
+   "subject": "Full-body tactical game sprite of Seo-ha, a Korean retired harbor pilot in her sixties with silver hair tied low, a weathered kind face, faded teal waterproof coat, practical trousers and nonslip boots, standing at ease but attentive, hands naturally lowered, facing right, eye-level camera, transparent background, 512 by 768 canvas, whole body within frame, feet aligned 18 pixels above the bottom edge, consistent identity and clothing across all poses. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a faint reflected teal rim light along one edge of the clothing. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "refs": [
+    "resources/neo-seoul/characters/seo-ha.png"
+   ]
+  },
+  {
+   "key": "parang",
+   "kind": "party",
+   "subject": "Full-body tactical game sprite of Parang, an androgynous Korean child about eleven with ordinary child proportions, uneven dark hair, an oversized faded blue raincoat and simple scuffed shoes, standing at ease but attentive, hands naturally lowered, facing right, eye-level camera, transparent background, 512 by 768 canvas, whole body within frame, feet aligned 18 pixels above the bottom edge, consistent identity and clothing across all poses. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a faint reflected teal rim light along one edge of the clothing. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "refs": [
+    "resources/neo-seoul/characters/parang.png"
+   ]
+  },
+  {
+   "key": "navigator",
+   "kind": "party",
+   "subject": "Full-body tactical game sprite of The Navigator, an androgynous Korean adult with short dark hair, a weathered navy expedition coat, practical flotation harness, compact wrist instrument and nonslip boots, standing at ease but attentive, hands naturally lowered, facing right, eye-level camera, transparent background, 512 by 768 canvas, whole body within frame, feet aligned 18 pixels above the bottom edge, consistent identity and clothing across all poses. Painterly cyberpunk realism set in the erased Korean port of Haemun, eye-level composition, natural human proportions and believable materials, restrained rust, slate and faded teal palette. Exactly one restrained effect: a faint reflected teal rim light along one edge of the clothing. No text, lettering, numbers, logos, watermarks or interface elements.",
+   "refs": [
+    "resources/neo-seoul/characters/navigator.png"
+   ]
+  },
+  {
+   "key": "ol-ledger-mite",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a palm-sized attendance-counting machine, with six delicate jointed legs, an abacus-shaped abdomen and two rounded feelers held in a courteous greeting. Render chipped ivory enamel, graphite rubber feet and small brass counting beads with one amber sensor, a clear readable silhouette, transparent background and no text."
+  },
+  {
+   "key": "ol-shutter-bot",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a broad shop-closing robot whose corrugated shutter torso rolls down between two heavy square legs, with padded lifting arms held patiently open. Render brushed galvanized steel, faded sea-green side panels and mustard rubber bumpers, emphasizing its squat rectangular silhouette, transparent background and no text."
+  },
+  {
+   "key": "ol-notice-drone",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a floating notice-posting machine with a narrow vertical paper cassette, two circular ducted fans, a small loudspeaker and one folding paste-brush arm extended politely. Render cream plastic, oxidized copper fan guards and muted coral trim around a single amber lens, preserving its tall asymmetric silhouette, transparent background and no text."
+  },
+  {
+   "key": "ol-meter-reader",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a spindly utility-inspection robot with a round analog-meter torso, long insulated legs and a curved sampling wand held like a service technician's tool. Render faded petrol-blue enamel, cloudy glass, brass couplings and ochre cable loops, with its blank meter face tilted attentively, transparent background and no text."
+  },
+  {
+   "key": "ol-wash-unit",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a municipal washing machine on two broad articulated feet, with a translucent oval water tank and a low pressure-hose arm angled carefully away from its body. Render cloudy aqua resin, cream enamel, charcoal hose coils and pale orange rubber edging, emphasizing a compact teardrop silhouette, transparent background and no text."
+  },
+  {
+   "key": "ol-collection-clerk",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a slender collection robot with a narrow drawer-cabinet torso, one long retractable hook arm and one short cylindrical stamping hand, leaning forward in a formal service bow. Render plum-gray enamel, brushed nickel joints and faded apricot drawer fronts with a dark rubber stamp base, preserving the unequal arm lengths, transparent background and no text."
+  },
+  {
+   "key": "ol-lock-hound",
+   "kind": "enemy",
+   "subject": "Full-body game unit sprite of a low quadrupedal lock-checking machine with a padlock-shaped chest, four springy bent legs and a broad hinged shackle jaw resting slightly open. Render blued steel, tarnished brass, burgundy rubber paw pads and a small amber nose lens, emphasizing its arched back and blunt courteous face, transparent background and no text."
+  },
+  {
+   "key": "ol-night-inspector",
+   "kind": "elite",
+   "subject": "Full-body game unit sprite of a tall inspection automaton with a rounded lamp head, a rigid coat-shaped shell and a hinged inspection board tucked neatly beneath one arm. Render midnight teal enamel, cream ceramic face panels and restrained brass fittings with a hooded amber inspection lens, emphasizing its upright tapered silhouette, transparent background and no text."
+  },
+  {
+   "key": "ol-wrecking-rig",
+   "kind": "elite",
+   "subject": "Full-body game unit sprite of a compact demolition machine on four short stabilizer legs, its enormous folded boom rising over a small cab and ending in a broad padded striking head. Render worn construction ochre, slate steel, exposed hydraulic chrome and faded cream safety edging, with the boom lowered in a patient waiting posture, transparent background and no text."
+  },
+  {
+   "key": "ol-sweep-foreman",
+   "kind": "elite",
+   "subject": "Full-body game unit sprite of a barrel-bodied cleanup supervisor with a broad circular brush skirt, short caterpillar tracks, a high swiveling refuse chute and a small counting-machine hatch in its belly. Render soot-stained cream enamel, dark olive housings, copper pipework and a dim ember-orange furnace window, emphasizing its low heavy base and crooked chimney silhouette, transparent background and no text."
+  },
+  {
+   "key": "ol-closing-bell",
+   "kind": "boss",
+   "subject": "Full-body game unit sprite of a massive walking closing bell suspended inside a freestanding arch on four short articulated feet, with a small public-address grille beneath its hanging clapper. Render aged bronze, dark teal enamel supports, ivory ceramic joints and a modest amber service lamp, emphasizing the monumental hollow bell silhouette and ceremonially patient posture, transparent background and no text."
+  },
+  {
+   "key": "ol-block-closer",
+   "kind": "boss",
+   "subject": "Full-body game unit sprite of a long-legged administrative robot with a narrow clock-shaped head, an oversized hinged clipboard shield and a retractable queue barrier folded around its waist, offering a small courteous bow. Render warm gray enamel, oxblood casing panels, brushed brass hinges and charcoal rubber joints with blank clock and clipboard surfaces, emphasizing its angular shield and stilt-like stance, transparent background and no text."
+  }
+ ]
+}

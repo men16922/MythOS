@@ -26,7 +26,10 @@ export const art = {
   archive: () => pick(A.archive, 'concept/03-underground-echo.png'),
   act: (act: number, fallback?: string) => pick(A.acts?.[String(act)], fallback),
   /** '' when no generated map art exists (callers then use the act image). */
-  map: (act: number) => (A.maps?.[String(act)] ? asset(A.maps[String(act)]) : ''),
+  map: (act: number, route?: string) => {
+    const path = (route ? A.maps?.[route] : undefined) ?? A.maps?.[String(act)]
+    return path ? asset(path) : ''
+  },
   boss: (encounterId: string | undefined) => (encounterId && A.bosses?.[encounterId] ? asset(A.bosses[encounterId]) : ''),
   ending: (endingId: string, fallback?: string) => pick(A.endings?.[endingId], fallback),
   event: (eventId: string, fallback?: string) => pick(A.events?.[eventId], fallback),

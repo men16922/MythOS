@@ -503,6 +503,365 @@ export const V2_SPRITES: Record<string, Partial<Record<V2SpritePose, string>>> =
     hit: 'v2/sprites/rem-ally-hit.webp',
     guard: 'v2/sprites/rem-ally-guard.webp',
   },
+  'sea-seal-mite': {
+    idle: 'v2/sprites/sea-seal-mite-idle.webp',
+    attack: 'v2/sprites/sea-seal-mite-attack.webp',
+    hit: 'v2/sprites/sea-seal-mite-hit.webp',
+  },
+  'sea-tally-cart': {
+    idle: 'v2/sprites/sea-tally-cart-idle.webp',
+    attack: 'v2/sprites/sea-tally-cart-attack.webp',
+    hit: 'v2/sprites/sea-tally-cart-hit.webp',
+  },
+  'sea-seal-clerk': {
+    idle: 'v2/sprites/sea-seal-clerk-idle.webp',
+    attack: 'v2/sprites/sea-seal-clerk-attack.webp',
+    hit: 'v2/sprites/sea-seal-clerk-hit.webp',
+  },
+  'sea-hook-inspector': {
+    idle: 'v2/sprites/sea-hook-inspector-idle.webp',
+    attack: 'v2/sprites/sea-hook-inspector-attack.webp',
+    hit: 'v2/sprites/sea-hook-inspector-hit.webp',
+  },
+  'sea-customs-forklift': {
+    idle: 'v2/sprites/sea-customs-forklift-idle.webp',
+    attack: 'v2/sprites/sea-customs-forklift-attack.webp',
+    hit: 'v2/sprites/sea-customs-forklift-hit.webp',
+  },
+  'sea-tariff-drone': {
+    idle: 'v2/sprites/sea-tariff-drone-idle.webp',
+    attack: 'v2/sprites/sea-tariff-drone-attack.webp',
+    hit: 'v2/sprites/sea-tariff-drone-hit.webp',
+  },
+  'sea-inspection-scanner': {
+    idle: 'v2/sprites/sea-inspection-scanner-idle.webp',
+    attack: 'v2/sprites/sea-inspection-scanner-attack.webp',
+    hit: 'v2/sprites/sea-inspection-scanner-hit.webp',
+  },
+  'sea-tape-warden': {
+    idle: 'v2/sprites/sea-tape-warden-idle.webp',
+    attack: 'v2/sprites/sea-tape-warden-attack.webp',
+    hit: 'v2/sprites/sea-tape-warden-hit.webp',
+  },
+  'sea-cargo-shielder': {
+    idle: 'v2/sprites/sea-cargo-shielder-idle.webp',
+    attack: 'v2/sprites/sea-cargo-shielder-attack.webp',
+    hit: 'v2/sprites/sea-cargo-shielder-hit.webp',
+  },
+  'sea-solvent-examiner': {
+    idle: 'v2/sprites/sea-solvent-examiner-idle.webp',
+    attack: 'v2/sprites/sea-solvent-examiner-attack.webp',
+    hit: 'v2/sprites/sea-solvent-examiner-hit.webp',
+  },
+  'sea-seizure-spool': {
+    idle: 'v2/sprites/sea-seizure-spool-idle.webp',
+    attack: 'v2/sprites/sea-seizure-spool-attack.webp',
+    hit: 'v2/sprites/sea-seizure-spool-hit.webp',
+  },
+  'sea-container-press': {
+    idle: 'v2/sprites/sea-container-press-idle.webp',
+    attack: 'v2/sprites/sea-container-press-attack.webp',
+    hit: 'v2/sprites/sea-container-press-hit.webp',
+  },
+  'sea-chief-examiner': {
+    idle: 'v2/sprites/sea-chief-examiner-idle.webp',
+    attack: 'v2/sprites/sea-chief-examiner-attack.webp',
+    hit: 'v2/sprites/sea-chief-examiner-hit.webp',
+  },
+  'sea-gantry-auditor': {
+    idle: 'v2/sprites/sea-gantry-auditor-idle.webp',
+    attack: 'v2/sprites/sea-gantry-auditor-attack.webp',
+    hit: 'v2/sprites/sea-gantry-auditor-hit.webp',
+  },
+  'sea-seizure-marshal': {
+    idle: 'v2/sprites/sea-seizure-marshal-idle.webp',
+    attack: 'v2/sprites/sea-seizure-marshal-attack.webp',
+    hit: 'v2/sprites/sea-seizure-marshal-hit.webp',
+  },
+  'sea-foreman-crane': {
+    idle: 'v2/sprites/sea-foreman-crane-idle.webp',
+    attack: 'v2/sprites/sea-foreman-crane-attack.webp',
+    hit: 'v2/sprites/sea-foreman-crane-hit.webp',
+  },
+  'sea-commissioner-gong': {
+    idle: 'v2/sprites/sea-commissioner-gong-idle.webp',
+    attack: 'v2/sprites/sea-commissioner-gong-attack.webp',
+    hit: 'v2/sprites/sea-commissioner-gong-hit.webp',
+  },
+  'sea-container-king': {
+    idle: 'v2/sprites/sea-container-king-idle.webp',
+    attack: 'v2/sprites/sea-container-king-attack.webp',
+    hit: 'v2/sprites/sea-container-king-hit.webp',
+  },
+  'sea-brine-mite': {
+    idle: 'v2/sprites/sea-brine-mite-idle.webp',
+    attack: 'v2/sprites/sea-brine-mite-attack.webp',
+    hit: 'v2/sprites/sea-brine-mite-hit.webp',
+  },
+  'sea-name-scrap': {
+    idle: 'v2/sprites/sea-name-scrap-idle.webp',
+    attack: 'v2/sprites/sea-name-scrap-attack.webp',
+    hit: 'v2/sprites/sea-name-scrap-hit.webp',
+  },
+  'sea-hook-tender': {
+    idle: 'v2/sprites/sea-hook-tender-idle.webp',
+    attack: 'v2/sprites/sea-hook-tender-attack.webp',
+    hit: 'v2/sprites/sea-hook-tender-hit.webp',
+  },
+  'sea-bell-jelly': {
+    idle: 'v2/sprites/sea-bell-jelly-idle.webp',
+    attack: 'v2/sprites/sea-bell-jelly-attack.webp',
+    hit: 'v2/sprites/sea-bell-jelly-hit.webp',
+  },
+  'sea-borrowed-face': {
+    idle: 'v2/sprites/sea-borrowed-face-idle.webp',
+    attack: 'v2/sprites/sea-borrowed-face-attack.webp',
+    hit: 'v2/sprites/sea-borrowed-face-hit.webp',
+  },
+  'sea-barnacle-hauler': {
+    idle: 'v2/sprites/sea-barnacle-hauler-idle.webp',
+    attack: 'v2/sprites/sea-barnacle-hauler-attack.webp',
+    hit: 'v2/sprites/sea-barnacle-hauler-hit.webp',
+  },
+  'sea-salt-chorister': {
+    idle: 'v2/sprites/sea-salt-chorister-idle.webp',
+    attack: 'v2/sprites/sea-salt-chorister-attack.webp',
+    hit: 'v2/sprites/sea-salt-chorister-hit.webp',
+  },
+  'sea-cable-mourner': {
+    idle: 'v2/sprites/sea-cable-mourner-idle.webp',
+    attack: 'v2/sprites/sea-cable-mourner-attack.webp',
+    hit: 'v2/sprites/sea-cable-mourner-hit.webp',
+  },
+  'sea-breakwater-ram': {
+    idle: 'v2/sprites/sea-breakwater-ram-idle.webp',
+    attack: 'v2/sprites/sea-breakwater-ram-attack.webp',
+    hit: 'v2/sprites/sea-breakwater-ram-hit.webp',
+  },
+  'sea-blank-caller': {
+    idle: 'v2/sprites/sea-blank-caller-idle.webp',
+    attack: 'v2/sprites/sea-blank-caller-attack.webp',
+    hit: 'v2/sprites/sea-blank-caller-hit.webp',
+  },
+  'sea-name-diver': {
+    idle: 'v2/sprites/sea-name-diver-idle.webp',
+    attack: 'v2/sprites/sea-name-diver-attack.webp',
+    hit: 'v2/sprites/sea-name-diver-hit.webp',
+  },
+  'sea-tether-dredger': {
+    idle: 'v2/sprites/sea-tether-dredger-idle.webp',
+    attack: 'v2/sprites/sea-tether-dredger-attack.webp',
+    hit: 'v2/sprites/sea-tether-dredger-hit.webp',
+  },
+  'sea-crown-jelly': {
+    idle: 'v2/sprites/sea-crown-jelly-idle.webp',
+    attack: 'v2/sprites/sea-crown-jelly-attack.webp',
+    hit: 'v2/sprites/sea-crown-jelly-hit.webp',
+  },
+  'sea-doorway-colossus': {
+    idle: 'v2/sprites/sea-doorway-colossus-idle.webp',
+    attack: 'v2/sprites/sea-doorway-colossus-attack.webp',
+    hit: 'v2/sprites/sea-doorway-colossus-hit.webp',
+  },
+  'sea-memorial-loom': {
+    idle: 'v2/sprites/sea-memorial-loom-idle.webp',
+    attack: 'v2/sprites/sea-memorial-loom-attack.webp',
+    hit: 'v2/sprites/sea-memorial-loom-hit.webp',
+  },
+  'sea-rust-whale': {
+    idle: 'v2/sprites/sea-rust-whale-idle.webp',
+    attack: 'v2/sprites/sea-rust-whale-attack.webp',
+    hit: 'v2/sprites/sea-rust-whale-hit.webp',
+  },
+  'sea-buoy-queen': {
+    idle: 'v2/sprites/sea-buoy-queen-idle.webp',
+    attack: 'v2/sprites/sea-buoy-queen-attack.webp',
+    hit: 'v2/sprites/sea-buoy-queen-hit.webp',
+  },
+  'sea-surge-eater': {
+    idle: 'v2/sprites/sea-surge-eater-idle.webp',
+    attack: 'v2/sprites/sea-surge-eater-attack.webp',
+    hit: 'v2/sprites/sea-surge-eater-hit.webp',
+  },
+  'sea-wick-novice': {
+    idle: 'v2/sprites/sea-wick-novice-idle.webp',
+    attack: 'v2/sprites/sea-wick-novice-attack.webp',
+    hit: 'v2/sprites/sea-wick-novice-hit.webp',
+  },
+  'sea-bell-tender': {
+    idle: 'v2/sprites/sea-bell-tender-idle.webp',
+    attack: 'v2/sprites/sea-bell-tender-attack.webp',
+    hit: 'v2/sprites/sea-bell-tender-hit.webp',
+  },
+  'sea-fog-lamplighter': {
+    idle: 'v2/sprites/sea-fog-lamplighter-idle.webp',
+    attack: 'v2/sprites/sea-fog-lamplighter-attack.webp',
+    hit: 'v2/sprites/sea-fog-lamplighter-hit.webp',
+  },
+  'sea-lens-guard': {
+    idle: 'v2/sprites/sea-lens-guard-idle.webp',
+    attack: 'v2/sprites/sea-lens-guard-attack.webp',
+    hit: 'v2/sprites/sea-lens-guard-hit.webp',
+  },
+  'sea-beam-pylon': {
+    idle: 'v2/sprites/sea-beam-pylon-idle.webp',
+    attack: 'v2/sprites/sea-beam-pylon-attack.webp',
+    hit: 'v2/sprites/sea-beam-pylon-hit.webp',
+  },
+  'sea-watch-sailor': {
+    idle: 'v2/sprites/sea-watch-sailor-idle.webp',
+    attack: 'v2/sprites/sea-watch-sailor-attack.webp',
+    hit: 'v2/sprites/sea-watch-sailor-hit.webp',
+  },
+  'sea-anchor-penitent': {
+    idle: 'v2/sprites/sea-anchor-penitent-idle.webp',
+    attack: 'v2/sprites/sea-anchor-penitent-attack.webp',
+    hit: 'v2/sprites/sea-anchor-penitent-hit.webp',
+  },
+  'sea-glass-wader': {
+    idle: 'v2/sprites/sea-glass-wader-idle.webp',
+    attack: 'v2/sprites/sea-glass-wader-attack.webp',
+    hit: 'v2/sprites/sea-glass-wader-hit.webp',
+  },
+  'sea-prism-gull': {
+    idle: 'v2/sprites/sea-prism-gull-idle.webp',
+    attack: 'v2/sprites/sea-prism-gull-attack.webp',
+    hit: 'v2/sprites/sea-prism-gull-hit.webp',
+  },
+  'sea-salt-diver': {
+    idle: 'v2/sprites/sea-salt-diver-idle.webp',
+    attack: 'v2/sprites/sea-salt-diver-attack.webp',
+    hit: 'v2/sprites/sea-salt-diver-hit.webp',
+  },
+  'sea-shutter-verger': {
+    idle: 'v2/sprites/sea-shutter-verger-idle.webp',
+    attack: 'v2/sprites/sea-shutter-verger-attack.webp',
+    hit: 'v2/sprites/sea-shutter-verger-hit.webp',
+  },
+  'sea-lens-warden': {
+    idle: 'v2/sprites/sea-lens-warden-idle.webp',
+    attack: 'v2/sprites/sea-lens-warden-attack.webp',
+    hit: 'v2/sprites/sea-lens-warden-hit.webp',
+  },
+  'sea-anchor-prior': {
+    idle: 'v2/sprites/sea-anchor-prior-idle.webp',
+    attack: 'v2/sprites/sea-anchor-prior-attack.webp',
+    hit: 'v2/sprites/sea-anchor-prior-hit.webp',
+  },
+  'sea-fog-cantor': {
+    idle: 'v2/sprites/sea-fog-cantor-idle.webp',
+    attack: 'v2/sprites/sea-fog-cantor-attack.webp',
+    hit: 'v2/sprites/sea-fog-cantor-hit.webp',
+  },
+  'sea-lantern-seraph': {
+    idle: 'v2/sprites/sea-lantern-seraph-idle.webp',
+    attack: 'v2/sprites/sea-lantern-seraph-attack.webp',
+    hit: 'v2/sprites/sea-lantern-seraph-hit.webp',
+  },
+  'sea-foghorn': {
+    idle: 'v2/sprites/sea-foghorn-idle.webp',
+    attack: 'v2/sprites/sea-foghorn-attack.webp',
+    hit: 'v2/sprites/sea-foghorn-hit.webp',
+  },
+  'sea-lens-saint': {
+    idle: 'v2/sprites/sea-lens-saint-idle.webp',
+    attack: 'v2/sprites/sea-lens-saint-attack.webp',
+    hit: 'v2/sprites/sea-lens-saint-hit.webp',
+  },
+  'sea-lightkeeper': {
+    idle: 'v2/sprites/sea-lightkeeper-idle.webp',
+    attack: 'v2/sprites/sea-lightkeeper-attack.webp',
+    hit: 'v2/sprites/sea-lightkeeper-hit.webp',
+  },
+  'sea-unwritten': {
+    idle: 'v2/sprites/sea-unwritten-idle.webp',
+    attack: 'v2/sprites/sea-unwritten-attack.webp',
+    hit: 'v2/sprites/sea-unwritten-hit.webp',
+  },
+  mujin: {
+    idle: 'v2/sprites/mujin-idle.webp',
+    attack: 'v2/sprites/mujin-attack.webp',
+    hit: 'v2/sprites/mujin-hit.webp',
+    guard: 'v2/sprites/mujin-guard.webp',
+  },
+  'seo-ha': {
+    idle: 'v2/sprites/seo-ha-idle.webp',
+    attack: 'v2/sprites/seo-ha-attack.webp',
+    hit: 'v2/sprites/seo-ha-hit.webp',
+    guard: 'v2/sprites/seo-ha-guard.webp',
+  },
+  parang: {
+    idle: 'v2/sprites/parang-idle.webp',
+    attack: 'v2/sprites/parang-attack.webp',
+    hit: 'v2/sprites/parang-hit.webp',
+    guard: 'v2/sprites/parang-guard.webp',
+  },
+  navigator: {
+    idle: 'v2/sprites/navigator-idle.webp',
+    attack: 'v2/sprites/navigator-attack.webp',
+    hit: 'v2/sprites/navigator-hit.webp',
+    guard: 'v2/sprites/navigator-guard.webp',
+  },
+  'ol-ledger-mite': {
+    idle: 'v2/sprites/ol-ledger-mite-idle.webp',
+    attack: 'v2/sprites/ol-ledger-mite-attack.webp',
+    hit: 'v2/sprites/ol-ledger-mite-hit.webp',
+  },
+  'ol-shutter-bot': {
+    idle: 'v2/sprites/ol-shutter-bot-idle.webp',
+    attack: 'v2/sprites/ol-shutter-bot-attack.webp',
+    hit: 'v2/sprites/ol-shutter-bot-hit.webp',
+  },
+  'ol-notice-drone': {
+    idle: 'v2/sprites/ol-notice-drone-idle.webp',
+    attack: 'v2/sprites/ol-notice-drone-attack.webp',
+    hit: 'v2/sprites/ol-notice-drone-hit.webp',
+  },
+  'ol-meter-reader': {
+    idle: 'v2/sprites/ol-meter-reader-idle.webp',
+    attack: 'v2/sprites/ol-meter-reader-attack.webp',
+    hit: 'v2/sprites/ol-meter-reader-hit.webp',
+  },
+  'ol-wash-unit': {
+    idle: 'v2/sprites/ol-wash-unit-idle.webp',
+    attack: 'v2/sprites/ol-wash-unit-attack.webp',
+    hit: 'v2/sprites/ol-wash-unit-hit.webp',
+  },
+  'ol-collection-clerk': {
+    idle: 'v2/sprites/ol-collection-clerk-idle.webp',
+    attack: 'v2/sprites/ol-collection-clerk-attack.webp',
+    hit: 'v2/sprites/ol-collection-clerk-hit.webp',
+  },
+  'ol-lock-hound': {
+    idle: 'v2/sprites/ol-lock-hound-idle.webp',
+    attack: 'v2/sprites/ol-lock-hound-attack.webp',
+    hit: 'v2/sprites/ol-lock-hound-hit.webp',
+  },
+  'ol-night-inspector': {
+    idle: 'v2/sprites/ol-night-inspector-idle.webp',
+    attack: 'v2/sprites/ol-night-inspector-attack.webp',
+    hit: 'v2/sprites/ol-night-inspector-hit.webp',
+  },
+  'ol-wrecking-rig': {
+    idle: 'v2/sprites/ol-wrecking-rig-idle.webp',
+    attack: 'v2/sprites/ol-wrecking-rig-attack.webp',
+    hit: 'v2/sprites/ol-wrecking-rig-hit.webp',
+  },
+  'ol-sweep-foreman': {
+    idle: 'v2/sprites/ol-sweep-foreman-idle.webp',
+    attack: 'v2/sprites/ol-sweep-foreman-attack.webp',
+    hit: 'v2/sprites/ol-sweep-foreman-hit.webp',
+  },
+  'ol-closing-bell': {
+    idle: 'v2/sprites/ol-closing-bell-idle.webp',
+    attack: 'v2/sprites/ol-closing-bell-attack.webp',
+    hit: 'v2/sprites/ol-closing-bell-hit.webp',
+  },
+  'ol-block-closer': {
+    idle: 'v2/sprites/ol-block-closer-idle.webp',
+    attack: 'v2/sprites/ol-block-closer-attack.webp',
+    hit: 'v2/sprites/ol-block-closer-hit.webp',
+  },
 }
 
 /** EnemyDef id -> V2_SPRITES key. */

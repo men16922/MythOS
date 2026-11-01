@@ -94,6 +94,9 @@ export type SfxName =
   | 'ult_doyun'
   | 'ult_bel'
   | 'ult_rem'
+  | 'ult_mujin'
+  | 'ult_seo_ha'
+  | 'ult_parang'
   | 'recruit'
 
 /** Each companion ultimate's signature cue (companion id → cue). */
@@ -109,6 +112,9 @@ export const ULT_SFX: Record<string, SfxName> = {
   doyun: 'ult_doyun',
   bel: 'ult_bel',
   rem: 'ult_rem',
+  mujin: 'ult_mujin',
+  seo_ha: 'ult_seo_ha',
+  parang: 'ult_parang',
 }
 
 export interface SfxOpts {
@@ -617,6 +623,30 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.tone(1319, 'sine', 0.002, 1.2, 0.07, undefined, 0.45)
       v.crackle(10, 0.8, 0.05, 0.5, 1200)
       duckForImpact(5, 0.6)
+      break
+    case 'ult_mujin':
+      // A crane drops its load: a chain running out, the long fall, one steel slam that shakes the wharf.
+      for (let i = 0; i < 6; i++) v.click(0.5, 1400 - i * 120, i * 0.06)
+      v.tone(90, 'sawtooth', 0.3, 0.2, 0.08, 45, 0.2)
+      v.thump(70, 38, 0.02, 0.55, 1, 0.55, true)
+      v.noise('lowpass', 500, 0.01, 0.5, 0.35, undefined, 0.55)
+      duckForImpact(4, 0.55)
+      break
+    case 'ult_seo_ha':
+      // A pilot's call: a low harbor horn, a bell buoy, water parting.
+      v.tone(110, 'triangle', 0.15, 0.8, 0.14)
+      v.tone(165, 'sine', 0.15, 0.7, 0.09)
+      v.tone(1175, 'sine', 0.002, 0.7, 0.08, undefined, 0.45)
+      v.tone(1760, 'sine', 0.002, 0.6, 0.05, undefined, 0.6)
+      v.noise('bandpass', 900, 0.2, 0.6, 0.16, 300, 0.3)
+      break
+    case 'ult_parang':
+      // Borrowed voices: a murmur rising out of water, one clear high note, then quiet.
+      v.noise('bandpass', 600, 0.3, 0.6, 0.14, 1400)
+      v.crackle(8, 0.6, 0.04, 0.1, 900)
+      v.tone(659, 'sine', 0.2, 0.7, 0.08, 622, 0.4)
+      v.tone(1319, 'sine', 0.01, 0.9, 0.06, undefined, 0.7)
+      v.shimmer(3, 0.04, 0.8)
       break
     case 'recruit':
       // A companion joins: two warm notes resolving upward.

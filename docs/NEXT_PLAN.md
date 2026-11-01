@@ -6,7 +6,7 @@ Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (pau
 
 ## Next: after the 2026-11-01 deploy
 
-Plan and order: `docs/plans/2026-11-01-next-steps-plan.md`. `[x]` DLC 2 parallel Act 2 + party and growth rework deployed on owner order: `00171-yuj`. `[x]` production `url-smoke` timeout looked at: 4/4 now, no post-fight stall in 13 runs, cause inferred. `[x]` bot trains, buys and swaps gear, fills the third slot; re-tuned: fresh 39.1 %, Deep 25.3 %, bosses at most 8.8 turns (on `main`, not deployed). `[x]` gear rows and Act 4 four-person fight checked in the real UI. `[ ]` DLC 3 The Unwritten Sea, owner order: `docs/plans/2026-11-01-dlc3-plan.md`, bible `docs/plans/2026-11-01-dlc3-bible.md`. `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §12, then DLC 2 art (~40), gear icons, adopted reverse-engineering findings.
+Plan and order: `docs/plans/2026-11-01-next-steps-plan.md`. `[x]` DLC 2 parallel Act 2 + party and growth rework deployed on owner order: `00171-yuj`. `[x]` production `url-smoke` timeout looked at: 4/4 now, no post-fight stall in 13 runs, cause inferred. `[x]` bot trains, buys and swaps gear, fills the third slot; re-tuned: fresh 39.1 %, Deep 25.3 %, bosses at most 8.8 turns (on `main`, not deployed). `[x]` gear rows and Act 4 four-person fight checked in the real UI. `[x]` DLC 3 The Unwritten Sea built, not deployed: `docs/plans/2026-11-01-dlc3-plan.md`. `[ ]` `[owner]` deploy call, play `docs/test/mythos2_fun_check.md` §13, OK new music (Lyria bills Vertex). `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §12, then W1 / W2.
 
 ## Next: DLC 2 pick (merged plan, 2026-10-31)
 

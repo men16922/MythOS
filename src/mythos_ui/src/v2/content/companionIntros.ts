@@ -1,3 +1,4 @@
+import { SEA_INTROS } from './packs/unwritten_sea/writing.ts'
 import type { CompanionIntro, Text } from '../engine/types.ts'
 import { NEW_COMPANION_INTROS } from './packs/new_companions/index.ts'
 
@@ -468,4 +469,4 @@ const BASE_INTROS: Record<string, CompanionIntro> = {
   },
 }
 
-export const COMPANION_INTROS: Record<string, CompanionIntro> = { ...BASE_INTROS, ...NEW_COMPANION_INTROS }
+export const COMPANION_INTROS: Record<string, CompanionIntro> = { ...BASE_INTROS, ...SEA_INTROS, ...NEW_COMPANION_INTROS }

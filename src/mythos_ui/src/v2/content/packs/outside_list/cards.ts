@@ -19,7 +19,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     effects: [{ kind: 'damage', amount: 5 }, { kind: 'push', dir: 'away', distance: 1 }],
     text: t('피해 5. 1칸 민다.', 'Deal 5. Push 1.'),
     upgrade: { effects: [{ kind: 'damage', amount: 7 }, { kind: 'push', dir: 'away', distance: 1 }], text: t('피해 7. 1칸 민다.', 'Deal 7. Push 1.') },
-    icon: 'v2/cards/magnetic_pull.webp',
+    icon: 'v2/cards/ol_cut_in_line.webp',
     tags: ['push'],
   },
   {
@@ -33,7 +33,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     effects: [{ kind: 'damage', amount: 2 }, { kind: 'push', dir: 'toward', distance: 2 }],
     text: t('피해 2. 2칸 끌어당긴다.', 'Deal 2. Pull 2.'),
     upgrade: { cost: 0 },
-    icon: 'v2/cards/magnetic_pull.webp',
+    icon: 'v2/cards/ol_ladle_hook.webp',
     tags: ['push'],
   },
   {
@@ -47,7 +47,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     effects: [{ kind: 'damage', amount: 3 }, { kind: 'push', dir: 'away', distance: 2 }],
     text: t('피해 3. 2칸 민다.', 'Deal 3. Push 2.'),
     upgrade: { effects: [{ kind: 'damage', amount: 4 }, { kind: 'push', dir: 'away', distance: 3 }], text: t('피해 4. 3칸 민다.', 'Deal 4. Push 3.') },
-    icon: 'v2/cards/magnetic_pull.webp',
+    icon: 'v2/cards/ol_cart_shove.webp',
     tags: ['push'],
   },
   {
@@ -61,7 +61,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     effects: [{ kind: 'block', amount: 7 }],
     text: t('아군이나 시민에게 방어막 7.', 'Give an ally or citizen 7 block.'),
     upgrade: { effects: [{ kind: 'block', amount: 10 }], text: t('아군이나 시민에게 방어막 10.', 'Give an ally or citizen 10 block.') },
-    icon: 'v2/cards/smoke_step.webp',
+    icon: 'v2/cards/ol_hold_this.webp',
     tags: ['block'],
   },
   {
@@ -75,7 +75,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     effects: [{ kind: 'block', amount: 2 }, { kind: 'refund_move' }],
     text: t('방어막 2. 다시 이동할 수 있다.', 'Gain 2 block. You may move again.'),
     upgrade: { effects: [{ kind: 'block', amount: 4 }, { kind: 'refund_move' }], text: t('방어막 4. 다시 이동할 수 있다.', 'Gain 4 block. You may move again.') },
-    icon: 'v2/cards/smoke_step.webp',
+    icon: 'v2/cards/ol_step_aside.webp',
     tags: ['move'],
   },
   {
@@ -90,7 +90,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     effects: [{ kind: 'heal', amount: 5 }],
     text: t('아군이나 시민의 HP 5 회복. 소멸.', 'Heal an ally or citizen 5. Exhaust.'),
     upgrade: { effects: [{ kind: 'heal', amount: 8 }], text: t('아군이나 시민의 HP 8 회복. 소멸.', 'Heal an ally or citizen 8. Exhaust.') },
-    icon: 'v2/cards/smoke_step.webp',
+    icon: 'v2/cards/ol_leftovers.webp',
   },
   // ---------------------------------------------------------------- uncommon
   {
@@ -104,7 +104,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     effects: [{ kind: 'swap' }, { kind: 'block', amount: 4, to: 'owner' }],
     text: t('유닛 하나와 자리를 바꾼다. 방어막 4.', 'Swap places with a unit. Gain 4 block.'),
     upgrade: { cost: 0 },
-    icon: 'v2/cards/magnetic_pull.webp',
+    icon: 'v2/cards/ol_shift_change.webp',
     tags: ['move'],
   },
   {
@@ -118,7 +118,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     effects: [{ kind: 'create_cover' }, { kind: 'block', amount: 4, to: 'all_allies' }],
     text: t('빈 칸에 엄폐물을 세운다. 아군 전원 방어막 4.', 'Create cover on an empty tile. All allies gain 4 block.'),
     upgrade: { cost: 0 },
-    icon: 'v2/cards/smoke_step.webp',
+    icon: 'v2/cards/ol_pot_lid.webp',
     tags: ['block'],
   },
   {
@@ -133,7 +133,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     exhaust: true,
     text: t('적의 이번 공격을 취소한다. 카드 1장을 뽑는다. 소멸.', "Cancel an enemy's attack. Draw 1. Exhaust."),
     upgrade: { exhaust: false, text: t('적의 이번 공격을 취소한다. 카드 1장을 뽑는다.', "Cancel an enemy's attack. Draw 1.") },
-    icon: 'v2/cards/magnetic_pull.webp',
+    icon: 'v2/cards/ol_last_call.webp',
   },
   {
     ...base,
@@ -146,7 +146,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     effects: [{ kind: 'damage', amount: 9 }, { kind: 'push', dir: 'away', distance: 2, slam: 4 }],
     text: t('피해 9. 2칸 민다. 부딪히면 피해 4 추가.', 'Deal 9. Push 2. A bump adds 4.'),
     upgrade: { effects: [{ kind: 'damage', amount: 12 }, { kind: 'push', dir: 'away', distance: 2, slam: 4 }], text: t('피해 12. 2칸 민다. 부딪히면 피해 4 추가.', 'Deal 12. Push 2. A bump adds 4.') },
-    icon: 'v2/cards/magnetic_pull.webp',
+    icon: 'v2/cards/ol_double_shift.webp',
     tags: ['push'],
   },
   // ---------------------------------------------------------------- rare
@@ -162,7 +162,7 @@ export const OUTSIDE_CARDS: CardDef[] = [
     exhaust: true,
     text: t('아군 전원 방어막 6. 모든 적을 1칸 민다. 소멸.', 'All allies gain 6 block. Push every enemy 1. Exhaust.'),
     upgrade: { cost: 1 },
-    icon: 'v2/cards/smoke_step.webp',
+    icon: 'v2/cards/ol_everyone_out.webp',
     tags: ['push', 'block'],
   },
   {
@@ -177,6 +177,6 @@ export const OUTSIDE_CARDS: CardDef[] = [
     exhaust: true,
     text: t('모든 적의 공격 방향을 뒤집는다. 소멸.', "Turn every enemy's attack around. Exhaust."),
     upgrade: { cost: 1 },
-    icon: 'v2/cards/magnetic_pull.webp',
+    icon: 'v2/cards/ol_wrong_address.webp',
   },
 ]

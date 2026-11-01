@@ -443,6 +443,7 @@ def play_one(
     max_nodes: int = 0,
     plus: bool = False,
     deep: bool = False,
+    sea: bool = False,
     secret: bool = False,
 ) -> tuple[bool, str, Counter]:
     seen: Counter = Counter()
@@ -462,7 +463,7 @@ def play_one(
         page.evaluate(
             "() => window.__m2.setProfile((p) => ({ ...p, settings: { ...p.settings, lang: 'en' } }))"
         )
-    if deep or secret:
+    if deep or secret or sea:
         # Deep Signal opens after the first win; `--secret` also carries every First Record shard into the loop.
         records = [f"record_{i}" for i in range(1, 8)] if secret else []
         page.evaluate(
@@ -478,7 +479,11 @@ def play_one(
     if plus:
         page.locator(".m2-bgs button").first.wait_for(timeout=15000)  # the Signal+ background pick
         page.locator(".m2-bgs button").last.click()
-    if deep or secret:
+    if sea:
+        page.locator(
+            ".m2-bgs button", has_text=re.compile("쓰이지 않은 바다|The Unwritten Sea")
+        ).first.click()
+    elif deep or secret:
         page.locator(".m2-bgs button", has_text=re.compile("딥 시그널|Deep Signal")).first.click()
     page.get_by_role("button", name=re.compile(r"^\s*(접속|Connect)\s*$")).first.click()
     page.wait_for_timeout(600)
@@ -588,6 +593,11 @@ def main() -> int:
         help="play Deep Signal (6 acts; the profile is given its first win)",
     )
     ap.add_argument(
+        "--sea",
+        action="store_true",
+        help="play The Unwritten Sea (6 acts; the profile is given its first win)",
+    )
+    ap.add_argument(
         "--secret",
         action="store_true",
         help="Deep Signal with every First Record shard and enough insight: reach the secret First Connector fight",
@@ -659,6 +669,7 @@ def main() -> int:
                     args.max_nodes,
                     args.signal_plus,
                     args.deep,
+                    args.sea,
                     args.secret,
                 )
                 if ok and kind_of(page) != "ended":

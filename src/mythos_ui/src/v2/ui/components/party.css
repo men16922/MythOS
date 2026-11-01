@@ -179,3 +179,11 @@
 .m2-pt__tactic small {
   color: rgba(214, 226, 232, 0.72);
 }
+
+.m2-pt__gearicon,
+.m2-shop__gearicon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex: none;
+}

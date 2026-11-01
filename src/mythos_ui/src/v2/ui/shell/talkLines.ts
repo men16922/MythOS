@@ -187,6 +187,50 @@ export const COMPANION_REPLIES: Record<string, Pool> = {
       "Leave the typos. They show you wrote it.",
     ],
   },
+  mujin: {
+    ko: [
+      '들었다.',
+      '교대는 지킨다.',
+      '무거운 건 내가 든다.',
+      '됐다. 쉬어.',
+      '오면 받는다. 그게 일이다.',
+    ],
+    en: [
+      'Heard you.',
+      'The shift gets stood.',
+      'I\'ll lift the heavy end.',
+      'Enough. Rest.',
+      'If it comes, we take it. That\'s the job.',
+    ],
+  },
+  seo_ha: {
+    ko: [
+      '서두르면 물이 먼저 알아요.',
+      '잠깐 앉아요. 물은 안 도망가요.',
+      '길은 있어요. 늘 있었어요.',
+      '그 말, 일지에 적어 둘게요.',
+    ],
+    en: [
+      'Hurry and the water knows first.',
+      'Sit a moment. The water won\'t run off.',
+      'There\'s a way through. There always was.',
+      'I\'ll put that in the log.',
+    ],
+  },
+  parang: {
+    ko: [
+      '이 냄새, 어떤 부엌에 있었어.',
+      '방금 그 말, 누가 해 준 적 있어.',
+      '오늘 걸은 건 기억나.',
+      '손은 차가워도 괜찮아.',
+    ],
+    en: [
+      'This smell was in someone\'s kitchen.',
+      'Someone said that once.',
+      'Today\'s walk stayed.',
+      'Cold hands are all right.',
+    ],
+  },
   rem: {
     ko: [
       "천천히 말해도 괜찮아요. 아직 듣고 있어요.",

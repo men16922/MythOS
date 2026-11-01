@@ -6,6 +6,7 @@
 //
 // Voices: Se-rin blunt 반말 · Tae-o short declaratives (~다.) · Han light slangy 반말 · Su-ah gentle 반말 ·
 // Kai polite 해요체 · Lin-yue lazy, knowing 반말.
+import { SEA_CUTSCENES } from './packs/unwritten_sea/writing.ts'
 import type { Text } from '../engine/types.ts'
 import { NEW_COMPANION_CUTSCENES } from './packs/new_companions/index.ts'
 
@@ -165,7 +166,7 @@ const BASE_CUTSCENES: CutsceneDef[] = [
   },
 ]
 
-export const CUTSCENES: CutsceneDef[] = [...BASE_CUTSCENES, ...NEW_COMPANION_CUTSCENES]
+export const CUTSCENES: CutsceneDef[] = [...BASE_CUTSCENES, ...NEW_COMPANION_CUTSCENES, ...SEA_CUTSCENES]
 
 /** The scenes a companion has, in tier order. */
 export function cutscenesFor(companion: string): CutsceneDef[] {

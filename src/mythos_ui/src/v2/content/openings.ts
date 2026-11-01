@@ -5,6 +5,7 @@
 //
 // Voices follow content/companions.ts registers: Se-rin blunt 반말 · Tae-o short ~다 · Han slangy 반말 ·
 // Su-ah gentle 반말 · Kai polite 해요체 · Lin-yue lazy, knowing 반말.
+import { SEA_OPENINGS } from './packs/unwritten_sea/writing.ts'
 import type { Text } from '../engine/types.ts'
 import { NEW_COMPANION_OPENINGS } from './packs/new_companions/index.ts'
 
@@ -43,7 +44,7 @@ const BASE_OPENINGS: Record<string, Text[]> = {
   ],
 }
 
-export const OPENINGS: Record<string, Text[]> = { ...BASE_OPENINGS, ...NEW_COMPANION_OPENINGS }
+export const OPENINGS: Record<string, Text[]> = { ...BASE_OPENINGS, ...NEW_COMPANION_OPENINGS, ...SEA_OPENINGS }
 
 /** The vignette for this run's start, or [] (first loop has the prologue; the daily is identical for everyone). */
 export function openingLines(run: { loop: number; act: number; daily?: string; party: { id: string }[] }): Text[] {

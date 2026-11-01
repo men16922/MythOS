@@ -7,7 +7,8 @@ import { MAX_COMPANION_LEVEL, companionStats, levelOf, xpToNext } from '../../en
 import { STAT_MAX, partySlots } from '../../engine/run.ts'
 import { squadTacticFor } from '../../engine/squad.ts'
 import type { ContentRegistry, GearDef, GearSlot, Lang, PartyMember, RunState, StatKey, Stats } from '../../engine/types.ts'
-import { portrait } from '../common/assets.ts'
+import { GEAR_ART } from '../common/artManifest.ts'
+import { asset, portrait } from '../common/assets.ts'
 import { L, tr } from '../common/lang.ts'
 import { rx } from '../shell/rx.ts'
 import { companionSprite } from './format.ts'
@@ -200,7 +201,7 @@ export function PartyModal({ run, C, lang, onChange, onClose }: Props) {
               const on = worn[s] ? C.gear?.[worn[s] as string] : undefined
               return (
                 <button key={s} type="button" className={`m2-pt__slot${slot === s ? ' is-on' : ''}`} onClick={() => setSlot(s)}>
-                  {s === 'weapon' ? <Swords size={16} aria-hidden="true" /> : <Shield size={16} aria-hidden="true" />}
+                  {on && GEAR_ART[on.id] ? <img src={asset(GEAR_ART[on.id])} alt="" className="m2-pt__gearicon" /> : s === 'weapon' ? <Swords size={16} aria-hidden="true" /> : <Shield size={16} aria-hidden="true" />}
                   <span>
                     <small>{tr(name, lang)}</small>
                     <b>{on ? tr(on.name, lang) : ko ? '비어 있음' : 'Empty'}</b>
@@ -224,6 +225,7 @@ export function PartyModal({ run, C, lang, onChange, onClose }: Props) {
                     disabled={!editable}
                     onClick={() => apply(rx.equipGear(run, who, slot, mine ? null : g.id, C))}
                   >
+                    {GEAR_ART[g.id] && <img src={asset(GEAR_ART[g.id])} alt="" className="m2-pt__gearicon" />}
                     <b>{tr(g.name, lang)}</b>
                     <span>{gearLine(g.mods, lang)}</span>
                     {owner && <small>{mine ? (ko ? '착용 중 · 눌러서 해제' : 'Worn · tap to remove') : ko ? `${nameOf(owner)} 착용 중` : `On ${nameOf(owner)}`}</small>}

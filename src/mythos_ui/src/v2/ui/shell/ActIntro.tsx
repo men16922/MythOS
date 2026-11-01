@@ -1,4 +1,5 @@
 // Mythos 2.0 — act title card: full-bleed art, numeral, name, intro lines revealed one by one.
+import { asset } from '../common/assets.ts'
 import { art } from '../components/art.ts'
 import { useEffect, useState } from 'react'
 import { openingLines } from '../../content/openings.ts'
@@ -65,10 +66,11 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
 
   return (
     <div className="m2-actintro" onClick={go}>
-      <div className="m2-actintro__art" style={{ backgroundImage: `url(${art.act(run.act, actDef?.image)})` }} />
+      <div className="m2-actintro__art" style={{ backgroundImage: `url(${run.route && actDef?.image ? asset(actDef.image) : art.act(run.act, actDef?.image)})` }} />
       <div className="m2-actintro__shade" />
       <GmCard className="m2-actintro__gm" text={shown > 0 ? (gmLine?.text ?? null) : null} ai={gmLine?.ai} lang={lang} fast={settings.fastAnim} report={{ route: 'narrate', kind: 'act_intro' }} />
       <div className="m2-actintro__inner">
+        {run.act === 1 && run.residue && C.residue?.[run.residue] && <p className="m2-actintro__residue">{tr(C.residue[run.residue], lang)}</p>}
         <div className="m2-actintro__num">
           {run.act}
           <small>/{run.mode === 'endless' ? '∞' : lastAct(run, C)}</small>

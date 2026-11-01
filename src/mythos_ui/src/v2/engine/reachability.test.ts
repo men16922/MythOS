@@ -58,7 +58,7 @@ test('the reward names the neutral a met protect bonus kept alive, and nobody wh
 })
 
 test('Acts 4-6 hold protect and survive fights, and none needs new art', () => {
-  const late = Object.values(C.encounters).filter((e) => e.act >= 4)
+  const late = Object.values(C.encounters).filter((e) => e.act >= 4 && !e.route)
   assert.equal(late.filter((e) => e.bonus?.kind === 'protect' && e.neutral).length, 2)
   assert.equal(late.filter((e) => e.objective?.kind === 'survive').length, 2)
 })

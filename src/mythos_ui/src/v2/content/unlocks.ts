@@ -4,6 +4,7 @@
 import type { MetaUnlockDef } from '../engine/types.ts'
 import { NEW_COMPANION_UNLOCKS } from './packs/new_companions/index.ts'
 import { NEW_ARCHETYPE_UNLOCKS } from './packs/new_archetypes/index.ts'
+import { SEA_UNLOCKS } from './packs/unwritten_sea/people.ts'
 
 const BASE_UNLOCKS: MetaUnlockDef[] = [
   // ------------------------------------------------------------ archetypes
@@ -231,4 +232,4 @@ const BASE_UNLOCKS: MetaUnlockDef[] = [
   },
 ]
 
-export const UNLOCKS: MetaUnlockDef[] = [...BASE_UNLOCKS, ...NEW_ARCHETYPE_UNLOCKS, ...NEW_COMPANION_UNLOCKS]
+export const UNLOCKS: MetaUnlockDef[] = [...BASE_UNLOCKS, ...NEW_ARCHETYPE_UNLOCKS, ...NEW_COMPANION_UNLOCKS, ...SEA_UNLOCKS]

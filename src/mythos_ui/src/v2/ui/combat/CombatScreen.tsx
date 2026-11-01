@@ -370,8 +370,9 @@ export function CombatScreen(props: CombatScreenProps) {
   }, [shownEnergy])
 
   // ------------------------------------------------------------ render helpers
-  const backdrop = enc ? (ART.arenas[enc.backdrop] ? asset(ART.arenas[enc.backdrop]) : BACKDROPS[enc.backdrop]) : BACKDROPS.streets
-  const newArt = !!(enc && ART.arenas[enc.backdrop])
+  const arena = enc ? ((enc.route ? ART.arenas[enc.route] : undefined) ?? ART.arenas[enc.backdrop]) : undefined
+  const backdrop = enc ? (arena ? asset(arena) : BACKDROPS[enc.backdrop]) : BACKDROPS.streets
+  const newArt = !!arena
   const partyUnits: UnitState[] = vc.units.filter((u) => u.side === 'party' || u.side === 'neutral').filter((u) => u.hp > 0 || u.uid === 'connector')
   // Companions knocked out this fight leave the board; keep them on the roster as "down".
   for (const m of props.run.party) {

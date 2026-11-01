@@ -9,7 +9,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'ledger_mite',
     name: t('장부 벌레', 'Ledger Mite'),
-    sprite: 'spiderling',
+    sprite: 'ol-ledger-mite',
     tier: 'minion',
     hp: 9,
     move: 4,
@@ -21,7 +21,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'shutter_bot',
     name: t('셔터 봇', 'Shutter Bot'),
-    sprite: 'enforcer-unit',
+    sprite: 'ol-shutter-bot',
     tier: 'normal',
     hp: 27,
     armor: 1,
@@ -37,7 +37,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'notice_drone',
     name: t('공고 드론', 'Notice Drone'),
-    sprite: 'purge-drone',
+    sprite: 'ol-notice-drone',
     tier: 'normal',
     hp: 17,
     move: 3,
@@ -53,7 +53,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'meter_reader',
     name: t('검침원', 'Meter Reader'),
-    sprite: 'acid-alchemist',
+    sprite: 'ol-meter-reader',
     tier: 'normal',
     hp: 21,
     move: 3,
@@ -68,7 +68,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'wash_unit',
     name: t('세척기', 'Wash Unit'),
-    sprite: 'shock-trooper',
+    sprite: 'ol-wash-unit',
     tier: 'normal',
     hp: 24,
     armor: 1,
@@ -84,7 +84,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'collection_clerk',
     name: t('수거 사무원', 'Collection Clerk'),
-    sprite: 'blade-dancer',
+    sprite: 'ol-collection-clerk',
     tier: 'normal',
     hp: 22,
     move: 4,
@@ -99,7 +99,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'lock_hound',
     name: t('자물쇠 개', 'Lock Hound'),
-    sprite: 'tracker-spider',
+    sprite: 'ol-lock-hound',
     tier: 'normal',
     hp: 16,
     move: 4,
@@ -114,7 +114,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'night_inspector',
     name: t('야간 감독관', 'Night Inspector'),
-    sprite: 'trooper-captain',
+    sprite: 'ol-night-inspector',
     tier: 'elite',
     hp: 50,
     armor: 2,
@@ -130,7 +130,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'wrecking_rig',
     name: t('철거 중기', 'Wrecking Rig'),
-    sprite: 'crimson-executioner',
+    sprite: 'ol-wrecking-rig',
     tier: 'elite',
     hp: 52,
     armor: 1,
@@ -146,7 +146,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'sweep_foreman',
     name: t('청소 반장', 'Sweep Foreman'),
-    sprite: 'incinerator',
+    sprite: 'ol-sweep-foreman',
     tier: 'elite',
     hp: 47,
     armor: 1,
@@ -162,7 +162,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'closing_bell',
     name: t('마감 종', 'The Closing Bell'),
-    sprite: 'hyeonmu',
+    sprite: 'ol-closing-bell',
     tier: 'boss',
     hp: 86,
     armor: 2,
@@ -192,7 +192,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
   {
     id: 'block_closer',
     name: t('구역 마감관', 'The Block Closer'),
-    sprite: 'trooper-captain',
+    sprite: 'ol-block-closer',
     tier: 'boss',
     hp: 88,
     armor: 1,

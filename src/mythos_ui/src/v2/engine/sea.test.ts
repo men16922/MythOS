@@ -5,9 +5,10 @@ import { CONTENT as C } from '../content/index.ts'
 import { endTurn, moveUnit, rewindTurn, startCombat, threatMap } from './combat.ts'
 import { perksOf, unitAt } from './effects.ts'
 import { newProfile } from './meta.ts'
-import { newRun } from './run.ts'
+import { availableEndings, newRun, seaOpen } from './run.ts'
 import { squadTacticFor } from './squad.ts'
 import { floodsNext, tideLevel } from './tide.ts'
+import { mapEncounters } from './map.ts'
 import type { CombatState, ContentRegistry, MetaProfile, RunState } from './types.ts'
 
 const open: MetaProfile = { ...newProfile('t'), wins: 1, unlocks: Object.keys(C.unlocks) }
@@ -72,4 +73,40 @@ test('rewinding takes the whole turn back once and costs a use', () => {
 test('without the sea acts in the content the third depth stays closed', () => {
   const r = newRun(open, { archetype: 'ghost', paradox: 0, seed: 11, mode: 'sea' }, { ...C, routes: {} })
   assert.equal(r.mode, undefined)
+})
+
+test('the third depth runs on its own acts from Act 4 and ends on its own endings', () => {
+  assert.equal(seaOpen(open, C), true)
+  const r = newRun(open, { archetype: 'ghost', paradox: 0, seed: 11, mode: 'sea' }, C)
+  assert.equal(r.mode, 'sea')
+  for (const act of [4, 5, 6] as const) {
+    const route = `sea_${act}`
+    for (const kind of ['normal', 'elite', 'boss'] as const) assert.ok(mapEncounters(act, kind, C, route).length >= (kind === 'normal' ? 10 : 3), `${route} ${kind}`)
+  }
+  const end: RunState = { ...r, act: 6, route: 'sea_6', axes: { humanity: 4 } as RunState['axes'] }
+  const ids = availableEndings(end, C).map((v) => v.ending.id)
+  assert.ok(ids.includes('ending_sea_return'))
+  assert.ok(!ids.includes('ending_city_of_memory'), 'Deep Signal endings stay on the Deep Signal')
+  assert.ok(!availableEndings({ ...end, mode: 'deep' }, C).some((v) => v.ending.id === 'ending_sea_return'))
+})
+
+test('a companion who goes down is remembered as words, never power', () => {
+  const r = run()
+  const fallen = { ...open, fallen: [r.party[0]?.id ?? ''] }
+  const next = newRun(fallen, { archetype: 'ghost', paradox: 0, seed: 11, companion: r.party[0]?.id ?? '' }, C)
+  assert.equal(next.residue, r.party[0]?.id)
+  const same = newRun(open, { archetype: 'ghost', paradox: 0, seed: 11, companion: r.party[0]?.id ?? '' }, C)
+  assert.deepEqual({ ...next, residue: undefined }.stats, same.stats)
+  for (const id of Object.keys(C.companions)) assert.ok(C.residue?.[id], `${id} residue line`)
+})
+
+test('a standard run never sees the sea: no card, implant, gear or consumable leaks into its pools', () => {
+  const r = run()
+  const sea = (id: string): boolean => id.startsWith('sea_')
+  assert.ok(!r.pools.cards.some(sea))
+  assert.ok(!r.pools.implants.some(sea))
+  const seaGear = Object.values(C.gear ?? {}).filter((g) => g.route)
+  assert.equal(seaGear.length, 20)
+  assert.ok(Object.values(C.implants).filter((i) => i.route).length >= 12)
+  assert.equal(Object.values(C.consumables).filter((c) => c.route).length, 4)
 })

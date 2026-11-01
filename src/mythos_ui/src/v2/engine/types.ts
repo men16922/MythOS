@@ -239,6 +239,8 @@ export interface CardInstance {
 
 export interface ConsumableDef {
   id: string
+  /** Only drops or sells once this parallel act is reached. */
+  route?: string
   name: Text
   text: Text
   icon: string // 'items/emp_grenade.png'
@@ -618,6 +620,8 @@ export interface ImplantRules {
 
 export interface ImplantDef {
   id: string
+  /** Joins the run's pool when this parallel act is taken; never in a pool before that. */
+  route?: string
   name: Text
   text: Text
   rarity: 'starter' | 'common' | 'uncommon' | 'rare' | 'boss' | 'shop'
@@ -890,6 +894,8 @@ export interface GearMods {
 
 export interface GearDef {
   id: string
+  /** Only drops or sells once this parallel act is reached. */
+  route?: string
   name: Text
   slot: GearSlot
   rarity: 'common' | 'uncommon' | 'rare'
@@ -1049,6 +1055,10 @@ export interface RunState {
   /** 'deep' = Deep Signal: the run continues past Act 3 into the content packs' acts (engine/run.ts lastAct).
    *  'endless' = Endless Signal: after the last act it wraps to Act 1 one lap deeper, until the connector falls. */
   mode?: RunMode
+  /** Companions who went down in a fight this run. */
+  fell?: string[]
+  /** A companion marked by the last run, named in this run's opening. */
+  residue?: string
   /** Endless Signal laps completed (each lap: enemies +60 % HP, +3 damage, Rage a turn earlier and +1 stronger). */
   lap?: number
   /** The connector's leanings this run (1.0 choice axes): dialogue intents, first impressions, hard wins. */
@@ -1338,6 +1348,8 @@ export interface MetaProfile {
   /** Deepest Endless Signal reach: lap × acts + act (engine/meta.ts applyRunEnd). */
   endlessBest?: number
   lastDeath?: { killedBy: string; act: number; loop: number }
+  /** Companions who went down during the last run: a word in the next opening, never power (content/residue.ts). */
+  fallen?: string[]
   /** `ai`: AI-written lines (GM narration, companion replies, IX comms, Improvise judging); off = authored text only. */
   settings: { lang: Lang; sfx: boolean; bgm: boolean; fastAnim: boolean; ai: boolean }
   /** Daily-seed records by KST date key, newest kept (capped at DAILY_CAP days). */
@@ -1379,6 +1391,7 @@ export type AchievementCond =
   // run conditions
   | { kind: 'paradoxWin'; n: number }
   | { kind: 'deepWin' }
+  | { kind: 'seaWin' }
   | { kind: 'dailyWin' }
   | { kind: 'endlessLap'; n: number }
   | { kind: 'runTally'; stat: 'kills' | 'environmentKills' | 'elites'; min: number }
@@ -1493,6 +1506,8 @@ export interface ContentRegistry {
   squadTactics?: Record<string, SquadTacticDef>
   /** Each companion's part in a formation. */
   squadRoles?: Record<string, SquadRole>
+  /** One habit per companion who went down last run (content/residue.ts). */
+  residue?: Record<string, Text>
   endings: Record<string, EndingDef>
   unlocks: Record<string, MetaUnlockDef>
   paradox: ParadoxDef[]
@@ -1514,8 +1529,8 @@ export interface ContentRegistry {
 }
 
 export interface EnemyTuning {
-  /** Extra enemy HP % while a run is on a parallel act. */
-  routes?: Record<string, { hpPct: number }>
+  /** Extras while a run is on a parallel act, on top of that act's own numbers. */
+  routes?: Record<string, { hpPct?: number; dmg?: number; bossHpPct?: number }>
   /** +% max HP for every enemy. */
   enemyHpPct: number
   /** Extra +% max HP for elites and bosses. */

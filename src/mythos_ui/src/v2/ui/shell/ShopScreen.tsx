@@ -3,6 +3,7 @@ import { gearLine } from '../components/gearLine.ts'
 import { art } from '../components/art.ts'
 import { Eraser, HeartPulse, Scissors } from 'lucide-react'
 import { useState } from 'react'
+import { GEAR_ART } from '../common/artManifest.ts'
 import { asset } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
 import { CardView } from '../components/CardView.tsx'
@@ -182,6 +183,7 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
                     onMouseEnter={() => sound('ui_hover')}
                     onClick={() => buy(key, s.price, () => rx.buyGear(run, i, C))}
                   >
+                    {GEAR_ART[def.id] && <img src={asset(GEAR_ART[def.id])} alt="" className="m2-shop__gearicon" />}
                     <span className="m2-shop__goodname">{tr(def.name, lang)}</span>
                     <small>{gearLine(def.mods, lang)}</small>
                     {s.sold ? <span className="m2-price is-sold">{ko ? '판매됨' : 'Sold'}</span> : <Price value={s.price} credits={credits} />}

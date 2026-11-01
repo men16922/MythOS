@@ -70,9 +70,9 @@ test('a fired duo stays found: run, then profile, through a save', () => {
   assert.deepEqual(migrateProfile(JSON.parse(JSON.stringify(profile))).duos, ['collection'])
 })
 
-test('content: twelve duos of real companions, no pair twice, bilingual, every companion in at least one', () => {
+test('content: fifteen duos of real companions, no pair twice, bilingual, every companion in at least one', () => {
   const duos = Object.values(CONTENT.duos ?? {})
-  assert.equal(duos.length, 12)
+  assert.equal(duos.length, 15)
   const pairs = new Set<string>()
   const used = new Set<string>()
   for (const d of duos) {

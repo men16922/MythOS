@@ -16,6 +16,9 @@ export const SQUAD_ROLES: Record<string, SquadRole> = {
   io: 'tech',
   bel: 'tech',
   rem: 'tech',
+  mujin: 'assault',
+  seo_ha: 'support',
+  parang: 'tech',
 }
 
 export const SQUAD_TACTICS: SquadTacticDef[] = [

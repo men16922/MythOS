@@ -239,7 +239,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
       <div className="m2c-ground">
         {vc.tiles.flatMap((row, y) =>
           row.map((t, x) =>
-            t.kind === 'hazard' ? <GroundHazard key={`hz:${x},${y}`} g={g} p={{ x, y }} temp={t.ttl !== undefined} /> : null,
+            t.kind === 'hazard' && !t.water ? <GroundHazard key={`hz:${x},${y}`} g={g} p={{ x, y }} temp={t.ttl !== undefined} /> : null,
           ),
         )}
         {ground

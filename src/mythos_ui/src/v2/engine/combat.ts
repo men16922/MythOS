@@ -165,13 +165,14 @@ function scalingFor(run: RunState, C: ContentRegistry): CombatScaling {
   const mut = mutatorMods(run)
   const tune = C.tuning
   const actTune = tune?.acts?.[run.act]
+  const routeTune = run.route ? tune?.routes?.[run.route] : undefined
   const lap = run.lap ?? 0 // Endless Signal laps: +40 % HP, +2 damage, Rage a turn earlier and +1 stronger each
   return {
-    hpPct: (tune?.enemyHpPct ?? 0) + (actTune?.hpPct ?? 0) + (run.route ? (tune?.routes?.[run.route]?.hpPct ?? 0) : 0) + ENDLESS_HP_PER_LAP * lap + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
+    hpPct: (tune?.enemyHpPct ?? 0) + (actTune?.hpPct ?? 0) + (routeTune?.hpPct ?? 0) + ENDLESS_HP_PER_LAP * lap + (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
     elitePct: (tune?.eliteHpPct ?? 0) + (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
-    dmg: (implantRules(run, C).enemyAttackBonus ?? 0) + (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (actTune?.dmg ?? 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0) + (run.paradox >= 10 ? 1 : 0) + ENDLESS_DMG_PER_LAP * lap,
+    dmg: (implantRules(run, C).enemyAttackBonus ?? 0) + (tune && run.act >= tune.dmgFromAct ? 1 : 0) + (actTune?.dmg ?? 0) + (routeTune?.dmg ?? 0) + (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0) + (run.paradox >= 10 ? 1 : 0) + ENDLESS_DMG_PER_LAP * lap,
     ...(tune?.eliteDmg ? { eliteDmg: tune.eliteDmg } : {}),
-    ...(tune?.bossHpPct || actTune?.bossHpPct || run.paradox >= 8 ? { bossPct: (tune?.bossHpPct ?? 0) + (actTune?.bossHpPct ?? 0) + (run.paradox >= 8 ? 20 : 0) } : {}),
+    ...(tune?.bossHpPct || actTune?.bossHpPct || routeTune?.bossHpPct || run.paradox >= 8 ? { bossPct: (tune?.bossHpPct ?? 0) + (actTune?.bossHpPct ?? 0) + (routeTune?.bossHpPct ?? 0) + (run.paradox >= 8 ? 20 : 0) } : {}),
     ...(run.paradox >= 6 || lap > 0 ? { rageExtra: (run.paradox >= 6 ? 1 : 0) + lap } : {}),
     ...(tune?.rage ? { rageFrom: Math.max(1, tune.rage.fromTurn - (run.paradox >= 5 ? 1 : 0) - lap) } : {}),
   }

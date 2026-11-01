@@ -10,6 +10,7 @@ other pose uses the idle raw as its `-i` reference so the design stays on-model.
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -1690,6 +1691,32 @@ SPRITES: list[Sprite] = [
         ]
     ],
 ]
+
+# DLC 2 and DLC 3 units come from scripts/v2_assets/sea_art.json (written by sea_art_dump.ts from the content's art maps).
+HARBOR_NOTE = (
+    "The reference image is an enemy from an earlier act: use it ONLY for the rendering style (painterly detail, line "
+    "quality, rim light). Draw a completely NEW, different design from a forgotten salt-worn Korean port city."
+)
+PARTY_NOTE = (
+    "The reference image is a close-up portrait of this character. Draw the SAME person, identical face and hair, as a "
+    "fresh full-body combat sprite in the rendering style below, turned to face RIGHT."
+)
+_SEA_ART = ROOT / "scripts" / "v2_assets" / "sea_art.json"
+if _SEA_ART.exists():
+    for _s in json.loads(_SEA_ART.read_text())["sprites"]:
+        _party = _s["kind"] == "party"
+        SPRITES.append(
+            Sprite(
+                key=_s["key"],
+                kind=_s["kind"],
+                subject=_s["subject"],
+                idle_ref=_s["refs"][0]
+                if _party
+                else "resources/neo-seoul/v2/sprites/index-drone-idle.webp",
+                idle_ref_note=PARTY_NOTE if _party else HARBOR_NOTE,
+                poses=_party_poses() if _party else _enemy_poses(),
+            )
+        )
 
 BY_KEY = {s.key: s for s in SPRITES}
 

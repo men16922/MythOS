@@ -127,3 +127,9 @@
   color: var(--m2-gold, #ffd68c);
   opacity: 0.85;
 }
+
+.m2-actintro__residue {
+  margin: 0 0 10px;
+  font-size: 14px;
+  opacity: 0.78;
+}

@@ -9,7 +9,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     acts: [2],
     route: 'outside',
     title: t('한 뼘이 남는다', 'One Handspan Short'),
-    image: 'v2/events/a2_stalled_maglev.webp',
+    image: 'v2/events/outside_ev_shutter.webp',
     gmHints: ['막차가 끊긴 승강장 매점', '휘어진 셔터 홈', '수리공의 소켓 렌치'],
     text: t(
       '멈춘 자기부상열차 옆 매점. 셔터가 바닥 한 뼘 위에서 걸린다. 수리공이 렌치로 홈을 두드린다.\n폐점 정리반의 빛이 승강장 끝을 훑는다.\n“닫힌 가게만 지나친대요. 그래서 닫는 중입니다.” 수리공이 당신 발밑에 받침목을 밀어 놓는다.',
@@ -54,7 +54,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     route: 'outside',
     requires: { notFlag: 'outside_owed' },
     title: t('젖은 쪽이 무겁다', 'The Wet End'),
-    image: 'v2/events/a2_lantern_ferry.webp',
+    image: 'v2/events/outside_ev_laundry_cart.webp',
     gmHints: ['나루 경사로의 세탁물 수레', '손잡이에 묶인 노란 수건', '수거원이 정하는 운반 순서'],
     text: t(
       '나루 경사로에서 세탁물 수거원이 수레 바퀴에 벽돌을 괸다. 손잡이에 노란 수건이 묶여 있다.\n“젖은 건 아래로. 마른 건 위로.” 수거원이 자루를 다시 쌓는다. “밀 거면 왼쪽을 잡아요. 오른쪽은 제가 알아요.”\n폐점 방송에도 마지막 수거표는 아직 집게에 물려 있다.',
@@ -93,7 +93,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     acts: [2],
     route: 'outside',
     title: t('귀 옆은 아직', 'Still Around the Ears'),
-    image: 'v2/events/a2_face_stall.webp',
+    image: 'v2/events/outside_ev_barber.webp',
     gmHints: ['마지막 손님의 이발', '거울에 비친 정리반', '빗으로 고개를 돌리는 이발사'],
     text: t(
       '이발사가 손님의 턱을 빗등으로 돌린다. 반쪽만 짧아진 머리 위로 폐점등이 깜빡인다.\n“완료 처리된 점포입니다.” 문밖 단말기가 말한다.\n“귀 옆은 아직인데요.” 가위가 두 번 더 움직인다. 거울에는 골목 양쪽이 한꺼번에 비친다.',
@@ -153,7 +153,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     acts: [2],
     route: 'outside',
     title: t('불구멍 하나', 'One Burner Hole'),
-    image: 'v2/events/a2_eaters_table.webp',
+    image: 'v2/events/outside_ev_gas_ring.webp',
     gmHints: ['국수 가판대의 막힌 화구', '철사와 면 건지개', '손님 그릇부터 챙기는 주인'],
     text: t(
       '국수 냄비 아래 불꽃이 한쪽으로만 솟는다. 주인이 가스를 잠그고 철사를 편다. 면 건지개에는 마지막 두 그릇 분량이 걸려 있다.\n폐점 정리반이 붙인 봉인지는 물에 젖어 말린다.\n“접으라는 건 알겠어요. 면은 건지고요.”',
@@ -212,7 +212,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     acts: [2],
     route: 'outside',
     title: t('전당표 뒷면', 'The Back of the Ticket'),
-    image: 'v2/events/a2_moon_dice.webp',
+    image: 'v2/events/outside_ev_pawn_ticket.webp',
     gmHints: ['gamble', '전당표 위의 닳은 주사위', '판돈 대신 금고 운반'],
     text: t(
       '전당포 주인이 빈 전당표를 깔고 주사위를 놓는다. 모서리 하나만 유난히 닳았다.\n“홀짝 맞히면 내 돈. 틀리면 저 금고를 안으로.” 주인이 장갑을 턱으로 가리킨다.\n폐점 시간이 지났어도 맡긴 물건은 선반에 반듯하다. 금고 밑에는 이미 운반용 천이 깔려 있다.',
@@ -272,7 +272,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     route: 'outside',
     requires: { companions: ['se_rin', 'tae_o'] },
     title: t('휴게 시간에도 호출은 온다', 'Calls During Break'),
-    image: 'v2/events/a2_debt_collectors.webp',
+    image: 'v2/events/outside_ev_break_schedule.webp',
     gmHints: ['companion conflict', '정리반 직원의 도시락', '세린과 태오의 다른 철수 방법'],
     text: t(
       '정리반 직원이 도시락 옆에 도장과 순회표를 내려놓는다. 호출기는 꺼져 있다.\n“도장 찍는 사람입니다. 밥 먹을 땐 내려놔요.”\n세린이 순회표를 접는다. “표만 받고 가자. 호출은 듣지 말고.”\n태오가 호출기에 손을 뻗는다. “무응답이면 여기로 온다. 확인 보고는 하게 둬.” 직원이 젓가락을 멈춘다.',
@@ -314,7 +314,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     acts: [2],
     route: 'outside',
     title: t('의자 한 자리', 'A Place for the Chair'),
-    image: 'v2/events/a2_refuge_night.webp',
+    image: 'v2/events/outside_ev_chair_door.webp',
     gmHints: ['문틈에 끼운 식당 의자', '가족을 내보내는 문지기', '폐점 정리반의 골목 진입'],
     text: t(
       '문지기가 의자 등받이를 철문 손잡이에 걸어 둔다. 안에서는 사람들이 신발을 신고 있다.\n“앉는 건 나중에.” 문지기는 의자 다리를 발로 고쳐 민다.\n골목 양끝에서 폐점 정리반의 조명이 켜진다. 문지기가 세탁실 쪽 빗장을 뽑는다. “나가는 문은 하나 더 있어요.”',
@@ -353,7 +353,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     acts: [2],
     route: 'outside',
     title: t('철거 공지 아래', 'Under the Removal Notice'),
-    image: 'v2/events/a2_subway_hub.webp',
+    image: 'v2/events/outside_ev_bulletin_board.webp',
     gmHints: ['환승 통로의 동네 게시판', '풀솔을 든 관리인', '공지에 가려진 배달 약도'],
     text: t(
       '환승 통로 게시판에 철거 공지가 덧붙었다. 아래로는 우산 수선, 반찬 배달, 잃어버린 열쇠 쪽지가 삐져나온다.\n관리인이 풀솔로 공지의 들뜬 귀퉁이만 누른다.\n“떼면 또 와요. 밑에 건 옆으로 옮기면 되고.” 배달 약도에는 카메라 점검 시간도 적혀 있다.',
@@ -397,7 +397,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     acts: [2],
     route: 'outside',
     title: t('풀이도 쓰세요', 'Show Your Work'),
-    image: 'v2/events/a2_toll_bridge_kids.webp',
+    image: 'v2/events/outside_ev_homework.webp',
     gmHints: ['다리 밑 가판대의 숙제', '짧아진 연필과 쇠자', '직접 답을 고치는 아이'],
     text: t(
       '다리 밑 가판대에서 아이가 쇠자로 공책을 누르고 있다. 어른은 옆에서 상자를 묶는다. 접어야 할 천막에 아이 책상등 선이 걸려 있다.\n“이 줄까지만.” 아이가 나눗셈을 적는다.\n당신이 답을 짚자 공책을 돌려 준다. “풀이도요. 선생님이 그걸 봐요.”',
@@ -441,7 +441,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     acts: [2],
     route: 'outside',
     title: t('반 박자 먼저', 'Half a Beat Early'),
-    image: 'v2/events/a2_memory_stall.webp',
+    image: 'v2/events/outside_ev_early_amp.webp',
     gmHints: ['uncanny', '연주보다 먼저 우는 앰프', '먼저 울린 음을 끝까지 치는 악사'],
     text: t(
       '중고 음반 가판대 앞. 악사가 줄을 누르기 전에 앰프에서 음이 난다. 손을 멈추자 다음 음도 멈춘다.\n악사는 케이블을 내려다보고 다시 손가락을 든다. 앰프가 반 박자 먼저 운다.\n“앞서는 건 좋은데, 품삯은 한 사람 몫이거든.” 악사가 발로 빈 의자를 밀어 준다.',
@@ -488,7 +488,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     acts: [2],
     route: 'outside',
     title: t('해당 없음에 서명', 'Sign Under Not Applicable'),
-    image: 'v2/events/a2_broadcast_or_refuge.webp',
+    image: 'v2/events/outside_ev_compensation_form.webp',
     gmHints: ['IX contact', '미등록자 보상 서식', '국자로 서명 칸을 짚는 배식 담당'],
     text: t(
       '배식 담당이 국자로 종이 서식의 모서리를 누른다. 제목은 ‘미등록자 영업 종료 보상’. 첫 칸은 등록번호다.\n단말기에서 IX가 말한다. “해당 사항이 없으면 해당 없음에 서명해 주십시오.”\n“배식 담당이에요. 손은 젖었고요.” 국자 끝에서 물 한 방울이 서명 칸에 떨어진다.',
@@ -536,7 +536,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     route: 'outside',
     requires: { flag: 'outside_owed' },
     title: t('빈 충전선', 'A Free Cable'),
-    image: 'v2/events/a2_alchemist_vial.webp',
+    image: 'v2/events/outside_ev_shared_charger.webp',
     gmHints: ['수선집 뒤 공용 충전기', '노란 수건을 알아보는 수거원', '손수 끓인 물과 구급함'],
     text: t(
       '수선집 뒤 작업대. 전해액 유리병 옆으로 충전선들이 늘어져 있다. 세탁물 수거원이 당신 손의 노란 수건을 보고 자기 전화기를 뽑는다.\n“내 건 이만하면 돼요.” 의자도 발로 빼 준다.\n작은 전기 주전자에서 김이 난다. 수거원이 구급함을 열고 깨끗한 천을 꺼낸다.',

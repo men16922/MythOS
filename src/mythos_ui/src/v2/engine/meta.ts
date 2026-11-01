@@ -252,6 +252,8 @@ export function migrateProfile(raw: unknown): MetaProfile {
     duos: strList(r.duos),
     evolutions: strList(r.evolutions),
   }
+  const fallen = strList(r.fallen)
+  if (fallen.length > 0) profile.fallen = fallen
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {
     profile.lastDeath = { killedBy: death.killedBy, act: int(death.act, 1, 99), loop: int(death.loop, 0) }
@@ -304,7 +306,7 @@ export function cardPool(profile: MetaProfile, archetype: string, C: ContentRegi
 /** Implants that can drop this run (every rarity but starter; packs only once unlocked). */
 export function implantPool(profile: MetaProfile, C: ContentRegistry): string[] {
   return Object.values(C.implants)
-    .filter((i) => i.rarity !== 'starter' && packOpen(profile, C, i.pack, 'implant_pack'))
+    .filter((i) => i.rarity !== 'starter' && !i.route && packOpen(profile, C, i.pack, 'implant_pack'))
     .map((i) => i.id)
 }
 
@@ -487,6 +489,7 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     settings: { ...profile.settings },
   }
   if (!victory && !abandoned && killedBy) next.lastDeath = { killedBy, act: run.act, loop: run.loop }
+  if (!run.daily) next.fallen = [...(run.fell ?? [])]
   if (isDateKey(run.daily)) next.daily = recordDaily(profile.daily, run.daily, dailyResultOf(run, earned))
   const unlocked = newAchievements(next, run, C)
   if (unlocked.length > 0) {

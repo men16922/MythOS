@@ -17,8 +17,8 @@ const RES = new URL('../../../../../resources/neo-seoul/', import.meta.url)
 const resExists = (rel: string): boolean => existsSync(fileURLToPath(new URL(rel, RES)))
 
 // Ids the sibling content agent guarantees (see build contract).
-const COMPANIONS = ['se_rin', 'tae_o', 'han', 'su_ah', 'kai', 'lin_yue', 'io', 'miro', 'doyun', 'bel', 'rem']
-const ARCHETYPES = ['ghost', 'smuggler', 'echo_collector', 'archivist', 'scrapborn']
+const COMPANIONS = ['se_rin', 'tae_o', 'han', 'su_ah', 'kai', 'lin_yue', 'io', 'miro', 'doyun', 'bel', 'rem', 'mujin', 'seo_ha', 'parang']
+const ARCHETYPES = ['ghost', 'smuggler', 'echo_collector', 'archivist', 'scrapborn', 'navigator']
 const JUNK = ['static', 'trace_bug', 'corrupted_echo']
 const CONSUMABLES = [
   'nanopatch',
@@ -115,10 +115,10 @@ test('quotas', () => {
   for (const [k, xs] of Object.entries(IX_LINES)) assert.ok(xs.length >= 2, `ixLines.${k}`)
   assert.ok(UNLOCKS.length >= 18)
   const kinds = (k: string) => UNLOCKS.filter((u) => u.kind === k)
-  assert.equal(kinds('archetype').length, 4)
+  assert.equal(kinds('archetype').length, 5)
   // Se-rin, Tae-o and Han start unlocked (loop 1's Act 2 recruit needs real candidates); the other eight are bought
   // (three base + the five R7d Deep Signal companions).
-  assert.equal(kinds('companion').length, 8)
+  assert.equal(kinds('companion').length, 11)
   assert.equal(kinds('card_pack').length, 3)
   assert.equal(kinds('implant_pack').length, 2)
   assert.ok(kinds('thread').length >= 8)

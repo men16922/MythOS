@@ -13,5 +13,5 @@ export const OUTSIDE_ACT: ActDef = {
     en: 'When the broadcast ends the signs go dark one row at a time. The main street goes home. The back alley ties its aprons tighter.\nA serving counter, a laundry cart, a hook for pulling shutters. People off the list go home when the work is done.\nAt the far end of the alley, the Closing Crew’s beacons turn. They shut the doors in order and erase what is behind them.\nThe road to the Spire runs this way too. It just takes longer.',
   },
   backdrop: 'undercity',
-  image: 'v2/art/act2.webp',
+  image: 'v2/art/outside.webp',
 }

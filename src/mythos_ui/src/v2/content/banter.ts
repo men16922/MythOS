@@ -205,6 +205,32 @@ export const BANTER: BanterDef[] = [
       { who: 'se_rin', text: t('그게 제일 무서운 말인 거 알지.', 'You know that’s the scariest thing you could say.') },
     ],
   },
+  {
+    id: 'b_serin_mujin_shift',
+    pair: ['se_rin', 'mujin'],
+    lines: [
+      { who: 'se_rin', text: t('배도 없는데 왜 교대를 서?', 'No ships. Why stand the shift?') },
+      { who: 'mujin', text: t('오면 어쩌려고.', 'What if one comes.') },
+      { who: 'se_rin', text: t('…그건 또 그렇네.', '…Fair enough.') },
+    ],
+  },
+  {
+    id: 'b_serin_seoha_water',
+    pair: ['se_rin', 'seo_ha'],
+    lines: [
+      { who: 'se_rin', text: t('물거미라는 별명, 여기선 좀 민망하네.', 'Water Spider sounds a bit silly down here.') },
+      { who: 'seo_ha', text: t('괜찮아요. 물은 그런 거 안 따져요.', 'It’s fine. Water doesn’t check names.') },
+    ],
+  },
+  {
+    id: 'b_serin_parang_name',
+    pair: ['se_rin', 'parang'],
+    lines: [
+      { who: 'se_rin', text: t('너 몇 살이야?', 'How old are you?') },
+      { who: 'parang', text: t('어제는 일흔이었어. 오늘은 몰라.', 'Seventy yesterday. Don’t know today.') },
+      { who: 'se_rin', text: t('…밥부터 먹자.', '…Let’s eat first.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

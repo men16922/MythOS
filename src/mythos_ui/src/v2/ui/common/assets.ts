@@ -17,7 +17,7 @@ export function asset(path: string | undefined | null): string {
 
 export type SpritePose = 'idle' | 'attack' | 'hit' | 'guard' | 'skill' | 'cover'
 
-const CHARACTER_SPRITES = new Set(['player-noise', 'se-rin', 'han', 'kai', 'lin-yue', 'su-ah', 'tae-o', 'io-ally', 'miro', 'doyun', 'bel', 'rem-ally'])
+const CHARACTER_SPRITES = new Set(['player-noise', 'se-rin', 'han', 'kai', 'lin-yue', 'su-ah', 'tae-o', 'io-ally', 'miro', 'doyun', 'bel', 'rem-ally', 'mujin', 'seo-ha', 'parang'])
 
 /**
  * Combat sprite URL. Characters live in characters/combat/, enemies in enemies/combat/.
@@ -36,7 +36,7 @@ export function sprite(key: string, pose: SpritePose = 'idle'): string {
 }
 
 /** Companions have painted face art; their 2.0 sprites are full-body and read as a speck in a round portrait. */
-const FACE_ART = new Set(['se-rin', 'han', 'kai', 'lin-yue', 'su-ah', 'tae-o', 'io-ally', 'miro', 'doyun', 'bel', 'rem-ally'])
+const FACE_ART = new Set(['se-rin', 'han', 'kai', 'lin-yue', 'su-ah', 'tae-o', 'io-ally', 'miro', 'doyun', 'bel', 'rem-ally', 'mujin', 'seo-ha', 'parang'])
 
 export function portrait(key: string): string {
   if (FACE_ART.has(key)) return asset(`characters/${key}.png`)

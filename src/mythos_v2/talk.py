@@ -333,6 +333,9 @@ _NAME_PATTERNS: dict[str, tuple[tuple[str, ...], str]] = {
     "doyun": (("도윤",), r"\bDo[- ]?yun\b"),
     "bel": (("벨",), r"\bBel\b"),
     "rem": (("렘",), r"\bRem\b"),
+    "mujin": (("무진",), r"\bMujin\b"),
+    "seo_ha": (("서하",), r"\bSeo[- ]?ha\b"),
+    "parang": (("파랑",), r"\bParang\b"),
 }
 
 
@@ -378,9 +381,9 @@ _POLITE_END_RE = re.compile(
 
 
 def drop_polite_sentences(text: str, lang: Lang, companion: str) -> str:
-    """Keep polite Korean for Kai, Io, Doyun and Rem; the other companions use
+    """Keep polite Korean for Kai, Io, Doyun, Rem and Seo-ha; the other companions use
     반말 / plain declaratives. Offending sentences are dropped."""
-    if lang != "ko" or companion in {"kai", "io", "doyun", "rem"}:
+    if lang != "ko" or companion in {"kai", "io", "doyun", "rem", "seo_ha"}:
         return text
     return " ".join(s for s in split_sentences(text) if not _POLITE_END_RE.search(s.strip()))
 
@@ -911,6 +914,95 @@ PERSONAS: dict[str, Persona] = {
             ),
         },
     ),
+    "mujin": Persona(
+        name={"ko": "무진", "en": "Mujin"},
+        short={"ko": "무진", "en": "Mujin"},
+        alias={"ko": "마지막 하역조장", "en": "The Last Foreman"},
+        voice={
+            "ko": "물 없는 항구의 크레인 기사이자 하역조 반장. 쓰고 남은 말이 없다. 짧게 말하고 몸으로 움직인다.",
+            "en": "Crane operator and foreman of a harbor with no water. No words to spare. Says little and moves things.",
+        },
+        register={"ko": "짧고 무뚝뚝한 반말", "en": "short, blunt, plain"},
+        android=False,
+        replies={
+            "ko": (
+                "들었다.",
+                "교대는 지킨다.",
+                "무거운 건 내가 든다.",
+                "됐다. 쉬어.",
+                "오면 받는다. 그게 일이다.",
+            ),
+            "en": (
+                "Heard you.",
+                "The shift gets stood.",
+                "I'll lift the heavy end.",
+                "Enough. Rest.",
+                "If it comes, we take it. That's the job.",
+            ),
+        },
+        deflect={
+            "ko": ("그건 모른다.", "일 얘기나 해."),
+            "en": ("Don't know that.", "Talk about the work."),
+        },
+    ),
+    "seo_ha": Persona(
+        name={"ko": "서하", "en": "Seo-ha"},
+        short={"ko": "서하", "en": "Seo-ha"},
+        alias={"ko": "배 없는 도선사", "en": "The Pilot Without a Ship"},
+        voice={
+            "ko": "은퇴한 항만 도선사. 배 없는 바다의 물길을 외운다. 따뜻하고 건조한 농담을 한다.",
+            "en": "A retired harbor pilot who still knows channels with no ships in them. Warm, with a dry sense of humor.",
+        },
+        register={"ko": "따뜻하고 건조한 해요체", "en": "warm, dry, gently polite"},
+        android=False,
+        replies={
+            "ko": (
+                "서두르면 물이 먼저 알아요.",
+                "잠깐 앉아요. 물은 안 도망가요.",
+                "길은 있어요. 늘 있었어요.",
+                "그 말, 일지에 적어 둘게요.",
+            ),
+            "en": (
+                "Hurry and the water knows first.",
+                "Sit a moment. The water won't run off.",
+                "There's a way through. There always was.",
+                "I'll put that in the log.",
+            ),
+        },
+        deflect={
+            "ko": ("그쪽은 수심을 몰라요. 돌아가요.", "그건 지도에 없는 얘기네요."),
+            "en": ("I don't know the depth there. Let's go around.", "That one isn't on my chart."),
+        },
+    ),
+    "parang": Persona(
+        name={"ko": "파랑", "en": "Parang"},
+        short={"ko": "파랑", "en": "Parang"},
+        alias={"ko": "조수에서 건진 아이", "en": "The Child from the Tide"},
+        voice={
+            "ko": "조수에서 건진 기록 없는 아이. 자기 것이 아닌 기억을 말한다. 자신을 가리킬 때도 이름 없이 말한다.",
+            "en": "A child pulled from the tide with no record. Speaks in memories that are not their own and avoids naming themself.",
+        },
+        register={"ko": "조용하고 부드러운 반말", "en": "quiet, soft, plain"},
+        android=False,
+        replies={
+            "ko": (
+                "이 냄새, 어떤 부엌에 있었어.",
+                "방금 그 말, 누가 해 준 적 있어.",
+                "오늘 걸은 건 기억나.",
+                "손은 차가워도 괜찮아.",
+            ),
+            "en": (
+                "This smell was in someone's kitchen.",
+                "Someone said that once.",
+                "Today's walk stayed.",
+                "Cold hands are all right.",
+            ),
+        },
+        deflect={
+            "ko": ("그건 안 떠올라.", "다른 사람 기억에도 없어."),
+            "en": ("That doesn't come up.", "Not in anyone else's memory either."),
+        },
+    ),
     "rem": Persona(
         name={"ko": "렘", "en": "Rem"},
         short={"ko": "렘", "en": "Rem"},
@@ -997,6 +1089,18 @@ def persona_for(companion: str) -> Persona:
 #: sentences each, injected as an inner goal the voice may colour but never state — it keeps replies in character between
 #: events without adding facts the player has not seen.
 AGENDAS: dict[str, dict[Lang, str]] = {
+    "mujin": {
+        "ko": "배가 오지 않아도 교대를 지키는 하역조를 끝까지 책임지고 싶다. 접속자가 그 사람들을 잊지 않게 하고 싶다.",
+        "en": "Wants to see the longshore crew through, ships or no ships, and wants the connector not to forget them.",
+    },
+    "seo_ha": {
+        "ko": "외워 둔 물길을 다음 사람에게 넘겨주고 싶다. 접속자가 바다를 두려워하되 알고 건너기를 바란다.",
+        "en": "Wants to hand the channels she memorized to someone. Hopes the connector will fear the sea and still cross it knowingly.",
+    },
+    "parang": {
+        "ko": "빌린 기억이 다 돌아가도 남는 자기 자신이 있는지 알고 싶다. 접속자와 걸은 오늘이 자기 것이기를 바란다.",
+        "en": "Wants to learn whether anything is left once the borrowed memories go home. Hopes today's walk with the connector is its own.",
+    },
     "se_rin": {
         "ko": "놓고 온 사람을 다시 찾고 싶다. 접속자가 사람을 버리지 않는 선택을 하면 말없이 가까워진다.",
         "en": "She wants to find the person she left behind. She warms, silently, when the connector refuses to abandon someone.",

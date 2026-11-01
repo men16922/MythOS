@@ -72,6 +72,8 @@ export function meets(when: AchievementCond, profile: MetaProfile, run: RunState
       return won(run) && run.paradox >= when.n
     case 'deepWin':
       return won(run) && run.mode === 'deep'
+    case 'seaWin':
+      return won(run) && run.mode === 'sea'
     case 'dailyWin':
       return won(run) && !!run.daily
     case 'endlessLap':

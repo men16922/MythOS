@@ -4,7 +4,7 @@
 
 import type { RefObject } from 'react'
 import { burstReady, consumableTargets, partyOrigins, ultimatesReady } from '../../../engine/combat.ts'
-import { moveUnit, playCard, undoMove, fireBurst, useConsumable as applyConsumable } from '../recordedActions.ts'
+import { moveUnit, playCard, rewindTurn, undoMove, fireBurst, useConsumable as applyConsumable } from '../recordedActions.ts'
 import type { TargetOption } from '../../../engine/combat.ts'
 import { samePos } from '../../../engine/grid.ts'
 import type { CombatState, ContentRegistry, Pos } from '../../../engine/types.ts'
@@ -218,6 +218,15 @@ export function useCombatInput(d: CombatInputDeps) {
     commitAction(undoMove(combat))
   }
 
+  const doRewind = () => {
+    if (!interactive) return
+    const back = rewindTurn(combat)
+    if (back !== combat) {
+      setArmed(null)
+      commitAction(back)
+    }
+  }
+
   /** X2: fire the archetype's Signal Burst (B), or — with a companion uid — that companion's ultimate. */
   const doBurst = (companionUid?: string) => {
     if (!interactive) return
@@ -279,6 +288,9 @@ export function useCombatInput(d: CombatInputDeps) {
       case 'z':
         doUndo()
         break
+      case 'r':
+        doRewind()
+        break
       case 'b':
         doBurst()
         break
@@ -303,5 +315,5 @@ export function useCombatInput(d: CombatInputDeps) {
     }
   }, setAltHeld)
 
-  return { playOpt, onCard, onItem, onTileClick, doUndo, doBurst }
+  return { playOpt, onCard, onItem, onTileClick, doUndo, doRewind, doBurst }
 }

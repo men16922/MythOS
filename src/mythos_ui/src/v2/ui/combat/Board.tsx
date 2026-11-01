@@ -3,6 +3,7 @@
 // This file stacks the layers; terrain lives in board/tiles.tsx, units in board/units.tsx, intent marks in
 // board/intents.tsx, preview overlays in board/preview.tsx (their data in board/marks.ts).
 
+import { nextTideLevel } from '../../engine/tide.ts'
 import type { CSSProperties } from 'react'
 import { ChevronsRight, CircleDot } from 'lucide-react'
 import type { CombatPreview, IntentInfo } from '../../engine/combat.ts'
@@ -171,7 +172,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
     <div className="m2c-board" ref={registerBoard} style={{ width: g.width, height: g.height }} onMouseLeave={() => props.onTileEnter(null)}>
       <svg className="m2c-plane" width={g.width} height={g.height} viewBox={`0 0 ${g.width} ${g.height}`}>
         <TileDefs />
-        <BoardPlane g={g} tiles={vc.tiles} part="floor" />
+        <BoardPlane g={g} tiles={vc.tiles} part="floor" {...(vc.tide ? { wetFrom: GRID_H - nextTideLevel(vc) } : {})} />
         {/* threat heat (T / Alt) */}
         {props.threat &&
           Object.entries(props.threat).map(([k, v]) => {

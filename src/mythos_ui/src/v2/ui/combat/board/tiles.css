@@ -572,3 +572,39 @@
     animation: none;
   }
 }
+
+/* The tide (engine/tide.ts): flood water, and the rows it reaches next. */
+.m2c-water-base {
+  fill: rgba(70, 92, 104, 0.82);
+  stroke: rgba(176, 208, 220, 0.6);
+  stroke-width: 1.2;
+}
+.m2c-water-swell {
+  fill: none;
+  stroke: rgba(214, 232, 238, 0.55);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  animation: m2c-water-swell 3.2s ease-in-out infinite;
+}
+@keyframes m2c-water-swell {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(2px);
+  }
+}
+.m2c-tide-next {
+  fill: rgba(120, 160, 176, 0.2);
+  stroke: rgba(190, 222, 232, 0.65);
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2c-water-swell {
+    animation: none;
+  }
+}

@@ -1,7 +1,7 @@
 // Combat screen HUD pieces around the hand: the key legend (desktop) / help popover (phones), the consumable
 // slots, the pile buttons and the end-turn button.
 
-import { BookOpen, FastForward, Flame, Trash2, Undo2 } from 'lucide-react'
+import { BookOpen, FastForward, Flame, Rewind, Trash2, Undo2 } from 'lucide-react'
 import type { CombatState, ContentRegistry, Lang } from '../../../engine/types.ts'
 import { CONSUMABLE_ART } from '../../common/artManifest.ts'
 import { asset } from '../../common/assets.ts'
@@ -115,7 +115,7 @@ export function ItemSlots(p: { combat: CombatState; C: ContentRegistry; lang: La
 }
 
 /** Discard / exhausted pile viewers and the move undo (Z). */
-export function PileButtons(p: { k: boolean; discard: number; exhaust: number; canUndo: boolean; onPile: (kind: 'discard' | 'exhaust') => void; onUndo: () => void }) {
+export function PileButtons(p: { k: boolean; discard: number; exhaust: number; canUndo: boolean; onPile: (kind: 'discard' | 'exhaust') => void; onUndo: () => void; rewinds?: number | undefined; canRewind?: boolean; onRewind?: () => void }) {
   const { k } = p
   return (
     <div className="m2c-piles">
@@ -131,6 +131,12 @@ export function PileButtons(p: { k: boolean; discard: number; exhaust: number; c
         <Undo2 size={14} />
         <kbd>Z</kbd>
       </button>
+      {p.rewinds !== undefined && (
+        <button type="button" className="m2c-pilebtn" disabled={!p.canRewind} onClick={p.onRewind} title={k ? `이번 턴 되감기 (R) · 남은 횟수 ${p.rewinds}` : `Rewind this turn (R) · ${p.rewinds} left`} data-testid="rewind">
+          <Rewind size={14} />
+          <b>{p.rewinds}</b>
+        </button>
+      )}
     </div>
   )
 }

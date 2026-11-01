@@ -625,7 +625,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   if (daily) run.mutator = mutatorForDate(daily).id
   else if (isValidMix(opts.mutators) && mixerOpen(profile)) run.mutators = [...opts.mutators]
   else if (opts.mutator && mutatorById(opts.mutator)) run.mutator = opts.mutator
-  if (!daily && opts.mode && deepSignalOpen(profile, C)) run.mode = opts.mode
+  if (!daily && opts.mode && deepSignalOpen(profile, C) && (opts.mode !== 'sea' || seaOpen(profile, C))) run.mode = opts.mode
   if (!daily && profile.lastDeath) {
     const replica = replicaOf(profile.lastDeath.killedBy, C)
     if (replica) run.replica = replica
@@ -1125,6 +1125,13 @@ export function mixerOpen(profile: Pick<MetaProfile, 'wins'>): boolean {
   return profile.wins > 0
 }
 
+/** The Unwritten Sea opens with the Deep Signal, once all three of its acts are in the content. */
+export function seaOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<ContentRegistry, 'routes'>): boolean {
+  return profile.wins > 0 && [4, 5, 6].every((act) => !!C.routes?.[seaRoute(act)])
+}
+
+export const seaRoute = (act: number): string => `sea_${act}`
+
 export function deepSignalOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<ContentRegistry, 'acts'>): boolean {
   return profile.wins > 0 && Object.keys(C.acts).some((k) => Number(k) > STANDARD_ACTS)
 }
@@ -1139,11 +1146,12 @@ export function advanceAct(run: RunState, C: ContentRegistry): void {
   delete run.route
   fitDeployment(run)
   run.nodeId = null
+  if (run.mode === 'sea' && C.routes?.[seaRoute(run.act)]) takeRoute(run, seaRoute(run.act), C)
   resetNodeStreams(run)
   run.hp = clamp(1, run.maxHp, run.hp + Math.ceil((run.maxHp - run.hp) / 2))
   for (const m of roster(run)) m.hp = clamp(1, m.maxHp, m.hp + Math.ceil((m.maxHp - m.hp) / 2))
-  log(run, 'start', C.acts[run.act]?.name ?? t(`${run.act}막`, `Act ${run.act}`))
-  if ((run.lap ?? 0) === 0) for (const id of C.acts[run.act]?.gift ?? []) addCard(run, id, C)
+  log(run, 'start', actOf(run, C)?.name ?? t(`${run.act}막`, `Act ${run.act}`))
+  if ((run.lap ?? 0) === 0) for (const id of actOf(run, C)?.gift ?? []) addCard(run, id, C)
   run.screen = { kind: 'act_intro' }
   // The first escape opens the parallel Act 2: the choice comes before the act's title, so the title can be the route's.
   const choice = C.events[OUTSIDE_CHOICE]
@@ -1878,6 +1886,7 @@ export function availableEndings(run: RunState, C: ContentRegistry): EndingView[
   return Object.values(C.endings)
     .filter((e) => e.id !== FORCED_ERASURE)
     .filter((e) => e.id === NOBLE_SACRIFICE || ((e.requires?.minAct ?? 0) > STANDARD_ACTS) === deepEnd)
+    .filter((e) => e.id === NOBLE_SACRIFICE || e.requires?.mode === (run.mode === 'sea' ? 'sea' : undefined))
     .map((ending) => {
       const req = ending.requires
       if (ending.id === NOBLE_SACRIFICE || !req) return { ending, available: true }

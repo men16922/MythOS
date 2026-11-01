@@ -5,6 +5,7 @@ import { Shield, Swords, Users } from 'lucide-react'
 import { useState } from 'react'
 import { MAX_COMPANION_LEVEL, companionStats, levelOf, xpToNext } from '../../engine/companionLevel.ts'
 import { STAT_MAX, partySlots } from '../../engine/run.ts'
+import { squadTacticFor } from '../../engine/squad.ts'
 import type { ContentRegistry, GearDef, GearSlot, Lang, PartyMember, RunState, StatKey, Stats } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
 import { L, tr } from '../common/lang.ts'
@@ -75,6 +76,7 @@ export function PartyModal({ run, C, lang, onChange, onClose }: Props) {
   const def = member ? C.companions[member.id] : undefined
   const arch = C.archetypes[run.archetype]
   const growth = run.growth ?? 0
+  const tactic = squadTacticFor(deployed, C)
   const wornBy = (id: string): string | undefined => Object.entries(run.worn ?? {}).find(([, w]) => Object.values(w).includes(id))?.[0]
   const nameOf = (id: string): string => (id === CONNECTOR ? tr(arch?.name, lang) : tr(C.companions[id]?.name, lang))
 
@@ -130,6 +132,12 @@ export function PartyModal({ run, C, lang, onChange, onClose }: Props) {
           </ul>
           {bench.length > 0 && <h3>{ko ? '대기' : 'Bench'}</h3>}
           <ul>{bench.map((m) => rosterRow(m.id, m, ko ? `레벨 ${levelOf(m)}` : `Level ${levelOf(m)}`))}</ul>
+          {tactic && (
+            <p className="m2-pt__tactic">
+              <b>{tr(tactic.name, lang)}</b>
+              <small>{tr(tactic.text, lang)}</small>
+            </p>
+          )}
         </aside>
 
         <section className="m2-pt__detail">

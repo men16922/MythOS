@@ -10,6 +10,8 @@
 //   c. enemies without a pending windup move and telegraph (and next reinforcements are announced)
 //   d. win/lose → next player turn (party block clears, guard, energy, draw, turn_start triggers)
 
+import { squadTacticFor } from './squad.ts'
+import { advanceTide, floodsNext, startTide } from './tide.ts'
 import type { UnitStateExt } from './effects.ts'
 import { implantRules } from './implantRules.ts'
 import { mutatorCombat, mutatorMods } from './mutators.ts'
@@ -346,6 +348,11 @@ export function startCombat(run: RunState, encounterId: string, C: ContentRegist
     unit.stats = companionStats(def, unit.level)
     c.units.push(unit)
   }
+  const tactic = squadTacticFor(companions.map((m) => m.id), C)
+  if (tactic) c.squad = { id: tactic.id, perks: { ...tactic.perks } }
+  const rewinds = (arche?.rewinds ?? 0) + (implantRules(run, C).rewind ?? 0)
+  if (rewinds > 0) c.rewind = { left: rewinds }
+  if (enc.tide) startTide(c, C, enc.tide.pattern)
   if (enc.proto) c.proto = { ...enc.proto }
   if (enc.relay) c.relay = { ...enc.relay }
   if (enc.walkTo) c.walkTo = { ...enc.walkTo }
@@ -439,6 +446,22 @@ function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): vo
   if (first) fireTrigger(c, C, 'combat_start')
   fireTrigger(c, C, 'turn_start')
   checkEnd(c, C)
+  if (c.rewind && c.rewind.left > 0 && c.phase === 'player') {
+    const turnStart: Partial<CombatStateExt> = { ...c, events: [] }
+    delete turnStart.rewind
+    delete turnStart.inEnemyPhase
+    c.rewind.snapshot = JSON.stringify(turnStart)
+  }
+}
+
+/** Take this turn back: everything since it began is undone, the same hand and the same dice included. */
+export function rewindTurn(c: CombatState): CombatState {
+  const rewind = c.rewind
+  if (!rewind?.snapshot || rewind.left <= 0 || c.phase !== 'player') return c
+  const back = JSON.parse(rewind.snapshot) as CombatState
+  const left = rewind.left - 1
+  back.rewind = left > 0 ? { left, snapshot: rewind.snapshot } : { left }
+  return back
 }
 
 // ---------------------------------------------------------------- movement
@@ -906,6 +929,8 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
     if (u.hp > 0) decayStatus(u, 'corrode')
     if (c.phase !== 'player') return
   }
+  advanceTide(c, C)
+  if (c.phase !== 'player') return
   const hazDmg = hazardDamage(c)
   for (const u of c.units.slice().sort(byUid)) {
     if (u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') dealDamage(c, C, u, hazDmg, { source: 'environment', cause: 'hazard' })
@@ -1134,7 +1159,8 @@ export function threatMap(c: CombatState, C: ContentRegistry): Record<string, nu
   }
   for (const p of allTiles()) {
     const t = tileAt(c, p)
-    if (t?.kind === 'hazard') addAt(p, HAZARD_DAMAGE)
+    const draining = t?.water && !floodsNext(c, p)
+    if ((t?.kind === 'hazard' && !draining) || (t?.kind === 'floor' && floodsNext(c, p))) addAt(p, HAZARD_DAMAGE)
     // Standing in fire at the end of the enemy phase: Burn 2 that ticks right away.
     if ((t?.fire ?? 0) > 0) addAt(p, FIRE_BURN)
   }

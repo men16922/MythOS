@@ -87,7 +87,11 @@ export const BASE_CRIT_MULT = 1.5
 
 /** The run's stat perks frozen into this fight (engine/statPerks.ts). */
 export function perksOf(c: CombatState): StatPerks {
-  return statPerks(c.runStats)
+  const own = statPerks(c.runStats)
+  if (!c.squad) return own
+  const out: Record<string, number | boolean> = { ...own }
+  for (const [k, v] of Object.entries(c.squad.perks)) out[k] = typeof v === 'number' ? (Number(out[k]) || 0) + v : Boolean(out[k]) || Boolean(v)
+  return out as unknown as StatPerks
 }
 
 export function statBonus(c: CombatState, scale: StatScale | undefined, origin?: UnitState): number {
@@ -728,6 +732,11 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
  */
 function groundJolt(c: CombatState, C: ContentRegistry, u: UnitState, fromTile: Tile | undefined): void {
   const to = tileAt(c, u.pos)
+  // Flood water carries off the lightest enemies shoved into it.
+  if (to?.water && u.side === 'enemy' && !u.flying && C.enemies[u.defId]?.tier === 'minion') {
+    killUnit(c, C, u, 'void')
+    return
+  }
   if (to?.kind === 'hazard') {
     dealDamage(c, C, u, hazardDamage(c), { source: 'environment', cause: 'hazard' })
     return

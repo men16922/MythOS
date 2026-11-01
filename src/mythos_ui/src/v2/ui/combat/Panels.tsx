@@ -5,6 +5,7 @@ import { Hourglass, Footprints, Menu, Zap as ZapIcon, Shield as ShieldIcon } fro
 import type { IntentInfo } from '../../engine/combat.ts'
 import { COMBAT_MOD_TEXT } from '../../engine/crpg.ts'
 import { glitchActive } from '../../engine/effects.ts'
+import { nextTideLevel, tideLevel } from '../../engine/tide.ts'
 import { GRID_W } from '../../engine/types.ts'
 import type { CardInstance, CombatState, ContentRegistry, EncounterDef, Lang, StatusKind, Tile, UnitState } from '../../engine/types.ts'
 import { STATUS_ICON, portrait } from '../common/assets.ts'
@@ -73,6 +74,18 @@ export const TopStrip = memo(function TopStrip(p: {
           <span className="m2c-mod-badge is-glitch" data-testid="glitch-badge">
             <i>◈</i>
             {ko(lang, 'IX 변조: 카드 이름 차폐', 'IX override: card names masked')}
+          </span>
+        )}
+        {c.tide && (
+          <span className="m2c-mod-badge is-tide" data-testid="tide-badge" title={ko(lang, '점선 칸은 다음 적 차례 뒤 물에 잠긴다. 잠긴 칸에 서 있으면 피해를 받고, 가벼운 적은 휩쓸린다.', 'Dashed tiles flood after the next enemy phase. Standing in water hurts, and the lightest enemies are carried off.')}>
+            <i>≈</i>
+            {ko(lang, `조수 ${tideLevel(c)}줄 → ${nextTideLevel(c)}줄`, `Tide ${tideLevel(c)} → ${nextTideLevel(c)} rows`)}
+          </span>
+        )}
+        {c.squad && p.C.squadTactics?.[c.squad.id] && (
+          <span className="m2c-mod-badge is-squad" data-testid="squad-badge" title={tr(p.C.squadTactics[c.squad.id]?.text, lang)}>
+            <i>△</i>
+            {tr(p.C.squadTactics[c.squad.id]?.name, lang)}
           </span>
         )}
         {c.mods && c.mods.length > 0 && (

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
 import { AUTONOMY_STEPS, AUTONOMY_TEXT, autonomyLevel, echoOffers, nextAutonomyStep, worldEchoFor } from '../../engine/legacy.ts'
 import { ARCH_MASTERY_TEXT, archMasteryTier, MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
-import { deepSignalOpen, lastAct, mixerOpen } from '../../engine/run.ts'
+import { deepSignalOpen, lastAct, mixerOpen, seaOpen } from '../../engine/run.ts'
 import { isValidMix, MIX_MAX, MIX_MIN, MUTATORS, mutatorForDate, mutatorOffersForSeed } from '../../engine/mutators.ts'
 import { MutatorCard } from '../components/MutatorCard.tsx'
 import type { ContentRegistry, MetaProfile, StatKey, Lang, RunMode } from '../../engine/types.ts'
@@ -392,6 +392,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                   [
                     [undefined, ko ? '표준 접속' : 'Standard', ko ? '3막 · 약 30~40분' : '3 acts · ~30–40 min'],
                     ['deep', ko ? '딥 시그널' : 'Deep Signal', ko ? `${lastAct({ mode: 'deep' }, C)}막 · 막마다 저장` : `${lastAct({ mode: 'deep' }, C)} acts · saved each act`],
+                    ...(seaOpen(profile, C) ? ([['sea', ko ? '쓰이지 않은 바다' : 'The Unwritten Sea', ko ? '6막 · 4막부터 남쪽으로' : '6 acts · south from Act 4']] as const) : []),
                     [
                       'endless',
                       ko ? '무한 신호' : 'Endless Signal',
@@ -421,7 +422,11 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                 ))}
               </div>
               <p className="m2-bgs__text">
-                {depth === 'deep'
+                {depth === 'sea'
+                  ? ko
+                    ? '3막을 넘긴 뒤 지도 남쪽 끝의 빈칸으로 간다. 물이 사라진 항구, 돌아오는 회색 조수, 그리고 아무도 본 적 없는 바다.'
+                    : 'Past Act 3, you go to the blank at the south edge of the map: a harbor without water, a gray tide coming back, and a sea no one has ever seen.'
+                  : depth === 'deep'
                   ? ko
                     ? 'IX를 쓰러뜨려도 신호는 끊기지 않는다. 유리성과 기계 묘역을 지나 6막 최초 접속 기록까지 내려간다. 언제든 중단하고 이어할 수 있다.'
                     : 'Defeating IX does not end the signal. Go on through the Glass Library and the machine graveyard down to Act 6, the First Record. Stop and resume any time.'

@@ -163,3 +163,19 @@
   .m2-pt__slots { grid-template-columns: minmax(0, 1fr); }
   .m2-pt__inv { max-height: none; }
 }
+
+.m2-pt__tactic {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--c-amber, #ffb648);
+  background: rgba(255, 182, 72, 0.06);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.m2-pt__tactic b,
+.m2-pt__tactic small {
+  display: block;
+}
+.m2-pt__tactic small {
+  color: rgba(214, 226, 232, 0.72);
+}

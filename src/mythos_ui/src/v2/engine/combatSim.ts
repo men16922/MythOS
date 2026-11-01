@@ -7,6 +7,7 @@
 // basic:  never dodges or blocks — plays the cheapest damaging card at the nearest enemy, moving only to
 //         get in range. The gap between the two is the measure of how much skill the combat rewards.
 
+import { floodsNext } from './tide.ts'
 import type { CardInstance, CombatState, ContentRegistry, Effect, PlayTarget, Pos, TargetMode, UnitState } from './types.ts'
 import { manhattan, posKey, samePos } from './grid.ts'
 import {
@@ -141,7 +142,9 @@ export function incomingDamage(c: CombatState, C: ContentRegistry): Map<string, 
   }
   for (const u of c.units) {
     if (u.hp <= 0) continue
-    if (!u.flying && tileAt(c, u.pos)?.kind === 'hazard') addTo(u, 2)
+    const here = tileAt(c, u.pos)
+    const flood = c.tide ? floodsNext(c, u.pos) : false
+    if (!u.flying && ((here?.kind === 'hazard' && (!here.water || flood)) || flood)) addTo(u, 2)
     const fire = !u.flying && (tileAt(c, u.pos)?.fire ?? 0) > 0 ? 2 : 0
     const dots = (u.statuses.burn ?? 0) + (u.statuses.bleed ?? 0) + (u.statuses.corrode ?? 0) + fire
     if (u.side !== 'enemy' && dots > 0) addTo(u, dots)

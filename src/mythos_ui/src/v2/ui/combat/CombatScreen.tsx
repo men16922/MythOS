@@ -235,7 +235,7 @@ export function CombatScreen(props: CombatScreenProps) {
   const doEndTurn = endTurnQueue.endTurn
 
   // ------------------------------------------------------------ input (cards, items, tiles, keyboard)
-  const { playOpt, onCard, onItem, onTileClick, doUndo, doBurst } = useCombatInput({
+  const { playOpt, onCard, onItem, onTileClick, doUndo, doRewind, doBurst } = useCombatInput({
     combat,
     C,
     k,
@@ -596,7 +596,7 @@ export function CombatScreen(props: CombatScreenProps) {
             onUlt={(uid) => doBurst(uid)}
           />
           <ItemSlots combat={combat} C={C} lang={lang} armedIndex={armed?.kind === 'item' ? armed.index : -1} onItem={onItem} onOpenDeck={props.onOpenDeck} />
-          <PileButtons k={k} discard={piles.discard.length} exhaust={piles.exhaust.length} canUndo={!!combat.undo && interactive} onPile={setPile} onUndo={doUndo} />
+          <PileButtons k={k} discard={piles.discard.length} exhaust={piles.exhaust.length} canUndo={!!combat.undo && interactive} onPile={setPile} onUndo={doUndo} rewinds={combat.rewind?.left} canRewind={!!combat.rewind?.snapshot && combat.rewind.left > 0 && interactive} onRewind={doRewind} />
           <EndTurnButton
             k={k}
             glow={glowEnd}

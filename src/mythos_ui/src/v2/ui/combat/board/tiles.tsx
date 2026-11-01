@@ -15,7 +15,7 @@ import './tiles.css'
 
 export type FireNeighbors = [boolean, boolean, boolean, boolean] // [N, E, S, W]
 
-function TileShape({ g, p, t, fireNeighbors }: { g: BoardGeom; p: Pos; t: Tile; fireNeighbors: FireNeighbors }) {
+function TileShape({ g, p, t, fireNeighbors, floodsNext }: { g: BoardGeom; p: Pos; t: Tile; fireNeighbors: FireNeighbors; floodsNext?: boolean }) {
   const q = tileQuad(g, p, 0.025)
   const checker = (p.x + p.y) % 2 === 0
   if (t.kind === 'void') {
@@ -32,6 +32,29 @@ function TileShape({ g, p, t, fireNeighbors }: { g: BoardGeom; p: Pos; t: Tile; 
         />
         <rect className="m2c-void-shard" x={c.x - g.tw * 0.22} y={c.y - 3} width={g.tw * 0.1} height={3} style={{ animationDelay: `${-r * 3}s` }} />
         <rect className="m2c-void-shard" x={c.x + g.tw * 0.1} y={c.y + 4} width={g.tw * 0.07} height={2} style={{ animationDelay: `${-r * 5 - 1}s` }} />
+      </g>
+    )
+  }
+  if (t.kind === 'hazard' && t.water) {
+    const c = tileCenter(g, p)
+    const w = g.tw * tileScale(g, p) * 0.3
+    const r = hash(`${p.y}:${p.x}`)
+    return (
+      <g className="m2c-t-water">
+        <polygon points={pts(q)} className="m2c-water-base" />
+        {[-0.14, 0.12].map((dy, i) => (
+          <polyline
+            key={i}
+            className="m2c-water-swell"
+            points={pts([
+              { x: c.x - w, y: c.y + w * dy },
+              { x: c.x - w * 0.35, y: c.y + w * (dy - 0.12) },
+              { x: c.x + w * 0.35, y: c.y + w * (dy + 0.12) },
+              { x: c.x + w, y: c.y + w * dy },
+            ])}
+            style={{ animationDelay: `${-r * 3 - i * 0.8}s` }}
+          />
+        ))}
       </g>
     )
   }
@@ -66,6 +89,7 @@ function TileShape({ g, p, t, fireNeighbors }: { g: BoardGeom; p: Pos; t: Tile; 
     <g>
       <polygon points={pts(q)} className={checker ? 'm2c-t-floor is-a' : 'm2c-t-floor'} />
       <polygon points={pts(tileQuad(g, p, 0.09))} className="m2c-t-bevel" />
+      {floodsNext && <polygon points={pts(tileQuad(g, p, 0.05))} className="m2c-tide-next" />}
       {!!t.fire && <FireBase g={g} p={p} turns={t.fire} neighbors={fireNeighbors} />}
     </g>
   )
@@ -248,7 +272,7 @@ function getFireNeighbors(tiles: Tile[][], x: number, y: number): FireNeighbors 
 }
 
 /** The slab with its tiles ('floor') or just the cover blocks ('covers', drawn above the overlays). */
-export const BoardPlane = memo(function BoardPlane({ g, tiles, part }: { g: BoardGeom; tiles: Tile[][]; part: 'floor' | 'covers' | 'fire' }) {
+export const BoardPlane = memo(function BoardPlane({ g, tiles, part, wetFrom }: { g: BoardGeom; tiles: Tile[][]; part: 'floor' | 'covers' | 'fire'; /** First row the tide reaches next. */ wetFrom?: number }) {
   const corners = [g.project(0, 0), g.project(GRID_W, 0), g.project(GRID_W, GRID_H), g.project(0, GRID_H)]
   const [, , nr, nl] = corners as [Pt, Pt, Pt, Pt]
   const thick = g.tw * 0.13
@@ -259,7 +283,7 @@ export const BoardPlane = memo(function BoardPlane({ g, tiles, part }: { g: Boar
       const t = tiles[y]?.[x] ?? { kind: 'floor' }
       const p = { x, y }
       const fn = t.fire ? getFireNeighbors(tiles, x, y) : ([false, false, false, false] as FireNeighbors)
-      cells.push(<TileShape key={`${x},${y}`} g={g} p={p} t={t.kind === 'cover' ? { kind: 'floor', fire: t.fire } : t} fireNeighbors={fn} />)
+      cells.push(<TileShape key={`${x},${y}`} g={g} p={p} t={t.kind === 'cover' ? { kind: 'floor', fire: t.fire } : t} fireNeighbors={fn} floodsNext={wetFrom !== undefined && y >= wetFrom} />)
       if (t.kind === 'cover') covers.push(<CoverBlock key={`c${x},${y}`} g={g} p={p} hp={t.hp ?? 2} />)
     }
   if (part === 'covers') return <g className="m2c-covers">{covers}</g>
@@ -271,7 +295,7 @@ export const BoardPlane = memo(function BoardPlane({ g, tiles, part }: { g: Boar
         if (t?.fire) {
           const fn = getFireNeighbors(tiles, x, y)
           fireOverlays.push(<FireTopOverlay key={`fo${x},${y}`} g={g} p={{ x, y }} turns={t.fire} neighbors={fn} />)
-        } else if (t?.kind === 'hazard') {
+        } else if (t?.kind === 'hazard' && !t.water) {
           fireOverlays.push(<HazardTopOverlay key={`ho${x},${y}`} g={g} p={{ x, y }} temp={t.ttl !== undefined} />)
         }
       }

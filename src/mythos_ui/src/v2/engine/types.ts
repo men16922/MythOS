@@ -46,9 +46,13 @@ export type Rarity = 'starter' | 'common' | 'uncommon' | 'rare' | 'special'
  * ttl N   – a temporary hazard (electrified by `electrify`): reverts to floor after N more enemy phases.
  *           Permanent (authored) hazards have no ttl.
  */
+import type { StatPerks } from './statPerks.ts'
+
 export type TileKind = 'floor' | 'cover' | 'hazard' | 'void'
 export interface Tile {
   kind: TileKind
+  /** This hazard is flood water from the tide (engine/tide.ts); it drains back to floor. */
+  water?: boolean
   hp?: number
   /** Burning ground: enemy phases left (see above). */
   fire?: number
@@ -352,6 +356,8 @@ export interface EncounterDef {
   intro?: Text
   /** Art-free DLC 2 prototype rules. Sandbox only: no encounter a run can reach sets this. */
   proto?: CombatProto
+  /** The tide: rows under water, read from the bottom, one entry per enemy phase, looping (engine/tide.ts). */
+  tide?: { pattern: number[] }
   /** Relay tile: a unit standing here takes direct enemy hits meant for the neutral. */
   relay?: Pos
   /** The neutral walks here, one tile after each enemy phase; on arrival it leaves the board, safe. */
@@ -497,6 +503,12 @@ export interface CombatState {
   runStats?: Stats
   /** Active run mutator id (if any), for combat-level mutator rules. */
   mutator?: string
+  /** The tide in this fight (engine/tide.ts). */
+  tide?: { pattern: number[]; step: number }
+  /** The squad tactic in force: its id, and its perks added to the stat perks (engine/squad.ts). */
+  squad?: { id: string; perks: Partial<StatPerks> }
+  /** Rewinds left this fight and the state this turn began in. */
+  rewind?: { left: number; snapshot?: string }
   /** This fight's biggest turn so far, and the turn in progress. */
   bestTurn?: TurnRecord
   turnNow?: TurnRecord
@@ -570,6 +582,8 @@ export interface CombatPassive {
 export interface ImplantRules {
   /** A bump also pushes the unit it hit 1 tile on, party included. */
   pushChain?: boolean
+  /** Turns the party can take back each fight (engine/combat.ts rewindTurn). */
+  rewind?: number
   /** Extra tiles on every push the party causes. */
   pushBonus?: number
   /** The unit that pushes is thrown this many tiles back the other way. */
@@ -689,6 +703,8 @@ export interface ArchetypeDef {
   startingCredits: number
   startUnlocked?: boolean
   sprite: string // 'player-noise'
+  /** Turns this connector can take back each fight (engine/combat.ts rewindTurn). */
+  rewinds?: number
   /** Signal Burst: the archetype's once-per-fight finisher, ready at full Momentum (engine/combat.ts fireBurst). */
   burst?: BurstDef
 }
@@ -1044,7 +1060,7 @@ export interface RunState {
 }
 
 /** Run length mode (engine/run.ts lastAct): standard (omitted), Deep Signal, Endless Signal. */
-export type RunMode = 'deep' | 'endless'
+export type RunMode = 'deep' | 'endless' | 'sea'
 
 /** 1.0's four choice axes: humanity (care, persuasion), dominance (force, lies), resilience (enduring), insight (reading people and systems). */
 export type ChoiceAxis = 'humanity' | 'dominance' | 'resilience' | 'insight'
@@ -1413,6 +1429,20 @@ export interface LoreEntry {
   text: Text
 }
 
+export type SquadRole = 'assault' | 'support' | 'tech'
+
+export interface SquadTacticDef {
+  id: string
+  name: Text
+  text: Text
+  /** The mix of roles that makes it, in any order. */
+  roles?: [SquadRole, SquadRole, SquadRole]
+  /** Or these three people exactly: wins over any role mix. */
+  trio?: [string, string, string]
+  /** Added to the connector's stat perks in every fight. */
+  perks: Partial<StatPerks>
+}
+
 export interface EndingDef {
   id: string
   title: Text
@@ -1420,7 +1450,7 @@ export interface EndingDef {
   text: Text
   /** Final-choice gate (only for victory endings). `minAct`: a Deep Signal ending (reached act ≥ N);
    *  `axis`: the connector leaned this way at least `min` (run.axes). */
-  requires?: Condition & { minBondTotal?: number; minCodex?: number; minAct?: number; axis?: { axis: ChoiceAxis; min: number } }
+  requires?: Condition & { minBondTotal?: number; minCodex?: number; minAct?: number; mode?: RunMode; axis?: { axis: ChoiceAxis; min: number } }
   /** Label on the final-choice button. */
   choice?: Text
   /** One line under the choice: what this ending costs and keeps. */
@@ -1459,6 +1489,10 @@ export interface ContentRegistry {
   gear?: Record<string, GearDef>
   /** Parallel acts by route id: same place in the run as `of.act`, its own title and content (absent in test doubles). */
   routes?: Record<string, ActDef>
+  /** Named formations of three deployed companions (engine/squad.ts; absent in test doubles). */
+  squadTactics?: Record<string, SquadTacticDef>
+  /** Each companion's part in a formation. */
+  squadRoles?: Record<string, SquadRole>
   endings: Record<string, EndingDef>
   unlocks: Record<string, MetaUnlockDef>
   paradox: ParadoxDef[]

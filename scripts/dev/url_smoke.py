@@ -125,7 +125,8 @@ def run_flow(page: Page, base: str, max_seconds: float) -> tuple[bool, str]:
                     for label in ("Skip", "Leave both", "Continue", "Take", "Leave")
                 ),
             )
-    return False, "timed out: " + " → ".join(seen)
+    last_screen = " ".join(page.locator("body").inner_text().split())[:160]
+    return False, "timed out: " + " → ".join(seen) + f" | last screen: {last_screen}"
 
 
 def main() -> int:
@@ -133,7 +134,8 @@ def main() -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     ap.add_argument("--url", required=True, help="base URL of the deployed service")
-    ap.add_argument("--max-seconds", type=float, default=240.0, help="budget for the run-flow part")
+    # The blind clicker can leave one enemy standing for 30 turns or more, about 8 seconds a turn.
+    ap.add_argument("--max-seconds", type=float, default=480.0, help="budget for the run-flow part")
     args = ap.parse_args()
     base = args.url.rstrip("/")
     errors: list[str] = []

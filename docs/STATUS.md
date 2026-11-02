@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 2026-11-01
+Last updated: 2026-11-02
 
 ## Current State
 
@@ -33,7 +33,7 @@ Latest verified baseline (2026-10-31: `make check` green — node 458 + Python 3
 
 Production `url-smoke` 4/4 after one early timeout; no post-fight stall in 13 production runs. The timed-out run left no record, so the cause (a long blind-clicker fight) is inferred. On `main`, not deployed: bot trains and uses gear, late-game re-tune, DLC 3 The Unwritten Sea (third depth, tide, squad tactics, rewind, 3 companions, Navigator, all art). Fresh mixed 39.1 %, Deep 26.0 %, Sea 22.0 %.
 
-Production (2026-11-01): Cloud Run `mythos-api` serves 2.0 — revision `00171-yuj` at 100 % pinned (`git-sha=de62fd1`, adds DLC 2 parallel Act 2, Freeze fix, overcharge, stats to 20, companion levels and stats, three companions from Act 4, gear, new party screen, enemies raised from Act 2 on; rollback `00169-fih`). Before that: Deep Signal DLC + stun + companion ultimates + achievements + codex + anomaly mixer + road recruits + F1–F4; rollback `00160-qiy`; `/admin` dashboard, `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.8-flash`); 1.x lives only as code on branch `1.0`. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
+Production (2026-11-02): Cloud Run `mythos-api` serves 2.0 — revision `00173-mab` at 100 % latest (`git-sha=8973143`, adds DLC 3 The Unwritten Sea + bot gear/growth re-tune; rollback `00171-yuj`). Before that: `00171-yuj` (`de62fd1`, adds DLC 2 parallel Act 2, Freeze fix, overcharge, stats to 20, companion levels and stats, three companions from Act 4, gear, new party screen, enemies raised from Act 2 on; rollback `00169-fih`). Before that: Deep Signal DLC + stun + companion ultimates + achievements + codex + anomaly mixer + road recruits + F1–F4; rollback `00160-qiy`; `/admin` dashboard, `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.8-flash`); 1.x lives only as code on branch `1.0`. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
 
 ## Active Focus
 

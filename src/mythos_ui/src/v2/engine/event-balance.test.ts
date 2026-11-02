@@ -47,11 +47,19 @@ test('no rolled event is a pure tax: its best open option is worth ≥ 0.5 (stat
   assert.deepEqual(low, [], 'events whose best open option is net-negative on the simulator scale')
 })
 
+/** The same event without its recruits: a companion joining is a party decision, not a resource payout, and the bot
+ *  values one in a free slot above any bundle (runSim `effectValue`). Everything else an option pays still counts. */
+function withoutRecruits(ev: EventDef): EventDef {
+  const strip = <T extends { effects: { kind: string }[] }>(o: T | undefined): T | undefined =>
+    o && { ...o, effects: o.effects.filter((e) => e.kind !== 'companion') }
+  return { ...ev, options: ev.options.map((o) => ({ ...o, success: strip(o.success) as typeof o.success, failure: strip(o.failure) })) }
+}
+
 test('no rolled event is a runaway jackpot: best open option ≤ 12 (stat 6)', () => {
   const run = midRun(6)
   const high = rolled
     .filter((e) => !ABOVE_CEILING_OK.has(e.id))
-    .map((e) => ({ id: e.id, v: bestOpen(run, e) }))
+    .map((e) => ({ id: e.id, v: bestOpen(run, withoutRecruits(e)) }))
     .filter((x) => x.v > 12)
   assert.deepEqual(high, [])
 })

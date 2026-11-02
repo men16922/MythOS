@@ -1,12 +1,12 @@
 # Next Plan
 
-Last updated: 2026-11-02
+Last updated: 2026-11-03
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
 ## Next: after the 2026-11-01 deploy
 
-Plan and order: `docs/plans/2026-11-01-next-steps-plan.md`. `[x]` DLC 2 parallel Act 2 + party and growth rework deployed on owner order: `00171-yuj`. `[x]` production `url-smoke` timeout looked at: 4/4 now, no post-fight stall in 13 runs, cause inferred. `[x]` bot trains, buys and swaps gear, fills the third slot; re-tuned: fresh 39.1 %, Deep 25.3 %, bosses at most 8.8 turns (deployed `00173-mab`). `[x]` gear rows and Act 4 four-person fight checked in the real UI. `[x]` DLC 3 The Unwritten Sea built and deployed on owner order 2026-11-02: `00173-mab` (`8973143`, rollback `00171-yuj`); `docs/plans/2026-11-01-dlc3-plan.md`. `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §13, OK new music (Lyria bills Vertex). `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §12, then W1 / W2.
+Plan and order: `docs/plans/2026-11-01-next-steps-plan.md`. `[x]` DLC 2 parallel Act 2 + party and growth rework deployed on owner order: `00171-yuj`. `[x]` production `url-smoke` timeout looked at: 4/4 now, no post-fight stall in 13 runs, cause inferred. `[x]` bot trains, buys and swaps gear, fills the third slot; re-tuned: fresh 39.1 %, Deep 25.3 %, bosses at most 8.8 turns (deployed `00173-mab`). `[x]` gear rows and Act 4 four-person fight checked in the real UI. `[x]` DLC 3 The Unwritten Sea built and deployed on owner order 2026-11-02: `00173-mab` (`8973143`, rollback `00171-yuj`); `docs/plans/2026-11-01-dlc3-plan.md`. `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §13, OK new music (Lyria bills Vertex). `[x]` reverse-engineering 1–3 analysed (`docs/plans/2026-11-03-reverse-engineering-1-3.md`); its line-up measurement found the bot always went alone at Act 2: bot fixed, Acts 2–3 re-tuned, not deployed. `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §12, then W1 / W2.
 
 ## Next: DLC 2 pick (merged plan, 2026-10-31)
 

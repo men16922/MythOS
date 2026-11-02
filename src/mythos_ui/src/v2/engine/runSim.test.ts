@@ -1,7 +1,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { newProfile } from './meta.ts'
-import { simulateRun } from './runSim.ts'
+import { outcomeValue, simulateRun } from './runSim.ts'
+import { newRun, RECRUIT_EVENT } from './run.ts'
+import { CONTENT } from '../content/index.ts'
 import { FIXTURE as C } from './run.fixture.test.ts'
 
 test('runSim plays whole fixture runs headless, deterministically', () => {
@@ -31,4 +33,16 @@ test('runSim plays whole fixture runs headless, deterministically', () => {
 test('runSim honours paradox and archetype options', () => {
   const r = simulateRun(3, 'smuggler', C, 'greedy', { paradox: 5 })
   assert.ok(r.floors >= 1)
+})
+
+test('the bot takes a companion into a free slot over the Act 2 go-alone bundle, not onto a full party', () => {
+  const run = newRun(newProfile('sim'), { archetype: 'ghost', paradox: 0, seed: 1, now: '2026-01-01T00:00:00.000Z' }, CONTENT)
+  run.act = 2
+  const alone = CONTENT.events[RECRUIT_EVENT]?.options.find((o) => o.label.en === 'Go alone')
+  assert.ok(alone, 'the Act 2 recruit scene still offers going alone')
+  const join = { text: { ko: '', en: '' }, effects: [{ kind: 'companion' as const, id: 'kai' }] }
+  assert.equal(run.party.length, 1, 'one companion, a free slot')
+  assert.ok(outcomeValue(run, join, CONTENT) > outcomeValue(run, alone.success, CONTENT), 'a second companion beats the bundle')
+  run.party.push({ ...run.party[0]!, id: 'second' })
+  assert.ok(outcomeValue(run, join, CONTENT) < outcomeValue(run, alone.success, CONTENT), 'a bench seat does not')
 })

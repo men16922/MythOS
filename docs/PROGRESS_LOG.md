@@ -1,6 +1,13 @@
 # Progress Log
 
-Last updated: 2026-11-02
+Last updated: 2026-11-03
+
+## 2026-11-03 — Bot takes companions, Acts 2–3 re-tuned; reverse-engineering 1–3 analysed (Claude Opus 5.5, owner: 다음 작업 수행)
+
+- **Analysis**: Across the Obelisk, Cobalt Core, Tactical Breach Wizards (`docs/plans/2026-11-03-reverse-engineering-1-3.md`): level-3/5 choice of two, line-up measurement, undo for actions that reveal nothing. Built nothing; prototypes wait for the owner.
+- **Found by the line-up measurement**: the bot valued a companion at 10 and the Act 2 go-alone bundle at ~16, so it always went alone; 114/148 Deep runs reaching Act 4 had one companion. Party and growth numbers since 11-01 measured a solo crew. Bot: 20 with a free slot, 6 for a bench seat (`runSim.ts`, regression test). Fix alone: fresh 39.1 → 50.4 %, Deep 26.0 → 30.0 %.
+- **Re-tune** (`tuning.acts`): Act 2 HP +22 → +30 %, Act 3 HP +46 → +56 %, dmg +3 → +4, boss HP −30 → −36 %. Canonical mixed: fresh 187/450 = 41.6 %, Deep 41/150 = 27.3 %, Sea 26.7 % (was 22.0; fix alone 27.3), bosses at most 9.1 turns. `event-balance.test.ts` jackpot cap now ignores recruits (a companion is a party decision, every other payout still counts).
+- **Verified**: `make check` (node 529, Python 338), `make test-e2e-v2`, `make playthrough-quick` (Act 1 only). Production clean after `00173-mab` (0 errors, no real players yet). Unverified: Acts 2–3 in the real UI, feel of the harder middle, card overlap by line-up (the sim does not log plays). A daily started before a deploy of this and submitted after should replay under the new numbers and lose its shield (inferred, not tested; ranking unchanged).
 
 ## 2026-11-02 — DLC 3 + bot re-tune deployed to production (Claude Opus 5.5, owner: 프리뷰랑 운영 둘다 배포)
 

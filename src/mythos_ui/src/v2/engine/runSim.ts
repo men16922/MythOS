@@ -195,7 +195,9 @@ function effectValue(run: RunState, e: RunEffect, C: ContentRegistry): number {
     case 'consumable':
       return run.consumables.length < MAX_CONSUMABLES ? 2 : 0
     case 'companion':
-      return 10
+      // A free slot means a second body, passive and cards from the next fight: worth more than the Act 2 go-alone bundle
+      // (+4 max HP, +4 HP, 40₵, −10 trace ≈ 16). A full party only adds a bench seat, useful once a slot opens.
+      return run.party.length < partySlots(run) ? 20 : 6
     case 'bond':
       return 2 * e.amount
     case 'stat':

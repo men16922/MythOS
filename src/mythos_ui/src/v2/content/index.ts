@@ -84,7 +84,7 @@ export const CONTENT: ContentRegistry = {
   achievements: byId(buildAchievements(ARCHETYPES, COMPANIONS)),
   // Balance 2026-10-25 (docs/plans/2026-10-25-argon-review-and-s-rank-plan.md): the 5-stat perks, Evade/Crit and the
   // larger card/implant pool made the party much stronger than the authored enemy numbers assumed.
-  tuning: { enemyHpPct: 13, eliteHpPct: 20, bossHpPct: -10, dmgFromAct: 1, rage: { elite: 3, boss: 2, fromTurn: 3 }, acts: { 2: { hpPct: 22, dmg: 1 }, 3: { hpPct: 46, dmg: 3, bossHpPct: -30 }, 4: { hpPct: 130, dmg: 9 }, 5: { hpPct: 190, dmg: 14, bossHpPct: -20 }, 6: { hpPct: 240, dmg: 17, bossHpPct: -70 } }, routes: { [OUTSIDE_ROUTE]: { hpPct: 8 }, sea_4: { bossHpPct: -5, dmg: 5, hpPct: 5 }, sea_5: { bossHpPct: -50, dmg: 9, hpPct: 15 }, sea_6: { bossHpPct: -70, dmg: 12, hpPct: 15 } } },
+  tuning: { enemyHpPct: 13, eliteHpPct: 20, bossHpPct: -10, dmgFromAct: 1, rage: { elite: 3, boss: 2, fromTurn: 3 }, acts: { 2: { hpPct: 30, dmg: 1 }, 3: { hpPct: 56, dmg: 4, bossHpPct: -36 }, 4: { hpPct: 130, dmg: 9 }, 5: { hpPct: 190, dmg: 14, bossHpPct: -20 }, 6: { hpPct: 240, dmg: 17, bossHpPct: -70 } }, routes: { [OUTSIDE_ROUTE]: { hpPct: 8 }, sea_4: { bossHpPct: -5, dmg: 5, hpPct: 5 }, sea_5: { bossHpPct: -50, dmg: 9, hpPct: 15 }, sea_6: { bossHpPct: -70, dmg: 12, hpPct: 15 } } },
 }
 
 export { CARDS, CONSUMABLES, ENEMIES, ENCOUNTERS, IMPLANTS, COMPANIONS, ARCHETYPES }

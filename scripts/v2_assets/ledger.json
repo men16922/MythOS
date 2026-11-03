@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 703,
+ "codex_image_calls": 706,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -5492,6 +5492,13 @@
    "refs": [],
    "ts": "2026-11-01T14:36:48"
   },
+  "v2/events/sea4_cb_list.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions, a dry cracked harbor floor among stacked shipping crates in Haemun, one young dock worker in patched workwear holding up a single wet sheet of paper with three ink lines run and blurred, muted industrial colors, one restrained effect: a faint gray damp spreading through the paper, no text in the image.",
+   "refs": [],
+   "ts": "2026-11-04T05:19:33"
+  },
   "v2/events/sea4_classroom.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5751,6 +5758,13 @@
    "refs": [],
    "ts": "2026-11-01T14:41:19"
   },
+  "v2/events/sea5_cb_debt.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions, a narrow floating pontoon at high tide, one sharply dressed debt runner standing at its end with trouser hems soaked, holding a perfectly dry old paper ledger, gray sea and overcast sky behind, muted colors, one restrained effect: a thin gray wash around his shoes, no text in the image.",
+   "refs": [],
+   "ts": "2026-11-04T05:19:12"
+  },
   "v2/events/sea5_crane_hook.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5855,6 +5869,13 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. A single young adult Korean harbor resident gripping a stiff watch handle with both hands, exhausted posture, dry sleeves, patched watertight door behind her. One restrained effect: a soft amber duty light. No text in the image.",
    "refs": [],
    "ts": "2026-11-01T14:42:43"
+  },
+  "v2/events/sea6_cb_citizen.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions, the stone stair landing inside an old lighthouse, one tired middle-aged man in a worn janitor's uniform sitting with a duty logbook and pen, small window showing gray sea, warm lamp light from above, one restrained effect: a faint gray water line on the wall, no text in the image.",
+   "refs": [],
+   "ts": "2026-11-04T05:19:40"
   },
   "v2/events/sea6_coat_hem.webp": {
    "generations": 1,

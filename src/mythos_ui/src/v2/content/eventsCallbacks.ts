@@ -438,4 +438,142 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['the saved citizen', 'origin server', 'debts paid'],
   },
+  // ---- The Unwritten Sea (2026-11-04): Sea runs share Acts 1–3, so their early choices come back on the sea's own acts.
+  {
+    id: 'sea4_cb_list',
+    acts: [4],
+    route: 'sea_4',
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'list_copied' },
+    title: t('젖은 명단', 'The Wet List'),
+    image: 'v2/events/sea4_cb_list.webp',
+    text: t(
+      '마른 항구의 화물 더미 사이로 젖은 종이 한 장이 걸려 있다. 3막에서 당신이 복사한 최적화 명단의 한 쪽이다.\n세 줄이 번져 읽히지 않는다. 노인, 정비공, 아이가 있던 자리다.\n하역원 하나가 종이를 집어 들고 묻는다. “이거 화물 목록이에요?”',
+      'Between the cargo stacks of the Dry Harbor, one wet sheet has snagged: a page of the optimization list you copied in Act 3.\nThree lines have run and cannot be read. Where the old man, the mechanic and the child were.\nA dock worker picks it up. “Is this a cargo manifest?”',
+    ),
+    options: [
+      {
+        label: t('화물 목록이라고 답한다', 'Say it is a manifest'),
+        hint: t('+30 ₵ · 지배 +1', '+30 ₵ · +1 Dominance'),
+        success: {
+          text: t('하역원이 고개를 끄덕이고 종이를 서류철에 끼운다. 수고비가 건네진다.', 'The worker nods and files it. A handling fee changes hands.'),
+          effects: [
+            { kind: 'credits', amount: 30 },
+            { kind: 'axis', axis: 'dominance' },
+          ],
+        },
+      },
+      {
+        label: t('번진 세 줄을 함께 읽어 본다', 'Try to read the three runs together'),
+        hint: t('◈ +6 · 인간성 +1 · 실패 시 추적 +6', '+6 ◈ · +1 Humanity · fail +6 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('젖은 잉크 사이로 이름 하나가 떠오른다. 하역원이 그 이름을 소리 내어 따라 읽는다.', 'One name surfaces between the runs of ink. The worker reads it aloud after you.'),
+          effects: [
+            { kind: 'echoes', amount: 6 },
+            { kind: 'axis', axis: 'humanity' },
+          ],
+        },
+        failure: {
+          text: t('종이가 손에서 찢어진다. 항구 감시등이 이쪽으로 돈다.', 'The sheet tears in your hands. A harbor lamp swings this way.'),
+          effects: [{ kind: 'trace', amount: 6 }],
+        },
+      },
+    ],
+    gmHints: ['wet list', 'dry harbor', 'manifest or names'],
+  },
+  {
+    id: 'sea5_cb_debt',
+    acts: [5],
+    route: 'sea_5',
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'lin_yue_debt' },
+    title: t('물때 이자', 'Interest at the Tide'),
+    image: 'v2/events/sea5_cb_debt.webp',
+    text: t(
+      '밀물선의 부교 끝에 낯익은 심부름꾼이 서 있다. 바지 밑단이 젖어도 장부는 젖지 않았다.\n“바다까지 오셨네요. 이자는 물때 따라 붙습니다.”\n장부 마지막 줄에 당신 이름이 두 번 적혀 있다.',
+      'At the end of a pontoon on the Tide Line stands a runner you know. Wet to the shins; the ledger is dry.\n“All the way to the sea. Interest follows the tide.”\nYour name is written twice on the last line.',
+    ),
+    options: [
+      {
+        label: t('크레딧으로 갚는다', 'Pay in credits'),
+        hint: t('−60 ₵ · 빚 청산 · 추적 −10', '−60 ₵ · debt paid · −10 Trace'),
+        requires: { minCredits: 60 },
+        success: {
+          text: t('칩이 세어지고 줄이 그어진다. 심부름꾼이 부교를 걸어 돌아간다.', 'The chips are counted and the line struck. The runner walks back down the pontoon.'),
+          effects: [
+            { kind: 'credits', amount: -60 },
+            { kind: 'trace', amount: -10 },
+            { kind: 'flag', key: 'lin_yue_debt', value: 0 },
+          ],
+        },
+      },
+      {
+        label: t('몸으로 갚는다', 'Pay with your body'),
+        hint: t('빚 청산 · 최대 HP −4', 'Debt paid · −4 max HP'),
+        success: {
+          text: t('차가운 기계가 손목에 닿는다. 회색 물이 발목을 적신다. 장부가 닫힌다.', 'A cold device touches your wrist. Gray water wets your ankles. The ledger closes.'),
+          effects: [
+            { kind: 'maxHp', amount: -4 },
+            { kind: 'flag', key: 'lin_yue_debt', value: 0 },
+          ],
+        },
+      },
+      {
+        label: t('한 번 더 빌린다', 'Borrow once more'),
+        hint: t('+40 ₵ · 추적 +5 · 빚은 남는다', '+40 ₵ · +5 Trace · the debt stays'),
+        success: {
+          text: t('장부에 세 번째 줄이 생긴다. “등대에서 뵙죠.”', 'A third line appears in the ledger. “See you at the lighthouse.”'),
+          effects: [
+            { kind: 'credits', amount: 40 },
+            { kind: 'trace', amount: 5 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['lin-yue debt', 'pontoon at the tide line', 'dry ledger'],
+  },
+  {
+    id: 'sea6_cb_citizen',
+    acts: [6],
+    route: 'sea_6',
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'saved_citizen' },
+    title: t('등대 일지', 'The Lamp Log'),
+    image: 'v2/events/sea6_cb_citizen.webp',
+    text: t(
+      '마지막 등대 계단참에서 남자 하나가 근무 일지를 적고 있다. 캡슐에서 꺼내 준 그 남자다. 이제 물이 어디까지 왔는지 적는다.\n“끝까지 왔네.” 남자가 펜을 내려놓는다.\n일지 사이에 무언가 끼워져 있다.',
+      'On the landing of the last lighthouse a man is writing in the duty log. The man you pulled from the capsule. Now he records how far the water has come.\n“You made it all the way.” He sets the pen down.\nSomething is tucked between the pages.',
+    ),
+    options: [
+      {
+        label: t('끼워 둔 것을 받는다', 'Take what he tucked in'),
+        hint: t('+10 HP · 소모품', '+10 HP · consumable'),
+        success: {
+          text: t('구급 패치와 보급 캡슐 하나. “빚은 갚아야지.”', 'A med patch and a supply capsule. “Debts get paid.”'),
+          effects: [
+            { kind: 'hp', amount: 10 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+      {
+        label: t('일지 한 줄을 대신 적는다', 'Write one line of the log for him'),
+        hint: t('인간성 +1 · 추적 −10 · 실패 시 추적 +8', '+1 Humanity · −10 Trace · fail +8 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('물높이를 정확히 적는다. 남자가 고개를 끄덕인다. “잘 보네.”', 'You log the water line exactly. He nods. “Good eye.”'),
+          effects: [
+            { kind: 'axis', axis: 'humanity' },
+            { kind: 'trace', amount: -10 },
+          ],
+        },
+        failure: {
+          text: t('숫자를 잘못 적는다. 등대 감시 장치가 틀린 줄을 기록한다.', 'You get the number wrong. The lighthouse monitor logs the bad line.'),
+          effects: [{ kind: 'trace', amount: 8 }],
+        },
+      },
+    ],
+    gmHints: ['the saved citizen', 'lighthouse duty log', 'water line'],
+  },
 ]

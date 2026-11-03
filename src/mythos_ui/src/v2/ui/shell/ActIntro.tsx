@@ -12,6 +12,7 @@ import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 import { actOf, lastAct } from '../../engine/run.ts'
 import { worldEchoOf } from '../../engine/legacy.ts'
+import { BootScreen } from './BootScreen.tsx'
 import './actintro.css'
 
 export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
@@ -70,6 +71,7 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
     <div className="m2-actintro" onClick={go}>
       <div className="m2-actintro__art" style={{ backgroundImage: `url(${run.route && actDef?.image ? asset(actDef.image) : art.act(run.act, actDef?.image)})` }} />
       <div className="m2-actintro__shade" />
+      <BootScreen run={run} fast={settings.fastAnim} />
       <GmCard className="m2-actintro__gm" text={shown > 0 ? (gmLine?.text ?? null) : null} ai={gmLine?.ai} lang={lang} fast={settings.fastAnim} report={{ route: 'narrate', kind: 'act_intro' }} />
       <div className="m2-actintro__inner">
         {run.act === 1 && run.residue && C.residue?.[run.residue] && <p className="m2-actintro__residue">{tr(C.residue[run.residue], lang)}</p>}

@@ -31,7 +31,7 @@ const STEPS: StepDef[] = [
     anchor: '[data-uid="connector"] .m2c-u-hit',
     fallback: '.m2c-board',
     title: ['이동은 무료', 'Moving is free'],
-    text: ['대원을 누르고 파란 칸을 누르면 이동한다. 턴마다 한 번이고, Z로 되돌릴 수 있다.', 'Click a unit, then a blue tile — once per turn. Z undoes it.'],
+    text: ['대원을 누르고 파란 칸을 누르면 이동한다. 턴마다 한 번이고, Z로 되돌릴 수 있다. 카드를 뽑지 않는 카드도 Z로 되돌린다.', 'Click a unit, then a blue tile — once per turn. Z undoes it, and any card that draws nothing.'],
     touch: {
       text: [
         '대원을 누르고 파란 칸을 누르면 이동한다. 턴마다 한 번이고, 되돌리기 버튼으로 취소할 수 있다.',

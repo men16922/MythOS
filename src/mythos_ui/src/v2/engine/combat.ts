@@ -150,6 +150,29 @@ function clone(c: CombatState): CombatState {
   return structuredClone(c)
 }
 
+// ---------------------------------------------------------------- undo (Tactical Breach Wizards' rule: what revealed nothing can be taken back)
+
+/** This moment as an undo snapshot: no events, and no older snapshots inside it (they stay on the stack). */
+function snapshot(c: CombatState): string {
+  return JSON.stringify({ ...c, events: [], undo: null, undoStack: undefined })
+}
+
+function clearUndo(c: CombatState): void {
+  c.undo = null
+  delete c.undoStack
+}
+
+/** `after` came from `before` by one player action: keep `before` as the next undo step unless the action revealed anything. */
+function keepUndo(before: CombatState, after: CombatState): void {
+  const dice = (s: CombatState): string => JSON.stringify([s.rng, s.streams ?? null])
+  const drew = after.events.slice(before.events.length).some((e) => e.t === 'draw')
+  if (after.phase !== 'player' || drew || dice(after) !== dice(before)) return clearUndo(after)
+  const stack = [...(before.undoStack ?? []), ...(before.undo ? [before.undo] : [])]
+  after.undo = snapshot(before)
+  if (stack.length > 0) after.undoStack = stack
+  else delete after.undoStack
+}
+
 function requirePlayer(c: CombatState): void {
   if (c.phase !== 'player') throw new Error('combat is over')
 }
@@ -452,7 +475,7 @@ function beginPlayerTurn(c: CombatState, C: ContentRegistry, first: boolean): vo
   delete x.pendingDraw
   drawCards(c, Math.max(0, c.handSize - c.hand.length) + bonusDraw)
   if (c.bonus?.def.kind === 'turn_limit' && c.turn > c.bonus.def.turns) c.bonus.failed = true
-  c.undo = null
+  clearUndo(c)
   if (first) fireTrigger(c, C, 'combat_start')
   fireTrigger(c, C, 'turn_start')
   checkEnd(c, C)
@@ -515,7 +538,6 @@ export function moveUnit(c0: CombatState, C: ContentRegistry, uid: string, to: P
   const c = clone(c0)
   const u = getUnit(c, uid) as UnitState
   const path = partyMovePaths(c, u).get(posKey(to)) ?? [{ ...u.pos }, { ...to }]
-  c.undo = JSON.stringify({ ...c, events: [] })
   u.pos = { ...to }
   u.moved = true
   const dir = dirToward(path[path.length - 2] ?? path[0] ?? to, to)
@@ -524,13 +546,22 @@ export function moveUnit(c0: CombatState, C: ContentRegistry, uid: string, to: P
   sprintEvade(c, u, path.length - 1)
   tickMoveBleed(c, C, u)
   if (u.hp > 0) enterGround(c, u)
+  keepUndo(c0, c)
   return c
 }
 
-/** Undo the last move (possible until a card or consumable is played). */
+/**
+ * Undo the last action this turn: a move, or a card / consumable that revealed nothing (see keepUndo). Step by step
+ * back to the turn's start or the last action that drew a card or rolled. (Kept as `undoMove`: replay logs name it.)
+ */
 export function undoMove(c: CombatState): CombatState {
   if (!c.undo) return c
   const prev = JSON.parse(c.undo) as CombatState
+  const stack = c.undoStack?.slice() ?? []
+  // Older saves nested the previous snapshot inside this one; a stack entry wins when there is one.
+  prev.undo = stack.length > 0 ? (stack.pop() as string) : (prev.undo ?? null)
+  if (stack.length > 0) prev.undoStack = stack
+  else delete prev.undoStack
   const events = c.events.slice()
   for (const u of c.units) {
     const before = prev.units.find((p) => p.uid === u.uid)
@@ -771,7 +802,7 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
   const opt = matchOption(origin, face.target, rawOptions(c, origin, face.target), target)
   if (!opt) throw new Error(`illegal target for ${def.id}`)
 
-  c.undo = null
+  clearUndo(c)
   const tax = redactTax(c, originUid)
   c.energy -= face.cost + tax
   if (tax > 0) decayStatus(origin, 'redact')
@@ -832,6 +863,7 @@ export function playCard(c: CombatState, C: ContentRegistry, cardUid: string, or
   requirePlayer(c)
   const next = clone(c)
   playCardInPlace(next, C, cardUid, originUid, target)
+  keepUndo(c, next)
   return next
 }
 
@@ -875,7 +907,7 @@ export function consumeInPlace(c: CombatState, C: ContentRegistry, index: number
   if (!def || !origin || origin.side !== 'party') throw new Error('cannot use consumable')
   const opt = matchOption(origin, def.target, rawOptions(c, origin, def.target), target)
   if (!opt) throw new Error(`illegal target for ${def.id}`)
-  c.undo = null
+  clearUndo(c)
   c.consumables = c.consumables.filter((_, i) => i !== index)
   const res = resolutionFor(origin, def.target, opt)
   faceTarget(origin, res.dir, opt.impact ?? opt.pos)
@@ -890,6 +922,7 @@ export function consumeInPlace(c: CombatState, C: ContentRegistry, index: number
 export function useConsumable(c: CombatState, C: ContentRegistry, index: number, originUid: string, target: PlayTarget): CombatState {
   const next = clone(c)
   consumeInPlace(next, C, index, originUid, target)
+  keepUndo(c, next)
   return next
 }
 
@@ -1054,7 +1087,7 @@ export function burstInPlace(c: CombatState, C: ContentRegistry, companionUid?: 
   const lead = ult?.duo?.pair[0]
   const origin = lead ? livingParty(c).find((u) => u.defId === lead) : companionUid ? getUnit(c, companionUid) : connectorOf(c)
   if (!def || !origin) throw new Error('signal burst not ready')
-  c.undo = null
+  clearUndo(c)
   c.burstUsed = true
   c.momentum = 0
   if (ult?.duo) c.duoFired = ult.duo.id
@@ -1084,7 +1117,7 @@ export function carriedEnergy(c: CombatState, C: ContentRegistry): number {
 
 export function endTurnInPlace(c: CombatState, C: ContentRegistry): void {
   requirePlayer(c)
-  c.undo = null
+  clearUndo(c)
   fireTrigger(c, C, 'turn_end')
   if (c.phase !== 'player') return
   applyHeldEffects(c, C)

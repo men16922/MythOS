@@ -98,6 +98,7 @@ export function leanClone(c: CombatState): CombatState {
     triggered: { ...c.triggered },
     stats: { ...c.stats },
   }
+  delete out.undoStack
   if (c.bonus) out.bonus = { ...c.bonus }
   if (c.runStats) out.runStats = { ...c.runStats }
   return out

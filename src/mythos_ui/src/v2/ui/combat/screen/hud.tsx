@@ -28,7 +28,7 @@ export function HelpPopover({ k, touch, onClose }: { k: boolean; touch: boolean;
             <kbd>1-9</kbd> {k ? '카드' : 'card'} · <kbd>⇧1-3</kbd> {k ? '소모품' : 'item'}
           </li>
           <li>
-            <kbd>E</kbd> {k ? '턴 종료' : 'end turn'} · <kbd>Z</kbd> {k ? '이동 취소' : 'undo move'}
+            <kbd>E</kbd> {k ? '턴 종료' : 'end turn'} · <kbd>Z</kbd> {k ? '되돌리기' : 'undo'}
           </li>
           <li>
             <kbd>Tab</kbd> {k ? '대원 전환' : 'cycle unit'} · <kbd>T</kbd> {k ? '위협' : 'threat'} · <kbd>Esc</kbd> {k ? '취소' : 'cancel'}
@@ -53,7 +53,7 @@ export function KeyLegend({ k }: { k: boolean }) {
       </span>
       <span>
         <kbd>Z</kbd>
-        {k ? '이동 취소' : 'undo move'}
+        {k ? '되돌리기' : 'undo'}
       </span>
       <span>
         <kbd>Tab</kbd>
@@ -114,7 +114,7 @@ export function ItemSlots(p: { combat: CombatState; C: ContentRegistry; lang: La
   )
 }
 
-/** Discard / exhausted pile viewers and the move undo (Z). */
+/** Discard / exhausted pile viewers and the undo (Z): moves and plays that drew or rolled nothing. */
 export function PileButtons(p: { k: boolean; discard: number; exhaust: number; canUndo: boolean; onPile: (kind: 'discard' | 'exhaust') => void; onUndo: () => void; rewinds?: number | undefined; canRewind?: boolean; onRewind?: () => void }) {
   const { k } = p
   return (
@@ -127,7 +127,7 @@ export function PileButtons(p: { k: boolean; discard: number; exhaust: number; c
         <Flame size={14} />
         <b>{p.exhaust}</b>
       </button>
-      <button type="button" className="m2c-pilebtn" disabled={!p.canUndo} onClick={p.onUndo} title={k ? '이동 되돌리기 (Z)' : 'Undo move (Z)'}>
+      <button type="button" className="m2c-pilebtn" disabled={!p.canUndo} onClick={p.onUndo} title={k ? '되돌리기 (Z) · 카드를 뽑거나 운이 걸린 행동 전까지' : 'Undo (Z) · back to the last draw or roll'}>
         <Undo2 size={14} />
         <kbd>Z</kbd>
       </button>

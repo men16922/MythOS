@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-11-04 — Undo covers every action that revealed nothing
+
+- **Decision** (agent default under the owner's goal; owner may reverse): within a turn, Z undoes moves and any card or consumable play that drew no card and rolled nothing, one step at a time. Draws, rolls, ultimates and ending the turn are final. The Navigator's rewind (whole turn, draws included) stays its own identity.
+- **Why**: reverse-engineering item 3; the previews already show every outcome exactly, so undoing a no-information action only removes misclick fatigue. Difficulty risk is for the owner's hands-on check (the sim cannot measure it).
+- **Impact**: `CombatState.undoStack`; `undoMove` name kept for replay logs; older nested snapshots still work.
+
 ## 2026-11-04 — Companion perks at level 3 and 5 are a choice of two
 
 - **Decision** (agent default under the owner's "continue the remaining work autonomously"; owner may reverse): at level 3 and 5 each companion picks one of two perks once per run on the map's party screen. Option a is the old fixed bonus and applies until a pick is made; option b fits the companion (level 3 by best stat, level 5 Veteran for everyone).

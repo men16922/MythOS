@@ -491,7 +491,7 @@ test('guard power grants block every player turn; powers exhaust', () => {
 
 // ---------------------------------------------------------------- movement
 
-test('move is free, once per unit, blocked by enemies/cover, undoable until a card is played', () => {
+test('move is free, once per unit, blocked by enemies/cover, and undoable', () => {
   const c = fresh('terrain')
   silence(c)
   const conn = unit(c, 'connector')
@@ -511,8 +511,40 @@ test('move is free, once per unit, blocked by enemies/cover, undoable until a ca
 
   setHand(moved, ['barrier'])
   const played = playCard(moved, C, 'h1', 'connector', {})
-  assert.equal(played.undo, null)
-  assert.equal(undoMove(played), played)
+  assert.ok(played.undo, 'a card that draws nothing and rolls nothing can be taken back')
+  const unplayed = undoMove(played)
+  assert.deepEqual(unplayed.hand.map((k) => k.defId), ['barrier'])
+  assert.equal(unplayed.energy, moved.energy)
+  assert.deepEqual(unit(unplayed, 'connector').pos, target, 'one step back: the move stays')
+  assert.deepEqual(unit(undoMove(unplayed), 'connector').pos, conn.pos, 'a second step undoes the move')
+  assert.equal(undoMove(undoMove(unplayed)).undo, null, 'back at the turn start')
+})
+
+test('undo steps back through actions that revealed nothing, and stops at a draw', () => {
+  const c = fresh('duel')
+  silence(c)
+  setHand(c, ['barrier', 'focus', 'barrier'])
+  const strip = (s: CombatState): unknown => ({ ...s, events: [], undo: null, undoStack: undefined })
+  const a = playCard(c, C, 'h1', 'connector', {})
+  const b = playCard(a, C, 'h3', 'connector', {})
+  assert.deepEqual(strip(undoMove(b)), strip(a), 'the state right before the last action')
+  assert.deepEqual(strip(undoMove(undoMove(b))), strip(c))
+  assert.ok(!(JSON.parse(b.undo as string) as CombatState).undo, 'snapshots are not nested (no escaping blow-up)')
+  const drew = playCard(b, C, 'h2', 'connector', {})
+  assert.equal(drew.undo, null, 'drawing a card reveals the next card: no undo past it')
+  assert.equal(drew.undoStack, undefined)
+})
+
+test('a snapshot nested by an older save still undoes one step at a time', () => {
+  const c = fresh('terrain')
+  silence(c)
+  const first = moveUnit(c, C, 'connector', legalMoves(c, 'connector')[0] as NonNullable<ReturnType<typeof legalMoves>[number]>)
+  const older = structuredClone(first)
+  older.undo = JSON.stringify({ ...JSON.parse(older.undo as string), undo: JSON.stringify({ ...c, events: [] }) })
+  delete older.undoStack
+  const back = undoMove(older)
+  assert.ok(back.undo, 'the nested older step is kept')
+  assert.deepEqual(unit(undoMove(back), 'connector').pos, unit(c, 'connector').pos)
 })
 
 test('shocked party units cannot move; allies can be passed through', () => {

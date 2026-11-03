@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Undo reaches cards that reveal nothing (Claude Opus 5.5, same goal)
+
+- **Built** (reverse-engineering item 3): Z / the undo button now steps back through every action this turn that revealed nothing: moves, and cards or consumables that drew no card and left the combat RNG and the shuffle/AI streams untouched (`keepUndo` in the `playCard` / `useConsumable` / `moveUnit` wrappers; the bots' in-place calls pay nothing). A draw, a roll, an ultimate or the end of the turn makes everything before it final. Snapshots now sit on a flat `undoStack` instead of nesting (nested JSON doubles its escaping per level); a snapshot nested by an older save still undoes one step at a time, so old daily replay logs stay valid (`undoMove` keeps its name for them). Labels: "이동 취소 / undo move" → "되돌리기 / undo".
+- **Verified**: `make check` (node 535, Python 338), `make test-e2e-v2`, `make playthrough-quick`; engine tests: state after undo equals the state before the action, two-step undo, a draw ends it, no nested snapshot; real UI, headless muted, 1280×720 + 390×844 touch: a card that killed an enemy, then Z / the button → enemy back on the board, energy and hand restored, 0 console errors (`outputs/qa/undo_ui/`). Not measurable in the sim (the bot already plans with exact previews). Owner check: `docs/test/mythos2_fun_check.md` §14 (less fatigue? too easy?).
+
 ## 2026-11-04 — Companion level perks: choose one of two at level 3 and 5 (Claude Opus 5.5, same goal)
 
 - **Built** (reverse-engineering item 1): `content/levelPerks.ts` + `engine/companionLevel.ts` (`perkOptions`, `activePerks`, `pendingPerk`, `choosePerk`, `perkWaiting`); `PartyMember.perks`; `run.chooseCompanionPerk` (map only, final, replayable). Option a = the old fixed bonus (Guarded block 3 / Resonance +15 Momentum), so saves and every default stay as they were; level 3 option b follows the companion's best stat (STR Counterpunch thorns 2 · AGI Footwork +1 move · INT Hardened Rig +1 armor · CHA Read the Room evade 1 · OBS Steady Aim focus 2), level 5 option b Veteran (+1 damage, +1 armor). Party screen: two buttons per open level, a gold dot on the party button while a pick waits; sandbox `?lvl=5&perk=b`.

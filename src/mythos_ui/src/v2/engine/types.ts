@@ -477,8 +477,12 @@ export interface CombatState {
   events: CombatEvent[]
   /** Reinforcements arriving at the next enemy phase (shown as warning markers on the board). */
   incoming: { pos: Pos; enemyId: string }[]
-  /** Snapshot for undoing the last move (cleared when a card is played). */
+  /**
+   * Snapshot for undoing the last action this turn: a move, or a card / consumable that drew nothing and rolled no dice
+   * (anything that reveals new information clears it). Older snapshots sit on `undoStack`, never nested inside.
+   */
   undo?: string | null
+  undoStack?: string[]
   bonus?: { def: BonusObjective; progress: number; failed: boolean }
   proto?: CombatProto
   relay?: Pos

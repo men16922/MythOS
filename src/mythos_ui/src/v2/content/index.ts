@@ -19,6 +19,7 @@ import { NEW_ARCHETYPE_CARDS, NEW_ARCHETYPE_IMPLANTS, NEW_ARCHETYPES } from './p
 import { DUOS } from './duos.ts'
 import { SEA4_ENCOUNTERS, SEA4_ENEMIES, SEA4_EVENTS, SEA5_ENCOUNTERS, SEA5_ENEMIES, SEA5_EVENTS, SEA6_ENCOUNTERS, SEA6_ENEMIES, SEA6_EVENTS, SEA_ACTS, SEA_ARCHETYPE, SEA_ARCHETYPE_CARDS, SEA_ARCHETYPE_IMPLANT, SEA_CARDS, SEA_COMPANIONS, SEA_COMPANION_CARDS, SEA_COMPANION_EVENTS, SEA_COMPANION_STATS, SEA_CONSUMABLES, SEA_DUOS, SEA_ENDINGS, SEA_GEAR, SEA_IMPLANTS, SEA_SCENES } from './packs/unwritten_sea/index.ts'
 import { GEAR } from './gear.ts'
+import { LEVEL_PERKS } from './levelPerks.ts'
 import { EVOLUTIONS, EVOLVED_CARDS } from './evolutions.ts'
 import { EVENTS as BASE_EVENTS } from './events.ts'
 import { OUTSIDE_ACT, OUTSIDE_CARDS, OUTSIDE_ENCOUNTERS, OUTSIDE_ENEMIES, OUTSIDE_EVENTS, OUTSIDE_ROUTE, OUTSIDE_ROUTE_EVENTS } from './packs/outside_list/index.ts'
@@ -72,6 +73,7 @@ export const CONTENT: ContentRegistry = {
   squadRoles: SQUAD_ROLES,
   residue: RESIDUE,
   gear: byId([...GEAR, ...SEA_GEAR.map((g) => ({ ...g, route: 'sea_4' }))]),
+  levelPerks: byId(LEVEL_PERKS),
   endings: byId(ENDINGS),
   unlocks: byId(UNLOCKS),
   paradox: PARADOX,

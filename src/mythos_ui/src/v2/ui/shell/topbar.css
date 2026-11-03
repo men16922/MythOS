@@ -290,6 +290,16 @@
   gap: 3px;
   padding: 0 7px;
 }
+.m2-topbar__perkdot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--m2-gold);
+  pointer-events: none;
+}
 .m2-topbar__benchn {
   color: var(--m2-amber);
   font-size: 11px;

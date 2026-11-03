@@ -1,5 +1,6 @@
 // Dev-only combat sandbox UI (mounted by CombatSandbox.tsx at /?sandbox=combat).
 // ?enc=<encounterId> preselects a fight; ?vw=1280&vh=720 pins the combat area to an exact size.
+import { PERK_LEVELS, perkOptions } from '../../engine/companionLevel.ts'
 import { useMemo, useState } from 'react'
 import { CONTENT } from '../../content/index.ts'
 import { startCombat } from '../../engine/combat.ts'
@@ -29,6 +30,14 @@ function build(archetype: string, encounterId: string, extra: boolean, seed: num
         for (const id of second.cards) run.deck.push({ uid: `sb_${id}_${run.uidCounter++}`, defId: id, upgraded: false })
       }
       run.consumables = Object.keys(C.consumables).slice(0, 3)
+    }
+    // ?lvl=5&perk=b plays every companion at that level with option b of each perk reached (a = the fixed bonuses).
+    const q = new URLSearchParams(window.location.search)
+    const lvl = Math.min(5, Math.max(1, Number(q.get('lvl')) || 1))
+    for (const m of run.party) {
+      m.level = lvl
+      const def = C.companions[m.id]
+      if (def && q.get('perk') === 'b') m.perks = PERK_LEVELS.filter((l) => l <= lvl).map((l) => perkOptions(l, def, C)[1]?.id ?? '')
     }
     const combat = startCombat(run, encounterId, C)
     // ?momentum=100 starts with a full gauge (Signal Burst checks).

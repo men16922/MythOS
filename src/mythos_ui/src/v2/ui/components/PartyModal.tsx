@@ -3,7 +3,7 @@
 // elsewhere the same screen reads as a record. Benched companions keep their HP, level and bond, and their gear.
 import { Shield, Swords, Users } from 'lucide-react'
 import { useState } from 'react'
-import { MAX_COMPANION_LEVEL, companionStats, levelOf, xpToNext } from '../../engine/companionLevel.ts'
+import { MAX_COMPANION_LEVEL, PERK_LEVELS, activePerks, companionStats, levelOf, pendingPerk, perkOptions, perkWaiting, xpToNext } from '../../engine/companionLevel.ts'
 import { STAT_MAX, partySlots } from '../../engine/run.ts'
 import { squadTacticFor } from '../../engine/squad.ts'
 import type { ContentRegistry, GearDef, GearSlot, Lang, PartyMember, RunState, StatKey, Stats } from '../../engine/types.ts'
@@ -97,7 +97,12 @@ export function PartyModal({ run, C, lang, onChange, onClose }: Props) {
           <img src={portrait(img)} alt="" />
           <span className="m2-pt__personbody">
             <b>{nameOf(id)}</b>
-            <small>{tag}</small>
+            <small>
+              {tag}
+              {m && perkWaiting([m], C) && (
+                <span className="m2-pt__perkdot">{ko ? ' · 특성 선택' : ' · pick a perk'}</span>
+              )}
+            </small>
             <HpBar hp={hp} max={maxHp} small label={false} />
           </span>
         </button>
@@ -190,7 +195,36 @@ export function PartyModal({ run, C, lang, onChange, onClose }: Props) {
                   <b>{tr(def.combatPassive.name, lang)}</b> · {tr(def.combatPassive.text, lang)}
                 </p>
               )}
-              <p className="m2-pt__hint">{ko ? '레벨 3: 개전 방어막 · 레벨 5: 개전 기세' : 'Level 3: start block · Level 5: start Momentum'}</p>
+              <ul className="m2-pt__perks">
+                {PERK_LEVELS.map((level) => {
+                  const options = perkOptions(level, def, C)
+                  const open = pendingPerk(member, def, C) === level
+                  const active = levelOf(member) >= level ? activePerks(member, def, C)[PERK_LEVELS.indexOf(level)] : undefined
+                  const chosen = active && member.perks?.includes(active.id)
+                  return (
+                    <li key={level}>
+                      <span className="m2-pt__perklv">{ko ? `레벨 ${level}` : `Level ${level}`}</span>
+                      {open && editable ? (
+                        <span className="m2-pt__perkpick">
+                          {options.map((p) => (
+                            <button key={p.id} type="button" className="m2-pt__perkopt" onClick={() => apply(rx.chooseCompanionPerk(run, member.id, p.id, C))}>
+                              <b>{tr(p.name, lang)}</b>
+                              <small>{tr(p.text, lang)}</small>
+                            </button>
+                          ))}
+                        </span>
+                      ) : active ? (
+                        <span>
+                          <b>{tr(active.name, lang)}</b> · {tr(active.text, lang)}
+                          {!chosen && options.length > 1 && <em>{ko ? ' (기본 · 지도에서 고를 수 있다)' : ' (default · pick on the map)'}</em>}
+                        </span>
+                      ) : (
+                        <span className="m2-pt__perkfuture">{options.map((p) => tr(p.name, lang)).join(ko ? ' 또는 ' : ' or ')}</span>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
             </>
           ) : (
             <StatBars lang={lang} stats={run.stats} perks={statPerkLines(run.stats, lang)} {...(editable && growth > 0 ? { onGrow: (k: StatKey) => apply(rx.spendGrowth(run, k)) } : {})} />

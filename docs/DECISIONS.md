@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-11-04 — Companion perks at level 3 and 5 are a choice of two
+
+- **Decision** (agent default under the owner's "continue the remaining work autonomously"; owner may reverse): at level 3 and 5 each companion picks one of two perks once per run on the map's party screen. Option a is the old fixed bonus and applies until a pick is made; option b fits the companion (level 3 by best stat, level 5 Veteran for everyone).
+- **Why**: reverse-engineering item 1 (`docs/plans/2026-11-03-reverse-engineering-1-3.md`): personality from a level choice, capped at two picks per companion to keep fatigue low. All options measured within ±2 pts, none ahead in every block.
+- **Impact**: `PartyMember.perks`; old saves and the sim (which never picks by default) play exactly as before.
+
 ## 2026-11-04 — Road recruit scenes are marked on the map
 
 - **Decision** (agent default under the owner's "continue the remaining work autonomously", owner may reverse): a map event node holding a road recruit scene shows a small person badge and a tooltip line with its Trace cost. Who waits stays hidden; the scene still rolls on about half the maps and is never guaranteed (2026-10-30 decision unchanged).

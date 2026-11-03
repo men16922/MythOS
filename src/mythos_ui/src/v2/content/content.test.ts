@@ -431,3 +431,20 @@ test('narrative content references resolve', () => {
   for (const a of Object.values(ACTS)) if (a.image) assert.ok(exists(a.image), `act ${a.act} image ${a.image}`)
   assert.ok(Array.isArray(LORE))
 })
+
+test('level perks: one option a per level, and every companion is offered exactly two at level 3 and 5', async () => {
+  const { perkOptions } = await import('../engine/companionLevel.ts')
+  const perks = Object.values(CONTENT.levelPerks ?? {})
+  for (const level of [3, 5] as const) {
+    assert.equal(perks.filter((p) => p.level === level && p.option === 'a').length, 1, `level ${level} option a`)
+    for (const c of Object.values(CONTENT.companions)) {
+      const options = perkOptions(level, c, CONTENT)
+      assert.equal(options.length, 2, `${c.id} at level ${level}`)
+      assert.notEqual(options[0]?.id, options[1]?.id)
+    }
+  }
+  for (const p of perks) {
+    assert.ok(p.name.ko && p.name.en && p.text.ko && p.text.en, `${p.id} text`)
+    assert.ok(p.mods || p.momentum, `${p.id} does something`)
+  }
+})

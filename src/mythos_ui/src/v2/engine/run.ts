@@ -22,7 +22,7 @@ import { turnScore } from './effects.ts'
 import { applyCombatMods, crpgConditionMet, enterDistrict, newCrpgState, placeDistrict, repTier, takeCombatMods } from './crpg.ts'
 import { advanceDirectiveOnWin } from './directives.ts'
 import { AUTONOMY_ACT_SCRUB, autonomyDc, autonomyLevel, echoEffects, echoOffers, worldEchoFor } from './legacy.ts'
-import { MAX_COMPANION_LEVEL, gainXp, levelOf, trainLevel } from './companionLevel.ts'
+import { MAX_COMPANION_LEVEL, choosePerk, gainXp, levelOf, trainLevel } from './companionLevel.ts'
 import { advanceThoughts, offerThought } from './thoughts.ts'
 import { dailySeed, isDateKey } from './daily.ts'
 import { actEventPool, generateActMap, mapEncounters } from './map.ts'
@@ -1788,6 +1788,19 @@ export function trainCompanion(run: RunState, id: string, C: ContentRegistry): R
     next.growth = (next.growth ?? 0) - 1
     trainLevel(member)
     log(next, 'start', t(`훈련: ${C.companions[id]?.name.ko ?? id} 레벨 ${levelOf(member)}`, `Training: ${C.companions[id]?.name.en ?? id} level ${levelOf(member)}`))
+  })
+}
+
+/** Choose a recruited companion's level 3 / 5 perk, once (engine/companionLevel.ts choosePerk). Map only. */
+export function chooseCompanionPerk(run: RunState, id: string, perkId: string, C: ContentRegistry): RunState {
+  const m = roster(run).find((p) => p.id === id)
+  const def = C.companions[id]
+  if (!m || !def || !choosePerk(structuredClone(m), perkId, def, C)) return run
+  return onScreen(run, 'map', (next) => {
+    const member = roster(next).find((p) => p.id === id) as PartyMember
+    choosePerk(member, perkId, def, C)
+    const perk = C.levelPerks?.[perkId]
+    log(next, 'start', t(`${def.name.ko}: ${perk?.name.ko ?? perkId}`, `${def.name.en}: ${perk?.name.en ?? perkId}`))
   })
 }
 

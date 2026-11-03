@@ -1,7 +1,7 @@
 // Companion levels, per run: deployed wins earn XP, a growth point buys a level outright. The connector grows by spending
 // points; a companion grows by being taken along. Each level adds HP and raises their two best stats; 3 and 5 add a perk.
 // Pure over PartyMember + CompanionDef.
-import type { CompanionDef, PartyMember, StatKey, Stats } from './types.ts'
+import type { CompanionDef, ContentRegistry, LevelPerkDef, PartyMember, StatKey, Stats } from './types.ts'
 
 export const MAX_COMPANION_LEVEL = 5
 /** Total XP (deployed wins) that reaches level 2, 3, 4, 5. */
@@ -58,4 +58,65 @@ export function companionStats(def: Pick<CompanionDef, 'stats'>, level: number):
   if (lead) out[lead] += LEAD_PER_LEVEL * steps
   if (second) out[second] += SECOND_PER_LEVEL * steps
   return out
+}
+
+// ---------------------------------------------------------------- level perks (content/levelPerks.ts)
+
+export const PERK_LEVELS = [3, 5] as const
+export type PerkLevel = (typeof PERK_LEVELS)[number]
+
+/** Option a when the content has no perk table (test doubles): the fixed bonuses every companion had before. */
+const FIXED: Record<PerkLevel, LevelPerkDef> = {
+  3: { id: 'l3_guard', level: 3, option: 'a', name: { ko: '', en: '' }, text: { ko: '', en: '' }, mods: { openBlock: LEVEL3_BLOCK } },
+  5: { id: 'l5_momentum', level: 5, option: 'a', name: { ko: '', en: '' }, text: { ko: '', en: '' }, momentum: LEVEL5_MOMENTUM },
+}
+
+function leadStat(def: Pick<CompanionDef, 'stats'>): StatKey | undefined {
+  const base = def.stats
+  return base ? (Object.keys(base) as StatKey[]).sort((a, b) => base[b] - base[a])[0] : undefined
+}
+
+/** The two perks a companion is offered at a level: option a, then option b (their best stat's at level 3). */
+export function perkOptions(level: PerkLevel, def: Pick<CompanionDef, 'stats'>, C: Pick<ContentRegistry, 'levelPerks'>): LevelPerkDef[] {
+  const all = Object.values(C.levelPerks ?? {}).filter((p) => p.level === level)
+  const a = all.find((p) => p.option === 'a') ?? FIXED[level]
+  const lead = leadStat(def)
+  const b = all.find((p) => p.option === 'b' && (!p.lead || p.lead === lead))
+  return b ? [a, b] : [a]
+}
+
+/** The perks a companion plays with: for each perk level reached, the one chosen, else option a. */
+export function activePerks(m: Pick<PartyMember, 'level' | 'perks'>, def: Pick<CompanionDef, 'stats'>, C: Pick<ContentRegistry, 'levelPerks'>): LevelPerkDef[] {
+  return PERK_LEVELS.filter((l) => levelOf(m) >= l).map((l) => {
+    const options = perkOptions(l, def, C)
+    return options.find((p) => m.perks?.includes(p.id)) ?? (options[0] as LevelPerkDef)
+  })
+}
+
+/** The lowest perk level reached with no choice made yet (null = nothing to choose). */
+export function pendingPerk(m: Pick<PartyMember, 'level' | 'perks'>, def: Pick<CompanionDef, 'stats'>, C: Pick<ContentRegistry, 'levelPerks'>): PerkLevel | null {
+  for (const l of PERK_LEVELS) {
+    if (levelOf(m) < l) return null
+    const options = perkOptions(l, def, C)
+    if (options.length > 1 && !options.some((p) => m.perks?.includes(p.id))) return l
+  }
+  return null
+}
+
+/** Choose a perk at a reached level, once (the choice is final for the run). Mutates; true when it took. */
+export function choosePerk(m: PartyMember, perkId: string, def: Pick<CompanionDef, 'stats'>, C: Pick<ContentRegistry, 'levelPerks'>): boolean {
+  const level = pendingPerk(m, def, C)
+  if (level === null) return false
+  const options = perkOptions(level, def, C)
+  if (!options.some((p) => p.id === perkId)) return false
+  m.perks = [...(m.perks ?? []), perkId]
+  return true
+}
+
+/** Someone in the crew has a perk to pick (the party button shows a dot). */
+export function perkWaiting(members: readonly PartyMember[], C: Pick<ContentRegistry, 'levelPerks' | 'companions'>): boolean {
+  return members.some((m) => {
+    const def = C.companions[m.id]
+    return !!def && pendingPerk(m, def, C) !== null
+  })
 }

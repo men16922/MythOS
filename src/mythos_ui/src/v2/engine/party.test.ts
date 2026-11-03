@@ -3,10 +3,10 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { CONTENT as C } from '../content/index.ts'
 import { startCombat } from './combat.ts'
-import { MAX_COMPANION_LEVEL, companionStats, gainXp, levelOf, trainLevel, xpToNext } from './companionLevel.ts'
+import { MAX_COMPANION_LEVEL, activePerks, choosePerk, companionStats, gainXp, levelOf, pendingPerk, perkOptions, trainLevel, xpToNext } from './companionLevel.ts'
 import { dealDamage, statBonus } from './effects.ts'
 import { newProfile } from './meta.ts'
-import { advanceAct, equipGear, newRun, partySlots, setDeployment, trainCompanion, updateCombat } from './run.ts'
+import { advanceAct, chooseCompanionPerk, equipGear, newRun, partySlots, setDeployment, trainCompanion, updateCombat } from './run.ts'
 import { gearTarget } from './runSim.ts'
 import type { CombatState, ContentRegistry, MetaProfile, PartyMember, RunState, UnitState } from './types.ts'
 
@@ -79,6 +79,56 @@ test('level 3 opens a fight with block, on that companion only', () => {
     return c.units.find((u) => u.uid === 'tae_o')?.block ?? 0
   }
   assert.ok(blockOf(3) > blockOf(2))
+})
+
+test('level perks: two options at 3 (option b by best stat) and 5, option a until chosen, one choice per level', () => {
+  const tae = C.companions.tae_o as NonNullable<(typeof C.companions)['tae_o']>
+  assert.deepEqual(perkOptions(3, tae, C).map((p) => p.id), ['l3_guard', 'l3_counter'], 'Tae-o leads with STR')
+  assert.deepEqual(perkOptions(3, C.companions.se_rin as typeof tae, C).map((p) => p.id), ['l3_guard', 'l3_footwork'])
+  assert.deepEqual(perkOptions(5, tae, C).map((p) => p.id), ['l5_momentum', 'l5_veteran'])
+  const m = { ...member(), level: 2 }
+  assert.equal(pendingPerk(m, tae, C), null, 'nothing before level 3')
+  assert.equal(choosePerk(m, 'l3_counter', tae, C), false)
+  m.level = 5
+  assert.deepEqual(activePerks(m, tae, C).map((p) => p.id), ['l3_guard', 'l5_momentum'], 'option a until chosen')
+  assert.equal(pendingPerk(m, tae, C), 3, 'the lowest open level first')
+  assert.equal(choosePerk(m, 'l5_veteran', tae, C), false, 'not the level-5 pick before the level-3 one')
+  assert.equal(choosePerk(m, 'l3_footwork', tae, C), false, "not another companion's option")
+  assert.equal(choosePerk(m, 'l3_counter', tae, C), true)
+  assert.equal(choosePerk(m, 'l3_guard', tae, C), false, 'final for the run')
+  assert.equal(pendingPerk(m, tae, C), 5)
+  assert.equal(choosePerk(m, 'l5_veteran', tae, C), true)
+  assert.equal(pendingPerk(m, tae, C), null)
+  assert.deepEqual(activePerks(m, tae, C).map((p) => p.id), ['l3_counter', 'l5_veteran'])
+})
+
+test('a chosen perk replaces the fixed bonus in the fight; the choice is made on the map only', () => {
+  const fight = (perks?: string[]): UnitState => {
+    const r = run()
+    r.party = [{ ...member(), level: 5, ...(perks ? { perks } : {}) }]
+    return startCombat(r, 'a1_n1_dodge', C).units.find((u) => u.uid === 'tae_o') as UnitState
+  }
+  const plain = fight()
+  const chosen = fight(['l3_counter', 'l5_veteran'])
+  assert.ok(plain.block > chosen.block, 'option a opens with block, option b does not')
+  assert.equal(chosen.statuses.thorns ?? 0, (plain.statuses.thorns ?? 0) + 2)
+  assert.equal(chosen.armor, plain.armor + 1)
+  const startMomentum = (perks?: string[]): number => {
+    const r = run()
+    r.party = [{ ...member(), level: 5, ...(perks ? { perks } : {}) }]
+    return (startCombat(r, 'a1_n1_dodge', C) as CombatState & { momentum?: number }).momentum ?? 0
+  }
+  assert.ok(startMomentum() > startMomentum(['l3_counter', 'l5_veteran']), 'Resonance gives Momentum, Veteran does not')
+
+  const r = run()
+  r.party = [{ ...member(), level: 3 }]
+  r.screen = { kind: 'act_intro' } as RunState['screen']
+  assert.equal(chooseCompanionPerk(r, 'tae_o', 'l3_counter', C), r, 'not off the map')
+  r.screen = { kind: 'map' }
+  const picked = chooseCompanionPerk(r, 'tae_o', 'l3_counter', C)
+  assert.deepEqual(picked.party[0]?.perks, ['l3_counter'])
+  assert.equal(r.party[0]?.perks, undefined, 'the old state is untouched')
+  assert.equal(chooseCompanionPerk(picked, 'tae_o', 'l3_guard', C), picked)
 })
 
 test('a third slot opens at Act 4 and the bench fills it; an Endless lap benches it again', () => {

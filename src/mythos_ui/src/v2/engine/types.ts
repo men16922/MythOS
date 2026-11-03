@@ -876,6 +876,8 @@ export interface PartyMember {
   level?: number
   /** Deployed wins so far this run. */
   xp?: number
+  /** Level perk ids chosen this run (level 3, then 5). A reached level without a choice plays option a. */
+  perks?: string[]
 }
 
 export type GearSlot = 'weapon' | 'armor'
@@ -890,6 +892,20 @@ export interface GearMods {
   openFocus?: number
   openEvade?: number
   thorns?: number
+}
+
+/** A companion level perk: at level 3 and 5 one of two (option a = the old fixed bonus), chosen once per run. */
+export interface LevelPerkDef {
+  id: string
+  level: 3 | 5
+  option: 'a' | 'b'
+  /** Option b at level 3 follows the companion's best stat; absent = for everyone. */
+  lead?: StatKey
+  name: Text
+  text: Text
+  mods?: GearMods
+  /** Momentum at the start of each fight. */
+  momentum?: number
 }
 
 export interface GearDef {
@@ -1500,6 +1516,8 @@ export interface ContentRegistry {
   acts: Record<ActId, ActDef>
   /** Gear (absent in test doubles = none drops). */
   gear?: Record<string, GearDef>
+  /** Companion level perks (content/levelPerks.ts); absent = the fixed level 3 / 5 bonuses. */
+  levelPerks?: Record<string, LevelPerkDef>
   /** Parallel acts by route id: same place in the run as `of.act`, its own title and content (absent in test doubles). */
   routes?: Record<string, ActDef>
   /** Named formations of three deployed companions (engine/squad.ts; absent in test doubles). */

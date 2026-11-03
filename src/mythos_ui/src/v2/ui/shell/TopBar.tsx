@@ -1,4 +1,5 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
+import { perkWaiting } from '../../engine/companionLevel.ts'
 import { actOf } from '../../engine/run.ts'
 import { art } from '../components/art.ts'
 import { BookOpen, CloudCheck, Cog, Coins, Heart, Layers, Menu, MessagesSquare, ScrollText, Settings, Shuffle, Users } from 'lucide-react'
@@ -238,6 +239,9 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSheet, onSett
       >
         <Users size={15} />
         {(run.bench?.length ?? 0) > 0 && <span className="m2-topbar__benchn m2-mono">+{run.bench?.length}</span>}
+        {perkWaiting([...run.party, ...(run.bench ?? [])], C) && (
+          <span className="m2-topbar__perkdot" aria-label={lang === 'ko' ? '특성 선택 가능' : 'A perk to pick'} />
+        )}
       </button>
 
       <div className="m2-topbar__implants" ref={implantRow}>

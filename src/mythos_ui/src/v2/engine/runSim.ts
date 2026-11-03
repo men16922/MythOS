@@ -10,7 +10,7 @@
 import { autoPlay } from './combatSim.ts'
 import { acceptThought, declineThought } from './thoughts.ts'
 import { acceptRoll, campScene, chooseDialogue, closeDialogue, dialogueOptions, districtPois, leaveDistrict, rerollDialogue, startCamp, visitPoi } from './crpg.ts'
-import { levelOf } from './companionLevel.ts'
+import { levelOf, pendingPerk, perkOptions } from './companionLevel.ts'
 import { computeEchoes, newProfile, runKilledBy, unlockedCompanions } from './meta.ts'
 import {
   setDeployment,
@@ -30,6 +30,7 @@ import {
   partySlots,
   roadRecruitAt,
   trainCompanion,
+  chooseCompanionPerk,
   leaveReward,
   leaveRest,
   leaveShop,
@@ -126,6 +127,11 @@ export interface RunSimOptions {
   mutators?: string[]
   /** Implants to hold from the start (balance experiments, e.g. a full set). */
   startImplants?: string[]
+  /**
+   * Companion level perks: which option the bot takes at level 3 / 5 ('b3' / 'b5' = option b at that level only).
+   * Omitted = never choose, so every companion plays option a (the fixed bonuses), as before perks existed.
+   */
+  perks?: 'a' | 'b' | 'b3' | 'b5'
   /** Play with the Signal+ CRPG layer (districts, dialogue, camp) and this background. */
   crpg?: { background: string | null }
 }
@@ -293,7 +299,18 @@ export function gearTarget(run: RunState, id: string, C: ContentRegistry): { who
   return worst.current < score ? { who: worst.who, slot } : undefined
 }
 
-function decideMap(run: RunState, C: ContentRegistry): RunState {
+function decideMap(run: RunState, C: ContentRegistry, perks?: RunSimOptions['perks']): RunState {
+  if (perks) {
+    for (const m of [...run.party, ...(run.bench ?? [])]) {
+      const def = C.companions[m.id]
+      const level = def ? pendingPerk(m, def, C) : null
+      if (!def || level === null) continue
+      const b = perks === 'b' || (perks === 'b3' && level === 3) || (perks === 'b5' && level === 5)
+      const options = perkOptions(level, def, C)
+      const chosen = chooseCompanionPerk(run, m.id, (options[b ? 1 : 0] ?? options[0])?.id ?? '', C)
+      if (chosen !== run) return chosen
+    }
+  }
   if (run.thoughts?.offer) {
     const carried = acceptThought(run)
     return carried !== run ? carried : declineThought(run)
@@ -508,13 +525,14 @@ function decide(
   policy: SimPolicy,
   maxTurns: number,
   onFight?: (f: FightTelemetry) => void,
+  perks?: RunSimOptions['perks'],
 ): RunState {
   const s = run.screen
   switch (s.kind) {
     case 'act_intro':
       return startAct(run, C)
     case 'map':
-      return decideMap(run, C)
+      return decideMap(run, C, perks)
     case 'combat':
       return decideCombat(run, s, C, policy, maxTurns, onFight)
     case 'reward':
@@ -563,7 +581,7 @@ export function simulateRun(
   for (const id of opts.startImplants ?? []) run = grantImplant(run, id, C)
   for (let step = 0; run.screen.kind !== 'ended'; step++) {
     if (step >= MAX_STEPS) throw new Error(`runSim: step limit on ${run.screen.kind} (seed ${seed})`)
-    const next = decide(run, C, policy, maxTurns, opts.onFight)
+    const next = decide(run, C, policy, maxTurns, opts.onFight, opts.perks)
     if (next === run) throw new Error(`runSim: stuck on ${run.screen.kind} (seed ${seed}, act ${run.act})`)
     run = next
   }

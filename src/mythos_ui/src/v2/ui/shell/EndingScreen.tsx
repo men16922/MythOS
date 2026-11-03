@@ -264,7 +264,17 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
         <div className="m2-ending__main">
           <div className="m2-ending__kicker">
             {isDateKey(run.daily) ? (ko ? '오늘의 시드 · ' : 'Daily Signal · ') : ''}
-            {victory ? (ko ? '루프 완료' : 'Loop complete') : ko ? '접속 종료' : 'Connection lost'}
+            {victory
+              ? run.mode === 'chronicle'
+                ? ko
+                  ? `크로니클 ${run.act}장 완료`
+                  : `Chronicle chapter ${run.act} complete`
+                : ko
+                  ? '루프 완료'
+                  : 'Loop complete'
+              : ko
+                ? '접속 종료'
+                : 'Connection lost'}
           </div>
           <h1 className="m2-ending__title">{tr(ending?.title, lang) || (ko ? '강제 삭제' : 'Forced Erasure')}</h1>
           <Typewriter className="m2-ending__text" text={tr(ending?.text, lang)} cps={settings.fastAnim ? 500 : 80} />

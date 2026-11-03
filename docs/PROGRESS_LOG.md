@@ -4,7 +4,7 @@ Last updated: 2026-11-04
 
 ## 2026-11-04 — Sea UI run green; chronicle agendas get one AI line per chapter end (Claude Opus 5.5, same goal)
 
-- **Integration**: `ui_playthrough.py --sea` after the day's changes: OK in 1670 s, Acts 1–6 → victory, 0 console errors.
+- **Integration**: `ui_playthrough.py --sea` after the day's changes: OK in 1670 s, Acts 1–6 → victory, 0 console errors; `--daily`: OK in 690 s, victory. Chapter-end screen checked at 390 px; its kicker now says "Chronicle chapter N complete" instead of "Loop complete".
 - **Agenda line**: narrate kind `agenda` (`gm.py`: one person's one step, 1–2 sentences, never the next step; fallback = the authored stage line; client local line = the same). The chapter-end screen asks once for the last moved agenda and swaps in the model line with ✦ AI only when the model answers. Local `make gm-eval` (`gemma4:8b-64k`): `agenda_ko/en` usable 100 %, p50 0.5–0.7 s, faithful (one KO line swapped a posted note for a hologram). Browser with GM off: authored line stays, 0 console errors. Vertex not run.
 
 ## 2026-11-04 — Chronicle twist bank (Claude Opus 5.5, same goal)

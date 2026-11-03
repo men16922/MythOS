@@ -41,7 +41,10 @@ export const PARADOX: ParadoxDef[] = [
   {
     level: 6,
     name: { ko: '날 선 분노', en: 'Honed Fury' },
-    text: { ko: '정예·보스의 분노가 매번 1씩 더 쌓인다.', en: 'Elites and bosses build 1 more Rage each time.' },
+    text: {
+      ko: '정예·보스의 분노가 매번 2씩 더 쌓인다. 6단계부터 단계마다 모든 적 체력 +8%.',
+      en: 'Elites and bosses build 2 more Rage each time. From here, every level adds +8% enemy HP.',
+    },
   },
   {
     level: 7,
@@ -51,7 +54,7 @@ export const PARADOX: ParadoxDef[] = [
   {
     level: 8,
     name: { ko: '두꺼운 핵', en: 'Thick Cores' },
-    text: { ko: '보스의 체력 +20%.', en: 'Bosses have +20% HP.' },
+    text: { ko: '보스의 체력 +40%.', en: 'Bosses have +40% HP.' },
   },
   {
     level: 9,

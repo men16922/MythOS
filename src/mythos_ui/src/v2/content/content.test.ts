@@ -448,3 +448,13 @@ test('level perks: one option a per level, and every companion is offered exactl
     assert.ok(p.mods || p.momentum, `${p.id} does something`)
   }
 })
+
+test('Paradox 6–10 texts state the tuned numbers', () => {
+  const high = CONTENT.tuning?.paradoxHigh
+  assert.ok(high)
+  const text = (lv: number) => CONTENT.paradox.find((p) => p.level === lv)?.text
+  for (const lang of ['ko', 'en'] as const) {
+    assert.ok(text(6)?.[lang].includes(`${high.rage6}`) && text(6)?.[lang].includes(`+${high.hpPerLevel}%`), `P6 ${lang}`)
+    assert.ok(text(8)?.[lang].includes(`+${high.boss8Pct}%`), `P8 ${lang}`)
+  }
+})

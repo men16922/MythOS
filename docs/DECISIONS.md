@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-11-04 — Paradox 6–10 tuned to the written expert ceiling
+
+- **Decision** (agent default under the owner's "continue autonomously"; owner may reverse): Paradox 6 Rage +2, 8 boss HP +40 %, and +8 % enemy HP per level above 5, so the greedy bot wins ~53 % at Paradox 10, the DLC plan's ~55 % (§3.3).
+- **Why**: levels 6–10 had never applied (clamped to 5); once live they left greedy at 81 % at Paradox 10, barely above Paradox 5.
+- **Impact**: `CONTENT.tuning.paradoxHigh`; Paradox 0–5 and dailies unchanged.
+
 ## 2026-11-04 — Undo covers every action that revealed nothing
 
 - **Decision** (agent default under the owner's goal; owner may reverse): within a turn, Z undoes moves and any card or consumable play that drew no card and rolled nothing, one step at a time. Draws, rolls, ultimates and ending the turn are final. The Navigator's rewind (whole turn, draws included) stays its own identity.

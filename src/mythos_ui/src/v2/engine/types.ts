@@ -1602,4 +1602,9 @@ export interface EnemyTuning {
   bossHpPct?: number
   /** Per-act extras: every enemy +hpPct % HP and +dmg damage in that act; `bossHpPct` shortens or lengthens that act's boss alone. */
   acts?: Record<number, { hpPct?: number; dmg?: number; bossHpPct?: number }>
+  /**
+   * Paradox 6–10 numbers (absent = 1 Rage at 6, +20 % boss HP at 8, nothing per level). `hpPerLevel` adds that % of
+   * enemy HP for every Paradox level above 5 (so P10 carries five steps).
+   */
+  paradoxHigh?: { rage6: number; boss8Pct: number; hpPerLevel: number }
 }

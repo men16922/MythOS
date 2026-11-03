@@ -289,6 +289,8 @@ export const ART: {
     outside_ev_shutter: 'v2/events/outside_ev_shutter.webp',
     outside_last_meal_kept: 'v2/events/outside_last_meal_kept.webp',
     outside_last_meal_lost: 'v2/events/outside_last_meal_lost.webp',
+    pc_deep_echo: 'v2/events/pc_deep_echo.webp',
+    pc_deep_keeper: 'v2/events/pc_deep_keeper.webp',
     pc_lost_signal: 'v2/events/pc_lost_signal.webp',
     pc_message: 'v2/events/pc_message.webp',
     pc_shelter: 'v2/events/pc_shelter.webp',

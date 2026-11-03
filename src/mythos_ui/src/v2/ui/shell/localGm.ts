@@ -150,10 +150,10 @@ function eventLines(ko: boolean, ctx: Ctx): Line[] {
     const Person = person.charAt(0).toUpperCase() + person.slice(1)
     return ko
       ? [
-          () => `${at}${person}${josa(person, '이', '가')} 먼저 당신을 알아본다.`,
-          () => `${at}골목 끝에 ${person}${josa(person, '이', '가')} 서 있다. 비를 피할 생각은 없어 보인다.`,
+          () => `${at}${josa(person, '이', '가')} 먼저 당신을 알아본다.`,
+          () => `${at}길 끝에 ${josa(person, '이', '가')} 서 있다. 당신을 기다린 눈치다.`,
         ]
-      : [() => `${at}${Person} spots you first.`, () => `${at}At the end of the alley stands ${person}, in no hurry to get out of the rain.`]
+      : [() => `${at}${Person} spots you first.`, () => `${at}Down the way stands ${person}, as if waiting for you.`]
   }
   if (seenBefore > 0) {
     return ko

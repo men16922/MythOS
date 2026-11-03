@@ -1,4 +1,4 @@
-// Procedural events (W2-3): the situation, the options and every outcome are authored here; with AI lines on, the GM's
+// Procedural events (W2-3, six in Acts 1–3 and two in Deep Signal Acts 4–6): the situation, the options and every outcome are authored here; with AI lines on, the GM's
 // opening line for the event (ui/shell/eventOpening.ts → gm.py) is asked to invent the specific place and person for
 // `procedural.brief`. With AI off or on a failed call the authored text below plays as written. At most
 // MAX_PROCEDURAL per run, never on a daily (engine/run.ts). Same rules as events.ts (enforced by narrative.test.ts).
@@ -294,6 +294,116 @@ export const PROCEDURAL_EVENTS: EventDef[] = [
       },
     ],
     gmHints: ['unread message', 'public terminal', 'someone else’s words'],
+  },
+  // Deep Signal (Acts 4–6, no route: the Sea's acts have their own pools).
+  {
+    id: 'pc_deep_keeper',
+    acts: [4, 5, 6],
+    procedural: { brief: t('도시 아래층에서 무언가를 혼자 지키는 사람이 길을 막는다.', 'Below the city, someone guarding something alone blocks the way.') },
+    title: t('혼자 지키는 사람', 'The Lone Keeper'),
+    image: 'v2/events/pc_deep_keeper.webp',
+    text: t(
+      '길 한가운데 누군가 앉아 있다. 등 뒤에 무언가를 두고, 그 앞을 떠나지 않는다.\n“지나가도 돼요. 이건 건드리지만 마요.”\n등 뒤의 것이 작게 빛난다.',
+      'Someone sits in the middle of the way, something set behind them that they will not leave.\n“You can pass. Just don’t touch this.”\nThe thing behind them glows faintly.',
+    ),
+    options: [
+      {
+        label: t('무엇을 지키는지 묻는다', 'Ask what they are guarding'),
+        hint: t('◈ +6 · 실패 시 추적 +6', '+6 ◈ · fail +6 Trace'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t('대답 대신 덮개를 조금 들어 보여 준다. 누군가의 이름이 새겨진 작은 판이다.', 'Instead of answering, they lift the cover a little: a small plate engraved with someone’s name.'),
+          effects: [{ kind: 'echoes', amount: 6 }],
+        },
+        failure: {
+          text: t('“묻는 사람이 제일 위험해요.” 그 말이 끝나기도 전에 경보가 울린다.', '“The ones who ask are the dangerous ones.” An alarm goes off before they finish.'),
+          effects: [{ kind: 'trace', amount: 6 }],
+        },
+      },
+      {
+        label: t('보급품 일부를 나눠 준다', 'Share some supplies'),
+        hint: t('−15 ₵ · 파티 회복 6 · 추적 −6', '−15 ₵ · heal party 6 · −6 Trace'),
+        requires: { minCredits: 15 },
+        success: {
+          text: t('그가 지름길을 알려 준다. 쉬어 갈 자리도.', 'They point out a shortcut, and a place to rest on the way.'),
+          effects: [
+            { kind: 'credits', amount: -15 },
+            { kind: 'heal_party', amount: 6 },
+            { kind: 'trace', amount: -6 },
+          ],
+        },
+      },
+      {
+        label: t('조용히 지나간다', 'Pass quietly'),
+        hint: t('추적 −4', '−4 Trace'),
+        success: {
+          text: t('지나가는 동안 그는 한 번도 고개를 돌리지 않는다.', 'They never once turn their head as you pass.'),
+          effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+      {
+        label: t('그것을 빼앗는다', 'Take it from them'),
+        hint: t('고급 임플란트 · −6 HP · 추적 +10', 'Uncommon implant · −6 HP · +10 Trace'),
+        success: {
+          text: t('손에 쥔 것은 따뜻하다. 뒤에서 아무 소리도 나지 않는다. 그게 더 무겁다.', 'What you hold is warm. Behind you, not a sound. That weighs more.'),
+          effects: [
+            { kind: 'implant', rarity: 'uncommon' },
+            { kind: 'hp', amount: -6 },
+            { kind: 'trace', amount: 10 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['lone guardian', 'something glowing', 'below the city'],
+  },
+  {
+    id: 'pc_deep_echo',
+    acts: [4, 5, 6],
+    procedural: { brief: t('지난 루프의 당신을 기억한다는 사람이 말을 건다.', 'Someone who says they remember you from an earlier loop speaks to you.') },
+    title: t('지난번의 당신', 'You, Last Time'),
+    image: 'v2/events/pc_deep_echo.webp',
+    text: t(
+      '낯선 사람이 반갑게 손을 든다. “또 왔네요. 지난번엔 왼쪽으로 갔죠.”\n당신은 그 사람을 모른다. 그런데 왼쪽 통로가 정말 낯익다.',
+      'A stranger raises a hand in greeting. “Back again. Last time you went left.”\nYou do not know them. But the left passage does look familiar.',
+    ),
+    options: [
+      {
+        label: t('지난번 이야기를 듣는다', 'Hear about last time'),
+        hint: t('통찰 +1 · 실패 시 −5 HP', '+1 Insight · fail −5 HP'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t('그가 말하는 당신은 당신과 조금 다르다. 그 차이에서 길이 보인다.', 'The you they describe is a little different from you. In the difference, a way through shows.'),
+          effects: [
+            { kind: 'axis', axis: 'insight' },
+            { kind: 'echoes', amount: 4 },
+          ],
+        },
+        failure: {
+          text: t('두 개의 기억이 겹친다. 머리가 울린다.', 'Two memories overlap. Your head rings.'),
+          effects: [{ kind: 'hp', amount: -5 }],
+        },
+      },
+      {
+        label: t('이번엔 오른쪽으로 간다', 'Go right this time'),
+        hint: t('카드 선택 · 추적 +5', 'Card choice · +5 Trace'),
+        success: {
+          text: t('오른쪽 통로는 아무도 걷지 않은 길이다. 처음 보는 것이 손에 들어온다.', 'The right-hand passage has never been walked. Something new comes to hand.'),
+          effects: [
+            { kind: 'card_choice' },
+            { kind: 'trace', amount: 5 },
+          ],
+        },
+      },
+      {
+        label: t('“사람 잘못 봤어요.”', '“You have me confused with someone.”'),
+        hint: t('추적 −6', '−6 Trace'),
+        success: {
+          text: t('그가 웃는다. “지난번에도 그렇게 말했어요.”', 'They laugh. “That’s what you said last time, too.”'),
+          effects: [{ kind: 'trace', amount: -6 }],
+        },
+      },
+    ],
+    gmHints: ['someone from an earlier loop', 'familiar passage', 'déjà vu'],
   },
 ]
 

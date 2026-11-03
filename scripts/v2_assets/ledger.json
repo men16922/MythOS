@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 706,
+ "codex_image_calls": 708,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -5428,6 +5428,20 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Eye-level documentary-style digital painting of a rainy back alley night market in cyberpunk Neo-Seoul, natural proportions, restrained neon, muted teal and one warm lamp, quiet and grounded, no text, no logos, no wide-angle distortion. The same steel serving counter after closing: only one large covered soup pot on the counter, and a washed steel ladle hanging from a hook above it, still dripping. Empty stools. Nobody in frame. No lunch box, no food, no door light.",
    "refs": [],
    "ts": "2026-10-31T22:10:05"
+  },
+  "v2/events/pc_deep_echo.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A fork in an underground data corridor, left passage lit with faint familiar cyan footprints glowing on the floor, right passage dark and untouched; a stranger in the foreground at the edge of frame raising one hand in greeting, face in shadow. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T06:17:10"
+  },
+  "v2/events/pc_deep_keeper.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A dim underground passage beneath the city, a lone hooded figure sitting cross-legged in the middle of the way, seen from a distance, a small covered object behind them glowing faintly gold through the cloth; dripping pipes and old cables overhead. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T06:17:10"
   },
   "v2/events/pc_lost_signal.webp": {
    "generations": 1,

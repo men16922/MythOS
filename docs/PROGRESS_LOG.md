@@ -6,7 +6,8 @@ Last updated: 2026-11-04
 
 - **Integration**: `ui_playthrough.py --deep --signal-plus` after every change of the day: OK in 1383 s, 6 acts → victory, 20 district and 54 dialogue polls, 0 console errors.
 - **Achievements 76 → 80**: Choices Come Back (two callback scenes in a run), Strangers With Names (two procedural events), Reader of the Glass Library (any of the four Act 4 district quests finished), Seasoned (a companion at level 5). New conditions `runEvents` / `questDone` / `companionLevel`; tests. Paradox 7 and 10 win achievements became reachable with the clamp fix.
-- **AI off**: the local GM opening of a procedural event now brings in the cast person too (`localGm.ts`, KO particle via `josa`, EN sentence-initial capital; test).
+- **AI off**: the local GM opening of a procedural event now brings in the cast person too (`localGm.ts`). The first version printed the Korean name twice (`josa` already returns the word): caught in the UI check, fixed, test now counts the name.
+- **Two Deep procedural skeletons** (`pc_deep_keeper`, `pc_deep_echo`, Acts 4–6, Codex art): eight in all. Deep mixed 33.3 % (34.4 before). UI: both render with the cast person in the GM card (AI off), 0 console errors.
 
 ## 2026-11-04 — Procedural events cast a person; the eval counts what players see (Claude Opus 5.5, same goal)
 

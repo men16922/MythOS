@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 689,
+ "codex_image_calls": 697,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4389,6 +4389,15 @@
    ],
    "ts": "2026-10-26T03:59:51"
   },
+  "v2/districts/d4_cut_names.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Glass Library's reading-room corner with a cutting table: large brass scissors on a green cutting mat, strips of paper records with neat rectangular holes cut out; below the table an old wooden drawer half full of small paper slips piled like snow; a clerk's desk stacked with papers nearby; a small paste pot with a brush. The look of the Glass Library: frosted and clear glass, white porcelain, black ink, paper pages and antique brass, cold white light with ice-blue glints and a few warm gold lamps. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a4_catalog_shards.webp"
+   ],
+   "ts": "2026-11-04T04:01:05"
+  },
   "v2/districts/d4_dream_stacks.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -4397,6 +4406,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a4_catalog_shards.webp"
    ],
    "ts": "2026-10-26T04:00:37"
+  },
+  "v2/districts/d4_forbidden_index.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Glass Library's Forbidden Index: a vast innermost glass wall covered floor to ceiling with thousands of small brass-framed index slots holding blank glowing tags, one row glowing darker; a cipher desk with an upside-down pen and ink; a reading lamp hanging on a long arm from the ceiling casting a cone of white light; an old wooden crate stamped with blank seals in the shadow of a shelf. The look of the Glass Library: frosted and clear glass, white porcelain, black ink, paper pages and antique brass, cold white light with ice-blue glints and a few warm gold lamps. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, 2070s Neo-Seoul. Match the rendering style, lighting and color grade of the attached reference image, but depict a different place. Keep the composition readable with an uncluttered lower third. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border; any signs or screens are blank glowing shapes.",
+   "refs": [
+    "resources/neo-seoul/v2/events/a4_catalog_shards.webp"
+   ],
+   "ts": "2026-11-04T04:01:19"
   },
   "v2/districts/d4_return_desk.webp": {
    "generations": 2,
@@ -6658,6 +6676,15 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Auditor Pyo, a Korean auditor who counts deletion quotas; thin, rimless glasses with a data overlay, a grey bureaucrat suit, holding a tally tablet, emotionless. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:08:58"
   },
+  "v2/npcs/banned_courier_no.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Old No, a retired courier who carried banned books: an elderly Korean man with a weathered kind face, grey stubble, worn canvas work jacket with faded transit patches, sitting on a wooden crate, tired amused eyes. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T04:02:54"
+  },
   "v2/npcs/bora.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -6718,6 +6745,15 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Bom, a forgotten reader of the Glass Library: a translucent human head-and-shoulders outline formed entirely of drifting paper bookmarks and silk ribbon markers, a gentle tired face suggested by the bookmarks, hovering above an empty antique reading chair — a ghost made of bookmarks. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
    "ts": "2026-10-26T04:01:37"
   },
+  "v2/npcs/index_cipher_yun.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Yun, the cipher keeper of the Glass Library's Forbidden Index: a precise, quiet person of indeterminate age in a high-collared grey archivist coat, ink-stained fingers holding a fountain pen upside down, thin round spectacles reflecting rows of index slots, calm and guarded expression. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T04:01:33"
+  },
   "v2/npcs/iseul.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -6772,11 +6808,38 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Mrs. So, a Korean mother in her fifties disguised as a maintenance worker to find her son's name; maintenance coveralls with sleeves rolled three times, hands red with cold, determined wet eyes. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:08:29"
   },
+  "v2/npcs/name_cutter_sae.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Sae, a censor of the Glass Library who cuts names from records: a slim tall figure in a starched white porcelain-like uniform and black sleeve guards, holding large brass tailor's scissors, smooth expressionless face with a thin cut-paper mask over the eyes, unsettling and precise. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T04:02:39"
+  },
   "v2/npcs/oh_gisa.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Old Oh, an unlicensed Korean electrician in his sixties; weathered face, grease on his cheek, coveralls with rolled sleeves, a coil of cable over his shoulder, warm yellow work-lamp light. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:04:27"
+  },
+  "v2/npcs/paste_mender_mun.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Mun, a night-market mender: a middle-aged woman with rolled sleeves, practical apron with pockets full of brushes and small jars, a paste brush trailing clear glue in one hand, sharp wry smile, warm market neon rim light mixing with the library's cold light. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T04:04:17"
+  },
+  "v2/npcs/reading_lamp_rim.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Rim, a sentient reading lamp of the Glass Library: an antique brass library lamp on a long articulated arm with a frosted glass shade like a tilted head, a single soft white lens glowing inside, cords like a spine, uncanny but quiet, not human. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T04:02:19"
   },
   "v2/npcs/returns_apprentice_ves.webp": {
    "generations": 1,
@@ -6849,6 +6912,15 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Boss Ma, the Korean man who owns the transfer-corridor tollgate; heavyset, gold chain, a cheap fur-collared coat, cigarette smoke, a toll scanner on his wrist, confident grin. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:07:17"
+  },
+  "v2/npcs/unnamed_clerk.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). The Unnamed Clerk of the Glass Library: a young office clerk in a plain cardigan and white shirt holding a stack of papers, a blank empty name tag pinned on the chest, gentle tired face with a faraway look, slightly faded at the edges as if partly erased. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T04:03:42"
   },
   "v2/npcs/vault_clerk_yeon.webp": {
    "generations": 1,

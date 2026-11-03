@@ -15,7 +15,9 @@ from mythos_v2.npcs import (
     d3_name_archive,
     d3_old_wound,
     d3_vault_beyond,
+    d4_cut_names,
     d4_dream_stacks,
+    d4_forbidden_index,
     d4_return_desk,
 )
 from mythos_v2.npcs._persona import Persona
@@ -36,6 +38,8 @@ for _module in (
     d3_old_wound,
     d4_dream_stacks,
     d4_return_desk,
+    d4_forbidden_index,
+    d4_cut_names,
 ):
     for _id, _persona in _module.PERSONAS.items():
         if _id in PERSONAS:

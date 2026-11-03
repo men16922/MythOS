@@ -76,6 +76,11 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
       <GmCard className="m2-actintro__gm" text={shown > 0 ? (gmLine?.text ?? null) : null} ai={gmLine?.ai} lang={lang} fast={settings.fastAnim} report={{ route: 'narrate', kind: 'act_intro' }} />
       <div className="m2-actintro__inner">
         {run.act === 1 && run.residue && C.residue?.[run.residue] && <p className="m2-actintro__residue">{tr(C.residue[run.residue], lang)}</p>}
+        {run.act === 1 && run.pride && C.pride?.[run.pride] && (
+          <p className="m2-actintro__residue" data-testid="pride">
+            {tr(C.pride[run.pride], lang)}
+          </p>
+        )}
         {coda && (
           <p className="m2-actintro__residue" data-testid="act-coda">
             <b>{tr(coda.title, lang)}</b> · {tr(coda.text, lang)}

@@ -168,3 +168,21 @@ test('the sea always ends with the Lightkeeper, then the secret fight for whoeve
   const plain = win(win(start, road), SEA_FINAL)
   assert.equal(plain.screen.kind, 'final_choice')
 })
+
+test('a companion who reached level 5 leaves a good habit in words; one who went down shows residue first', async () => {
+  const { applyRunEnd } = await import('./meta.ts')
+  const r = run()
+  const id = r.party[0]?.id ?? ''
+  const ended: RunState = { ...r, party: [{ ...(r.party[0] as RunState['party'][number]), level: 5 }], screen: { kind: 'ended', result: 'victory', endingId: 'ending_safe_refuge' } as RunState['screen'] }
+  const profile = applyRunEnd(open, ended, C)
+  assert.deepEqual(profile.veterans, [id])
+  const next = newRun(profile, { archetype: 'ghost', paradox: 0, seed: 11, companion: id }, C)
+  assert.equal(next.pride, id)
+  const same = newRun({ ...profile, veterans: [] }, { archetype: 'ghost', paradox: 0, seed: 11, companion: id }, C)
+  assert.deepEqual({ ...next, pride: undefined }.stats, same.stats, 'never power')
+  assert.equal(next.maxHp, same.maxHp)
+  const both = newRun({ ...profile, fallen: [id] }, { archetype: 'ghost', paradox: 0, seed: 11, companion: id }, C)
+  assert.equal(both.residue, id)
+  assert.equal(both.pride, undefined, 'residue first')
+  for (const c of Object.keys(C.companions)) assert.ok(C.pride?.[c], `${c} pride line`)
+})

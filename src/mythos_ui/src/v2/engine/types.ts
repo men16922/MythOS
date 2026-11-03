@@ -1079,6 +1079,8 @@ export interface RunState {
   fell?: string[]
   /** A companion marked by the last run, named in this run's opening. */
   residue?: string
+  /** A companion who reached level 5 last run, named in this run's opening (words only; residue goes first). */
+  pride?: string
   /** Endless Signal laps completed (each lap: enemies +60 % HP, +3 damage, Rage a turn earlier and +1 stronger). */
   lap?: number
   /** The connector's leanings this run (1.0 choice axes): dialogue intents, first impressions, hard wins. */
@@ -1370,6 +1372,8 @@ export interface MetaProfile {
   lastDeath?: { killedBy: string; act: number; loop: number }
   /** Companions who went down during the last run: a word in the next opening, never power (content/residue.ts). */
   fallen?: string[]
+  /** Companions at level 5 when the last run ended: a good habit in the next opening, never power (content/residue.ts). */
+  veterans?: string[]
   /** `ai`: AI-written lines (GM narration, companion replies, IX comms, Improvise judging); off = authored text only. */
   settings: { lang: Lang; sfx: boolean; bgm: boolean; fastAnim: boolean; ai: boolean }
   /** Daily-seed records by KST date key, newest kept (capped at DAILY_CAP days). */
@@ -1535,6 +1539,8 @@ export interface ContentRegistry {
   squadRoles?: Record<string, SquadRole>
   /** One habit per companion who went down last run (content/residue.ts). */
   residue?: Record<string, Text>
+  /** One good habit per companion who reached level 5 last run (content/residue.ts PRIDE). */
+  pride?: Record<string, Text>
   endings: Record<string, EndingDef>
   unlocks: Record<string, MetaUnlockDef>
   paradox: ParadoxDef[]

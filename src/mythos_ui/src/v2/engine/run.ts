@@ -707,6 +707,8 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   }
   const marked = !daily ? run.party.find((m) => profile.fallen?.includes(m.id)) : undefined
   if (marked) run.residue = marked.id
+  const proud = !daily && !marked ? run.party.find((m) => profile.veterans?.includes(m.id)) : undefined
+  if (proud) run.pride = proud.id
   return run
 }
 

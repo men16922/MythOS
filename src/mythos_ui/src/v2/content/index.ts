@@ -1,7 +1,7 @@
 // Mythos 2.0 — content registry. Pure data: arrays authored per file, assembled into id-keyed records here.
 // Engine/UI code receives `CONTENT` (or a test double with the same shape) as `C: ContentRegistry`.
 
-import { RESIDUE } from './residue.ts'
+import { PRIDE, RESIDUE } from './residue.ts'
 import { SQUAD_ROLES, SQUAD_TACTICS } from './squadTactics.ts'
 import { buildAchievements } from './achievements.ts'
 import { COMPANION_INTROS } from './companionIntros.ts'
@@ -72,6 +72,7 @@ export const CONTENT: ContentRegistry = {
   squadTactics: Object.fromEntries(SQUAD_TACTICS.map((s) => [s.id, s])),
   squadRoles: SQUAD_ROLES,
   residue: RESIDUE,
+  pride: PRIDE,
   gear: byId([...GEAR, ...SEA_GEAR.map((g) => ({ ...g, route: 'sea_4' }))]),
   levelPerks: byId(LEVEL_PERKS),
   endings: byId(ENDINGS),

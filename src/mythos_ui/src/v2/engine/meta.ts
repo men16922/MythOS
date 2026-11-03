@@ -254,6 +254,8 @@ export function migrateProfile(raw: unknown): MetaProfile {
   }
   const fallen = strList(r.fallen)
   if (fallen.length > 0) profile.fallen = fallen
+  const veterans = strList(r.veterans)
+  if (veterans.length > 0) profile.veterans = veterans
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {
     profile.lastDeath = { killedBy: death.killedBy, act: int(death.act, 1, 99), loop: int(death.loop, 0) }
@@ -490,6 +492,7 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
   }
   if (!victory && !abandoned && killedBy) next.lastDeath = { killedBy, act: run.act, loop: run.loop }
   if (!run.daily) next.fallen = [...(run.fell ?? [])]
+  if (!run.daily) next.veterans = [...run.party, ...(run.bench ?? [])].filter((m) => (m.level ?? 1) >= 5).map((m) => m.id)
   if (isDateKey(run.daily)) next.daily = recordDaily(profile.daily, run.daily, dailyResultOf(run, earned))
   const unlocked = newAchievements(next, run, C)
   if (unlocked.length > 0) {

@@ -2,6 +2,12 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Reverse-engineering 4–5 analysed; companions who reach level 5 leave a good habit (Claude Opus 5.5, same goal)
+
+- **Analysis** (`docs/plans/2026-11-04-reverse-engineering-4-5.md`, public reviews / Mega Crit news): Mewgenics' "traces, not power" was mostly in already (DLC 3 residue for companions who went down, words only); the gap was the good side. Slay the Spire 2's alternate Act 1 is DLC-sized and unmeasured (no real players yet): recorded, not built.
+- **Built**: `profile.veterans` (companions at level 5 when a non-daily run ends) → `run.pride` → one line per companion (`PRIDE`, 14) under the next Act 1 title; residue goes first. Words only: engine test checks stats and max HP are unchanged. My first proposal (a small max-HP trade-off) was dropped: it broke DLC 3's words-only rule.
+- **Verified**: `sea.test.ts`; Act 1 intro line in headless muted Chromium (ko, en), 0 console errors (`outputs/qa/pride_ui/`).
+
 ## 2026-11-04 — Two Glass Library districts: The Forbidden Index, The Drawer of Cut Names (W1-4 done) (Claude Opus 5.5, owner goal: keep going)
 
 - **Built** (`content/crpg/d4_forbidden_index.ts`, `d4_cut_names.ts`; personas `src/mythos_v2/npcs/d4_*.py`; 2 district scenes + 6 NPC portraits by Codex image, unreviewed): the last two 1.0 Glass Library side quests as Act 4 districts (16 → 18). The Forbidden Index: get the backwards-reading key (Yun, Old No) → decode one banned book (dim Rim's lamp first, read under the light for Trace, or let Io read the book she wrote) → boss starts **marked**. The Drawer of Cut Names: get the drawer open (Sae, the unnamed clerk) → paste a name back (Mun's seamless paste, a rough patch for Trace, or Io finds the clerk's own name) → boss fight starts with **cover**. One card pick each; ≤ 25 / 20 credits.
@@ -72,10 +78,3 @@ Last updated: 2026-11-04
 - **Act 6 of the sea**: a road boss rolled at random meant some runs never met the Lightkeeper the endings speak to. Foghorn or Lens Saint now leads straight into the Lightkeeper (half HP back), then the secret fight.
 - **Balance** (canonical, mixed): fresh 176/450 = 39.1 % (unchanged), once-won 39.3 %, route forced 41.1 %, Deep 26.0 %, Sea 33/150 = 22.0 %. Bosses average at most 8.5 turns per act; Commissioner Gong alone 9.4. Late enemy damage is high (`tuning` Act 6 +17, Sea +12): only a human can say if it feels fair.
 - **Verified**: `make check`, `make test-e2e-v2`, `make playthrough-quick`; on final engine and content code a full sea run through the real UI as the Navigator with all three logs, into the secret fight and to an ending (assist mode); rewind in the real UI after a move (a card rewind in the engine test); the hidden ending chosen in the real UI. Unverified: fun, tide and rewind feel, music (reuses old tracks, Lyria bills Vertex), production.
-
-## 2026-11-01 — Bot plays gear and growth like a person, re-tune (Claude Opus 5.5, owner: 작업 완료시까지 수행)
-
-- **Bot**: trains deployed companions, buys gear, swaps weaker pieces, fills the third slot from Act 4. Same seeds: fresh 41.8 → 36.4 %, Deep 32.7 → 39.3 %. The old numbers understated the late game.
-- **Tuning**: acts 4–6 raised (`hpPct` 130 / 190 / 240, `dmg` 9 / 14 / 17), new per-act `bossHpPct` (3: −30, 5: −20, 6: −70). Fresh 176/450 = 39.1 %, once-won 39.3 %, route forced 41.1 %, Deep 38/150 = 25.3 %. Bosses at most 8.8 turns in Deep, 8.4 in standard.
-- **Real UI**: gear on reward and shop, buying, Act 4 four-person fight at desktop and 390 px, 0 errors. Phone squad strip clipped the fourth person: fixed.
-- **Verified**: `make check` (node 517, Python 338), `make test-e2e-v2`, `make playthrough-quick`. Unverified: human feel of the new numbers.

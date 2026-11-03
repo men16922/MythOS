@@ -16,7 +16,7 @@
 // Victory/ending bonuses are added only when banking (see meta.computeEchoes).
 
 import { chapterCheck, chapterNode, districtsClosed, newChapterMeters } from './chapterMeters.ts'
-import { CHRONICLE_CHAPTERS, twistBeats } from './chronicle.ts'
+import { CHRONICLE_CHAPTERS, activeCampaign, twistBeats } from './chronicle.ts'
 import { noteFightFeats } from './achievements.ts'
 import { noteFightBestiary } from './bestiary.ts'
 import { REPLICA_BEATEN, REPLICA_BOUNTY, startCombat } from './combat.ts'
@@ -664,7 +664,8 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   }
 
   // A chronicle chapter always plays with the district layer, in the background the connector carried over.
-  const carried = run.mode === 'chronicle' ? profile.chronicle?.carried : undefined
+  const campaign = run.mode === 'chronicle' ? activeCampaign(profile.chronicle) : undefined
+  const carried = campaign?.carried
   const crpgOpts = run.mode === 'chronicle' ? { background: carried?.background ?? opts.crpg?.background ?? null } : opts.crpg
   if (crpgOpts && !daily && C.crpg) {
     const bg = crpgOpts.background
@@ -673,7 +674,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   if (carried) applyCarried(run, carried, C)
   if (run.mode === 'chronicle') {
     run.chapter = newChapterMeters()
-    const beats = twistBeats(profile.chronicle?.twists, profile.chronicle?.chapter ?? 1)
+    const beats = twistBeats(campaign?.twists, campaign?.chapter ?? 1)
     if (beats.length > 0) run.beats = beats
   }
   // What the last loop left behind: an inscribed echo and the autonomy of the lore found so far (never on a daily).
@@ -713,7 +714,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     }
   }
   // A chronicle chapter plays its own act (chapter N = Act N), with that act's gifts.
-  const chapterAct = run.mode === 'chronicle' ? Math.max(1, Math.min(CHRONICLE_CHAPTERS, profile.chronicle?.chapter ?? 1)) : 1
+  const chapterAct = run.mode === 'chronicle' ? Math.max(1, Math.min(CHRONICLE_CHAPTERS, activeCampaign(profile.chronicle)?.chapter ?? 1)) : 1
   if (chapterAct > 1) {
     run.act = chapterAct
     for (const id of C.acts[chapterAct as ActId]?.gift ?? []) addCard(run, id, C)

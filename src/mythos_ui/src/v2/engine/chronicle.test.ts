@@ -168,3 +168,22 @@ test('twist bank: two different twists per campaign, fixed by its seed, every pa
   const back = migrateChronicle(JSON.parse(JSON.stringify({ chapter: 3, carried, twists: ['twist_serin', 'twist_grid', 'extra'] })))
   assert.deepEqual(back?.twists, ['twist_serin', 'twist_grid'])
 })
+
+test('a finished campaign (chapter 6 cleared) starts over: the next chronicle run is chapter 1 with nothing carried', async () => {
+  const { applyRunEnd } = await import('./meta.ts')
+  const { CHRONICLE_CHAPTER_ENDING } = await import('./run.ts')
+  const carried = { ...carryOver(run(), C), stats: { str: 12, agi: 12, int: 12, cha: 12, obs: 12 } }
+  const atSix = { ...newProfile('T'), chronicle: { chapter: 6, chaptersDone: [1, 2, 3, 4, 5], carried, twists: ['twist_grid', 'twist_self'], agendas: { agenda_kai: 1 } } }
+  const six = newRun(atSix, { archetype: 'ghost', paradox: 0, seed: 4, mode: 'chronicle' }, C)
+  assert.equal(six.act, 6)
+  const done = applyRunEnd(atSix, { ...six, screen: { kind: 'ended', result: 'victory', endingId: CHRONICLE_CHAPTER_ENDING } } as typeof six, C)
+  assert.deepEqual(done.chronicle?.chaptersDone, [1, 2, 3, 4, 5, 6])
+  assert.deepEqual(done.chronicle?.twists, ['twist_grid', 'twist_self'], 'the campaign kept its twists to the end')
+  const fresh = newRun(done, { archetype: 'ghost', paradox: 0, seed: 4, mode: 'chronicle' }, C)
+  assert.equal(fresh.act, 1, 'a new campaign starts at chapter 1')
+  assert.notEqual(fresh.stats.str, 12, 'nothing carried from the finished campaign')
+  assert.equal(fresh.beats, undefined)
+  const one = applyRunEnd(done, { ...fresh, screen: { kind: 'ended', result: 'victory', endingId: CHRONICLE_CHAPTER_ENDING } } as typeof fresh, C)
+  assert.deepEqual(one.chronicle?.chaptersDone, [1], 'the new campaign starts its own record')
+  assert.equal(one.chronicle?.chapter, 2)
+})

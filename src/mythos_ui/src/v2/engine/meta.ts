@@ -4,7 +4,7 @@
 // Pure: every function returns a new profile (or a derived value) and never touches
 // storage. A RunState is self-contained, so banking reads only the run + content.
 
-import { advanceAgendas, carryOver, drawTwists, finishChapter, migrateChronicle } from './chronicle.ts'
+import { activeCampaign, advanceAgendas, carryOver, drawTwists, finishChapter, migrateChronicle } from './chronicle.ts'
 import { newAchievements } from './achievements.ts'
 import { mergeBestiary } from './bestiary.ts'
 import { DAILY_CAP, isBetterDaily, isDateKey } from './daily.ts'
@@ -512,10 +512,12 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
   // Chronicle prototype (W4): a cleared chapter banks the connector for the next one.
   if (run.mode === 'chronicle' && victory) {
     const carried = carryOver(run, C)
+    // The chapter played is the act; a chapter 1 clear starts a fresh campaign (new agendas, a new twist draw).
+    const prev = run.act === 1 ? undefined : activeCampaign(profile.chronicle)
     next.chronicle = {
-      ...finishChapter(profile.chronicle, profile.chronicle?.chapter ?? 1, carried),
-      agendas: advanceAgendas(profile.chronicle?.agendas, carried, C.chronicleAgendas ?? []),
-      twists: profile.chronicle?.twists ?? drawTwists(run.seed, C.chronicleTwists ?? []),
+      ...finishChapter(prev, run.act, carried),
+      agendas: advanceAgendas(prev?.agendas, carried, C.chronicleAgendas ?? []),
+      twists: prev?.twists ?? drawTwists(run.seed, C.chronicleTwists ?? []),
     }
   }
   if (isDateKey(run.daily)) next.daily = recordDaily(profile.daily, run.daily, dailyResultOf(run, earned))

@@ -1,5 +1,6 @@
 // Mythos 2.0 — loop setup: archetype, starting companion, Paradox level.
 // Daily mode ("오늘의 시드"): archetype only; companion and Paradox are fixed for everyone.
+import { activeCampaign } from '../../engine/chronicle.ts'
 import { CalendarDays, ChevronLeft, Heart, Lock, Play } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
@@ -399,7 +400,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                           [
                             'chronicle',
                             ko ? '크로니클 (시제품)' : 'Chronicle (prototype)',
-                            profile.chronicle ? (ko ? `${profile.chronicle.chapter}장 / 6 · 접속자를 이어서` : `Chapter ${profile.chronicle.chapter} of 6 · same connector`) : ko ? '1장 / 6 · 접속자가 남는다' : 'Chapter 1 of 6 · the connector stays',
+                            profile.chronicle && !activeCampaign(profile.chronicle) ? (ko ? '완결 · 새 캠페인을 시작한다' : 'Complete · start a new campaign') : profile.chronicle ? (ko ? `${profile.chronicle.chapter}장 / 6 · 접속자를 이어서` : `Chapter ${profile.chronicle.chapter} of 6 · same connector`) : ko ? '1장 / 6 · 접속자가 남는다' : 'Chapter 1 of 6 · the connector stays',
                           ],
                         ] as const)
                       : []),

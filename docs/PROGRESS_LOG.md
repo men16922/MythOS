@@ -5,6 +5,7 @@ Last updated: 2026-11-04
 ## 2026-11-04 — Chronicle twist bank (Claude Opus 5.5, same goal)
 
 - `content/chronicleTwists.ts` (1.0 `twist_bank`): Se-rin's double role, the grid's real purpose, who you are; three beats each (hint, doubt, reveal). A campaign draws two at its first chapter end (`drawTwists`, by run seed; all six ordered pairs come up) and reveals them under the chapter titles: 2 → A1, 3 → B1, 4 → A2, 5 → B2, 6 → both reveals (`twistBeats`, `run.beats`). Tests; browser: chapter 6 shows both reveals, 0 console errors.
+- **Campaign loop**: clearing chapter 6 completes the campaign (`activeCampaign`); the next chronicle run is chapter 1 with nothing carried, and its clear starts a fresh record, agendas and twist draw. Chapters bank by the act played. Setup says "Complete · start a new campaign". Test.
 
 ## 2026-11-04 — Chronicle: six chapters, one per act, tuned (Claude Opus 5.5, same goal)
 

@@ -91,6 +91,11 @@ export function twistBeats(twists: readonly string[] | undefined, chapter: numbe
   }
 }
 
+/** The campaign in progress, or undefined when there is none or the last chapter is done (the next one starts fresh). */
+export function activeCampaign(state: ChronicleState | undefined): ChronicleState | undefined {
+  return state && !state.chaptersDone.includes(CHRONICLE_CHAPTERS) ? state : undefined
+}
+
 /** Close a chapter: mark it done and point at the next (the last chapter stays as the final one). */
 export function finishChapter(state: ChronicleState | undefined, chapter: number, carried: ChronicleState['carried']): ChronicleState {
   const done = [...new Set([...(state?.chaptersDone ?? []), chapter])].sort((a, b) => a - b)

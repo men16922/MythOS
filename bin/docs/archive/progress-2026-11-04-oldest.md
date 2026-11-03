@@ -1,5 +1,15 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-01 — DLC 3 The Unwritten Sea built (Claude Opus 5.5, Astra drafts, owner: DLC 3 at AA volume)
+
+- **Built** on `main`, not deployed. Plan `docs/plans/2026-11-01-dlc3-plan.md`, setting `docs/plans/2026-11-01-dlc3-bible.md`. Third depth, parallel Acts 4–6: 61 fights (28 with tide), 55 enemies (10 bosses), 75 events, 45 cards, 13 implants, 20 gear, 4 consumables, 3 companions, Navigator, 7 endings, 3 duos, 12 achievements.
+- **New rules**: tide (`engine/tide.ts`), squad tactics in every depth (`engine/squad.ts`, 12), rewind (Navigator, `rewindTurn`), residue (a word next run, no power), three logs to the secret boss.
+- **Art**: 468 Codex images, DLC 2's borrowed art replaced, gear icons in the UI. Every image reviewed on contact sheets. 17 boss and cut-in images and 38 others redone: gray studio backdrops, companions off-model (Seo-ha drawn young), Act 4 scenes showing a sea the act says is gone.
+- **Caught by measuring**: sea implants, gear and consumables leaked into standard pools (fresh 39.1 → 36.9 %, hash changed): route-gated, hash back to `e5d0dd7da7d4`, leak test added. An early `tsc` call checked nothing, so one draft's syntax error slipped to the test step: `tsc -b` is the real check. Committed once with a doc-budget failure: fixed next commit.
+- **Act 6 of the sea**: a road boss rolled at random meant some runs never met the Lightkeeper the endings speak to. Foghorn or Lens Saint now leads straight into the Lightkeeper (half HP back), then the secret fight.
+- **Balance** (canonical, mixed): fresh 176/450 = 39.1 % (unchanged), once-won 39.3 %, route forced 41.1 %, Deep 26.0 %, Sea 33/150 = 22.0 %. Bosses average at most 8.5 turns per act; Commissioner Gong alone 9.4. Late enemy damage is high (`tuning` Act 6 +17, Sea +12): only a human can say if it feels fair.
+- **Verified**: `make check`, `make test-e2e-v2`, `make playthrough-quick`; on final engine and content code a full sea run through the real UI as the Navigator with all three logs, into the secret fight and to an ending (assist mode); rewind in the real UI after a move (a card rewind in the engine test); the hidden ending chosen in the real UI. Unverified: fun, tide and rewind feel, music (reuses old tracks, Lyria bills Vertex), production.
+
 ## 2026-11-01 — Bot plays gear and growth like a person, re-tune (Claude Opus 5.5, owner: 작업 완료시까지 수행)
 
 - **Bot**: trains deployed companions, buys gear, swaps weaker pieces, fills the third slot from Act 4. Same seeds: fresh 41.8 → 36.4 %, Deep 32.7 → 39.3 %. The old numbers understated the late game.

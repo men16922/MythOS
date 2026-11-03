@@ -196,3 +196,20 @@ test('applyRunEnd banks a victory: bonuses, wins, paradox unlock (capped), histo
   assert.equal(q.history[0]?.result, 'abandoned')
   assert.equal(q.lastDeath, undefined)
 })
+
+test('a banked run records its deck lean (attack / skill over 55 % of non-starter cards) and it survives a reload', async () => {
+  const { deckLean, migrateProfile, newProfile: fresh } = await import('./meta.ts')
+  const { CONTENT } = await import('../content/index.ts')
+  const attacks = Object.values(CONTENT.cards).filter((c) => c.type === 'attack' && c.rarity === 'common').slice(0, 4)
+  const skills = Object.values(CONTENT.cards).filter((c) => c.type === 'skill' && c.rarity === 'common').slice(0, 4)
+  const deck = (defs: typeof attacks) => defs.map((d, i) => ({ uid: `u${i}`, defId: d.id, upgraded: false }))
+  assert.equal(deckLean({ deck: deck(attacks) }, CONTENT), 'attack')
+  assert.equal(deckLean({ deck: deck(skills) }, CONTENT), 'skill')
+  assert.equal(deckLean({ deck: deck([...attacks.slice(0, 2), ...skills.slice(0, 2)]) }, CONTENT), undefined)
+  assert.equal(deckLean({ deck: deck(attacks.slice(0, 3)) }, CONTENT), undefined, 'too few cards to read')
+  const rec = { id: 'r', loop: 1, archetype: 'ghost', result: 'defeat', endingId: 'x', act: 1, floors: 1, echoes: 1, party: [], endedAt: '', lean: 'skill' }
+  const back = migrateProfile(JSON.parse(JSON.stringify({ ...fresh('T'), history: [rec, { ...rec, id: 'q', lean: 'nonsense' }], veterans: ['kai'] })))
+  assert.equal(back.history[0]?.lean, 'skill')
+  assert.equal(back.history[1]?.lean, undefined)
+  assert.deepEqual(back.veterans, ['kai'])
+})

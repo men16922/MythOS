@@ -262,6 +262,41 @@ def cases() -> list[Case]:
                 "memory": MEMORY,
             },
         ),
+        # W2-2: IX's habit reading (where loops end, the deck lean) rides in the same memory list.
+        _narrate(
+            "ix_loop_start_habit_ko",
+            "ix_loop_start",
+            "ko",
+            {
+                "loop": 6,
+                "lastResult": "defeat",
+                "killedBy": "처형인",
+                "lastAct": 2,
+                "wins": 0,
+                "memory": [
+                    "기록된 접속 다섯 번 중 끝까지 간 것은 아직 없다",
+                    "접속자의 루프는 대개 야시장 하층에서 끝난다",
+                    "접속자는 늘 공격 카드로 덱을 채운다",
+                ],
+            },
+        ),
+        _narrate(
+            "ix_loop_start_habit_en",
+            "ix_loop_start",
+            "en",
+            {
+                "loop": 6,
+                "lastResult": "defeat",
+                "killedBy": "Executioner",
+                "lastAct": 2,
+                "wins": 0,
+                "memory": [
+                    "Recorded connections: five; reached the end: none yet",
+                    "The connector's loops usually end in the Undercity Market",
+                    "The connector keeps filling the deck with skills",
+                ],
+            },
+        ),
         _narrate(
             "chronicle_ko",
             "chronicle",

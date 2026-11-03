@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { CONTENT as C } from '../../content/index.ts'
 import { newProfile } from '../../engine/meta.ts'
 import type { MetaProfile, RunRecord } from '../../engine/types.ts'
-import { MEMORY_FACTS, habitFact, loopMemory, loopsWith, timesWord } from './loopMemory.ts'
+import { MEMORY_FACTS, habitFact, habits, ixHabitLine, loopMemory, loopsWith, timesWord } from './loopMemory.ts'
 
 const rec = (over: Partial<RunRecord>): RunRecord => ({
   id: 'r',
@@ -54,12 +54,24 @@ test('loopsWith counts earlier normal loops a companion was recruited in', () =>
   assert.equal(loopsWith({ history }, 'kai'), 0)
 })
 
-test('IX profiles habits: the companion brought almost every time, else the usual shape; nothing under three loops', () => {
+test('IX profiles habits: where loops end, the deck lean, the companion, the shape; they take turns; nothing under three loops', () => {
   const p = (history: RunRecord[]): MetaProfile => ({ ...newProfile('T'), history })
-  const withKai = [rec({ party: ['kai'] }), rec({ party: ['kai', 'han'] }), rec({ party: ['se_rin'] })]
-  assert.equal(habitFact(withKai, C, 'ko'), '접속자는 거의 매번 카이를 데려온다')
-  assert.ok(loopMemory(p(withKai), C, 'ko').includes('접속자는 거의 매번 카이를 데려온다'))
-  const ghosts = [rec({ party: [] }), rec({ party: ['han'] }), rec({ party: ['kai'] })]
-  assert.equal(habitFact(ghosts, C, 'en'), `The connector nearly always connects as ${C.archetypes.ghost?.name.en}`)
-  assert.equal(habitFact(withKai.slice(0, 2), C, 'ko'), null)
+  const kaiWins = [rec({ party: ['kai'], result: 'victory', act: 3 }), rec({ party: ['kai', 'han'], result: 'victory', act: 3 }), rec({ party: ['se_rin'], result: 'victory', act: 3 })]
+  assert.deepEqual(habits(kaiWins), [{ kind: 'mate', id: 'kai' }, { kind: 'archetype', id: 'ghost' }])
+  // Three loops → index 3 % 2 = 1: the shape this time, the companion on the next count.
+  assert.equal(habitFact(kaiWins, C, 'en'), `The connector nearly always connects as ${C.archetypes.ghost?.name.en}`)
+  assert.equal(habitFact([...kaiWins, rec({ party: ['kai'], result: 'victory', act: 3 })], C, 'ko'), '접속자는 거의 매번 카이를 데려온다')
+  const act2 = [
+    rec({ act: 2, lean: 'attack', party: ['han'], archetype: 'ghost' }),
+    rec({ act: 2, lean: 'attack', party: ['kai'], archetype: 'smuggler' }),
+    rec({ act: 2, lean: 'attack', party: [], archetype: 'echo_collector' }),
+    rec({ act: 1, lean: 'attack', party: ['tae_o'], archetype: 'smuggler' }),
+  ]
+  assert.deepEqual(habits(act2).map((h) => h.kind), ['act', 'lean'])
+  assert.equal(habitFact(act2, C, 'en'), `The connector's loops usually end in ${C.acts[2]?.name.en}`)
+  assert.equal(ixHabitLine([...act2, rec({ act: 1, lean: 'attack', party: ['io'], archetype: 'ghost' })], C, 'ko'), '당신은 늘 먼저 때립니다. 관찰 중입니다.')
+  assert.ok(loopMemory(p(act2), C, 'ko').some((f) => f.includes('대개')))
+  assert.equal(habitFact(kaiWins.slice(0, 2), C, 'ko'), null)
+  assert.equal(ixHabitLine(kaiWins.slice(0, 2), C, 'ko'), null)
+  for (const lang of ['ko', 'en'] as const) for (const r of [kaiWins, act2]) assert.ok(!/\d/.test(ixHabitLine(r, C, lang) ?? ''), 'no digits')
 })

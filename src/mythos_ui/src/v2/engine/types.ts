@@ -1349,6 +1349,8 @@ export interface RunRecord {
   daily?: string
   /** Achievements first earned when this run was banked (engine/achievements.ts). */
   achievements?: string[]
+  /** The card type that made up most of the non-starter deck at the end (> 55 %), for IX's habit reading. */
+  lean?: 'attack' | 'skill'
 }
 
 export interface MetaProfile {

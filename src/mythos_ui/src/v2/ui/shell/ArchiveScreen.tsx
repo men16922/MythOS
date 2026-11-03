@@ -18,7 +18,7 @@ import { fmtText } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { narrate } from './gm.ts'
-import { killerName, loopMemory } from '../common/loopMemory.ts'
+import { ixHabitLine, killerName, loopMemory } from '../common/loopMemory.ts'
 import { rx } from './rx.ts'
 import './archive.css'
 
@@ -48,10 +48,13 @@ function ixLine(profile: MetaProfile, C: ContentRegistry, lang: Lang): string {
   if (pool.length === 0) pool = lines.generic.length ? lines.generic : lines.first
   const line = pool[profile.loops % Math.max(1, pool.length)]
   const killer = killerName(profile.lastDeath?.killedBy, C)
-  return fmtText(line ?? L('…', '…'), lang, {
+  const base = fmtText(line ?? L('…', '…'), lang, {
     loop: profile.loops + 1,
     killer: killer ? tr(killer, lang) : lang === 'ko' ? '도시' : 'the city',
   })
+  // Every other loop IX also names a habit it has read off the history (W2-2), so the authored line remembers too.
+  const habit = profile.loops % 2 === 1 ? ixHabitLine(profile.history.filter((r) => !r.daily), C, lang) : null
+  return habit ? `${base} ${habit}` : base
 }
 
 function unlockIcon(u: MetaUnlockDef, C: ContentRegistry): string {

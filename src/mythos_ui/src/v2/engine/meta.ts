@@ -152,6 +152,7 @@ function migrateRecord(raw: unknown): RunRecord | null {
   if (typeof raw.chronicle === 'string') rec.chronicle = raw.chronicle
   if (isDateKey(raw.daily)) rec.daily = raw.daily
   if (Array.isArray(raw.achievements)) rec.achievements = strList(raw.achievements)
+  if (raw.lean === 'attack' || raw.lean === 'skill') rec.lean = raw.lean
   return rec
 }
 
@@ -440,6 +441,14 @@ function addWins(prev: Record<string, number> | undefined, ids: string[]): Recor
   return next
 }
 
+/** Attack or skill when that type is most of the non-starter deck (> 55 %), else undefined. */
+export function deckLean(run: Pick<RunState, 'deck'>, C: Pick<ContentRegistry, 'cards'>): 'attack' | 'skill' | undefined {
+  const kinds = run.deck.map((k) => C.cards[k.defId]).filter((d) => d && d.rarity !== 'starter' && d.type !== 'junk').map((d) => d?.type)
+  if (kinds.length < 4) return undefined
+  for (const type of ['attack', 'skill'] as const) if (kinds.filter((k) => k === type).length / kinds.length > 0.55) return type
+  return undefined
+}
+
 export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegistry, chronicle?: string): MetaProfile {
   const end = run.screen
   if (end.kind !== 'ended') return profile
@@ -461,6 +470,8 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     endedAt: run.endedAt ?? run.startedAt,
   }
   if (killedBy) record.killedBy = killedBy
+  const lean = deckLean(run, C)
+  if (lean) record.lean = lean
   if (chronicle) record.chronicle = chronicle
   if (isDateKey(run.daily)) record.daily = run.daily
 

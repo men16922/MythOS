@@ -86,21 +86,78 @@ export function loopMemory(profile: MetaProfile, C: ContentRegistry, lang: Lang,
   return facts.slice(0, MEMORY_FACTS)
 }
 
-/** IX profiles the player: the companion they keep bringing, or the shape they keep connecting as (no digits). */
-export function habitFact(runs: readonly RunRecord[], C: ContentRegistry, lang: Lang): string | null {
-  if (runs.length < 3) return null
-  const ko = lang === 'ko'
+/** A habit IX can name: who you bring, what you connect as, where loops end, what your deck leans to. */
+export type Habit = { kind: 'mate' | 'archetype' | 'act' | 'lean'; id: string }
+
+/** Every habit the history shows (three normal loops at least), most telling first. */
+export function habits(runs: readonly RunRecord[]): Habit[] {
+  if (runs.length < 3) return []
   const tally = (keys: string[]): [string, number] | undefined =>
     [...keys.reduce((m, k) => m.set(k, (m.get(k) ?? 0) + 1), new Map<string, number>())].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]
+  const out: Habit[] = []
+  const deaths = runs.filter((r) => r.result === 'defeat')
+  const act = tally(deaths.map((r) => String(r.act)))
+  if (act && deaths.length >= 2 && act[1] >= Math.ceil(deaths.length * 0.6)) out.push({ kind: 'act', id: act[0] })
+  const leaned = runs.filter((r) => r.lean)
+  const lean = tally(leaned.map((r) => r.lean as string))
+  if (lean && leaned.length >= 3 && lean[1] >= Math.ceil(leaned.length * 0.6)) out.push({ kind: 'lean', id: lean[0] })
   const mate = tally(runs.flatMap((r) => r.party))
-  if (mate && mate[1] >= Math.ceil(runs.length * 0.6)) {
-    const name = tr(C.companions[mate[0]]?.name, lang)
-    if (name) return ko ? `접속자는 거의 매번 ${name}${hasBatchim(name) ? '을' : '를'} 데려온다` : `The connector brings ${name} almost every time`
-  }
+  if (mate && mate[1] >= Math.ceil(runs.length * 0.6)) out.push({ kind: 'mate', id: mate[0] })
   const arch = tally(runs.map((r) => r.archetype))
-  if (arch && arch[1] >= Math.ceil(runs.length * 0.7)) {
-    const name = tr(C.archetypes[arch[0]]?.name, lang)
-    if (name) return ko ? `접속자는 늘 ${withRo(name)} 접속한다` : `The connector nearly always connects as ${name}`
+  if (arch && arch[1] >= Math.ceil(runs.length * 0.7)) out.push({ kind: 'archetype', id: arch[0] })
+  return out
+}
+
+/** One habit for this loop: they take turns by loop count, so the companion everyone brings does not hide the rest. */
+function habitFor(runs: readonly RunRecord[]): Habit | undefined {
+  const all = habits(runs)
+  return all.length ? all[runs.length % all.length] : undefined
+}
+
+/** IX profiles the player, as a fact for the GM's memory list (third person, no digits). */
+export function habitFact(runs: readonly RunRecord[], C: ContentRegistry, lang: Lang): string | null {
+  const h = habitFor(runs)
+  if (!h) return null
+  const ko = lang === 'ko'
+  if (h.kind === 'mate') {
+    const name = tr(C.companions[h.id]?.name, lang)
+    return name ? (ko ? `접속자는 거의 매번 ${name}${hasBatchim(name) ? '을' : '를'} 데려온다` : `The connector brings ${name} almost every time`) : null
   }
-  return null
+  if (h.kind === 'archetype') {
+    const name = tr(C.archetypes[h.id]?.name, lang)
+    return name ? (ko ? `접속자는 늘 ${withRo(name)} 접속한다` : `The connector nearly always connects as ${name}`) : null
+  }
+  if (h.kind === 'act') {
+    const name = tr(C.acts[Number(h.id) as keyof typeof C.acts]?.name, lang)
+    return name ? (ko ? `접속자의 루프는 대개 ${name}에서 끝난다` : `The connector's loops usually end in ${name}`) : null
+  }
+  return ko
+    ? `접속자는 늘 ${h.id === 'attack' ? '공격' : '기술'} 카드로 덱을 채운다`
+    : `The connector keeps filling the deck with ${h.id === 'attack' ? 'attacks' : 'skills'}`
+}
+
+/** The same habit as IX says it to you (authored, for when no AI line comes), or null. */
+export function ixHabitLine(runs: readonly RunRecord[], C: ContentRegistry, lang: Lang): string | null {
+  const h = habitFor(runs)
+  if (!h) return null
+  const ko = lang === 'ko'
+  if (h.kind === 'mate') {
+    const name = tr(C.companions[h.id]?.name, lang)
+    return name ? (ko ? `당신은 거의 매번 ${name}${hasBatchim(name) ? '을' : '를'} 데려옵니다. 기록해 두었습니다.` : `You bring ${name} almost every time. I have noted it.`) : null
+  }
+  if (h.kind === 'archetype') {
+    const name = tr(C.archetypes[h.id]?.name, lang)
+    return name ? (ko ? `당신은 늘 ${withRo(name)} 접속합니다. 예측하기 쉽습니다.` : `You always connect as ${name}. Easy to predict.`) : null
+  }
+  if (h.kind === 'act') {
+    const name = tr(C.acts[Number(h.id) as keyof typeof C.acts]?.name, lang)
+    return name ? (ko ? `당신의 기록은 대개 ${name}에서 멈춥니다.` : `Your records usually stop in ${name}.`) : null
+  }
+  return ko
+    ? h.id === 'attack'
+      ? '당신은 늘 먼저 때립니다. 관찰 중입니다.'
+      : '당신은 늘 피하고 돌아갑니다. 관찰 중입니다.'
+    : h.id === 'attack'
+      ? 'You always strike first. I am watching.'
+      : 'You always step around. I am watching.'
 }

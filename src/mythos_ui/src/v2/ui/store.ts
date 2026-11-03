@@ -15,6 +15,8 @@
 // cleared at the same time. The ended run stays in memory for the summary screen. A
 // finished daily-seed run is also submitted to the leaderboard then (net/daily.ts).
 
+import { CONTENT } from '../content/index.ts'
+import { showcaseProfile, showcaseRun } from './showcase.ts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { dateKeyAt, isDateKey } from '../engine/daily.ts'
 import { applyRunEnd, computeEchoes, dailyResultOf, migrateProfile, newProfile } from '../engine/meta.ts'
@@ -39,6 +41,8 @@ function isLiveRun(r: RunState | null | undefined): r is RunState {
 function bootProfile(): MetaProfile {
   const local = safe(() => net.loadProfileLocal(), null)
   if (local) return migrateProfile(local)
+  // Judge showcase (`?showcase=1`): a prepared profile in its own namespace (ui/showcase.ts).
+  if (net.isShowcase()) return showcaseProfile(CONTENT, linkLang ?? deviceLang())
   return newProfile('Connector', { lang: deviceLang() })
 }
 
@@ -68,7 +72,10 @@ function withLinkLang(p: MetaProfile): MetaProfile {
 
 function bootRun(): RunState | null {
   const local = safe(() => net.loadRunLocal(), null)
-  return isLiveRun(local) ? local : null
+  if (isLiveRun(local)) return local
+  // The showcase starts with its prepared run until that run ends; then it plays like any profile.
+  if (net.isShowcase() && !safe(() => net.loadProfileLocal(), null)) return safe(() => showcaseRun(bootProfile(), CONTENT), null)
+  return null
 }
 
 /** The leaderboard submit of the daily run that just ended (outcome null while it is in flight). */

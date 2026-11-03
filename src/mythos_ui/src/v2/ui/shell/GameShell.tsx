@@ -9,7 +9,7 @@ import '../components/settings.css'
 import { Suspense, lazy, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from 'react'
 import { CONTENT } from '../../content/index.ts'
 import { dateKeyAt } from '../../engine/daily.ts'
-import { loadPlan } from '../../net/api.ts'
+import { isShowcase, loadPlan } from '../../net/api.ts'
 import { getAuth } from '../../net/auth.ts'
 import { flushDailyQueue } from '../../net/daily.ts'
 import { markCutsceneSeen } from '../../engine/meta.ts'
@@ -96,7 +96,9 @@ const VIEW_KEY = 'mythos2.view'
 function bootView(): View {
   try {
     const v = window.sessionStorage.getItem(VIEW_KEY)
-    return v === 'archive' || v === 'setup' || v === 'daily' || v === 'run' ? v : 'title'
+    if (v === 'archive' || v === 'setup' || v === 'daily' || v === 'run') return v
+    // The judge showcase opens on the Archive, where IX names a habit; its prepared run is one click away.
+    return isShowcase() ? 'archive' : 'title'
   } catch {
     return 'title'
   }

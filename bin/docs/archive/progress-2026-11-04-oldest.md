@@ -1,5 +1,11 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Companion level perks: choose one of two at level 3 and 5 (Claude Opus 5.5, same goal)
+
+- **Built** (reverse-engineering item 1): `content/levelPerks.ts` + `engine/companionLevel.ts` (`perkOptions`, `activePerks`, `pendingPerk`, `choosePerk`, `perkWaiting`); `PartyMember.perks`; `run.chooseCompanionPerk` (map only, final, replayable). Option a = the old fixed bonus (Guarded block 3 / Resonance +15 Momentum), so saves and every default stay as they were; level 3 option b follows the companion's best stat (STR Counterpunch thorns 2 · AGI Footwork +1 move · INT Hardened Rig +1 armor · CHA Read the Room evade 1 · OBS Steady Aim focus 2), level 5 option b Veteran (+1 damage, +1 armor). Party screen: two buttons per open level, a gold dot on the party button while a pick waits; sandbox `?lvl=5&perk=b`.
+- **Measured** (sim `perks: 'a'|'b'|'b3'|'b5'`, canonical blocks, 450 runs per depth): never choosing = option a = 41.6 / 33.8 / 31.6 % (fresh / Deep / Sea). Final all-b: 42.0 / 35.1 / 32.0 %; level 5 alone Deep 33.8 vs 33.8. Rejected: Footwork as evade 2 (Deep +6.2, ahead in all three blocks) and evade 1 (with it every b set stayed ahead in all three Deep blocks: Se-rin is in nearly every party); Heavy Hands +1 damage (Deep +3.1).
+- **Verified**: `make check` (node 533, Python 338), `make test-e2e-v2`, `make playthrough-quick`; headless muted party screen (1280×720 ko, 390×844 en): dot shows, pick level 3 b then level 5 a, dot clears, 0 console errors (`outputs/qa/perk_ui/`); sandbox `?lvl=5&perk=b` loads. Owner check: `docs/test/mythos2_fun_check.md` §14. Unverified: whether the choice feels like a real decision by hand; the sim bot still never picks (canonical numbers unchanged).
+
 ## 2026-11-04 — Road recruits marked on the map; card plays per line-up measured (Claude Opus 5.5, owner goal: 잔여 작업 자율 수행, 콘텐츠 추가·검증)
 
 - **Acts 2–3 in the real UI** (open since 11-03): `ui_playthrough.py` full run, assist mode, OK in 790 s → victory (`ending_noble_sacrifice`), Act 2 elite + Act 3 boss, 0 console errors.

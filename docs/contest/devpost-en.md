@@ -161,5 +161,6 @@ Neo-Seoul under **IX**, a polite administrator AI that scores every citizen and 
 ## Try It
 
 - **Web Demo (English + Architect HUD):** `<Cloud Run URL>/?lang=en&hud=1&demo=<judge-code>`
+- **Three-minute showcase (`?showcase=1`):** `<Cloud Run URL>/?showcase=1&lang=en&hud=1&demo=<judge-code>` opens a prepared, throwaway profile on its own storage (it never touches a real save and never syncs): the Archive where IX names a habit it read off three past loops, then a Paradox 10 run at Act 3 where IX has read the deck, with a procedural event and a marked recruit on the first map nodes.
 - **Showcase Video:** `outputs/trailer/cinematic/mythos2_cinematic_showcase.mp4` (82 s: gameplay + live AI features +
   Google Cloud architecture card) and `outputs/trailer/ai/mythos2_ai_features_en.mp4` (56 s English AI feature cut).

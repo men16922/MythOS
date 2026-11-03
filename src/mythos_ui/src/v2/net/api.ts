@@ -53,9 +53,31 @@ type Slot = 'profile' | 'run'
 const MIRROR_KEY: Record<Slot, string> = { profile: 'mythos2.profile', run: 'mythos2.run' }
 const SYNCED_KEY: Record<Slot, string> = { profile: 'mythos2.profile.synced', run: 'mythos2.run.synced' }
 
+// ---------------------------------------------------------------- showcase (`?showcase=1`)
+
+/**
+ * Judge showcase (ui/showcase.ts): a prepared profile and run in their own storage namespace that never syncs, so a
+ * judge or a player trying it on their own device never touches their real save. AI lines still work (demo code).
+ */
+export function showcaseRequested(search: string): boolean {
+  return new URLSearchParams(search).get('showcase') === '1'
+}
+const SHOWCASE = typeof window !== 'undefined' && showcaseRequested(window.location.search)
+export const isShowcase = (): boolean => SHOWCASE
+/** Save-state keys that move to `mythos2.showcase.*` in showcase mode (identity, demo code and device prefs stay). */
+const SAVE_KEYS = new Set(['mythos2.profile', 'mythos2.run', 'mythos2.profile.synced', 'mythos2.run.synced', 'mythos2.run.cleared', 'mythos2.pendingHistory', 'mythos2.adopt'])
+export function showcaseKey(key: string, showcase: boolean = SHOWCASE): string {
+  return showcase && SAVE_KEYS.has(key) ? `mythos2.showcase.${key.slice('mythos2.'.length)}` : key
+}
+/** Save routes stay on the device in showcase mode. */
+export function showcaseBlocks(path: string, showcase: boolean = SHOWCASE): boolean {
+  return showcase && /^\/(profile|run|history|account)(\b|\/|\?|$)/.test(path)
+}
+
 // ---------------------------------------------------------------- storage (never throws)
 
 function storageGet(key: string): string | null {
+  key = showcaseKey(key)
   try {
     return window.localStorage.getItem(key)
   } catch {
@@ -64,6 +86,7 @@ function storageGet(key: string): string | null {
 }
 
 function storageSet(key: string, value: string): boolean {
+  key = showcaseKey(key)
   try {
     window.localStorage.setItem(key, value)
     return true
@@ -73,6 +96,7 @@ function storageSet(key: string, value: string): boolean {
 }
 
 function storageRemove(key: string): void {
+  key = showcaseKey(key)
   try {
     window.localStorage.removeItem(key)
   } catch {
@@ -324,6 +348,7 @@ async function send(method: string, path: string, opts: RequestOptions & { heade
  * A 503 to a signed-in request means the server cannot check tokens right now: treated as offline.
  */
 export async function apiSend(method: string, path: string, opts: RequestOptions): Promise<SendResult> {
+  if (showcaseBlocks(path)) return { kind: 'skipped' }
   const access = opts.access ?? 'identity'
   let headers = await identityHeaders(access)
   if (!headers) return { kind: 'skipped' }

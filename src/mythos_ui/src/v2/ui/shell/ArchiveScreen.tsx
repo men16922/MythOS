@@ -17,7 +17,7 @@ import { CountUp } from '../components/CountUp.tsx'
 import { fmtText } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
-import { narrate } from './gm.ts'
+import { narrateLine } from './gm.ts'
 import { ixHabitLine, killerName, loopMemory } from '../common/loopMemory.ts'
 import { rx } from './rx.ts'
 import './archive.css'
@@ -123,7 +123,7 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
     const killer = killerName(profile.lastDeath?.killedBy, C)
     const last = profile.history[0]
     const lastEnding = last?.endingId ? C.endings[last.endingId] : undefined
-    void narrate('ix_loop_start', lang, {
+    void narrateLine('ix_loop_start', lang, {
       loop: profile.loops + 1,
       lastResult: last?.result,
       lastEnding: lastEnding ? tr(lastEnding.title, lang) : undefined,
@@ -132,8 +132,10 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
       lastAct: profile.lastDeath?.act,
       wins: profile.wins,
       memory: loopMemory(profile, C, lang),
-    }).then((text) => {
-      if (alive && text) setGmIx({ key: ixKey, text })
+    }).then((line) => {
+      // Only a model line replaces the authored one: a fallback would drop what the authored line already says
+      // (the loop count, the killer, and on odd loops IX's habit reading).
+      if (alive && line?.ai) setGmIx({ key: ixKey, text: line.text })
     })
     return () => {
       alive = false

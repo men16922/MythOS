@@ -75,6 +75,11 @@ const FIXED: AchievementDef[] = [
   { id: 'ach_implants_13', group: 'challenge', name: t('사람보다 기계', 'More Machine Than Man'), text: t('임플란트 13개 이상을 단 채 탈출한다.', 'Escape with 13 or more implants.'), when: { kind: 'implantWin', n: 13 } },
   { id: 'ach_quiet', group: 'challenge', name: t('IX가 눈치채지 못했다', 'IX Never Noticed'), text: t('추적도 30 이하로 탈출한다.', 'Escape with trace at 30 or less.'), when: { kind: 'quietWin', maxTrace: 30 } },
   { id: 'ach_solo', group: 'challenge', name: t('혼자 걸은 길', 'Walked Alone'), text: t('동료를 한 명도 들이지 않고 탈출한다.', 'Escape without ever taking a companion.'), when: { kind: 'soloWin' } },
+  // 2026-11-04: what was added that day.
+  { id: 'ach_callbacks', group: 'progress', name: t('돌아온 선택', 'Choices Come Back'), text: t('한 판에서 예전 선택이 돌아오는 장면을 두 번 만난다.', 'Meet two scenes where an earlier choice comes back, in one run.'), when: { kind: 'runEvents', match: '_cb_', min: 2 } },
+  { id: 'ach_strangers', group: 'progress', name: t('이름 있는 낯선 사람', 'Strangers With Names'), text: t('한 판에서 낯선 사람이 나오는 사건을 두 번 만난다.', 'Meet two strangers’ events in one run.'), when: { kind: 'runEvents', match: 'pc_', min: 2 } },
+  { id: 'ach_glass_quest', group: 'progress', name: t('유리성의 독자', 'Reader of the Glass Library'), text: t('유리성 구역의 임무 하나를 끝까지 해낸다.', 'Finish one of the Glass Library districts’ quests.'), when: { kind: 'questDone', ids: ['q_dream_fragment', 'q_return_record', 'q_forbidden_index', 'q_cut_names'] } },
+  { id: 'ach_veteran', group: 'companion', name: t('노련한 동료', 'Seasoned'), text: t('한 판 안에서 동료 하나를 레벨 5까지 키운다.', 'Raise a companion to level 5 in one run.'), when: { kind: 'companionLevel', level: 5 } },
 ]
 
 /** Every achievement: the fixed list plus one per archetype and one per companion. */

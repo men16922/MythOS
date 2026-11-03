@@ -1,5 +1,13 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Road recruits marked on the map; card plays per line-up measured (Claude Opus 5.5, owner goal: 잔여 작업 자율 수행, 콘텐츠 추가·검증)
+
+- **Acts 2–3 in the real UI** (open since 11-03): `ui_playthrough.py` full run, assist mode, OK in 790 s → victory (`ending_noble_sacrifice`), Act 2 elite + Act 3 boss, 0 console errors.
+- **Line-up measurement** (reverse-engineering item 2): `FightTelemetry` now carries `party` and `plays` (cards and consumables by id; `autoPlay(…, plays)`), run-neutral (canonical blocks reproduce 187/450, 41/150, 40/150). Findings: the starter `packet_shot` is 22.7 % of all plays (34 % in Act 1, still 8–16 % in Acts 3–6); companion cards are 12 % of plays in Act 1 and 15–21 % after; top-8 card overlap between line-ups is low (Jaccard 0.33–0.45), so line-ups do change what gets played. Scripts: `outputs/qa/lineup_plays.ts`, `lp_report.py` (gitignored).
+- **Found**: only 22 % (Deep) / 17 % (Sea) of Act 4–6 fights had three companions although the slot opens at Act 4. The bot takes every recruit it meets (scores 14–18 vs ≤ 4 declining); the scene sits on a hidden `?` node, so ~25 of 150 Deep runs ever met one. Roll weight 5 → 15 only reached 33 %.
+- **Built**: `roadRecruitAt` (engine, shares one validity check with `resolveEventId`); the map marks that node with a small gold person badge (who waits stays hidden) and a tooltip line with the +8 Trace cost; the bot routes there when someone would fill a slot now or the next act's slot (`companionWorth`). Deep 27.3 → 30.0 %, Sea 26.7 → 30.7 % (within ±4 noise at n = 150, not re-tuned), three-companion Act 4–6 fights 22 → 61 % / 17 → 47 %; fresh unchanged.
+- **Verified**: `make check` (node 530, Python 338), `make test-e2e-v2`, `make playthrough-quick`; marker in headless muted Chromium at 1280×720 (ko) and 390×844 (en), badge on the octagon corner, tooltip line shown, 0 console errors (`outputs/qa/recruit_marker/`). Unverified: how the marker reads to a human, and a natural Deep run reaching a marked node in the real UI (set up through the dev hook).
+
 ## 2026-11-03 — Bot takes companions, Acts 2–3 re-tuned; reverse-engineering 1–3 analysed (Claude Opus 5.5, owner: 다음 작업 수행)
 
 - **Analysis**: Across the Obelisk, Cobalt Core, Tactical Breach Wizards (`docs/plans/2026-11-03-reverse-engineering-1-3.md`): level-3/5 choice of two, line-up measurement, undo for actions that reveal nothing. Built nothing; prototypes wait for the owner.

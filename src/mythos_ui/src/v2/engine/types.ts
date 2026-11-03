@@ -1455,6 +1455,12 @@ export type AchievementCond =
   | { kind: 'quietWin'; maxTrace: number }
   /** Victory with nobody in the party or on the bench. */
   | { kind: 'soloWin' }
+  /** At least `min` events this run whose id contains `match` (e.g. '_cb_' callbacks, 'pc_' procedural events). */
+  | { kind: 'runEvents'; match: string; min: number }
+  /** Any of these CRPG quests finished (its last stage) this run. */
+  | { kind: 'questDone'; ids: string[] }
+  /** A companion in the crew reached this level this run. */
+  | { kind: 'companionLevel'; level: number }
 
 export interface AchievementDef {
   id: string

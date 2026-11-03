@@ -94,6 +94,15 @@ export function meets(when: AchievementCond, profile: MetaProfile, run: RunState
       return won(run) && run.trace <= when.maxTrace
     case 'soloWin':
       return won(run) && run.party.length === 0 && (run.bench ?? []).length === 0
+    case 'runEvents':
+      return run.seenEvents.filter((id) => id.includes(when.match)).length >= when.min
+    case 'questDone':
+      return when.ids.some((id) => {
+        const last = C.crpg?.quests?.[id]?.stages.length
+        return !!last && (run.crpg?.quests?.[id] ?? 0) >= last
+      })
+    case 'companionLevel':
+      return [...run.party, ...(run.bench ?? [])].some((m) => (m.level ?? 1) >= when.level)
   }
 }
 

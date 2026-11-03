@@ -50,7 +50,7 @@ const ids = (p: MetaProfile) => p.achievements ?? []
 
 test('content: every achievement is well formed and points at real content', () => {
   const all = Object.values(C.achievements ?? {})
-  assert.equal(all.length, 76, 'DLC plan §11: 60 achievements + 4 codex completion')
+  assert.equal(all.length, 80, 'DLC plan §11: 60 achievements + 4 codex completion, +4 for the 2026-11-04 content')
   for (const a of all) {
     assert.ok(a.id.startsWith('ach_'), a.id)
     assert.ok(a.name.ko && a.name.en && a.text.ko && a.text.en, `${a.id} text`)
@@ -58,6 +58,8 @@ test('content: every achievement is well formed and points at real content', () 
     if (w.kind === 'ending') assert.ok(C.endings[w.id], `${a.id} ending ${w.id}`)
     if (w.kind === 'archetypeWin') assert.ok(C.archetypes[w.id], `${a.id} archetype ${w.id}`)
     if (w.kind === 'companionWin') assert.ok(C.companions[w.id], `${a.id} companion ${w.id}`)
+    if (w.kind === 'questDone') for (const q of w.ids) assert.ok(C.crpg?.quests?.[q], `${a.id} quest ${q}`)
+    if (w.kind === 'runEvents') assert.ok(Object.keys(C.events).filter((id) => id.includes(w.match)).length >= w.min, `${a.id} events ${w.match}`)
     if (w.kind === 'memories') assert.ok(w.n <= CUTSCENES.length, `${a.id} asks for more memories than exist`)
   }
   for (const id of Object.keys(C.archetypes)) assert.ok(C.achievements?.[`ach_arch_${id}`], `archetype ${id} has one`)
@@ -178,4 +180,19 @@ test('pass 2 conditions: feats, rich / implant / quiet / solo wins, mastery', ()
   // With a companion along and a loud, poor run, none of the win-shape feats fire.
   const plain = applyRunEnd(newProfile('T'), endedRun({ credits: 10, trace: 80 }, 'victory', 'ending_code_rewrite'), C)
   for (const id of ['ach_rich', 'ach_quiet', 'ach_solo', 'ach_boss_flawless', 'ach_arch_mastery']) assert.ok(!ids(plain).includes(id), id)
+})
+
+test('2026-11-04 achievements: callbacks and strangers seen, a Glass Library quest finished, a level-5 companion', async () => {
+  const { newRun } = await import('./run.ts')
+  const started = newRun({ ...newProfile('T'), wins: 1 }, { archetype: 'ghost', paradox: 0, seed: 7 }, C)
+  const base = { ...started, screen: { kind: 'ended', result: 'defeat', endingId: 'ending_forced_erasure' } } as typeof started
+  const has = (run: typeof base, id: string) => newAchievements(newProfile('T'), run, C).includes(id)
+  assert.equal(has(base, 'ach_callbacks'), false)
+  assert.equal(has({ ...base, seenEvents: ['a3_cb_core', 'a5_cb_dream'] }, 'ach_callbacks'), true)
+  assert.equal(has({ ...base, seenEvents: ['pc_wreck'] }, 'ach_strangers'), false)
+  assert.equal(has({ ...base, seenEvents: ['pc_wreck', 'pc_message'] }, 'ach_strangers'), true)
+  const crpg = { background: null, inspiration: 0, approval: {}, approvalBonds: {}, quests: { q_cut_names: 1 }, districts: [], camps: [], nextCombat: [] }
+  assert.equal(has({ ...base, crpg: crpg as unknown as NonNullable<typeof base.crpg> }, 'ach_glass_quest'), false, 'stage 1 is not done')
+  assert.equal(has({ ...base, crpg: { ...crpg, quests: { q_cut_names: 2 } } as unknown as NonNullable<typeof base.crpg> }, 'ach_glass_quest'), true)
+  assert.equal(has({ ...base, party: [{ id: 'se_rin', hp: 20, maxHp: 20, bond: 0, level: 5 }] }, 'ach_veteran'), true)
 })

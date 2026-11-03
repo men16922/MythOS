@@ -16,6 +16,7 @@ import type { EventDef, Text } from '../engine/types.ts'
 import { COMPANION_ARCS } from './eventsArcs.ts'
 import { A1_MORE, A2_MORE, A3_MORE, SUAH_ARC } from './eventsMore.ts'
 import { ROAD_RECRUITS } from './eventsRecruit.ts'
+import { CALLBACK_EVENTS } from './eventsCallbacks.ts'
 import { NOISE_GATES } from './eventsNoise.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
@@ -186,7 +187,10 @@ const A1: EventDef[] = [
             '등 뒤에서 두드리는 소리가 잦아든다. 드론이 캡슐 쪽으로 기수를 튼다. 이쪽이 아니라.',
             'The knocking fades behind you. The drone turns toward the capsule. Not toward you.',
           ),
-          effects: [{ kind: 'trace', amount: -5 }],
+          effects: [
+            { kind: 'trace', amount: -5 },
+            { kind: 'flag', key: 'left_citizen' },
+          ],
         },
       },
     ],
@@ -1152,6 +1156,7 @@ const A2: EventDef[] = [
             { kind: 'implant', rarity: 'rare' },
             { kind: 'junk', cardId: 'corrupted_echo' },
             { kind: 'trace', amount: 6 },
+            { kind: 'flag', key: 'kai_cored' },
           ],
         },
       },
@@ -1166,6 +1171,7 @@ const A2: EventDef[] = [
           effects: [
             { kind: 'echoes', amount: 4 },
             { kind: 'trace', amount: -4 },
+            { kind: 'flag', key: 'kai_umbrella' },
           ],
         },
       },
@@ -1820,6 +1826,7 @@ const A3: EventDef[] = [
           effects: [
             { kind: 'codex', id: 'lore_optimization_list' },
             { kind: 'implant', rarity: 'uncommon' },
+            { kind: 'flag', key: 'list_copied' },
           ],
         },
         failure: {
@@ -2833,6 +2840,7 @@ export const EVENTS: EventDef[] = [
   ...A3_EXTRA,
   ...A3_MORE,
   ...ROAD_RECRUITS,
+  ...CALLBACK_EVENTS,
   ...NOISE_GATES,
   ...SUAH_ARC,
   ...COMPANION_ARCS,

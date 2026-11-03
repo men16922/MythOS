@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 681,
+ "codex_image_calls": 686,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4573,6 +4573,34 @@
    ],
    "ts": "2026-10-25T17:39:19"
   },
+  "v2/events/a3_cb_capsule.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A long sterile white corridor inside a high-tech spire; one wall is a giant glowing screen scrolling endless rows of abstract data bars and tiny faceless portrait silhouettes; one row is subtly highlighted in red; a lone figure in a dark coat stands small in the foreground, seen from behind, looking up at the wall. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T02:42:54"
+  },
+  "v2/events/a3_cb_core.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A dim industrial maintenance bay inside a white spire; rows of idle silver maintenance robots on racks all lifting their heads toward the viewer at once, their eye lenses glowing soft blue; in the foreground a person's hand pressed to their own chest where a faint warm orange glow shows through the jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T02:43:12"
+  },
+  "v2/events/a3_cb_hunt.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A stark white corridor with ceiling speakers and red warning lights pulsing; heavy security doors sliding shut one after another down the hall in deep perspective; a lone figure in a dark coat runs toward the last open door, motion blur; red alarm glow washing the white walls. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T02:42:49"
+  },
+  "v2/events/a3_cb_umbrella.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. The edge of a high white terrace on a futuristic spire above a rainy neon city at night; a torn yellow umbrella leans against the railing, a small maintenance tag tied to its handle fluttering; puddles reflect the city lights; the rain has just stopped. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T02:43:12"
+  },
   "v2/events/a3_omega_terminal.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -4626,6 +4654,13 @@
     "resources/neo-seoul/v2/events/a3_omega_terminal.webp"
    ],
    "ts": "2026-10-26T03:21:37"
+  },
+  "v2/events/a4_cb_list.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A vast library of glass shelves glowing faintly cyan; a reading desk in the middle holds an open paper file with three lines struck through in pencil; a tall quiet librarian figure in a long pale coat stands behind the desk, face in soft shadow, waiting for an answer. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T02:42:50"
   },
   "v2/events/a4_censor_name_ribbons.webp": {
    "generations": 1,

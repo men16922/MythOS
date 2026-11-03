@@ -2,6 +2,12 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Callbacks: five earlier choices come back as scenes (W1-1, first part) (Claude Opus 5.5, same goal)
+
+- **Built** (`content/eventsCallbacks.ts`, 5 Codex images, unreviewed): walking past the capsule → Act 3 "Score 312" (Se-rin's bond can drop: the "Se-rin distrust" branch); cutting out Kai's core → "The Warm Core"; covering Kai with the umbrella → "The Yellow Umbrella"; Trace ≥ 60 → "Hunt Order" (the hard-push branch); copying the list instead of pulling three names → Deep Act 4 "The Copy" (records or people: Dominance / Humanity). New flags on the original options: `left_citizen`, `kai_cored`, `kai_umbrella`, `list_copied`. A scene whose flag is not set gives way to another event.
+- **Measured** (canonical, mixed; baseline fresh 41.6 / Deep 33.8 / Sea 31.6 %): roll weight 3 cost Sea −3.8 (lower in all three blocks; with every callback switched off the baseline came back exactly, the capsule/core/umbrella trio was the cause: it crowded out stronger Act 3 events) → weight 1: fresh 42.9, Deep 31.6 (blocks −3, −8, +1), Sea 31.1 %.
+- **Verified**: content + event-balance tests; the five scenes in headless muted Chromium (ko desktop, en 390 px), an option picked through the UI resolves each, 0 console errors (`outputs/qa/cb_ui/`). Full Deep Signal UI run (6 acts, victory, 1555 s) OK; an earlier attempt stalled in the Act 1 boss while I was editing source under its live Vite server (likely HMR; random seed, not reproduced). Left for W1-1: Lin Yue debt Deep scene, more Deep-segment callbacks.
+
 ## 2026-11-04 — Boot screen the first time a run goes below the city (W1-5) (Claude Opus 5.5, same goal)
 
 - **Built**: `content/bootLines.ts` (1.0 `boot_lines` / `signal_lines` adapted per depth: Deep Signal and Sea) + `ui/shell/BootScreen.tsx` over the Act 4 intro: lines type in, the signal line follows, a click or ~1.6 s after the last line closes it; once per depth per device (`mythos2.bootSeen`), never on an Endless lap.
@@ -75,16 +81,3 @@ Last updated: 2026-11-04
 - **Bug caught by a test**: opening block from level and gear was wiped as turn 1 began; now granted there.
 - **Balance** (canonical, mixed): everything together read 282 / 450 = 62.7 %, Deep 74.7 %. Companion damage moved from stats to level, weapons cut, then enemies raised (`tuning.acts` 2: +22 % HP +1 dmg, 3: +46 % +3, 4: +105 % +7, 5: +150 % +10, 6: +190 % +13; route +8 % HP). Final: fresh 188 / 450 = 41.8 %, once-won declining 186, route forced 173 = 38.4 %, Deep 49 / 150 = 32.7 % (was 27.3 %, target 20–30). Avg turns: normal 3.6–4.7, boss 8.0–10.0; Act 3 (9.7) and Act 6 (10.0) bosses run past the 9-turn line.
 - **Verified**: `make check` (node 515, Python 338), `make test-e2e-v2`, `make playthrough-quick`, party screen in the real UI at desktop and 390 px (grow, equip, train, 0 console errors). Unverified: fun, how a human uses gear and Train (the bot only auto-equips and never trains), gear rows on the real reward and shop screens, Act 4 with three companions in the real UI, production. Gear has no art yet.
-
-## 2026-11-01 — Stats run to 20 (Claude Opus 5.5, owner: stat impact too low, cap 10 → 20, more stat cards)
-
-- **Built** (not deployed): `STAT_MAX` 20, steps above 10 for every perk, traits at 10 / 15 / 20 with no menu (`statPerks.ts`), an act pays 2 growth, 10 stat cards with art (CHA had none). Old steps below 10 stand.
-- **Balance**: unchecked it read 253 / 450 = 56.2 %. Act 2 / 3 enemy HP +10 / +22 % (`tuning.acts`), Act 1 untouched. Fresh 189 / 450 = 42.0 %, once-won declining 196, route forced 219 = 48.7 %.
-- **Open**: Deep Signal mixed reads 85 / 150 = 56.7 % (was 27.3 %). Left for the final balance pass after levels, three companions and gear. Do not deploy before it.
-
-## 2026-11-01 — Overcharge, Han rework, Bloodhound Rush moves (Claude Opus 5.5, owner requests)
-
-- **Overcharge**: `surplus_capacitor` (half the leftover energy, at most 2, into the next turn), `bank_power` (all of it, once), `discharge` (spends the rest for damage), a small "next turn +N" under the orb. Art by Codex image.
-- **Han**: Backdoor 2 → 1 cost and Mark 2 on each enemy turned, upgrade drops Exhaust; System Intrusion Mark 3 → 2.
-- **Bug**: Bloodhound Rush said it charged and never moved. New `dash` effect stops beside the target or before a pit. It was the only such card.
-- **Balance** (canonical 3 × 150, mixed): fresh 190 / 450 = 42.2 %, once-won declining 186 / 450, route forced 198 / 450. The new cards reshuffle the pool, so these replace the earlier 200 / 209 / 220.

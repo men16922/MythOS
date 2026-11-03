@@ -912,6 +912,24 @@ export interface LevelPerkDef {
   momentum?: number
 }
 
+/** Paradox 10 counter (content/ixReads.ts). */
+export interface IxReadDef {
+  id: string
+  /** Card tags this read answers; the read with the most matching cards wins (ties: listed order). */
+  tags: string[]
+  /** What IX read ("IX가 당신의 ○○을 읽었다"). */
+  read: Text
+  /** The counter, as shown under the act title. */
+  text: Text
+  combat: {
+    enemyStatus?: [StatusKind, number]
+    enemyArmor?: number
+    enemyHpPct?: number
+    connectorStatus?: [StatusKind, number]
+    companionStatus?: [StatusKind, number]
+  }
+}
+
 export interface GearDef {
   id: string
   /** Only drops or sells once this parallel act is reached. */
@@ -1081,6 +1099,8 @@ export interface RunState {
   residue?: string
   /** A companion who reached level 5 last run, named in this run's opening (words only; residue goes first). */
   pride?: string
+  /** Paradox 10: what IX read off the deck at this act's start (content/ixReads.ts), countered for the whole act. */
+  ixRead?: string
   /** Endless Signal laps completed (each lap: enemies +60 % HP, +3 damage, Rage a turn earlier and +1 stronger). */
   lap?: number
   /** The connector's leanings this run (1.0 choice axes): dialogue intents, first impressions, hard wins. */
@@ -1543,6 +1563,8 @@ export interface ContentRegistry {
   residue?: Record<string, Text>
   /** One good habit per companion who reached level 5 last run (content/residue.ts PRIDE). */
   pride?: Record<string, Text>
+  /** Paradox 10 counters (content/ixReads.ts). */
+  ixReads?: IxReadDef[]
   endings: Record<string, EndingDef>
   unlocks: Record<string, MetaUnlockDef>
   paradox: ParadoxDef[]

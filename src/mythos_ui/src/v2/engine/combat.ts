@@ -300,6 +300,23 @@ function applyOpeningPerks(c: CombatState, run: RunState, enc: EncounterDef, C: 
     for (const e of livingEnemies(c)) addStatus(c, e, k, n)
   }
   if (conn) for (const [k, n] of Object.entries(mut.openConnector ?? {}) as [StatusKind, number][]) addStatus(c, conn, k, n)
+  // Paradox 10: the counter IX read off the deck at this act's start (content/ixReads.ts).
+  const read = run.ixRead ? C.ixReads?.find((r) => r.id === run.ixRead)?.combat : undefined
+  if (read) {
+    for (const e of livingEnemies(c)) {
+      if (read.enemyStatus) addStatus(c, e, read.enemyStatus[0], read.enemyStatus[1])
+      e.armor += read.enemyArmor ?? 0
+      if (read.enemyHpPct) {
+        const extra = Math.round((e.maxHp * read.enemyHpPct) / 100)
+        e.maxHp += extra
+        e.hp += extra
+      }
+    }
+    for (const u of livingParty(c)) {
+      if (u.uid === 'connector' && read.connectorStatus) addStatus(c, u, read.connectorStatus[0], read.connectorStatus[1])
+      if (u.uid !== 'connector' && read.companionStatus) addStatus(c, u, read.companionStatus[0], read.companionStatus[1])
+    }
+  }
   const echo = worldEchoOf(run)
   if (echo?.combat?.openingBlock) c.triggered[OPENING_BLOCK_KEY] = echo.combat.openingBlock
   const finalBoss = echo?.combat?.finalBoss

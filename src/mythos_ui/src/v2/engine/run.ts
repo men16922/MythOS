@@ -33,6 +33,7 @@ import {
   KILLED_BY_FLAG,
   NODE_ECHOES,
   NODES_CLEARED_FLAG,
+  MAX_PARADOX,
   PASSIVE_NUMBERS,
   cardPool,
   implantPool,
@@ -569,7 +570,8 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   // the same for every player. `profile` still numbers the loop (bookkeeping only, never rolled on).
   const unlockSource = daily ? DAILY_BASE : profile
   const loop = profile.loops + 1
-  const paradox = daily ? 0 : clamp(0, 5, Math.floor(opts.paradox))
+  // Paradox 6–10 (DLC update 2026-10-26) were clamped to 5 here until 2026-11-04: every level now runs as chosen.
+  const paradox = daily ? 0 : clamp(0, MAX_PARADOX, Math.floor(opts.paradox))
   const seed = daily
     ? dailySeed(daily, arch.id)
     : (opts.seed ?? hashSeed(`${profile.playerName}|${loop}|${profile.totalEchoes}|${arch.id}|${paradox}`)) >>> 0
@@ -1169,6 +1171,25 @@ export function deepSignalOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<Conte
   return profile.wins > 0 && Object.keys(C.acts).some((k) => Number(k) > STANDARD_ACTS)
 }
 
+/** Fewer matching cards than this and IX reads nothing new (Paradox 10's +1 damage still applies). */
+export const IX_READ_MIN = 3
+
+/** Paradox 10: the counter IX picks from the deck's non-starter synergy tags (none below IX_READ_MIN matching cards). */
+export function ixReadFor(run: Pick<RunState, 'deck'>, C: ContentRegistry): string | undefined {
+  const tags = new Map<string, number>()
+  for (const k of run.deck) {
+    const def = C.cards[k.defId]
+    if (!def || def.rarity === 'starter') continue
+    for (const tag of def.tags ?? []) tags.set(tag, (tags.get(tag) ?? 0) + 1)
+  }
+  let best: { id: string; n: number } | undefined
+  for (const r of C.ixReads ?? []) {
+    const n = r.tags.reduce((s, tag) => s + (tags.get(tag) ?? 0), 0)
+    if (n >= IX_READ_MIN && (!best || n > best.n)) best = { id: r.id, n }
+  }
+  return best?.id
+}
+
 /** The coda of the act being left: its leading choice axis against that axis's ending threshold (ties: listed order). */
 export function actCoda(run: Pick<RunState, 'axes'>, act: ActDef | undefined): ChoiceAxis | undefined {
   let best: { axis: ChoiceAxis; score: number } | undefined
@@ -1202,6 +1223,12 @@ export function advanceAct(run: RunState, C: ContentRegistry): void {
   if ((run.autonomy ?? 0) >= 2) gainTrace(run, -AUTONOMY_ACT_SCRUB, C)
   run.act = run.act + 1
   if (run.paradox >= 9) gainTrace(run, 10, C) // Paradox 9: tracked ahead
+  // Paradox 10: IX reads the deck it saw last act and counters it for this one.
+  if (run.paradox >= 10) {
+    const read = ixReadFor(run, C)
+    if (read) run.ixRead = read
+    else delete run.ixRead
+  }
   run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents, avoid: run.staleEvents ?? [] })
   placeDistrict(run, run.map, C)
   delete run.route

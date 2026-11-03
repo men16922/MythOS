@@ -848,3 +848,38 @@ test('an act with codas closes by the leading axis against its threshold; the ne
   assert.equal(previousCoda(run, CONTENT)?.title.en, 'A Quiet Return')
   assert.ok(run.log.some((e) => e.note.en === 'A Quiet Return'), 'written to the chronicle')
 })
+
+test('Paradox 10: IX reads the deck at each act from Act 2 and its counter applies to every fight of that act', async () => {
+  const { CONTENT } = await import('../content/index.ts')
+  const { ixReadFor, advanceAct, IX_READ_MIN } = await import('./run.ts')
+  const { startCombat } = await import('./combat.ts')
+  const tagged = (tag: string, n: number) =>
+    Object.values(CONTENT.cards)
+      .filter((c) => c.rarity !== 'starter' && (c.tags ?? []).includes(tag) && (c.tags ?? []).length === 1)
+      .slice(0, n)
+      .map((c, i) => ({ uid: `t${tag}${i}`, defId: c.id, upgraded: false }))
+  assert.equal(ixReadFor({ deck: tagged('block', IX_READ_MIN - 1) }, CONTENT), undefined, 'too little to read')
+  assert.equal(ixReadFor({ deck: tagged('block', IX_READ_MIN) }, CONTENT), 'read_block')
+  assert.equal(ixReadFor({ deck: [...tagged('block', 3), ...tagged('push', 4)] }, CONTENT), 'read_push', 'the bigger lean wins')
+
+  const base = structuredClone(atMap(91, unlocked()))
+  base.deck = [...base.deck, ...tagged('push', 4)]
+  const p10 = { ...structuredClone(base), paradox: 10 }
+  advanceAct(p10, CONTENT)
+  assert.equal(p10.ixRead, 'read_push')
+  const p9 = { ...structuredClone(base), paradox: 9 }
+  advanceAct(p9, CONTENT)
+  assert.equal(p9.ixRead, undefined, 'only Paradox 10')
+  const enc = Object.values(CONTENT.encounters).find((e) => e.act === 2 && e.kind === 'normal' && !e.route)?.id as string
+  const armor = (r: typeof p10) => startCombat(r, enc, CONTENT).units.filter((u) => u.side === 'enemy').map((u) => u.armor)
+  const read = armor(p10)
+  const plain = armor({ ...p10, ixRead: undefined })
+  assert.deepEqual(read, plain.map((a) => a + 1), 'push read: enemies +1 armor')
+})
+
+test('every Paradox level up to the maximum runs as chosen (6–10 were clamped to 5)', async () => {
+  const { MAX_PARADOX } = await import('./meta.ts')
+  for (const level of [5, 6, 8, 10]) assert.equal(newRun(unlocked(), { archetype: 'ghost', paradox: level, seed: 3 }, C).paradox, level)
+  assert.equal(newRun(unlocked(), { archetype: 'ghost', paradox: 99, seed: 3 }, C).paradox, MAX_PARADOX)
+  assert.equal(newRun(unlocked(), { archetype: 'ghost', paradox: 10, seed: 3, daily: '2026-11-04' }, C).paradox, 0, 'never on a daily')
+})

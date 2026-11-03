@@ -49,6 +49,7 @@ Authority plan: `docs/NEXT_PLAN.md` · improvement & direction plan: `docs/plans
 - **Daily results**: replay-verified server-side (live since 2026-10-20; shield badge; ranking unchanged — an unverified row can still rank). Saves stay client JSON blobs.
 - **Vertex tail latency**: some GM calls take 10–20 s or end in 504 DEADLINE_EXCEEDED; hedging + 14 s narrate timeout bring act intros to ~83 % answered (local measure). Authored text covers the rest; watch `v2 gm` outcomes after promotion.
 - **Fun**: owner verdict 2026-10-26 on `00150-qen` = S (keep). Purchase intent stays unjudged (paid release on hold).
+- **Paradox 6–10 now apply** (clamped to 5 until 2026-11-04): greedy P10 81 %, mixed 2.7 %; the planned expert ceiling (~55 %) is not met. Owner call on re-tuning.
 - **Balance noise**: mixed-bot win rate swings ±6 % by seed block — A/B on identical blocks (`docs/LESSONS.md`).
 - **S-rank status**: the six automatable axes are A−/A (`docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` §4); the owner's fun verdict (2026-10-26) is S and the build is live — S-rank closed.
 - **GM quality**: local `gemma4:8b-64k` lines are serviceable; Vertex `gemini-3.8-flash` is sharper (3.8's introductory price reportedly doubles in Jan 2027). All lines are cleaned and have authored fallbacks.

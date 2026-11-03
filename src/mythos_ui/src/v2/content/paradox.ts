@@ -61,6 +61,9 @@ export const PARADOX: ParadoxDef[] = [
   {
     level: 10,
     name: { ko: 'IX가 학습한다', en: 'IX Learns' },
-    text: { ko: '모든 적의 피해가 1 더 늘어난다.', en: 'All enemies deal 1 more damage.' },
+    text: {
+      ko: '모든 적의 피해가 1 더 늘어난다. 2막부터 IX가 막마다 당신의 덱을 읽고 대응 하나를 건다.',
+      en: 'All enemies deal 1 more damage. From Act 2, IX reads your deck each act and sets one counter.',
+    },
   },
 ]

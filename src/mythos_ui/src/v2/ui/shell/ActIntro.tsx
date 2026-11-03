@@ -3,7 +3,7 @@ import { asset } from '../common/assets.ts'
 import { art } from '../components/art.ts'
 import { useEffect, useState } from 'react'
 import { openingLines } from '../../content/openings.ts'
-import { tr } from '../common/lang.ts'
+import { hasBatchim, tr } from '../common/lang.ts'
 import { sound } from '../components/sound.ts'
 import { GmCard } from './GmCard.tsx'
 import { narrateLine, type GmLine } from './gm.ts'
@@ -19,6 +19,7 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
   const actDef = actOf(run, C)
   const echo = worldEchoOf(run)
   const coda = (run.lap ?? 0) === 0 ? previousCoda(run, C) : undefined
+  const ixRead = run.act >= 2 && run.ixRead ? C.ixReads?.find((r) => r.id === run.ixRead) : undefined
   const introLines = tr(actDef?.intro, lang).split('\n').filter(Boolean)
   // Re-entries end with how this loop's starting companion found you (content/openings.ts).
   const opening = openingLines(run).map((l) => tr(l, lang))
@@ -79,6 +80,13 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
         {run.act === 1 && run.pride && C.pride?.[run.pride] && (
           <p className="m2-actintro__residue" data-testid="pride">
             {tr(C.pride[run.pride], lang)}
+          </p>
+        )}
+        {ixRead && (
+          <p className="m2-actintro__residue" data-testid="ix-read">
+            {lang === 'ko'
+              ? `IX가 당신의 ${tr(ixRead.read, lang)}${hasBatchim(tr(ixRead.read, lang)) ? '을' : '를'} 읽었다 · ${tr(ixRead.text, lang)}`
+              : `IX has read your ${tr(ixRead.read, lang)} · ${tr(ixRead.text, lang)}`}
           </p>
         )}
         {coda && (

@@ -2,6 +2,7 @@
 // Engine/UI code receives `CONTENT` (or a test double with the same shape) as `C: ContentRegistry`.
 
 import { PRIDE, RESIDUE } from './residue.ts'
+import { IX_READS } from './ixReads.ts'
 import { SQUAD_ROLES, SQUAD_TACTICS } from './squadTactics.ts'
 import { buildAchievements } from './achievements.ts'
 import { COMPANION_INTROS } from './companionIntros.ts'
@@ -73,6 +74,7 @@ export const CONTENT: ContentRegistry = {
   squadRoles: SQUAD_ROLES,
   residue: RESIDUE,
   pride: PRIDE,
+  ixReads: IX_READS,
   gear: byId([...GEAR, ...SEA_GEAR.map((g) => ({ ...g, route: 'sea_4' }))]),
   levelPerks: byId(LEVEL_PERKS),
   endings: byId(ENDINGS),

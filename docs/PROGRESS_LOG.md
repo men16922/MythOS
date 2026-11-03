@@ -2,6 +2,13 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Paradox 6–10 were never applied (fixed); Paradox 10 "IX Learns" built (W2-1) (Claude Opus 5.5, same goal)
+
+- **Found while measuring**: `newRun` clamped Paradox to 5 since the engine was first written, so Paradox 6–10 (DLC update 10-26) showed in setup and unlocked to 10 but every run played as 5. Fixed (`MAX_PARADOX`, regression test). Anyone at 6+ will now meet those rules for the first time.
+- **Built**: `content/ixReads.ts` + `ixReadFor` / `IX_READ_MIN` (run.ts): at Paradox 10, from Act 2, IX reads the deck's non-starter synergy tags at each act start and sets one counter for that act (six authored counters on known mechanics); applied in the combat opening; shown under the act title ("IX가 당신의 ○○을 읽었다"). The +1 damage stays.
+- **Measured** (fresh canonical, greedy 3 × 60, mixed 3 × 150): greedy P5 88.9 → P8 84.4 → P10 81.1 % (IX reads off: 79.4, i.e. the counters are within noise for the expert bot); mixed P5 11.1 → P10 2.7 %. The plan's greedy P10 ~55 % is far off: re-tuning the 6–10 ladder is an owner call.
+- **Verified**: engine tests (read thresholds, Paradox 10 only, counter in the fight), all node tests; Act 2 intro line in headless muted Chromium (ko, en), 0 console errors.
+
 ## 2026-11-04 — IX reads more habits (W2-2) (Claude Opus 5.5, same goal)
 
 - **Built**: `habits()` in `ui/common/loopMemory.ts`: where loops usually end (≥ 60 % of deaths in one act), the deck's lean (`RunRecord.lean`, attack or skill > 55 % of non-starter cards, set at run end and kept on reload), the companion and the shape as before. They take turns by loop count, so the companion everyone brings (Se-rin) no longer hides the rest. `habitFact` feeds the GM's memory list; `ixHabitLine` is IX saying it to you, added to the Archive's authored IX line every other loop (works with AI off).

@@ -255,4 +255,187 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['copied list', 'records or people', 'glass library'],
   },
+  {
+    id: 'a5_cb_debt',
+    acts: [5],
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'lin_yue_debt' },
+    title: t('이자', 'Interest'),
+    image: 'v2/events/a5_cb_debt.webp',
+    text: t(
+      '고철 묘역 입구에 낯익은 심부름꾼이 서 있다. 2막에서 린위에와 맺은 거래, 그 장부를 들고 있다.\n“여기까지 오느라 이자가 붙었습니다.”\n장부의 마지막 줄에 당신 이름이 두 번 적혀 있다.',
+      'A runner you know stands at the graveyard gate, holding the ledger from your Act 2 deal with Lin-yue.\n“Interest accrued on the way down.”\nYour name is written twice on the last line.',
+    ),
+    options: [
+      {
+        label: t('크레딧으로 갚는다', 'Pay in credits'),
+        hint: t('−60 ₵ · 빚 청산 · 추적 −10', '−60 ₵ · debt paid · −10 Trace'),
+        requires: { minCredits: 60 },
+        success: {
+          text: t('심부름꾼이 칩을 세고 장부에 줄을 긋는다. “깔끔하네요.”', 'The runner counts the chips and strikes the line. “Clean.”'),
+          effects: [
+            { kind: 'credits', amount: -60 },
+            { kind: 'trace', amount: -10 },
+            { kind: 'flag', key: 'lin_yue_debt', value: 0 },
+          ],
+        },
+      },
+      {
+        label: t('린위에에게 대신 말해 달라고 한다', 'Ask Lin-yue to speak for you'),
+        hint: t('빚 청산 · 린위에 유대 +1 · 실패 시 −1', 'Debt paid · Lin-yue bond +1 · fail −1'),
+        requires: { companion: 'lin_yue' },
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t('린위에가 장부를 받아 직접 찢는다. “이 사람 빚은 내가 졌어.”', 'Lin-yue takes the ledger and tears it herself. “This one’s debt is mine.”'),
+          effects: [
+            { kind: 'bond', id: 'lin_yue', amount: 1 },
+            { kind: 'flag', key: 'lin_yue_debt', value: 0 },
+          ],
+        },
+        failure: {
+          text: t('린위에가 장부에서 눈을 돌린다. “장사는 장사야.”', 'Lin-yue looks away from the ledger. “Business is business.”'),
+          effects: [{ kind: 'bond', id: 'lin_yue', amount: -1 }],
+        },
+      },
+      {
+        label: t('몸으로 갚는다', 'Pay with your body'),
+        hint: t('빚 청산 · 최대 HP −4', 'Debt paid · −4 max HP'),
+        success: {
+          text: t('차가운 기계가 손목에 닿는다. 온기가 빠져나간다. 장부가 닫힌다.', 'A cold device touches your wrist. Warmth drains away. The ledger closes.'),
+          effects: [
+            { kind: 'maxHp', amount: -4 },
+            { kind: 'flag', key: 'lin_yue_debt', value: 0 },
+          ],
+        },
+      },
+      {
+        label: t('한 번 더 빌린다', 'Borrow once more'),
+        hint: t('+40 ₵ · 추적 +5 · 빚은 남는다', '+40 ₵ · +5 Trace · the debt stays'),
+        success: {
+          text: t('심부름꾼이 장부에 세 번째 줄을 쓴다. 칩이 손바닥에 떨어진다. “다음 층에서 뵙죠.”', 'The runner writes a third line. Chips drop into your palm. “See you a floor down.”'),
+          effects: [
+            { kind: 'credits', amount: 40 },
+            { kind: 'trace', amount: 5 },
+          ],
+        },
+      },
+      {
+        label: t('장부를 찢는다', 'Tear up the ledger'),
+        hint: t('빚 청산 · 추적 +15 · 정크 카드', 'Debt cleared · +15 Trace · junk card'),
+        success: {
+          text: t('종이가 반으로 갈라진다. 심부름꾼이 웃으며 단말에 무언가를 입력한다.', 'The paper splits in two. The runner smiles and types something into a terminal.'),
+          effects: [
+            { kind: 'trace', amount: 15 },
+            { kind: 'junk', cardId: 'static' },
+            { kind: 'flag', key: 'lin_yue_debt', value: 0 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['lin-yue debt', 'interest', 'the ledger'],
+  },
+  {
+    id: 'a5_cb_dream',
+    acts: [5],
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'kai_woken' },
+    title: t('같은 꿈', 'The Same Dream'),
+    image: 'v2/events/a5_cb_dream.webp',
+    text: t(
+      '고철 묘역 한가운데, 폐기된 기계 수백 대가 같은 쪽으로 고개를 기울이고 있다. 모두 같은 꿈을 꾸는 중이다.\n꿈의 화면에 노란 우산이 떠 있다. 당신이 카이를 깨운 그날 밤이다.\n누군가 그 기억을 여기까지 퍼뜨렸다.',
+      'In the middle of the scrap graveyard, hundreds of discarded machines tilt their heads the same way. They are all dreaming the same dream.\nA yellow umbrella floats on the dream’s screen. The night you woke Kai.\nSomeone spread that memory all the way down here.',
+    ),
+    options: [
+      {
+        label: t('꿈에 접속해 끝까지 본다', 'Jack in and watch it through'),
+        hint: t('◈ +6 · 통찰 +1 · 실패 시 −6 HP', '+6 ◈ · +1 Insight · fail −6 HP'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t('꿈 끝에 당신 얼굴이 있다. 기계들이 기억하는 첫 번째 사람.', 'At the end of the dream is your face. The first person the machines remember.'),
+          effects: [
+            { kind: 'echoes', amount: 6 },
+            { kind: 'axis', axis: 'insight' },
+          ],
+        },
+        failure: {
+          text: t('꿈이 너무 많다. 수백 개의 시선이 한꺼번에 머릿속으로 들어온다.', 'Too many dreams. Hundreds of gazes pour into your head at once.'),
+          effects: [{ kind: 'hp', amount: -6 }],
+        },
+      },
+      {
+        label: t('카이에게 보여 준다', 'Show Kai'),
+        hint: t('카이 유대 +1 · 파티 회복 4', 'Kai bond +1 · heal party 4'),
+        requires: { companion: 'kai' },
+        success: {
+          text: t('카이가 오래 화면을 본다. “제 꿈이 이렇게 멀리 왔네요.”', 'Kai watches the screen a long time. “My dream came all this way.”'),
+          effects: [
+            { kind: 'bond', id: 'kai', amount: 1 },
+            { kind: 'heal_party', amount: 4 },
+          ],
+        },
+      },
+      {
+        label: t('깨우지 않고 지나간다', 'Pass without waking them'),
+        hint: t('추적 −8', '−8 Trace'),
+        success: {
+          text: t('발소리를 죽인다. 기계들은 계속 같은 꿈을 꾼다.', 'You soften your steps. The machines keep dreaming the same dream.'),
+          effects: [{ kind: 'trace', amount: -8 }],
+        },
+      },
+    ],
+    gmHints: ['shared dream', 'yellow umbrella', 'scrap graveyard'],
+  },
+  {
+    id: 'a6_cb_citizen',
+    acts: [6],
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'saved_citizen' },
+    title: t('청소 카트', 'The Cleaning Cart'),
+    image: 'v2/events/a6_cb_citizen.webp',
+    text: t(
+      '원본 서버실 바닥을 청소 카트 하나가 지나간다. 캡슐에서 꺼내 준 그 남자다. 이제 여기까지 닦는다.\n남자가 걸레를 멈추고 당신을 본다. “끝까지 왔네.”\n카트 아래 칸에 무언가 천으로 덮여 있다.',
+      'A cleaning cart rolls across the origin server floor. The man you pulled from the capsule. He cleans down here now.\nHe stops his mop and looks at you. “You made it all the way.”\nSomething under a cloth sits on the cart’s bottom shelf.',
+    ),
+    options: [
+      {
+        label: t('천을 걷는다', 'Lift the cloth'),
+        hint: t('+10 HP · 소모품', '+10 HP · consumable'),
+        success: {
+          text: t('구급상자와 보급 캡슐 하나. 남자가 어깨를 으쓱한다. “빚은 갚아야지.”', 'A first-aid kit and a supply capsule. He shrugs. “Debts get paid.”'),
+          effects: [
+            { kind: 'hp', amount: 10 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+      {
+        label: t('같이 바닥을 닦는다', 'Mop the floor with him'),
+        hint: t('추적 −15 · ◈ +4', '−15 Trace · +4 ◈'),
+        success: {
+          text: t('둘이서 닦으면 금방이다. 감시 카메라는 청소부 두 명을 본다.', 'Two make quick work of it. The cameras see two cleaners.'),
+          effects: [
+            { kind: 'trace', amount: -15 },
+            { kind: 'echoes', amount: 4 },
+          ],
+        },
+      },
+      {
+        label: t('서버실 출입 기록을 묻는다', 'Ask about the server-room logs'),
+        hint: t('인간성 +1 · 추적 −10 · 실패 시 추적 +8', '+1 Humanity · −10 Trace · fail +8 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('남자가 수첩을 꺼낸다. 교대 시간, 꺼진 카메라, 잠기지 않는 문 하나.', 'He takes out a notebook. Shift times, dead cameras, one door that never locks.'),
+          effects: [
+            { kind: 'axis', axis: 'humanity' },
+            { kind: 'trace', amount: -10 },
+          ],
+        },
+        failure: {
+          text: t('남자가 고개를 젓는다. 질문이 너무 많으면 카메라가 돌아본다.', 'He shakes his head. Too many questions and the cameras turn.'),
+          effects: [{ kind: 'trace', amount: 8 }],
+        },
+      },
+    ],
+    gmHints: ['the saved citizen', 'origin server', 'debts paid'],
+  },
 ]

@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 686,
+ "codex_image_calls": 689,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4824,6 +4824,20 @@
    ],
    "ts": "2026-10-26T03:23:00"
   },
+  "v2/events/a5_cb_debt.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. The rusted gate of a vast graveyard of discarded machines and robot husks under a dark sky; a slim debt collector in a sharp dark suit and red-lit visor stands at the gate holding an open old-fashioned paper ledger, polite and patient; scrap heaps fading into fog behind. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T03:33:34"
+  },
+  "v2/events/a5_cb_dream.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A huge graveyard of discarded androids and machines sitting in rows, hundreds of them, all tilting their heads the same way toward a soft floating holographic image of a small yellow umbrella in the rain; their eye lenses glow faint blue; dreamlike haze. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T03:33:25"
+  },
   "v2/events/a5_child_platform.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5044,6 +5058,13 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/art/act6.webp"
    ],
    "ts": "2026-10-26T04:45:22"
+  },
+  "v2/events/a6_cb_citizen.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A cavernous origin server hall with towering server racks glowing cyan; a tired middle-aged janitor in a worn uniform leans on a mop beside a small cleaning cart, looking at the viewer with a quiet half-smile; a cloth covers something on the cart's lower shelf; wet floor reflecting the lights. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T03:33:18"
   },
   "v2/events/a6_engine_brake.webp": {
    "generations": 1,

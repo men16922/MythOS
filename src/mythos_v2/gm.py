@@ -475,20 +475,27 @@ _EVENT_OPENING: dict[Lang, tuple[str, str]] = {
 
 
 def _procedural_note(lang: Lang, ctx: Mapping[str, Any]) -> str:
-    """A procedural event (W2-3): the situation is authored, the GM invents the place and the person."""
+    """A procedural event (W2-3): the situation is authored, the GM sets the place; the person is cast by the client
+    (``person``: a name and one detail) so the line always has someone in it."""
     brief = _ctx_str(ctx, "procedural")
     if not brief:
         return ""
+    person = _ctx_str(ctx, "person")
     if lang == "ko":
-        return (
-            f"이 사건은 상황만 정해져 있다: '{brief}'. 지금 막에 어울리는 구체적인 장소 하나를 정하고, "
-            "두 번째 문장에서 인물 한 명을 이름이나 별명으로 부르며 눈에 띄는 특징 하나와 함께 등장시킨다. "
-            "선택지·보상·결과는 말하지 않는다."
+        who = (
+            f"두 번째 문장에서 '{person}'을(를) 그 이름으로 부르며 등장시킨다. "
+            if person
+            else "두 번째 문장에서 인물 한 명을 이름이나 별명으로 부르며 눈에 띄는 특징 하나와 함께 등장시킨다. "
         )
+        return f"이 사건은 상황만 정해져 있다: '{brief}'. 지금 막에 어울리는 구체적인 장소 하나를 정하고, {who}선택지·보상·결과는 말하지 않는다."
+    who = (
+        f"in the second sentence bring in '{person}' by that name. "
+        if person
+        else "in the second sentence bring in one person by a name or nickname with one telling detail. "
+    )
     return (
-        f"This event is only a situation: '{brief}'. Pick one specific place that fits the act, and in the "
-        "second sentence bring in one person by a name or nickname with one telling detail. Never mention "
-        "options, rewards or outcomes."
+        f"This event is only a situation: '{brief}'. Pick one specific place that fits the act, and {who}"
+        "Never mention options, rewards or outcomes."
     )
 
 
@@ -566,7 +573,7 @@ def narrate_messages(kind: NarrateKind, lang: Lang, context: Mapping[str, Any]) 
     rest = {
         k: v
         for k, v in context.items()
-        if k not in ("memory", "improvised", "seenBefore", "procedural")
+        if k not in ("memory", "improvised", "seenBefore", "procedural", "person")
     }
     extra = memory_block(lang, context) + (
         improvised_block(lang, context) if kind == "chronicle" else ""

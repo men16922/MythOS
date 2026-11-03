@@ -84,6 +84,12 @@ class ContextTest(unittest.TestCase):
             self.assertIn("A call for help keeps repeating.", system)
             self.assertIn("telling detail" if lang == "en" else "이름이나 별명", system)
             self.assertNotIn("procedural", user)
+        cast = gm.sanitize_context(
+            {"title": "X", "act": 2, "procedural": "Y", "person": "Sun-ok in a red scarf"}
+        )
+        system, user = gm.narrate_messages("event", "en", cast)
+        self.assertIn("'Sun-ok in a red scarf' by that name", system)
+        self.assertNotIn("person", user)
         _, plain = gm.narrate_messages("event", "en", gm.sanitize_context({"title": "X", "act": 2}))
         self.assertNotIn("telling detail", plain)
         after = gm.sanitize_context(

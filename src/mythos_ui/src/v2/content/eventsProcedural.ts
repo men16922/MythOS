@@ -296,3 +296,22 @@ export const PROCEDURAL_EVENTS: EventDef[] = [
     gmHints: ['unread message', 'public terminal', 'someone else’s words'],
   },
 ]
+
+/**
+ * People the GM can cast in a procedural event (W2-3): a name and one telling detail. The opening line is asked to
+ * bring this person in by name; picked per run and event (ui/shell/eventOpening.ts), never by the model.
+ */
+export const PROCEDURAL_PEOPLE: Text[] = [
+  t('붉은 목도리를 두른 순옥', 'Sun-ok in a red scarf'),
+  t('한쪽 렌즈가 깨진 안경의 덕배', 'Deok-bae with one cracked lens'),
+  t('손등에 바코드 문신이 있는 미나', 'Mina with a barcode tattoo on her hand'),
+  t('우산 대신 비닐을 쓴 노인 강씨', 'old Mr. Kang under a plastic sheet instead of an umbrella'),
+  t('배달 헬멧을 벗지 않는 지호', 'Ji-ho, who never takes off his delivery helmet'),
+  t('의족에서 작은 소리가 나는 은비', 'Eun-bi, whose prosthetic leg ticks softly'),
+  t('정비복 소매를 걷어붙인 춘자', 'Chun-ja with her coverall sleeves rolled up'),
+  t('목소리가 유난히 낮은 소년 태양', 'Tae-yang, a boy with an unusually low voice'),
+  t('모자챙에 꽃을 꽂은 경비원 말순', 'Mal-sun, a guard with a flower tucked in her cap'),
+  t('손가락 마디마다 반지를 낀 브로커 칠성', 'Chil-seong, a broker with a ring on every knuckle'),
+  t('기침을 숨기는 간호사 혜원', 'Hye-won, a nurse hiding a cough'),
+  t('낡은 카메라를 목에 건 영두', 'Yeong-du with an old camera round his neck'),
+]

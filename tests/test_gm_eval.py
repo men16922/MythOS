@@ -73,6 +73,13 @@ class GmEvalTest(unittest.TestCase):
         dejavu = next(c for c in cases if c.id == "event_open_dejavu_ko")
         self.assertIn("데자뷔", dejavu.system)
 
+    def test_narration_usable_matches_production_guards(self) -> None:
+        case = next(c for c in ev.cases() if c.id == "event_open_procedural_ko")
+        self.assertIsNotNone(case.clean("세린이 통신기를 낮춘다. 골목 끝에서 불빛이 깜박인다."))
+        self.assertIsNone(
+            case.clean("카이가 통신기를 낮춘다. 골목 끝에서 불빛이 깜박인다."), "absent companion"
+        )
+
     def test_scoring_and_regressions_are_deterministic(self) -> None:
         results = ev.run(ScriptedLLM(), ev.cases(), reps=2)
         summary = ev.summarize(results)

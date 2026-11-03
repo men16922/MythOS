@@ -61,8 +61,14 @@ def _narrate(case_id: str, kind: gm.NarrateKind, lang: Lang, ctx: dict[str, Any]
         user,
         limits.max_tokens,
         0.8,
-        lambda raw: gm.clean_narration(raw, kind, lang),
+        # Same two steps as /gm/narrate: the cleaner, then the absent-companion guard (a miss → authored fallback).
+        lambda raw: _narration_line(raw, kind, lang, ctx),
     )
+
+
+def _narration_line(raw: str, kind: gm.NarrateKind, lang: Lang, ctx: dict[str, Any]) -> str | None:
+    text = gm.clean_narration(raw, kind, lang)
+    return None if text and talk.absent_companion_named(text, ctx) else text
 
 
 def _companion(case_id: str, companion: str, lang: Lang, ctx: dict[str, Any], message: str) -> Case:
@@ -242,6 +248,7 @@ def cases() -> list[Case]:
                 "act": 2,
                 "party": ["세린"],
                 "procedural": "도움을 청하는 짧은 신호가 반복해서 들어온다. 누가 보냈는지는 모른다.",
+                "person": "한쪽 렌즈가 깨진 안경의 덕배",
             },
         ),
         _narrate(
@@ -254,6 +261,7 @@ def cases() -> list[Case]:
                 "act": 1,
                 "party": ["Se-rin"],
                 "procedural": "A stranger offers to trade one memory for credits.",
+                "person": "Chil-seong, a broker with a ring on every knuckle",
             },
         ),
         _narrate(

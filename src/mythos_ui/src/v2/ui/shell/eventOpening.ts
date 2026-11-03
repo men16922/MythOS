@@ -4,8 +4,16 @@
 import type { ContentRegistry, EventDef, Lang, RunState } from '../../engine/types.ts'
 import { tr } from '../common/lang.ts'
 import { narrateLine, type GmLine } from './gm.ts'
+import { PROCEDURAL_PEOPLE } from '../../content/eventsProcedural.ts'
 
 const inflight = new Map<string, Promise<GmLine | null>>()
+
+/** The person cast in a procedural event: fixed per run and event, so a retry or a reload meets the same one. */
+export function proceduralPerson(run: Pick<RunState, 'seed'>, eventId: string): (typeof PROCEDURAL_PEOPLE)[number] | undefined {
+  let h = 2166136261
+  for (const ch of `${run.seed}:${eventId}`) h = Math.imul(h ^ ch.charCodeAt(0), 16777619)
+  return PROCEDURAL_PEOPLE[(h >>> 0) % PROCEDURAL_PEOPLE.length]
+}
 
 const keyOf = (run: RunState, eventId: string): string => `${run.id}:${run.act}:${eventId}:${run.seenEvents.length}`
 
@@ -22,7 +30,7 @@ function request(run: RunState, ev: EventDef, C: ContentRegistry, lang: Lang, se
     // Lived through in earlier loops: the GM may open on déjà vu (the server phrases the count).
     seenBefore,
     // Procedural event (W2-3): the GM invents the place and person for this authored situation.
-    ...(ev.procedural ? { procedural: tr(ev.procedural.brief, lang) } : {}),
+    ...(ev.procedural ? { procedural: tr(ev.procedural.brief, lang), person: tr(proceduralPerson(run, ev.id), lang) } : {}),
   })
 }
 

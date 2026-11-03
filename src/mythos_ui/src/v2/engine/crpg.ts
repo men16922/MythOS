@@ -9,6 +9,7 @@
 // District placement uses its own hash so the rest of the run's random stream is identical with or without it.
 // Outcome rewards stay inside an event node's budget: a district replaces one event node per act.
 
+import { chapterCheck, chapterQuest } from './chapterMeters.ts'
 import { COVER_HP, tileAt, unitAt } from './effects.ts'
 import { addAxis, applyImmediate, conditionMet, intentAxis, log, openFollowUps, raiseBond, roster } from './run.ts'
 import { hashSeed, rand } from './rng.ts'
@@ -322,12 +323,14 @@ function resolve(next: RunState, option: DialogueOption, success: boolean, roll:
   const now: RunEffect[] = []
   for (const e of outcome.effects ?? []) {
     if (isCrpgEffect(e)) {
+      if (e.kind === 'quest' && next.crpg && (next.crpg.quests[e.id] ?? 0) < e.stage) chapterQuest(next)
       if (next.crpg) applyCrpgEffect(next.crpg, e)
     } else if (INTERACTIVE.has(e.kind) || (e.kind === 'upgrade_card' && !e.random)) state.queued.push(e)
     else now.push(e)
   }
   applyImmediate(next, now, C)
   if (option.check && roll) offerThought(next, option.check.stat, success, C.thoughts ?? [])
+  if (option.check && roll) chapterCheck(next, success)
   const approvals = applyApproval(next, option, C)
   const bg = next.crpg?.background ? C.crpg?.backgrounds[next.crpg.background] : undefined
   const inspired = !!next.crpg && !!bg?.inspires.includes(option.intent) && next.crpg.inspiration < MAX_INSPIRATION

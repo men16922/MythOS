@@ -458,6 +458,7 @@ export function GameShell() {
               ? {
                   carry: {
                     core: profile.chronicle.carried.coreCards,
+                    agendas: profile.chronicle.agendas,
                     onCore: (ids: string[]) => profile.chronicle && setProfile({ ...profile, chronicle: withCore(profile.chronicle, ids, run.deck) }),
                   },
                 }

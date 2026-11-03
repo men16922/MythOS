@@ -84,3 +84,50 @@ test('chronicle: the core pick keeps only cards from the run deck, three at most
   const deck = [{ defId: 'packet_shot' }, { defId: 'shove' }, { defId: 'covering_noise' }, { defId: 'repulse' }]
   assert.deepEqual(withCore(state, ['shove', 'not_in_deck', 'shove', 'packet_shot', 'repulse', 'covering_noise'], deck).carried.coreCards, ['shove', 'packet_shot', 'repulse'])
 })
+
+test('chapter meters: only chronicle runs have them; nodes raise pressure, rests lower it, failed checks wear integrity', async () => {
+  const meters = await import('./chapterMeters.ts')
+  const plain = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 3 }, C)
+  assert.equal(plain.chapter, undefined)
+  const r = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 3, mode: 'chronicle' }, C)
+  assert.deepEqual(r.chapter, { integrity: meters.INTEGRITY_START, pressure: 0 })
+  for (let i = 0; i < 7; i++) meters.chapterNode(r, 'combat')
+  assert.equal(r.chapter?.pressure, 7)
+  meters.chapterNode(r, 'rest')
+  assert.equal(r.chapter?.pressure, 4)
+  meters.chapterCheck(r, true)
+  meters.chapterCheck(r, false)
+  assert.equal(r.chapter?.integrity, meters.INTEGRITY_START - 1)
+  meters.chapterQuest(r)
+  assert.equal(r.chapter?.integrity, meters.INTEGRITY_START)
+  for (let i = 0; i < 20; i++) meters.chapterCheck(r, false)
+  assert.equal(r.chapter?.integrity, 0)
+  assert.ok(meters.districtsClosed(r))
+  // Pressure at the threshold: every enemy opens with Rage.
+  const { startCombat } = await import('./combat.ts')
+  const enc = Object.values(C.encounters).find((e) => e.act === 1 && e.kind === 'normal' && !e.route)?.id as string
+  const hot = { ...r, chapter: { integrity: 3, pressure: meters.PRESSURE_RAGE } }
+  const cool = { ...r, chapter: { integrity: 3, pressure: 0 } }
+  const rage = (x: typeof r) => startCombat(x, enc, C).units.filter((u) => u.side === 'enemy').map((u) => u.statuses.rage ?? 0)
+  assert.ok(rage(hot).every((n, i) => n === (rage(cool)[i] ?? 0) + 1))
+})
+
+test('agendas: each moves at most one stage per chapter, only when its next condition holds', async () => {
+  const { advanceAgendas } = await import('./chronicle.ts')
+  const defs = C.chronicleAgendas ?? []
+  assert.equal(defs.length, 5)
+  const base = carryOver(run(), C)
+  assert.deepEqual(advanceAgendas(undefined, base, defs), {}, 'nothing carried, nobody moves')
+  const rich = { ...base, rep: { offgrid: 2, grid: -2 }, approval: { se_rin: 4 }, axes: { insight: 1, humanity: 3, dominance: 2 }, quests: { q_shelter: 2, q_spider: 2 } }
+  const one = advanceAgendas(undefined, rich, defs)
+  assert.deepEqual(one, { agenda_serin: 1, agenda_ix: 1, agenda_kai: 1, agenda_listed: 1 }, 'one stage each, market standing missing for Lin-yue')
+  const two = advanceAgendas(one, rich, defs)
+  assert.deepEqual(two, { agenda_serin: 2, agenda_ix: 2, agenda_kai: 2, agenda_listed: 2 })
+  assert.deepEqual(advanceAgendas(two, rich, defs), two, 'no stage past the last')
+  for (const a of defs) {
+    for (const s of a.stages) {
+      assert.ok(s.text.ko && s.text.en, `${a.id} stage text`)
+      if (s.when.quest) assert.ok(C.crpg?.quests?.[s.when.quest.id], `${a.id} quest ${s.when.quest.id} exists`)
+    }
+  }
+})

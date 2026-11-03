@@ -64,7 +64,25 @@ export interface EndingScreenProps extends ScreenProps {
   /** Achievement ids this run earned (its banked history row). */
   achievements?: readonly string[]
   /** Chronicle chapter end (prototype): the core cards carried into the next chapter, and the pick. */
-  carry?: { core: readonly string[]; onCore: (ids: string[]) => void }
+  carry?: { core: readonly string[]; onCore: (ids: string[]) => void; agendas?: Readonly<Record<string, number>> }
+}
+
+/** Where each NPC agenda stands after this chapter (chronicle prototype): who, and their latest stage line. */
+function AgendaLines({ C, lang, agendas }: { C: ScreenProps['C']; lang: Lang; agendas: Readonly<Record<string, number>> }) {
+  const moved = (C.chronicleAgendas ?? []).filter((a) => (agendas[a.id] ?? 0) > 0)
+  return (
+    <ul className="m2-ending__agendas" data-testid="agendas">
+      {moved.length === 0 ? (
+        <li>{lang === 'ko' ? '아직 아무도 움직이지 않았다.' : 'Nobody has moved yet.'}</li>
+      ) : (
+        moved.map((a) => (
+          <li key={a.id}>
+            <b>{tr(a.who, lang)}</b> · {tr(a.stages[(agendas[a.id] ?? 1) - 1]?.text, lang)}
+          </li>
+        ))
+      )}
+    </ul>
+  )
 }
 
 /** Pick the three cards that carry into the next chapter (chronicle prototype): one tap toggles, three at most. */
@@ -246,6 +264,7 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
 
         <aside className="m2-ending__side">
           {carry && <CorePicker run={run} C={C} lang={lang} core={carry.core} onCore={carry.onCore} />}
+          {carry && <AgendaLines C={C} lang={lang} agendas={carry.agendas ?? {}} />}
           <div className={`m2-tally${stage >= 2 ? ' is-in' : ''}`}>
             <div className="m2-tally__head">{ko ? '획득한 에코' : 'Echoes earned'}</div>
             <div className="m2-tally__total">

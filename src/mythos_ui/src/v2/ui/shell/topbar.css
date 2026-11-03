@@ -338,3 +338,18 @@
 .m2-topbar__parts {
   color: #ffd68c;
 }
+
+/* Chronicle prototype: the two chapter meters, one quiet line. */
+.m2-topbar__chapter {
+  flex: none;
+  font-size: 11px;
+  color: var(--m2-mute);
+  padding: 0 6px;
+  white-space: nowrap;
+}
+.m2-topbar__chapter.is-hot {
+  color: var(--m2-amber);
+}
+.m2-topbar__chapter.is-broken {
+  color: var(--m2-threat, #ff5a6e);
+}

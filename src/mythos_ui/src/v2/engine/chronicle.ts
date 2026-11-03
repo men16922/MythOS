@@ -2,7 +2,7 @@
 // five chapters (docs/plans/2026-10-26-dlc-expansion-plan.md §3.2): stats, background, choice axes, companion approval,
 // quest stages and faction standing carry over, and three core cards survive the deck rebuild. The state lives inside
 // the profile (`MetaProfile.chronicle`), so it rides the existing save, sync and 512 KB blob cap with no new slot.
-import type { ChoiceAxis, ChronicleState, ContentRegistry, Faction, RunState, Stats } from './types.ts'
+import type { AgendaCond, ChoiceAxis, ChronicleAgendaDef, ChronicleState, ContentRegistry, Faction, RunState, Stats } from './types.ts'
 
 export const CHRONICLE_CHAPTERS = 5
 export const CORE_CARDS = 3
@@ -44,6 +44,29 @@ export function withCore(state: ChronicleState, ids: readonly string[], deck: re
   return { ...state, carried: { ...state.carried, coreCards: core } }
 }
 
+function agendaMet(when: AgendaCond, c: ChronicleState['carried']): boolean {
+  if (when.rep) {
+    const v = c.rep[when.rep.faction] ?? 0
+    if (when.rep.min !== undefined && v < when.rep.min) return false
+    if (when.rep.max !== undefined && v > when.rep.max) return false
+  }
+  if (when.approval && (c.approval[when.approval.id] ?? 0) < when.approval.min) return false
+  if (when.axis && (c.axes[when.axis.axis] ?? 0) < when.axis.min) return false
+  if (when.quest && (c.quests[when.quest.id] ?? 0) < when.quest.stage) return false
+  return true
+}
+
+/** Between chapters every agenda moves at most one stage, when its next stage's condition holds. */
+export function advanceAgendas(prev: Readonly<Record<string, number>> | undefined, carried: ChronicleState['carried'], defs: readonly ChronicleAgendaDef[]): Record<string, number> {
+  const out: Record<string, number> = { ...(prev ?? {}) }
+  for (const a of defs) {
+    const at = out[a.id] ?? 0
+    const next = a.stages[at]
+    if (next && agendaMet(next.when, carried)) out[a.id] = at + 1
+  }
+  return out
+}
+
 /** Close a chapter: mark it done and point at the next (the last chapter stays as the final one). */
 export function finishChapter(state: ChronicleState | undefined, chapter: number, carried: ChronicleState['carried']): ChronicleState {
   const done = [...new Set([...(state?.chaptersDone ?? []), chapter])].sort((a, b) => a - b)
@@ -68,6 +91,7 @@ export function migrateChronicle(raw: unknown): ChronicleState | undefined {
   return {
     chapter: num(r.chapter, 1, CHRONICLE_CHAPTERS, 1),
     chaptersDone: Array.isArray(r.chaptersDone) ? [...new Set(r.chaptersDone.filter((n): n is number => Number.isInteger(n) && n >= 1 && n <= CHRONICLE_CHAPTERS))].sort((a, b) => a - b) : [],
+    ...(r.agendas !== undefined ? { agendas: numMap(r.agendas) } : {}),
     carried: {
       archetype: carried.archetype,
       stats,

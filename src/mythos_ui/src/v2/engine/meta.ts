@@ -4,7 +4,7 @@
 // Pure: every function returns a new profile (or a derived value) and never touches
 // storage. A RunState is self-contained, so banking reads only the run + content.
 
-import { carryOver, finishChapter, migrateChronicle } from './chronicle.ts'
+import { advanceAgendas, carryOver, finishChapter, migrateChronicle } from './chronicle.ts'
 import { newAchievements } from './achievements.ts'
 import { mergeBestiary } from './bestiary.ts'
 import { DAILY_CAP, isBetterDaily, isDateKey } from './daily.ts'
@@ -510,7 +510,10 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
   if (!run.daily) next.fallen = [...(run.fell ?? [])]
   if (!run.daily) next.veterans = [...run.party, ...(run.bench ?? [])].filter((m) => (m.level ?? 1) >= 5).map((m) => m.id)
   // Chronicle prototype (W4): a cleared chapter banks the connector for the next one.
-  if (run.mode === 'chronicle' && victory) next.chronicle = finishChapter(profile.chronicle, profile.chronicle?.chapter ?? 1, carryOver(run, C))
+  if (run.mode === 'chronicle' && victory) {
+    const carried = carryOver(run, C)
+    next.chronicle = { ...finishChapter(profile.chronicle, profile.chronicle?.chapter ?? 1, carried), agendas: advanceAgendas(profile.chronicle?.agendas, carried, C.chronicleAgendas ?? []) }
+  }
   if (isDateKey(run.daily)) next.daily = recordDaily(profile.daily, run.daily, dailyResultOf(run, earned))
   const unlocked = newAchievements(next, run, C)
   if (unlocked.length > 0) {

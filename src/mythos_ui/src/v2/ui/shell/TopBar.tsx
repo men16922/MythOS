@@ -1,5 +1,6 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
 import { perkWaiting } from '../../engine/companionLevel.ts'
+import { PRESSURE_RAGE } from '../../engine/chapterMeters.ts'
 import { actOf } from '../../engine/run.ts'
 import { art } from '../components/art.ts'
 import { BookOpen, CloudCheck, Cog, Coins, Heart, Layers, Menu, MessagesSquare, ScrollText, Settings, Shuffle, Users } from 'lucide-react'
@@ -244,6 +245,19 @@ export function TopBar({ run, C, lang, onDeck, onComms, onParty, onSheet, onSett
         )}
       </button>
 
+      {run.chapter && (
+        <span
+          className={`m2-topbar__chapter m2-mono${run.chapter.pressure >= PRESSURE_RAGE ? ' is-hot' : ''}${run.chapter.integrity <= 0 ? ' is-broken' : ''}`}
+          title={
+            lang === 'ko'
+              ? `장서 무결도: 판정 실패마다 −1, 임무 진행마다 +1. 0이면 남은 구역이 닫힌다.\n검열 압력: 칸마다 +1, 은신처에서 −3. ${PRESSURE_RAGE} 이상이면 적이 분노 1로 시작한다.`
+              : `Integrity: −1 per failed check, +1 per quest step. At 0 the remaining districts close.\nPressure: +1 per node, −3 at a safehouse. At ${PRESSURE_RAGE}+ enemies start with 1 Rage.`
+          }
+          data-testid="chapter-meters"
+        >
+          {lang === 'ko' ? `무결 ${run.chapter.integrity} · 압력 ${run.chapter.pressure}` : `Integrity ${run.chapter.integrity} · Pressure ${run.chapter.pressure}`}
+        </span>
+      )}
       <div className="m2-topbar__implants" ref={implantRow}>
         {hiddenImplants.length > 0 && (
           <Tooltip

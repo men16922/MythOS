@@ -1106,6 +1106,8 @@ export interface RunState {
   pride?: string
   /** Paradox 10: what IX read off the deck at this act's start (content/ixReads.ts), countered for the whole act. */
   ixRead?: string
+  /** Chronicle chapter meters (engine/chapterMeters.ts); chronicle runs only. */
+  chapter?: { integrity: number; pressure: number }
   /** Endless Signal laps completed (each lap: enemies +60 % HP, +3 damage, Rage a turn earlier and +1 stronger). */
   lap?: number
   /** The connector's leanings this run (1.0 choice axes): dialogue intents, first impressions, hard wins. */
@@ -1398,6 +1400,23 @@ export interface ChronicleState {
     /** The three cards that carry over; the rest of the deck is rebuilt each chapter. */
     coreCards: string[]
   }
+  /** NPC agenda stage per agenda id (content/chronicleAgendas.ts); each moves at most one stage per chapter. */
+  agendas?: Record<string, number>
+}
+
+/** What moves an NPC agenda between chapters, read off the carried-over connector (all given parts must hold). */
+export interface AgendaCond {
+  rep?: { faction: Faction; min?: number; max?: number }
+  approval?: { id: string; min: number }
+  axis?: { axis: ChoiceAxis; min: number }
+  quest?: { id: string; stage: number }
+}
+
+export interface ChronicleAgendaDef {
+  id: string
+  who: Text
+  goal: Text
+  stages: { when: AgendaCond; text: Text }[]
 }
 
 export interface MetaProfile {
@@ -1600,6 +1619,8 @@ export interface ContentRegistry {
   pride?: Record<string, Text>
   /** Paradox 10 counters (content/ixReads.ts). */
   ixReads?: IxReadDef[]
+  /** Chronicle NPC agendas (content/chronicleAgendas.ts). */
+  chronicleAgendas?: ChronicleAgendaDef[]
   endings: Record<string, EndingDef>
   unlocks: Record<string, MetaUnlockDef>
   paradox: ParadoxDef[]

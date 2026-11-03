@@ -15,6 +15,7 @@
 // (entering the next node, or leaving the boss reward). Elites +4, bosses +12 on win.
 // Victory/ending bonuses are added only when banking (see meta.computeEchoes).
 
+import { chapterCheck, chapterNode, districtsClosed, newChapterMeters } from './chapterMeters.ts'
 import { noteFightFeats } from './achievements.ts'
 import { noteFightBestiary } from './bestiary.ts'
 import { REPLICA_BEATEN, REPLICA_BOUNTY, startCombat } from './combat.ts'
@@ -669,6 +670,7 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     run.crpg = newCrpgState(bg && C.crpg.backgrounds[bg] ? bg : null, 'trial' in crpgOpts ? crpgOpts.trial : undefined)
   }
   if (carried) applyCarried(run, carried, C)
+  if (run.mode === 'chronicle') run.chapter = newChapterMeters()
   // What the last loop left behind: an inscribed echo and the autonomy of the lore found so far (never on a daily).
   if (!daily) {
     const echo = opts.echo ? echoOffers(profile, C).find((e) => e.id === opts.echo) : undefined
@@ -847,6 +849,7 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
   // The grid's reputation (C+4): on good terms the patrols look away a little; on bad terms they look harder.
   gainTrace(next, Math.max(0, (mutatorMods(next).traceStep ?? (next.paradox >= 3 ? NODE_TRACE_PARADOX : NODE_TRACE)) - repTier(next, 'grid')), C)
   if (next.thoughts) applyImmediate(next, advanceThoughts(next, C.thoughts ?? []), C)
+  chapterNode(next, node.kind)
 
   switch (node.kind) {
     case 'combat':
@@ -861,8 +864,9 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
       enterAsEvent(next, node, C)
       break
     case 'district':
-      // A district this content does not know (an old save, a run without the layer): play it as an event node.
-      if (!node.districtId || !enterDistrict(next, node.districtId, C)) enterAsEvent(next, node, C)
+      // A district this content does not know (an old save, a run without the layer), or a chronicle chapter whose
+      // integrity ran out: play it as an event node.
+      if (districtsClosed(next) || !node.districtId || !enterDistrict(next, node.districtId, C)) enterAsEvent(next, node, C)
       break
     case 'shop':
       log(next, 'shop', KIND_NOTE.shop)
@@ -1512,6 +1516,7 @@ export function chooseEventOption(run: RunState, index: number, C: ContentRegist
   const outcome = success ? view.option.success : (view.option.failure ?? NOTHING_HAPPENS)
   applyImmediate(next, outcome.effects, C)
   if (check) offerThought(next, check.stat, success, C.thoughts ?? [])
+  if (check) chapterCheck(next, success)
   next.screen = { kind: 'event', eventId, resolved: { optionIndex: index, success, text: outcome.text }, improvised: null }
   log(next, 'event', view.option.label)
   return next

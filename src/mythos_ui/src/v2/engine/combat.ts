@@ -10,6 +10,7 @@
 //   c. enemies without a pending windup move and telegraph (and next reinforcements are announced)
 //   d. win/lose → next player turn (party block clears, guard, energy, draw, turn_start triggers)
 
+import { pursuersClose } from './chapterMeters.ts'
 import { squadTacticFor } from './squad.ts'
 import { advanceTide, floodsNext, startTide } from './tide.ts'
 import type { UnitStateExt } from './effects.ts'
@@ -302,6 +303,8 @@ function applyOpeningPerks(c: CombatState, run: RunState, enc: EncounterDef, C: 
     for (const e of livingEnemies(c)) addStatus(c, e, k, n)
   }
   if (conn) for (const [k, n] of Object.entries(mut.openConnector ?? {}) as [StatusKind, number][]) addStatus(c, conn, k, n)
+  // Chronicle: pressure high, the pursuers are close: every enemy opens with 1 Rage (engine/chapterMeters.ts).
+  if (pursuersClose(run)) for (const e of livingEnemies(c)) addStatus(c, e, 'rage', 1)
   // Paradox 10: the counter IX read off the deck at this act's start (content/ixReads.ts).
   const read = run.ixRead ? C.ixReads?.find((r) => r.id === run.ixRead)?.combat : undefined
   if (read) {

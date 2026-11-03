@@ -1502,6 +1502,11 @@ export interface ActDef {
   image: string
   /** Cards added to the deck when the act starts (Pack 3: the Rewrite starter). */
   gift?: string[]
+  /**
+   * How the act ends, by the run's leading choice axis when it is left (engine/run.ts actCoda): one line in the
+   * chronicle and under the next act's title. `scale` is that axis's ending threshold, so axes compare fairly.
+   */
+  codas?: Partial<Record<ChoiceAxis, { title: Text; text: Text; scale: number }>>
 }
 
 export interface ContentRegistry {

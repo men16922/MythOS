@@ -42,7 +42,22 @@ function pickLine(pool: readonly Line[], n: Names | null, seedKey: string): stri
 
 const ordinalKo = (loop: number): string => (loop <= 1 ? '첫' : `${loop}번째`)
 
-function actIntro(ko: boolean, act: number, loop: number): Line[] {
+function actIntro(ko: boolean, act: number, loop: number, actName: string): Line[] {
+  // Deep Signal / the Sea (Act 4+): the ARK Spire lines below belong to Act 3 only, so these name the act itself.
+  if (act >= 4) {
+    const at = actName ? `${actName}. ` : ''
+    return ko
+      ? [
+          () => `${at}신호가 한 층 더 깊어진다. 지난 막의 소음이 발밑에서 멀어진다.`,
+          () => `${at}여기서부터 지도는 손으로 그려야 한다.`,
+          (n) => (n ? `${at}${n.ga} 앞을 본다. “아직 끝이 아니네.”` : null),
+        ]
+      : [
+          () => `${at}The signal goes one layer deeper. The noise of the last act fades under your feet.`,
+          () => `${at}From here on, the map is drawn by hand.`,
+          (n) => (n ? `${at}${n.name} looks ahead. “Not the end yet.”` : null),
+        ]
+  }
   if (act === 1) {
     return ko
       ? [
@@ -174,7 +189,7 @@ export function localNarrate(kind: LocalNarrateKind, lang: Lang, context: Ctx): 
   if (kind === 'act_intro') {
     const act = Number(context.act ?? 1)
     const loop = Number(context.loop ?? 1)
-    return pickLine(actIntro(ko, act, loop), n, `act|${act}|${loop}|${n?.name ?? ''}`)
+    return pickLine(actIntro(ko, act, loop, String(context.actName ?? '')), n, `act|${act}|${loop}|${n?.name ?? ''}`)
   }
   if (kind === 'event') {
     const key = `event|${String(context.title ?? '')}|${String(context.choice ?? '')}|${String(context.success ?? '')}|${String(context.loop ?? '')}`

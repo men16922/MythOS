@@ -129,6 +129,9 @@
 }
 
 .m2-actintro__residue {
+  /* Its own full-width row: auto-placed into the number column it widened it and squeezed the title on phones. */
+  grid-column: 1 / -1;
+  max-width: 72ch;
   margin: 0 0 10px;
   font-size: 14px;
   opacity: 0.78;

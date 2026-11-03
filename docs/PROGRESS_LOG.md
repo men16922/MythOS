@@ -2,6 +2,12 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Glass Library codas (W1-4, first half) + Act 4–6 local GM line fix (Claude Opus 5.5, same goal)
+
+- **Built**: `ActDef.codas` + `actCoda` / `previousCoda` (engine/run.ts): when an act with codas is left, its leading choice axis (each axis against its ending threshold: 4 / 4 / 10 / 4, so resilience from boss wins does not always win) picks one of four closings: A Quiet Return (insight), Names Restored (humanity), The Stolen Book (dominance), The White Seal (resilience), 1.0's four Glass Library endings. Written to the chronicle and shown under the Act 5 title.
+- **Fixed** (found in the screenshot): the local GM line for every act from 3 up said "The ARK Spire", so Deep and Sea Acts 4–6 opened with Act 3's line whenever the AI line was off or fell back. Acts 4+ now get lines that name the act. Also: the act-intro residue / echo / coda line was auto-placed into the number column and squeezed the title on a 390 px phone; it now spans the row.
+- **Verified**: engine test (threshold comparison, flag, chronicle), local GM test; Act 5 intro with a coda in headless muted Chromium (ko desktop, en 390 px) before/after the layout fix, 0 console errors (`outputs/qa/coda_ui/`). Left for W1-4: the two Glass Library districts (Signal+ CRPG layer, about 600 lines each + art).
+
 ## 2026-11-04 — Callbacks: five earlier choices come back as scenes (W1-1, first part) (Claude Opus 5.5, same goal)
 
 - **Built** (`content/eventsCallbacks.ts`, 5 Codex images, unreviewed): walking past the capsule → Act 3 "Score 312" (Se-rin's bond can drop: the "Se-rin distrust" branch); cutting out Kai's core → "The Warm Core"; covering Kai with the umbrella → "The Yellow Umbrella"; Trace ≥ 60 → "Hunt Order" (the hard-push branch); copying the list instead of pulling three names → Deep Act 4 "The Copy" (records or people: Dominance / Humanity). New flags on the original options: `left_citizen`, `kai_cored`, `kai_umbrella`, `list_copied`. A scene whose flag is not set gives way to another event.
@@ -68,17 +74,3 @@ Last updated: 2026-11-04
 - **Tuning**: acts 4–6 raised (`hpPct` 130 / 190 / 240, `dmg` 9 / 14 / 17), new per-act `bossHpPct` (3: −30, 5: −20, 6: −70). Fresh 176/450 = 39.1 %, once-won 39.3 %, route forced 41.1 %, Deep 38/150 = 25.3 %. Bosses at most 8.8 turns in Deep, 8.4 in standard.
 - **Real UI**: gear on reward and shop, buying, Act 4 four-person fight at desktop and 390 px, 0 errors. Phone squad strip clipped the fourth person: fixed.
 - **Verified**: `make check` (node 517, Python 338), `make test-e2e-v2`, `make playthrough-quick`. Unverified: human feel of the new numbers.
-
-## 2026-11-01 — Promoted `00171-yuj`, next steps planned (Claude Opus 5.5, owner: deploy to production)
-
-- **Deployed** on owner order: preview `00171-yuj` (`de62fd1`) verified 5/5, promoted with `--to-revisions`; 100 %, label and bundle `ed531b3557d3` match; rollback `00169-fih`.
-- **`url-smoke` fixed**: a collected reward stays as a disabled "Taken" button, which also matches `Take`, so the blind clicker pressed it forever on a won fight. Enabled buttons only now. Preview after the fix: 10 runs, 9 defeats and 1 win, all reached their end.
-- **Production timeout**: `url-smoke` run flow timed out once after the fix. Then 9 production runs (8 ended, 1 still a playable fight on turn 13, the blind clicker missing the last enemy), then `url-smoke` 4/4, 0 console errors, no post-fight stall. Budget now 480 s and a timeout prints the last screen. The timed-out run left no record, so the cause is inferred. Bot still never trains.
-- **Plan**: `docs/plans/2026-11-01-next-steps-plan.md`, with five reverse-engineering candidates. Deep and boss re-tune not started.
-
-## 2026-11-01 — Party and growth rework done (Claude Opus 5.5, owner requests)
-
-- **Built** (not deployed), plan `docs/plans/2026-11-01-party-growth-plan.md`: companion stats and levels 1–5 (deployed wins or 1 growth; HP, top two stats, direct damage at 3 and 5, opening block at 3, Momentum at 5), stat cards read their player's stats, three companions from Act 4 (`partySlots`, the bench fills the slot), gear (20 pieces, weapon + armor per person, run inventory, elites / bosses / shops), a new party screen that holds all of it.
-- **Bug caught by a test**: opening block from level and gear was wiped as turn 1 began; now granted there.
-- **Balance** (canonical, mixed): everything together read 282 / 450 = 62.7 %, Deep 74.7 %. Companion damage moved from stats to level, weapons cut, then enemies raised (`tuning.acts` 2: +22 % HP +1 dmg, 3: +46 % +3, 4: +105 % +7, 5: +150 % +10, 6: +190 % +13; route +8 % HP). Final: fresh 188 / 450 = 41.8 %, once-won declining 186, route forced 173 = 38.4 %, Deep 49 / 150 = 32.7 % (was 27.3 %, target 20–30). Avg turns: normal 3.6–4.7, boss 8.0–10.0; Act 3 (9.7) and Act 6 (10.0) bosses run past the 9-turn line.
-- **Verified**: `make check` (node 515, Python 338), `make test-e2e-v2`, `make playthrough-quick`, party screen in the real UI at desktop and 390 px (grow, equip, train, 0 console errors). Unverified: fun, how a human uses gear and Train (the bot only auto-equips and never trains), gear rows on the real reward and shop screens, Act 4 with three companions in the real UI, production. Gear has no art yet.

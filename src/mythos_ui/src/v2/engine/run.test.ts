@@ -829,3 +829,22 @@ test('Condition.companions requires every listed companion', () => {
   const missing = conditionMet(run, { companions: [...has, 'comp_missing'] }, C)
   assert.equal(missing.ok, false)
 })
+
+test('an act with codas closes by the leading axis against its threshold; the next act shows it once', async () => {
+  const { CONTENT } = await import('../content/index.ts')
+  const { actCoda, previousCoda, advanceAct } = await import('./run.ts')
+  const glass = CONTENT.acts[4]
+  assert.equal(actCoda({ axes: {} }, glass), undefined, 'no lean, no coda')
+  assert.equal(actCoda({ axes: { resilience: 6, humanity: 3 } }, glass), 'humanity', 'resilience counts against 10, humanity against 4')
+  assert.equal(actCoda({ axes: { resilience: 9, humanity: 3 } }, glass), 'resilience')
+  assert.equal(actCoda({ axes: { dominance: 2 } }, CONTENT.acts[3]), undefined, 'acts without codas close silently')
+  const run = structuredClone(atMap(77, unlocked()))
+  run.act = 4
+  run.mode = 'deep'
+  run.axes = { insight: 2, resilience: 3 }
+  advanceAct(run, CONTENT)
+  assert.equal(run.act, 5)
+  assert.equal(run.flags.coda_4_insight, 1)
+  assert.equal(previousCoda(run, CONTENT)?.title.en, 'A Quiet Return')
+  assert.ok(run.log.some((e) => e.note.en === 'A Quiet Return'), 'written to the chronicle')
+})

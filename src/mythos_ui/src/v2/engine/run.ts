@@ -72,6 +72,7 @@ import type {
   RunLogEntry,
   RunScreen,
   ActDef,
+  ActId,
   GearDef,
   GearSlot,
   RunMode,
@@ -1166,7 +1167,35 @@ export function deepSignalOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<Conte
   return profile.wins > 0 && Object.keys(C.acts).some((k) => Number(k) > STANDARD_ACTS)
 }
 
+/** The coda of the act being left: its leading choice axis against that axis's ending threshold (ties: listed order). */
+export function actCoda(run: Pick<RunState, 'axes'>, act: ActDef | undefined): ChoiceAxis | undefined {
+  let best: { axis: ChoiceAxis; score: number } | undefined
+  for (const [axis, coda] of Object.entries(act?.codas ?? {}) as [ChoiceAxis, { scale: number }][]) {
+    const score = (run.axes?.[axis] ?? 0) / coda.scale
+    if (score > 0 && (!best || score > best.score)) best = { axis, score }
+  }
+  return best?.axis
+}
+
+const codaFlag = (act: number, axis: ChoiceAxis): string => `coda_${act}_${axis}`
+
+/** The coda the previous act closed with (shown under this act's title), if any. */
+export function previousCoda(run: RunState, C: ContentRegistry): { title: Text; text: Text } | undefined {
+  const prev = C.acts[(run.act - 1) as ActId]
+  for (const [axis, coda] of Object.entries(prev?.codas ?? {}) as [ChoiceAxis, { title: Text; text: Text }][]) {
+    if (run.flags[codaFlag(run.act - 1, axis)]) return coda
+  }
+  return undefined
+}
+
 export function advanceAct(run: RunState, C: ContentRegistry): void {
+  const leaving = actOf(run, C)
+  const coda = (run.lap ?? 0) === 0 ? actCoda(run, leaving) : undefined
+  const closing = coda ? leaving?.codas?.[coda] : undefined
+  if (coda && closing) {
+    run.flags[codaFlag(run.act, coda)] = 1
+    log(run, 'start', closing.title)
+  }
   run.growth = (run.growth ?? 0) + ACT_GROWTH
   if ((run.autonomy ?? 0) >= 2) gainTrace(run, -AUTONOMY_ACT_SCRUB, C)
   run.act = run.act + 1

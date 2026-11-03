@@ -46,3 +46,17 @@ test('local GM lines: same scene reads the same, different scenes read different
   const titles = ['검문소', '야시장', '옥상 물탱크', '변전소', '지하 수로', '폐역', '세탁소', '전파상']
   assert.ok(new Set(titles.map((t) => at(t).replace(/‘[^’]*’\. /, ''))).size >= 3, 'at least three distinct lines over eight events')
 })
+
+test('local act intro: Act 3 is the ARK Spire, Deep / Sea acts name themselves instead', () => {
+  for (const lang of ['ko', 'en'] as const) {
+    const act3 = localNarrate('act_intro', lang, { act: 3, actName: 'ARK', loop: 1, party: [] }) ?? ''
+    assert.ok(/ARK/.test(act3))
+    for (const act of [4, 5, 6]) {
+      for (const party of [[], ['Kai']]) {
+        const line = localNarrate('act_intro', lang, { act, actName: 'Dreaming Machines', loop: 2, party }) ?? ''
+        assert.ok(line.startsWith('Dreaming Machines. '), `act ${act} ${lang}: ${line}`)
+        assert.ok(!/ARK|첨탑/.test(line), `act ${act} ${lang}: no Act 3 lines`)
+      }
+    }
+  }
+})

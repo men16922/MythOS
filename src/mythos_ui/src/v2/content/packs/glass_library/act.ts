@@ -13,4 +13,39 @@ export const GLASS_ACT: ActDef = {
   },
   backdrop: 'library',
   image: 'v2/art/act4.webp',
+  // 1.0's four Glass Library endings, kept as the four ways this act closes (W1-4).
+  codas: {
+    insight: {
+      title: { ko: '조용한 반납', en: 'A Quiet Return' },
+      text: {
+        ko: '사서의 책상에 대출 카드 한 장을 올려 둔다. 반납일 칸에 오늘 날짜. 유리 서가가 한 칸씩 불을 끈다. 아무것도 가져가지 않았다. 다 읽었을 뿐이다.',
+        en: 'You leave a borrowing card on the librarian’s desk, today’s date in the return box. The glass shelves go dark one by one. You took nothing. You only read it all.',
+      },
+      scale: 4,
+    },
+    humanity: {
+      title: { ko: '이름의 복원', en: 'Names Restored' },
+      text: {
+        ko: '깨진 페이지를 하나씩 맞춘다. 맞춘 자리마다 이름 하나가 떠오른다. 사서가 그 이름들을 소리 내어 읽는다. 서가 끝까지 읽는 데 밤이 다 간다.',
+        en: 'You fit the broken pages back together. A name surfaces at every seam. The librarian reads them aloud. It takes the whole night to reach the end of the shelf.',
+      },
+      scale: 4,
+    },
+    dominance: {
+      title: { ko: '금서 탈취', en: 'The Stolen Book' },
+      text: {
+        ko: '잠긴 서가의 유리를 깬다. 금서 한 권을 코트 안에 넣는다. 경보는 울리지 않는다. 사서가 문 앞에서 비켜선다. 이제 그 책은 당신 것이다.',
+        en: 'You break the glass of the locked shelf and slip a forbidden book inside your coat. No alarm sounds. The librarian steps aside at the door. The book is yours now.',
+      },
+      scale: 4,
+    },
+    resilience: {
+      title: { ko: '백색 봉인', en: 'The White Seal' },
+      text: {
+        ko: '검열자들이 쓰러진 자리에 흰 봉인 테이프가 남아 있다. 당신은 그걸 다시 붙인다. 이번엔 안쪽에서. 유리성이 닫힌다. 다음에 올 사람을 위해.',
+        en: 'Where the censors fell, white sealing tape is left behind. You put it back up, from the inside this time. The glass castle closes, for whoever comes next.',
+      },
+      scale: 10,
+    },
+  },
 }

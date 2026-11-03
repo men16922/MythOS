@@ -1,5 +1,11 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — World echoes for every victory ending, 3 → 16 (W1-3) (Claude Opus 5.5, same goal)
+
+- **Built**: 13 new echoes, one per Deep Signal (6) and Sea (7) victory ending, each a small effect (credits, bond, `maxHp` (new field), opening block, final boss) plus a `scene` line, the one concrete thing that changed in the city, shown under the Act 1 title (all 16 have one).
+- **Measured** (next loop after that ending, fresh canonical 3 × 150, mixed): no echo 41.6 %; existing Remaining Ember 48.4 % (reference); Twelve-Second Light 45.8, Full Stop 42.7 (harder final boss), The Scrawl (+3 max HP) 48.7, Those Left 44.0, Off the Map 49.8 → cut to +10₵ / +2 max HP → 48.0. Every new echo at or below the reference.
+- **Verified**: `make check` (node 536, Python 338), `make test-e2e-v2`, `make playthrough-quick`; test: every victory ending has exactly one echo and its text matches its numbers; Act 1 intro line in headless muted Chromium (ko 1280×720, en 390×844, `outputs/qa/echo_ui/`), 0 console errors. Unverified: the lines' tone by a human reader.
+
 ## 2026-11-04 — Undo reaches cards that reveal nothing (Claude Opus 5.5, same goal)
 
 - **Built** (reverse-engineering item 3): Z / the undo button now steps back through every action this turn that revealed nothing: moves, and cards or consumables that drew no card and left the combat RNG and the shuffle/AI streams untouched (`keepUndo` in the `playCard` / `useConsumable` / `moveUnit` wrappers; the bots' in-place calls pay nothing). A draw, a roll, an ultimate or the end of the turn makes everything before it final. Snapshots now sit on a flat `undoStack` instead of nesting (nested JSON doubles its escaping per level); a snapshot nested by an older save still undoes one step at a time, so old daily replay logs stay valid (`undoMove` keeps its name for them). Labels: "이동 취소 / undo move" → "되돌리기 / undo".

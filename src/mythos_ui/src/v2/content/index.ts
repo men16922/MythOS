@@ -92,7 +92,8 @@ export const CONTENT: ContentRegistry = {
   // Balance 2026-10-25 (docs/plans/2026-10-25-argon-review-and-s-rank-plan.md): the 5-stat perks, Evade/Crit and the
   // larger card/implant pool made the party much stronger than the authored enemy numbers assumed.
   // paradoxHigh (2026-11-04): Paradox 6–10 were clamped to 5 until then; tuned to the DLC plan's greedy P10 ~55 % (53.3 %).
-  tuning: { paradoxHigh: { rage6: 2, boss8Pct: 40, hpPerLevel: 8 }, enemyHpPct: 13, eliteHpPct: 20, bossHpPct: -10, dmgFromAct: 1, rage: { elite: 3, boss: 2, fromTurn: 3 }, acts: { 2: { hpPct: 30, dmg: 1 }, 3: { hpPct: 56, dmg: 4, bossHpPct: -36 }, 4: { hpPct: 130, dmg: 9 }, 5: { hpPct: 190, dmg: 14, bossHpPct: -20 }, 6: { hpPct: 240, dmg: 17, bossHpPct: -70 } }, routes: { [OUTSIDE_ROUTE]: { hpPct: 8 }, sea_4: { bossHpPct: -5, dmg: 5, hpPct: 5 }, sea_5: { bossHpPct: -50, dmg: 9, hpPct: 15 }, sea_6: { bossHpPct: -70, dmg: 12, hpPct: 15 } } },
+  // chronicle (2026-11-04): per-chapter offsets so each chapter from a starter deck + three core cards sits near 50–56 % mixed.
+  tuning: { paradoxHigh: { rage6: 2, boss8Pct: 40, hpPerLevel: 8 }, chronicle: { 3: { hpPct: -60, dmg: -5 }, 4: { hpPct: -90, dmg: -6 }, 5: { hpPct: -140, dmg: -10 }, 6: { hpPct: -180, dmg: -12 } }, enemyHpPct: 13, eliteHpPct: 20, bossHpPct: -10, dmgFromAct: 1, rage: { elite: 3, boss: 2, fromTurn: 3 }, acts: { 2: { hpPct: 30, dmg: 1 }, 3: { hpPct: 56, dmg: 4, bossHpPct: -36 }, 4: { hpPct: 130, dmg: 9 }, 5: { hpPct: 190, dmg: 14, bossHpPct: -20 }, 6: { hpPct: 240, dmg: 17, bossHpPct: -70 } }, routes: { [OUTSIDE_ROUTE]: { hpPct: 8 }, sea_4: { bossHpPct: -5, dmg: 5, hpPct: 5 }, sea_5: { bossHpPct: -50, dmg: 9, hpPct: 15 }, sea_6: { bossHpPct: -70, dmg: 12, hpPct: 15 } } },
 }
 
 export { CARDS, CONSUMABLES, ENEMIES, ENCOUNTERS, IMPLANTS, COMPANIONS, ARCHETYPES }

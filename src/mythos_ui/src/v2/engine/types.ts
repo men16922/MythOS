@@ -1663,4 +1663,9 @@ export interface EnemyTuning {
    * enemy HP for every Paradox level above 5 (so P10 carries five steps).
    */
   paradoxHigh?: { rage6: number; boss8Pct: number; hpPerLevel: number }
+  /**
+   * Chronicle chapters (W4 prototype): extra enemy HP % / damage per chapter act, on top of the act's numbers. A
+   * chapter starts from a starter deck plus three core cards, so later acts need far less than a Deep run's deck does.
+   */
+  chronicle?: Record<number, { hpPct?: number; dmg?: number }>
 }

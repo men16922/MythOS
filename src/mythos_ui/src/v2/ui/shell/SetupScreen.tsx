@@ -399,7 +399,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                           [
                             'chronicle',
                             ko ? '크로니클 (시제품)' : 'Chronicle (prototype)',
-                            profile.chronicle ? (ko ? `${profile.chronicle.chapter}장 · 접속자를 이어서` : `Chapter ${profile.chronicle.chapter} · same connector`) : ko ? '1장 · 접속자가 남는다' : 'Chapter 1 · the connector stays',
+                            profile.chronicle ? (ko ? `${profile.chronicle.chapter}장 / 6 · 접속자를 이어서` : `Chapter ${profile.chronicle.chapter} of 6 · same connector`) : ko ? '1장 / 6 · 접속자가 남는다' : 'Chapter 1 of 6 · the connector stays',
                           ],
                         ] as const)
                       : []),
@@ -443,8 +443,8 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                     : 'Defeating IX does not end the signal. Go on through the Glass Library and the machine graveyard down to Act 6, the First Record. Stop and resume any time.'
                   : depth === 'chronicle'
                   ? ko
-                    ? '1막 한 장을 구역과 대화로 깊게 탄다. 보스를 넘기면 스탯·배경·관계·평판과 카드 세 장이 다음 장으로 넘어간다. 시제품이라 지금은 1장만 있다.'
-                    : 'Play Act 1 as a chapter, deep in its districts and talks. Beat the boss and your stats, background, ties, standing and three cards carry into the next chapter. A prototype: only chapter one exists.'
+                    ? '한 막을 한 장으로, 구역과 대화를 깊게 탄다. 보스를 넘기면 스탯·배경·관계·평판과 카드 세 장이 다음 장으로 넘어간다. 여섯 장, 한 접속자. 시제품이다.'
+                    : 'Play one act as a chapter, deep in its districts and talks. Beat the boss and your stats, background, ties, standing and three cards carry into the next chapter. Six chapters, one connector. A prototype.'
                   : depth === 'endless'
                     ? ko
                       ? '마지막 막을 넘기면 다시 1막, 잔향 한 층 더 깊이(층마다 적 HP +60%, 피해 +3, 분노 가속). 쓰러질 때까지 내려간다.'

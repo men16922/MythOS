@@ -37,7 +37,7 @@ test('chronicle save: malformed data is dropped or clamped, never trusted', () =
   assert.equal(migrateChronicle(null), undefined)
   assert.equal(migrateChronicle({ chapter: 2, carried: {} }), undefined, 'no archetype: no chronicle')
   const m = migrateChronicle({ chapter: 99, chaptersDone: [1, 1, 7, 'x'], carried: { archetype: 'ghost', stats: { str: 400 }, axes: { humanity: 2, evil: 9 }, rep: { grid: 1, moon: 3 }, coreCards: ['a', 'b', 'c', 'd', 5] } })
-  assert.equal(m?.chapter, 5)
+  assert.equal(m?.chapter, 6)
   assert.deepEqual(m?.chaptersDone, [1])
   assert.equal(m?.carried.stats.str, 20)
   assert.deepEqual(m?.carried.axes, { humanity: 2 })
@@ -50,7 +50,7 @@ test('chronicle prototype: a chapter is Act 1 with districts, ends at its boss, 
   const { simulateRun } = await import('./runSim.ts')
   const { applyRunEnd } = await import('./meta.ts')
   const { lastAct, CHRONICLE_CHAPTER_ENDING } = await import('./run.ts')
-  assert.equal(lastAct({ mode: 'chronicle' }, C), 1)
+  assert.equal(lastAct({ mode: 'chronicle' }, C), 6, 'six chapters, one per act')
   let won: ReturnType<typeof simulateRun> | undefined
   let seed = 1
   for (; seed < 40 && !won; seed++) {
@@ -130,4 +130,18 @@ test('agendas: each moves at most one stage per chapter, only when its next cond
       if (s.when.quest) assert.ok(C.crpg?.quests?.[s.when.quest.id], `${a.id} quest ${s.when.quest.id} exists`)
     }
   }
+})
+
+test('chronicle chapters: chapter N starts on Act N with its gifts and ends at that act’s boss; offsets apply only there', async () => {
+  const { startCombat } = await import('./combat.ts')
+  const carried = carryOver(run(), C)
+  const at = (chapter: number) => newRun({ ...newProfile('T'), chronicle: { chapter, chaptersDone: [], carried } }, { archetype: 'ghost', paradox: 0, seed: 21, mode: 'chronicle' }, C)
+  const ch4 = at(4)
+  assert.equal(ch4.act, 4)
+  assert.ok(Object.values(ch4.map.nodes).every((n) => n.row >= 0))
+  for (const id of C.acts[4]?.gift ?? []) assert.ok(ch4.deck.some((k) => k.defId === id), `Act 4 gift ${id}`)
+  const enc = Object.values(C.encounters).find((e) => e.act === 4 && e.kind === 'normal' && !e.route)?.id as string
+  const hp = (r: typeof ch4) => startCombat(r, enc, C).units.filter((u) => u.side === 'enemy').reduce((s, u) => s + u.maxHp, 0)
+  const deepLike = { ...ch4, mode: 'deep' as const }
+  assert.ok(hp(ch4) < hp(deepLike), 'chronicle chapter 4 enemies are lighter than the same fight in Deep Signal')
 })

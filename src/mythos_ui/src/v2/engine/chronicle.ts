@@ -4,7 +4,8 @@
 // the profile (`MetaProfile.chronicle`), so it rides the existing save, sync and 512 KB blob cap with no new slot.
 import type { AgendaCond, ChoiceAxis, ChronicleAgendaDef, ChronicleState, ContentRegistry, Faction, RunState, Stats } from './types.ts'
 
-export const CHRONICLE_CHAPTERS = 5
+/** One chapter per act (2026-11-04: the six acts that exist; the DLC plan sketched five). */
+export const CHRONICLE_CHAPTERS = 6
 export const CORE_CARDS = 3
 
 const STAT_KEYS = ['str', 'agi', 'int', 'cha', 'obs'] as const

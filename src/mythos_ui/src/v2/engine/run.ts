@@ -16,6 +16,7 @@
 // Victory/ending bonuses are added only when banking (see meta.computeEchoes).
 
 import { chapterCheck, chapterNode, districtsClosed, newChapterMeters } from './chapterMeters.ts'
+import { CHRONICLE_CHAPTERS } from './chronicle.ts'
 import { noteFightFeats } from './achievements.ts'
 import { noteFightBestiary } from './bestiary.ts'
 import { REPLICA_BEATEN, REPLICA_BOUNTY, startCombat } from './combat.ts'
@@ -707,7 +708,13 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
       if (worldEcho.bond) for (const m of run.party) raiseBond(run, m.id, worldEcho.bond, C)
     }
   }
-  run.map = generateActMap(1, mapRng(run, 1), C, { paradox, avoid: run.staleEvents ?? [] })
+  // A chronicle chapter plays its own act (chapter N = Act N), with that act's gifts.
+  const chapterAct = run.mode === 'chronicle' ? Math.max(1, Math.min(CHRONICLE_CHAPTERS, profile.chronicle?.chapter ?? 1)) : 1
+  if (chapterAct > 1) {
+    run.act = chapterAct
+    for (const id of C.acts[chapterAct as ActId]?.gift ?? []) addCard(run, id, C)
+  }
+  run.map = generateActMap(chapterAct, mapRng(run, chapterAct), C, { paradox, avoid: run.staleEvents ?? [] })
   placeDistrict(run, run.map, C)
   log(run, 'start', daily ? t(`오늘의 시드 ${daily} 시작`, `Daily Signal ${daily} begins`) : t(`루프 ${loop} 시작`, `Loop ${loop} begins`))
   const removes = (thread.startRemove ? 1 : 0) + (!daily && (run.autonomy ?? 0) >= 4 ? 1 : 0)
@@ -1164,7 +1171,7 @@ function takeRoute(run: RunState, id: string, C: ContentRegistry): void {
 /** The run's final act: 3 on a standard run; a Deep Signal run continues through every act the content holds. */
 export function lastAct(run: Pick<RunState, 'mode'>, C: Pick<ContentRegistry, 'acts'>): number {
   if (!run.mode) return STANDARD_ACTS
-  if (run.mode === 'chronicle') return CHRONICLE_CHAPTER_ACTS
+  if (run.mode === 'chronicle') return CHRONICLE_CHAPTERS
   return Math.max(STANDARD_ACTS, ...Object.keys(C.acts).map(Number))
 }
 
@@ -1190,8 +1197,7 @@ export function deepSignalOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<Conte
   return profile.wins > 0 && Object.keys(C.acts).some((k) => Number(k) > STANDARD_ACTS)
 }
 
-/** Chronicle prototype (W4): one act per chapter for now (chapter 1 = Act 1), and its own chapter-end ending. */
-export const CHRONICLE_CHAPTER_ACTS = 1
+/** Chronicle prototype (W4): a chapter is one act (chapter N = Act N) and ends with its own chapter-end ending. */
 export const CHRONICLE_CHAPTER_ENDING = 'ending_chronicle_chapter'
 
 /** The connector a chronicle carried over: archetype-free parts (stats, axes, CRPG standing, core cards). */
@@ -1286,15 +1292,15 @@ export function leaveReward(run: RunState, C: ContentRegistry): RunState {
     if (!s.reward.taken.credits) next.credits += s.reward.credits
     if (next.nodeId !== null && next.nodeId === next.map.bossId) {
       clearCurrentNode(next)
-      if (next.act < lastAct(next, C)) advanceAct(next, C)
+      if (next.mode === 'chronicle') {
+        // A chronicle chapter ends at its boss; applyRunEnd banks the carried-over connector for the next chapter.
+        endRun(next, 'victory', CHRONICLE_CHAPTER_ENDING, C.endings[CHRONICLE_CHAPTER_ENDING]?.title ?? t('장 끝', 'Chapter end'))
+      } else if (next.act < lastAct(next, C)) advanceAct(next, C)
       else if (next.mode === 'endless') {
         // Endless Signal: one lap deeper, back to Act 1.
         next.lap = (next.lap ?? 0) + 1
         next.act = 0
         advanceAct(next, C)
-      } else if (next.mode === 'chronicle') {
-        // A chronicle chapter ends at its boss; applyRunEnd banks the carried-over connector for the next chapter.
-        endRun(next, 'victory', CHRONICLE_CHAPTER_ENDING, C.endings[CHRONICLE_CHAPTER_ENDING]?.title ?? t('장 끝', 'Chapter end'))
       } else next.screen = { kind: 'final_choice' }
     } else {
       next.screen = { kind: 'map' }

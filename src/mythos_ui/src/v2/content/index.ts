@@ -4,6 +4,7 @@
 import { PRIDE, RESIDUE } from './residue.ts'
 import { IX_READS } from './ixReads.ts'
 import { CHRONICLE_AGENDAS } from './chronicleAgendas.ts'
+import { CHRONICLE_TWISTS } from './chronicleTwists.ts'
 import { SQUAD_ROLES, SQUAD_TACTICS } from './squadTactics.ts'
 import { buildAchievements } from './achievements.ts'
 import { COMPANION_INTROS } from './companionIntros.ts'
@@ -77,6 +78,7 @@ export const CONTENT: ContentRegistry = {
   pride: PRIDE,
   ixReads: IX_READS,
   chronicleAgendas: CHRONICLE_AGENDAS,
+  chronicleTwists: CHRONICLE_TWISTS,
   gear: byId([...GEAR, ...SEA_GEAR.map((g) => ({ ...g, route: 'sea_4' }))]),
   levelPerks: byId(LEVEL_PERKS),
   endings: byId(ENDINGS),

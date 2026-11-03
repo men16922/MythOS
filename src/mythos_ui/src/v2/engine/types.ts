@@ -1106,6 +1106,8 @@ export interface RunState {
   pride?: string
   /** Paradox 10: what IX read off the deck at this act's start (content/ixReads.ts), countered for the whole act. */
   ixRead?: string
+  /** Chronicle: twist beats shown under this chapter's title ([twist id, beat index]); chronicle runs only. */
+  beats?: [string, number][]
   /** Chronicle chapter meters (engine/chapterMeters.ts); chronicle runs only. */
   chapter?: { integrity: number; pressure: number }
   /** Endless Signal laps completed (each lap: enemies +60 % HP, +3 damage, Rage a turn earlier and +1 stronger). */
@@ -1402,6 +1404,14 @@ export interface ChronicleState {
   }
   /** NPC agenda stage per agenda id (content/chronicleAgendas.ts); each moves at most one stage per chapter. */
   agendas?: Record<string, number>
+  /** The two twists this campaign drew, in reveal order (content/chronicleTwists.ts). */
+  twists?: string[]
+}
+
+export interface ChronicleTwistDef {
+  id: string
+  /** Hint, doubt, reveal. */
+  beats: [Text, Text, Text]
 }
 
 /** What moves an NPC agenda between chapters, read off the carried-over connector (all given parts must hold). */
@@ -1621,6 +1631,8 @@ export interface ContentRegistry {
   ixReads?: IxReadDef[]
   /** Chronicle NPC agendas (content/chronicleAgendas.ts). */
   chronicleAgendas?: ChronicleAgendaDef[]
+  /** Chronicle twist bank (content/chronicleTwists.ts). */
+  chronicleTwists?: ChronicleTwistDef[]
   endings: Record<string, EndingDef>
   unlocks: Record<string, MetaUnlockDef>
   paradox: ParadoxDef[]

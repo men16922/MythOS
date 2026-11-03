@@ -89,6 +89,14 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
               : `IX has read your ${tr(ixRead.read, lang)} · ${tr(ixRead.text, lang)}`}
           </p>
         )}
+        {(run.beats ?? []).map(([id, i]) => {
+          const beat = C.chronicleTwists?.find((x) => x.id === id)?.beats[i]
+          return beat ? (
+            <p key={`${id}${i}`} className="m2-actintro__residue" data-testid="twist-beat">
+              {tr(beat, lang)}
+            </p>
+          ) : null
+        })}
         {coda && (
           <p className="m2-actintro__residue" data-testid="act-coda">
             <b>{tr(coda.title, lang)}</b> · {tr(coda.text, lang)}

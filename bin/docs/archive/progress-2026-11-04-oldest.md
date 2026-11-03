@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Boot screen the first time a run goes below the city (W1-5) (Claude Opus 5.5, same goal)
+
+- **Built**: `content/bootLines.ts` (1.0 `boot_lines` / `signal_lines` adapted per depth: Deep Signal and Sea) + `ui/shell/BootScreen.tsx` over the Act 4 intro: lines type in, the signal line follows, a click or ~1.6 s after the last line closes it; once per depth per device (`mythos2.bootSeen`), never on an Endless lap.
+- **Verified**: `make check`, `make test-e2e-v2`, `make playthrough-quick` (node 536, Python 338, all green); headless muted Chromium, deep at 1280×720 and sea at 390×844: appears, closes by itself, not shown again, 0 console errors (`outputs/qa/boot_ui/`). Unverified: a full `--deep` playthrough with the overlay (closes by itself, so the bot is not blocked by design).
+
 ## 2026-11-04 — World echoes for every victory ending, 3 → 16 (W1-3) (Claude Opus 5.5, same goal)
 
 - **Built**: 13 new echoes, one per Deep Signal (6) and Sea (7) victory ending, each a small effect (credits, bond, `maxHp` (new field), opening block, final boss) plus a `scene` line, the one concrete thing that changed in the city, shown under the Act 1 title (all 16 have one).

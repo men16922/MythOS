@@ -16,7 +16,7 @@
 // Victory/ending bonuses are added only when banking (see meta.computeEchoes).
 
 import { chapterCheck, chapterNode, districtsClosed, newChapterMeters } from './chapterMeters.ts'
-import { CHRONICLE_CHAPTERS } from './chronicle.ts'
+import { CHRONICLE_CHAPTERS, twistBeats } from './chronicle.ts'
 import { noteFightFeats } from './achievements.ts'
 import { noteFightBestiary } from './bestiary.ts'
 import { REPLICA_BEATEN, REPLICA_BOUNTY, startCombat } from './combat.ts'
@@ -671,7 +671,11 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     run.crpg = newCrpgState(bg && C.crpg.backgrounds[bg] ? bg : null, 'trial' in crpgOpts ? crpgOpts.trial : undefined)
   }
   if (carried) applyCarried(run, carried, C)
-  if (run.mode === 'chronicle') run.chapter = newChapterMeters()
+  if (run.mode === 'chronicle') {
+    run.chapter = newChapterMeters()
+    const beats = twistBeats(profile.chronicle?.twists, profile.chronicle?.chapter ?? 1)
+    if (beats.length > 0) run.beats = beats
+  }
   // What the last loop left behind: an inscribed echo and the autonomy of the lore found so far (never on a daily).
   if (!daily) {
     const echo = opts.echo ? echoOffers(profile, C).find((e) => e.id === opts.echo) : undefined

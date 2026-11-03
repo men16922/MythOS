@@ -145,3 +145,26 @@ test('chronicle chapters: chapter N starts on Act N with its gifts and ends at t
   const deepLike = { ...ch4, mode: 'deep' as const }
   assert.ok(hp(ch4) < hp(deepLike), 'chronicle chapter 4 enemies are lighter than the same fight in Deep Signal')
 })
+
+test('twist bank: two different twists per campaign, fixed by its seed, every pair reachable, revealed on schedule', async () => {
+  const { drawTwists, twistBeats } = await import('./chronicle.ts')
+  const defs = C.chronicleTwists ?? []
+  assert.equal(defs.length, 3)
+  const pairs = new Set<string>()
+  for (let seed = 0; seed < 60; seed++) {
+    const [a, b] = drawTwists(seed, defs)
+    assert.ok(a && b && a !== b, `seed ${seed}: two different twists`)
+    assert.deepEqual(drawTwists(seed, defs), [a, b], 'fixed per seed')
+    pairs.add(`${a}>${b}`)
+  }
+  assert.equal(pairs.size, 6, 'every ordered pair of three twists comes up')
+  assert.deepEqual(twistBeats(['x', 'y'], 1), [])
+  assert.deepEqual(twistBeats(['x', 'y'], 2), [['x', 0]])
+  assert.deepEqual(twistBeats(['x', 'y'], 5), [['y', 1]])
+  assert.deepEqual(twistBeats(['x', 'y'], 6), [['x', 2], ['y', 2]])
+  const carried = carryOver(run(), C)
+  const ch6 = newRun({ ...newProfile('T'), chronicle: { chapter: 6, chaptersDone: [1, 2, 3, 4, 5], carried, twists: ['twist_grid', 'twist_self'] } }, { archetype: 'ghost', paradox: 0, seed: 2, mode: 'chronicle' }, C)
+  assert.deepEqual(ch6.beats, [['twist_grid', 2], ['twist_self', 2]])
+  const back = migrateChronicle(JSON.parse(JSON.stringify({ chapter: 3, carried, twists: ['twist_serin', 'twist_grid', 'extra'] })))
+  assert.deepEqual(back?.twists, ['twist_serin', 'twist_grid'])
+})

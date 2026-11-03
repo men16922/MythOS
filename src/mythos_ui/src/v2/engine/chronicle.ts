@@ -2,7 +2,7 @@
 // five chapters (docs/plans/2026-10-26-dlc-expansion-plan.md §3.2): stats, background, choice axes, companion approval,
 // quest stages and faction standing carry over, and three core cards survive the deck rebuild. The state lives inside
 // the profile (`MetaProfile.chronicle`), so it rides the existing save, sync and 512 KB blob cap with no new slot.
-import type { AgendaCond, ChoiceAxis, ChronicleAgendaDef, ChronicleState, ContentRegistry, Faction, RunState, Stats } from './types.ts'
+import type { AgendaCond, ChoiceAxis, ChronicleAgendaDef, ChronicleState, ChronicleTwistDef, ContentRegistry, Faction, RunState, Stats } from './types.ts'
 
 /** One chapter per act (2026-11-04: the six acts that exist; the DLC plan sketched five). */
 export const CHRONICLE_CHAPTERS = 6
@@ -68,6 +68,29 @@ export function advanceAgendas(prev: Readonly<Record<string, number>> | undefine
   return out
 }
 
+/** Two of the twists, in reveal order, fixed per campaign (seeded by the first chapter's run seed). */
+export function drawTwists(seed: number, defs: readonly ChronicleTwistDef[]): string[] {
+  if (defs.length < 2) return defs.map((d) => d.id)
+  const n = defs.length
+  const first = Math.abs(seed) % n
+  const second = (first + 1 + (Math.floor(Math.abs(seed) / n) % (n - 1))) % n
+  return [defs[first]?.id ?? '', defs[second]?.id ?? '']
+}
+
+/** The beats under chapter `chapter`'s title: 2 → A1, 3 → B1, 4 → A2, 5 → B2, 6 → A3 and B3 (chapter 1 has none). */
+export function twistBeats(twists: readonly string[] | undefined, chapter: number): [string, number][] {
+  const [a, b] = twists ?? []
+  if (!a || !b) return []
+  switch (chapter) {
+    case 2: return [[a, 0]]
+    case 3: return [[b, 0]]
+    case 4: return [[a, 1]]
+    case 5: return [[b, 1]]
+    case 6: return [[a, 2], [b, 2]]
+    default: return []
+  }
+}
+
 /** Close a chapter: mark it done and point at the next (the last chapter stays as the final one). */
 export function finishChapter(state: ChronicleState | undefined, chapter: number, carried: ChronicleState['carried']): ChronicleState {
   const done = [...new Set([...(state?.chaptersDone ?? []), chapter])].sort((a, b) => a - b)
@@ -93,6 +116,7 @@ export function migrateChronicle(raw: unknown): ChronicleState | undefined {
     chapter: num(r.chapter, 1, CHRONICLE_CHAPTERS, 1),
     chaptersDone: Array.isArray(r.chaptersDone) ? [...new Set(r.chaptersDone.filter((n): n is number => Number.isInteger(n) && n >= 1 && n <= CHRONICLE_CHAPTERS))].sort((a, b) => a - b) : [],
     ...(r.agendas !== undefined ? { agendas: numMap(r.agendas) } : {}),
+    ...(Array.isArray(r.twists) ? { twists: r.twists.filter((x): x is string => typeof x === 'string').slice(0, 2) } : {}),
     carried: {
       archetype: carried.archetype,
       stats,

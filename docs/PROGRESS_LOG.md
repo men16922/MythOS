@@ -2,6 +2,10 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Chronicle twist bank (Claude Opus 5.5, same goal)
+
+- `content/chronicleTwists.ts` (1.0 `twist_bank`): Se-rin's double role, the grid's real purpose, who you are; three beats each (hint, doubt, reveal). A campaign draws two at its first chapter end (`drawTwists`, by run seed; all six ordered pairs come up) and reveals them under the chapter titles: 2 → A1, 3 → B1, 4 → A2, 5 → B2, 6 → both reveals (`twistBeats`, `run.beats`). Tests; browser: chapter 6 shows both reveals, 0 console errors.
+
 ## 2026-11-04 — Chronicle: six chapters, one per act, tuned (Claude Opus 5.5, same goal)
 
 - Chapter N plays Act N (with its gifts) and ends at that act's boss; `CHRONICLE_CHAPTERS` 6 (the DLC plan sketched five; the six acts exist). Each chapter starts from a starter deck plus three core cards, so `tuning.chronicle` lightens Acts 3–6 (HP −60/−90/−140/−180 %, damage −5/−6/−10/−12) for chronicle runs only.
@@ -91,8 +95,3 @@ Last updated: 2026-11-04
 - **Measured** (canonical, mixed; baseline fresh 41.6 / Deep 33.8 / Sea 31.6 %): roll weight 3 cost Sea −3.8 (lower in all three blocks; with every callback switched off the baseline came back exactly, the capsule/core/umbrella trio was the cause: it crowded out stronger Act 3 events) → weight 1: fresh 42.9, Deep 31.6 (blocks −3, −8, +1), Sea 31.1 %.
 - **Verified**: content + event-balance tests; the five scenes in headless muted Chromium (ko desktop, en 390 px), an option picked through the UI resolves each, 0 console errors (`outputs/qa/cb_ui/`). Full Deep Signal UI run (6 acts, victory, 1555 s) OK; an earlier attempt stalled in the Act 1 boss while I was editing source under its live Vite server (likely HMR; random seed, not reproduced).
 - **Second part (Deep segment)**: Act 5 "Interest" (Lin-yue's unpaid debt: pay in credits, Lin-yue speaks for you, pay with max HP, borrow once more, or tear the ledger), Act 5 "The Same Dream" (Kai woken: the machines dream it; Kai bond if he is along), Act 6 "The Cleaning Cart" (the saved citizen again). 3 Codex images. Deep with all 8 callbacks 32.7 % (baseline 33.8; blocks −2, −6, +3). UI: the three scenes render and resolve (ko desktop, en 390 px), 0 console errors.
-
-## 2026-11-04 — Boot screen the first time a run goes below the city (W1-5) (Claude Opus 5.5, same goal)
-
-- **Built**: `content/bootLines.ts` (1.0 `boot_lines` / `signal_lines` adapted per depth: Deep Signal and Sea) + `ui/shell/BootScreen.tsx` over the Act 4 intro: lines type in, the signal line follows, a click or ~1.6 s after the last line closes it; once per depth per device (`mythos2.bootSeen`), never on an Endless lap.
-- **Verified**: `make check`, `make test-e2e-v2`, `make playthrough-quick` (node 536, Python 338, all green); headless muted Chromium, deep at 1280×720 and sea at 390×844: appears, closes by itself, not shown again, 0 console errors (`outputs/qa/boot_ui/`). Unverified: a full `--deep` playthrough with the overlay (closes by itself, so the bot is not blocked by design).

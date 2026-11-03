@@ -13,7 +13,8 @@ import { dayOf, IMPROVED, submitLine } from '../components/dailyBoard.ts'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { authoredChronicle } from './chronicle.ts'
-import { narrate } from './gm.ts'
+import { narrate, narrateLine } from './gm.ts'
+import { AiMark } from '../components/AiMark.tsx'
 import { commsEntries, improvisedRecords } from '../common/commsLog.ts'
 import type { ScreenProps } from './types.ts'
 import './ending.css'
@@ -70,6 +71,22 @@ export interface EndingScreenProps extends ScreenProps {
 /** Where each NPC agenda stands after this chapter (chronicle prototype): who, and their latest stage line. */
 function AgendaLines({ C, lang, agendas }: { C: ScreenProps['C']; lang: Lang; agendas: Readonly<Record<string, number>> }) {
   const moved = (C.chronicleAgendas ?? []).filter((a) => (agendas[a.id] ?? 0) > 0)
+  // One model line per chapter end, for the last agenda listed; the authored stage line stays unless the model answers.
+  const last = moved[moved.length - 1]
+  const lastStage = last ? last.stages[(agendas[last.id] ?? 1) - 1] : undefined
+  const [ai, setAi] = useState<{ id: string; text: string } | null>(null)
+  useEffect(() => {
+    if (!last || !lastStage) return
+    let alive = true
+    void narrateLine('agenda', lang, { who: tr(last.who, lang), goal: tr(last.goal, lang), stage: tr(lastStage.text, lang) }).then((line) => {
+      if (alive && line?.ai) setAi({ id: last.id, text: line.text })
+    })
+    return () => {
+      alive = false
+    }
+    // once per chapter end and language
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [last?.id, lang])
   return (
     <ul className="m2-ending__agendas" data-testid="agendas">
       {moved.length === 0 ? (
@@ -77,7 +94,7 @@ function AgendaLines({ C, lang, agendas }: { C: ScreenProps['C']; lang: Lang; ag
       ) : (
         moved.map((a) => (
           <li key={a.id}>
-            <b>{tr(a.who, lang)}</b> · {tr(a.stages[(agendas[a.id] ?? 1) - 1]?.text, lang)}
+            <b>{tr(a.who, lang)}</b> · {ai?.id === a.id ? <>{ai.text} <AiMark lang={lang} /></> : tr(a.stages[(agendas[a.id] ?? 1) - 1]?.text, lang)}
           </li>
         ))
       )}

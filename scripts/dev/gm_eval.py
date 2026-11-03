@@ -264,6 +264,27 @@ def cases() -> list[Case]:
                 "person": "Chil-seong, a broker with a ring on every knuckle",
             },
         ),
+        # Chronicle agendas: one person's step between chapters (authored stage line as the fallback).
+        _narrate(
+            "agenda_ko",
+            "agenda",
+            "ko",
+            {
+                "who": "정세린",
+                "goal": "비접속자 연대 구축",
+                "stage": "세린이 지하 환승층에 모임 시간을 적어 붙인다.",
+            },
+        ),
+        _narrate(
+            "agenda_en",
+            "agenda",
+            "en",
+            {
+                "who": "Kai",
+                "goal": "Proof: person or equipment",
+                "stage": "Kai starts laying his dream log beside his maintenance log.",
+            },
+        ),
         _narrate(
             "act_intro_ko",
             "act_intro",

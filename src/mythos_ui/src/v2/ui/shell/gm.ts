@@ -9,7 +9,7 @@ import { recordAiCall, type AiCall, type CallOutcome } from '../common/telemetry
 import { pickCompanionReply } from './talkLines.ts'
 import { localNarrate } from './localGm.ts'
 
-type NarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro' | 'echo'
+type NarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro' | 'echo' | 'agenda'
 export type Ctx = Record<string, string | number | boolean | string[] | null | undefined>
 interface ImproviseReq {
   lang: Lang

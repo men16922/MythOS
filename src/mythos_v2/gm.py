@@ -27,7 +27,9 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 Lang = Literal["ko", "en"]
-NarrateKind = Literal["event", "ix_loop_start", "chronicle", "boss", "bond", "act_intro", "echo"]
+NarrateKind = Literal[
+    "event", "ix_loop_start", "chronicle", "boss", "bond", "act_intro", "echo", "agenda"
+]
 NARRATE_KINDS: tuple[NarrateKind, ...] = (
     "event",
     "ix_loop_start",
@@ -36,6 +38,7 @@ NARRATE_KINDS: tuple[NarrateKind, ...] = (
     "bond",
     "act_intro",
     "echo",
+    "agenda",
 )
 
 STATS: tuple[str, ...] = ("str", "agi", "int", "cha", "obs")
@@ -343,6 +346,14 @@ _KIND_SYSTEM: dict[NarrateKind, dict[Lang, str]] = {
         "loop's record (chronicle, how it ended, companions) and hold it through the senses. Never invent "
         "events, places or people that are not in the record.",
     },
+    "agenda": {
+        "ko": "크로니클의 장과 장 사이, 한 인물이 자기 목표를 한 걸음 진행한 장면을 1~2문장으로 보여 준다. "
+        "맥락의 인물(who), 목표(goal), 이번 단계(stage)만 쓴다. 3인칭 현재형, 행동 하나와 사물 하나로. "
+        "단계의 사실을 바꾸거나 다음 단계를 지어내지 않는다.",
+        "en": "Between chronicle chapters, show one person taking one step toward their goal, in 1-2 sentences. "
+        "Use only the context's person (who), goal and this step (stage). Third person, present tense, one "
+        "action and one object. Never change the step's facts or invent the next one.",
+    },
 }
 
 _KIND_ASK: dict[NarrateKind, dict[Lang, str]] = {
@@ -356,6 +367,7 @@ _KIND_ASK: dict[NarrateKind, dict[Lang, str]] = {
     "bond": {"ko": "동료와의 장면", "en": "the companion moment"},
     "act_intro": {"ko": "막 도입부", "en": "the act opening"},
     "echo": {"ko": "잔향의 기억 한 줄", "en": "the echo's one-line memory"},
+    "agenda": {"ko": "인물의 한 걸음", "en": "the person's one step"},
 }
 
 
@@ -880,6 +892,12 @@ def fallback_narration(kind: NarrateKind, lang: Lang, context: Mapping[str, Any]
         return _fallback_boss(context, lang, seed)
     if kind == "bond":
         return _fallback_bond(context, lang, seed)
+    if kind == "agenda":
+        # The client shows the authored stage line already; the authored fallback is that same line.
+        stage = _ctx_str(context, "stage")
+        if stage and language_ok(stage, lang):
+            return stage
+        return "누군가 한 걸음 움직였다." if lang == "ko" else "Someone took a step."
     if kind == "echo":
         # The client shows the authored echo text already; the authored fallback is that same text.
         authored = _ctx_str(context, "echoText")

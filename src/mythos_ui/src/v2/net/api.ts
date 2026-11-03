@@ -755,7 +755,7 @@ export async function loadHistory(limit = 30): Promise<RunRecord[] | null> {
 
 // ---------------------------------------------------------------- AI GM
 
-export type NarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro' | 'echo'
+export type NarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro' | 'echo' | 'agenda'
 
 /**
  * Context the GM (and its server-side authored fallback) understands. All optional; send plain,

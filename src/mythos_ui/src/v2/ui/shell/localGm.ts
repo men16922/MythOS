@@ -8,7 +8,7 @@ import type { Lang } from '../../engine/types.ts'
 import { hashSeed } from '../../engine/rng.ts'
 import { josa } from '../common/lang.ts'
 
-export type LocalNarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro' | 'echo'
+export type LocalNarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro' | 'echo' | 'agenda'
 type Ctx = Record<string, string | number | boolean | string[] | null | undefined>
 
 interface Names {
@@ -197,6 +197,8 @@ export function localNarrate(kind: LocalNarrateKind, lang: Lang, context: Ctx): 
   const ko = lang === 'ko'
   const party = Array.isArray(context.party) ? context.party.filter(Boolean) : []
   const n = names(party[0])
+  // Chronicle agenda: the authored stage line is the local line (the screen already shows it).
+  if (kind === 'agenda') return typeof context.stage === 'string' && context.stage ? context.stage : null
   if (kind === 'act_intro') {
     const act = Number(context.act ?? 1)
     const loop = Number(context.loop ?? 1)

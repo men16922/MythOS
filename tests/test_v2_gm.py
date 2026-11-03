@@ -189,6 +189,11 @@ class FallbackNarrationTest(unittest.TestCase):
         "event": {"title": "잠긴 자판기", "success": True},
         "ix_loop_start": {"loop": 3, "killedBy": "HAETAE"},
         "echo": {"echoName": "The Scar", "echoText": "Where you fell last time still aches."},
+        "agenda": {
+            "who": "정세린",
+            "goal": "비접속자 연대 구축",
+            "stage": "세린이 지하 환승층에 모임 시간을 적어 붙인다.",
+        },
         "chronicle": {
             "loop": 2,
             "result": "defeat",
@@ -224,6 +229,15 @@ class FallbackNarrationTest(unittest.TestCase):
         for kind in gm.NARRATE_KINDS:
             for lang in ("ko", "en"):
                 self.assertTrue(gm.fallback_narration(kind, lang, {}))
+
+    def test_agenda_fallback_is_the_authored_stage(self) -> None:
+        stage = "Se-rin pins a meeting time on the transfer level wall."
+        self.assertEqual(gm.fallback_narration("agenda", "en", {"stage": stage}), stage)
+        system, user = gm.narrate_messages(
+            "agenda", "en", gm.sanitize_context({"who": "Se-rin", "stage": stage})
+        )
+        self.assertIn("one step", system)
+        self.assertIn(stage, user)
 
     def test_context_is_templated(self) -> None:
         ix = gm.fallback_narration("ix_loop_start", "en", {"killedBy": "HAETAE"})

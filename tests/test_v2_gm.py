@@ -75,6 +75,23 @@ class ContextTest(unittest.TestCase):
             self.assertIn("The First Record", user)
             self.assertIn("City of Memory", user)
 
+    def test_procedural_event_opening_asks_for_a_place_and_a_person(self) -> None:
+        ctx = gm.sanitize_context(
+            {"title": "A Lost Signal", "act": 2, "procedural": "A call for help keeps repeating."}
+        )
+        for lang in ("en", "ko"):
+            system, user = gm.narrate_messages("event", lang, ctx)
+            self.assertIn("A call for help keeps repeating.", system)
+            self.assertIn("telling detail" if lang == "en" else "이름이나 별명", system)
+            self.assertNotIn("procedural", user)
+        _, plain = gm.narrate_messages("event", "en", gm.sanitize_context({"title": "X", "act": 2}))
+        self.assertNotIn("telling detail", plain)
+        after = gm.sanitize_context(
+            {"title": "X", "choice": "Trace it", "success": True, "procedural": "Y"}
+        )
+        system, _ = gm.narrate_messages("event", "en", after)
+        self.assertNotIn("telling detail", system, "only the opening invents")
+
     def test_revisited_event_opening_asks_for_deja_vu(self) -> None:
         base = {"title": "변전함", "text": "문이 뜯긴 변전함."}
 

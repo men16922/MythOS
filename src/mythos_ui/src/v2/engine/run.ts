@@ -763,9 +763,18 @@ function beginCombat(run: RunState, encounterId: string, C: ContentRegistry): Co
   return combat
 }
 
+/** Procedural events a run may meet (W2-3): they lean on AI lines, so they stay a seasoning, not the meal. */
+export const MAX_PROCEDURAL = 2
+
 /** Whether an event can play now. A road recruit with nobody left to recruit gives way to another event. */
 function eventUsable(run: RunState, e: EventDef | undefined, C: ContentRegistry): e is EventDef {
-  return !!e && conditionMet(run, e.requires, C).ok && (!e.recruit || recruitCandidates(run, C).length > 0) && (!e.noise || !run.noiseMutator)
+  return (
+    !!e &&
+    conditionMet(run, e.requires, C).ok &&
+    (!e.recruit || recruitCandidates(run, C).length > 0) &&
+    (!e.noise || !run.noiseMutator) &&
+    (!e.procedural || (!run.daily && run.seenEvents.filter((id) => C.events[id]?.procedural).length < MAX_PROCEDURAL))
+  )
 }
 
 /**

@@ -841,6 +841,11 @@ export interface EventDef {
    */
   recruit?: { trace: number }
   /**
+   * Procedural event (content/eventsProcedural.ts): the GM's opening line is asked to invent the place and person for
+   * `brief`; options and outcomes stay authored. At most MAX_PROCEDURAL per run, never on a daily.
+   */
+  procedural?: { brief: Text }
+  /**
    * A noise gate (content/eventsNoise.ts): the first option's hint is filled with the mutator it brings, and the
    * scene gives way to another event while a gate is still open.
    */

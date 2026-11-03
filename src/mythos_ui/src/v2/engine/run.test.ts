@@ -883,3 +883,19 @@ test('every Paradox level up to the maximum runs as chosen (6–10 were clamped 
   assert.equal(newRun(unlocked(), { archetype: 'ghost', paradox: 99, seed: 3 }, C).paradox, MAX_PARADOX)
   assert.equal(newRun(unlocked(), { archetype: 'ghost', paradox: 10, seed: 3, daily: '2026-11-04' }, C).paradox, 0, 'never on a daily')
 })
+
+test('procedural events: at most two per run, never on a daily; another event takes the node', async () => {
+  const { CONTENT } = await import('../content/index.ts')
+  const { resolveEventId, MAX_PROCEDURAL } = await import('./run.ts')
+  const run = structuredClone(atMap(55, unlocked()))
+  const node = Object.values(run.map.nodes).find((n) => n.kind === 'event') as NonNullable<(typeof run.map.nodes)[string]>
+  const at = { ...node, eventId: 'pc_watcher' }
+  assert.equal(resolveEventId(run, at, CONTENT), 'pc_watcher')
+  const full = { ...run, seenEvents: [...run.seenEvents, 'pc_stranger_trade', 'pc_wreck'].slice(-MAX_PROCEDURAL - 5) }
+  assert.equal(full.seenEvents.filter((id) => CONTENT.events[id]?.procedural).length, MAX_PROCEDURAL)
+  const swapped = resolveEventId(full, at, CONTENT)
+  assert.ok(swapped && !CONTENT.events[swapped]?.procedural, `cap reached → ${swapped}`)
+  const daily = { ...run, daily: '2026-11-04' }
+  const onDaily = resolveEventId(daily, at, CONTENT)
+  assert.ok(onDaily && !CONTENT.events[onDaily]?.procedural, 'never on a daily')
+})

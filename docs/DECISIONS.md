@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-11-04 — Procedural events built before a contest was announced
+
+- **Decision** (agent default under the owner's "continue autonomously"): W2-3 is built now rather than when a contest is announced; six skeletons, at most two per run, outcomes authored, AI fills only the opening line.
+- **Why**: the remaining plan work was owner-gated; the AI-off path plays the authored text, so it ships safely either way.
+- **Impact**: Vertex quality is unmeasured (billed); local model names a person rarely.
+
 ## 2026-11-04 — Paradox 6–10 tuned to the written expert ceiling
 
 - **Decision** (agent default under the owner's "continue autonomously"; owner may reverse): Paradox 6 Rage +2, 8 boss HP +40 %, and +8 % enemy HP per level above 5, so the greedy bot wins ~53 % at Paradox 10, the DLC plan's ~55 % (§3.3).

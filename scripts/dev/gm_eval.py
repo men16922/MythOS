@@ -231,6 +231,31 @@ def cases() -> list[Case]:
                 "party": ["Se-rin"],
             },
         ),
+        # W2-3: procedural event openings: the GM invents the place and the person for an authored situation.
+        _narrate(
+            "event_open_procedural_ko",
+            "event",
+            "ko",
+            {
+                "title": "길 잃은 신호",
+                "text": "통신기에 같은 신호가 세 번째로 들어온다. 짧고 다급하다.",
+                "act": 2,
+                "party": ["세린"],
+                "procedural": "도움을 청하는 짧은 신호가 반복해서 들어온다. 누가 보냈는지는 모른다.",
+            },
+        ),
+        _narrate(
+            "event_open_procedural_en",
+            "event",
+            "en",
+            {
+                "title": "A Stranger's Trade",
+                "text": "A stranger blocks the way, a small memory chip on one palm.",
+                "act": 1,
+                "party": ["Se-rin"],
+                "procedural": "A stranger offers to trade one memory for credits.",
+            },
+        ),
         _narrate(
             "act_intro_ko",
             "act_intro",

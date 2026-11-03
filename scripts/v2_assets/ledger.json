@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 697,
+ "codex_image_calls": 703,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -5428,6 +5428,48 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Eye-level documentary-style digital painting of a rainy back alley night market in cyberpunk Neo-Seoul, natural proportions, restrained neon, muted teal and one warm lamp, quiet and grounded, no text, no logos, no wide-angle distortion. The same steel serving counter after closing: only one large covered soup pot on the counter, and a washed steel ladle hanging from a hook above it, still dripping. Empty stools. Nobody in frame. No lunch box, no food, no door light.",
    "refs": [],
    "ts": "2026-10-31T22:10:05"
+  },
+  "v2/events/pc_lost_signal.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Close on a battered handheld comm device in a gloved hand in a dark alley, its small screen pulsing with a repeating waveform; out of focus behind, a maze of wet alleys and a distant flickering light; lonely urgent mood. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T05:02:56"
+  },
+  "v2/events/pc_message.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. An old public terminal set into a grimy wall, its screen glowing with a single unread message icon blinking; rain streaks down the wall; an empty street behind. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T05:03:34"
+  },
+  "v2/events/pc_shelter.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A half-open metal door in a dark corridor leaking warm amber light; inside, two bedrolls on the floor, one with a slept-in shape, a small heater glowing; no people visible; cold blue corridor outside. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T05:03:41"
+  },
+  "v2/events/pc_stranger_trade.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A rainy neon alley at night; an anonymous hooded figure seen from behind the shoulder of the viewer holds out an open palm with a small glowing memory chip; a second silhouette watches from a doorway in the background; faces hidden in shadow. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T05:02:54"
+  },
+  "v2/events/pc_watcher.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A rainy street of shop windows at night; in the reflections of the glass a faceless shadowy figure keeps pace some distance behind; the street corner ahead glows with magenta light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T05:02:55"
+  },
+  "v2/events/pc_wreck.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A collapsed concrete wall in a ruined street, dust still settling in the rain; something small glints warmly under the rubble just out of reach; twisted rebar and broken neon tubes. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T05:03:42"
   },
   "v2/events/sea4_bottle_ring.webp": {
    "generations": 1,

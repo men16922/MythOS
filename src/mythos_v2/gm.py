@@ -474,6 +474,24 @@ _EVENT_OPENING: dict[Lang, tuple[str, str]] = {
 }
 
 
+def _procedural_note(lang: Lang, ctx: Mapping[str, Any]) -> str:
+    """A procedural event (W2-3): the situation is authored, the GM invents the place and the person."""
+    brief = _ctx_str(ctx, "procedural")
+    if not brief:
+        return ""
+    if lang == "ko":
+        return (
+            f"이 사건은 상황만 정해져 있다: '{brief}'. 지금 막에 어울리는 구체적인 장소 하나를 정하고, "
+            "두 번째 문장에서 인물 한 명을 이름이나 별명으로 부르며 눈에 띄는 특징 하나와 함께 등장시킨다. "
+            "선택지·보상·결과는 말하지 않는다."
+        )
+    return (
+        f"This event is only a situation: '{brief}'. Pick one specific place that fits the act, and in the "
+        "second sentence bring in one person by a name or nickname with one telling detail. Never mention "
+        "options, rewards or outcomes."
+    )
+
+
 def is_event_opening(kind: NarrateKind, context: Mapping[str, Any]) -> bool:
     return kind == "event" and not _ctx_str(context, "choice", "outcome")
 
@@ -541,8 +559,15 @@ def narrate_messages(kind: NarrateKind, lang: Lang, context: Mapping[str, Any]) 
     if deja_vu:
         # The opening brief outweighs a context note (the model ignored it there): state it as part of the task.
         brief = f"{brief}\n{deja_vu.removeprefix(chr(10) + '- 참고: ').removeprefix(chr(10) + '- note: ')}"
+    procedural = _procedural_note(lang, context) if is_event_opening(kind, context) else ""
+    if procedural:
+        brief = f"{brief}\n{procedural}"
     system = f"{_BASE_SYSTEM[lang]}\n\n{brief}"
-    rest = {k: v for k, v in context.items() if k not in ("memory", "improvised", "seenBefore")}
+    rest = {
+        k: v
+        for k, v in context.items()
+        if k not in ("memory", "improvised", "seenBefore", "procedural")
+    }
     extra = memory_block(lang, context) + (
         improvised_block(lang, context) if kind == "chronicle" else ""
     )

@@ -21,6 +21,8 @@ function request(run: RunState, ev: EventDef, C: ContentRegistry, lang: Lang, se
     hints: ev.gmHints ?? [],
     // Lived through in earlier loops: the GM may open on déjà vu (the server phrases the count).
     seenBefore,
+    // Procedural event (W2-3): the GM invents the place and person for this authored situation.
+    ...(ev.procedural ? { procedural: tr(ev.procedural.brief, lang) } : {}),
   })
 }
 

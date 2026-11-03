@@ -17,6 +17,7 @@ import { COMPANION_ARCS } from './eventsArcs.ts'
 import { A1_MORE, A2_MORE, A3_MORE, SUAH_ARC } from './eventsMore.ts'
 import { ROAD_RECRUITS } from './eventsRecruit.ts'
 import { CALLBACK_EVENTS } from './eventsCallbacks.ts'
+import { PROCEDURAL_EVENTS } from './eventsProcedural.ts'
 import { NOISE_GATES } from './eventsNoise.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
@@ -2841,6 +2842,7 @@ export const EVENTS: EventDef[] = [
   ...A3_MORE,
   ...ROAD_RECRUITS,
   ...CALLBACK_EVENTS,
+  ...PROCEDURAL_EVENTS,
   ...NOISE_GATES,
   ...SUAH_ARC,
   ...COMPANION_ARCS,

@@ -628,7 +628,8 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   if (daily) run.mutator = mutatorForDate(daily).id
   else if (isValidMix(opts.mutators) && mixerOpen(profile)) run.mutators = [...opts.mutators]
   else if (opts.mutator && mutatorById(opts.mutator)) run.mutator = opts.mutator
-  if (!daily && opts.mode && deepSignalOpen(profile, C) && (opts.mode !== 'sea' || seaOpen(profile, C))) run.mode = opts.mode
+  if (!daily && opts.mode === 'chronicle') run.mode = 'chronicle'
+  else if (!daily && opts.mode && deepSignalOpen(profile, C) && (opts.mode !== 'sea' || seaOpen(profile, C))) run.mode = opts.mode
   if (!daily && profile.lastDeath) {
     const replica = replicaOf(profile.lastDeath.killedBy, C)
     if (replica) run.replica = replica
@@ -660,10 +661,14 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     if (id) gainConsumable(run, id, C)
   }
 
-  if (opts.crpg && !daily && C.crpg) {
-    const bg = opts.crpg.background
-    run.crpg = newCrpgState(bg && C.crpg.backgrounds[bg] ? bg : null, opts.crpg.trial)
+  // A chronicle chapter always plays with the district layer, in the background the connector carried over.
+  const carried = run.mode === 'chronicle' ? profile.chronicle?.carried : undefined
+  const crpgOpts = run.mode === 'chronicle' ? { background: carried?.background ?? opts.crpg?.background ?? null } : opts.crpg
+  if (crpgOpts && !daily && C.crpg) {
+    const bg = crpgOpts.background
+    run.crpg = newCrpgState(bg && C.crpg.backgrounds[bg] ? bg : null, 'trial' in crpgOpts ? crpgOpts.trial : undefined)
   }
+  if (carried) applyCarried(run, carried, C)
   // What the last loop left behind: an inscribed echo and the autonomy of the lore found so far (never on a daily).
   if (!daily) {
     const echo = opts.echo ? echoOffers(profile, C).find((e) => e.id === opts.echo) : undefined
@@ -1155,6 +1160,7 @@ function takeRoute(run: RunState, id: string, C: ContentRegistry): void {
 /** The run's final act: 3 on a standard run; a Deep Signal run continues through every act the content holds. */
 export function lastAct(run: Pick<RunState, 'mode'>, C: Pick<ContentRegistry, 'acts'>): number {
   if (!run.mode) return STANDARD_ACTS
+  if (run.mode === 'chronicle') return CHRONICLE_CHAPTER_ACTS
   return Math.max(STANDARD_ACTS, ...Object.keys(C.acts).map(Number))
 }
 
@@ -1178,6 +1184,18 @@ export const seaRoute = (act: number): string => `sea_${act}`
 
 export function deepSignalOpen(profile: Pick<MetaProfile, 'wins'>, C: Pick<ContentRegistry, 'acts'>): boolean {
   return profile.wins > 0 && Object.keys(C.acts).some((k) => Number(k) > STANDARD_ACTS)
+}
+
+/** Chronicle prototype (W4): one act per chapter for now (chapter 1 = Act 1), and its own chapter-end ending. */
+export const CHRONICLE_CHAPTER_ACTS = 1
+export const CHRONICLE_CHAPTER_ENDING = 'ending_chronicle_chapter'
+
+/** The connector a chronicle carried over: archetype-free parts (stats, axes, CRPG standing, core cards). */
+function applyCarried(run: RunState, carried: NonNullable<MetaProfile['chronicle']>['carried'], C: ContentRegistry): void {
+  run.stats = { ...carried.stats }
+  run.axes = { ...carried.axes }
+  if (run.crpg) run.crpg = { ...run.crpg, approval: { ...carried.approval }, quests: { ...carried.quests }, rep: { ...carried.rep } }
+  for (const id of carried.coreCards) if (C.cards[id]) addCard(run, id, C)
 }
 
 /** Fewer matching cards than this and IX reads nothing new (Paradox 10's +1 damage still applies). */
@@ -1270,6 +1288,9 @@ export function leaveReward(run: RunState, C: ContentRegistry): RunState {
         next.lap = (next.lap ?? 0) + 1
         next.act = 0
         advanceAct(next, C)
+      } else if (next.mode === 'chronicle') {
+        // A chronicle chapter ends at its boss; applyRunEnd banks the carried-over connector for the next chapter.
+        endRun(next, 'victory', CHRONICLE_CHAPTER_ENDING, C.endings[CHRONICLE_CHAPTER_ENDING]?.title ?? t('장 끝', 'Chapter end'))
       } else next.screen = { kind: 'final_choice' }
     } else {
       next.screen = { kind: 'map' }

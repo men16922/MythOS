@@ -99,6 +99,7 @@ export const ART: {
   },
   endings: {
     ending_bond_of_the_left: 'v2/ending/ending_bond_of_the_left.webp',
+    ending_chronicle_chapter: 'v2/ending/ending_chronicle_chapter.webp',
     ending_city_of_memory: 'v2/ending/ending_city_of_memory.webp',
     ending_code_rewrite: 'v2/ending/ending_code_rewrite.webp',
     ending_endless_resistance: 'v2/ending/ending_endless_resistance.webp',

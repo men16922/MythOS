@@ -89,6 +89,8 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
   const [mix, setMix] = useState<string[]>([])
   const mixReady = mixing && isValidMix(mix)
   const deepOpen = !daily && deepSignalOpen(profile, C)
+  // Chronicle chapter prototype (W4): only behind `?chronicle=1` until the owner judges it.
+  const chronicleProto = !daily && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('chronicle') === '1'
   const [depth, setDepth] = useState<RunMode | undefined>(undefined)
   const autonomy = autonomyLevel(profile)
   // Signal+ with AI on: the GM says which moment of the last loop the chosen echo remembers (once per echo).
@@ -384,16 +386,25 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
               </p>
             </section>
           )}
-          {deepOpen && (
+          {(deepOpen || chronicleProto) && (
             <section className="m2-setup__bg-pick">
               <div className="m2-setup__label">{ko ? '깊이' : 'Depth'}</div>
               <div className="m2-bgs" role="radiogroup">
                 {(
                   [
                     [undefined, ko ? '표준 접속' : 'Standard', ko ? '3막 · 약 30~40분' : '3 acts · ~30–40 min'],
-                    ['deep', ko ? '딥 시그널' : 'Deep Signal', ko ? `${lastAct({ mode: 'deep' }, C)}막 · 막마다 저장` : `${lastAct({ mode: 'deep' }, C)} acts · saved each act`],
-                    ...(seaOpen(profile, C) ? ([['sea', ko ? '쓰이지 않은 바다' : 'The Unwritten Sea', ko ? '6막 · 4막부터 남쪽으로' : '6 acts · south from Act 4']] as const) : []),
-                    [
+                    ...(deepOpen ? ([['deep', ko ? '딥 시그널' : 'Deep Signal', ko ? `${lastAct({ mode: 'deep' }, C)}막 · 막마다 저장` : `${lastAct({ mode: 'deep' }, C)} acts · saved each act`]] as const) : []),
+                    ...(chronicleProto
+                      ? ([
+                          [
+                            'chronicle',
+                            ko ? '크로니클 (시제품)' : 'Chronicle (prototype)',
+                            profile.chronicle ? (ko ? `${profile.chronicle.chapter}장 · 접속자를 이어서` : `Chapter ${profile.chronicle.chapter} · same connector`) : ko ? '1장 · 접속자가 남는다' : 'Chapter 1 · the connector stays',
+                          ],
+                        ] as const)
+                      : []),
+                    ...(deepOpen && seaOpen(profile, C) ? ([['sea', ko ? '쓰이지 않은 바다' : 'The Unwritten Sea', ko ? '6막 · 4막부터 남쪽으로' : '6 acts · south from Act 4']] as const) : []),
+                    ...(deepOpen ? ([[
                       'endless',
                       ko ? '무한 신호' : 'Endless Signal',
                       profile.endlessBest
@@ -403,7 +414,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                         : ko
                           ? '쓰러질 때까지 · 바퀴마다 더 깊게'
                           : 'Until you fall · deeper each lap',
-                    ],
+                    ]] as const) : []),
                   ] as const
                 ).map(([m, name, sub]) => (
                   <button
@@ -430,6 +441,10 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                   ? ko
                     ? 'IX를 쓰러뜨려도 신호는 끊기지 않는다. 유리성과 기계 묘역을 지나 6막 최초 접속 기록까지 내려간다. 언제든 중단하고 이어할 수 있다.'
                     : 'Defeating IX does not end the signal. Go on through the Glass Library and the machine graveyard down to Act 6, the First Record. Stop and resume any time.'
+                  : depth === 'chronicle'
+                  ? ko
+                    ? '1막 한 장을 구역과 대화로 깊게 탄다. 보스를 넘기면 스탯·배경·관계·평판과 카드 세 장이 다음 장으로 넘어간다. 시제품이라 지금은 1장만 있다.'
+                    : 'Play Act 1 as a chapter, deep in its districts and talks. Beat the boss and your stats, background, ties, standing and three cards carry into the next chapter. A prototype: only chapter one exists.'
                   : depth === 'endless'
                     ? ko
                       ? '마지막 막을 넘기면 다시 1막, 잔향 한 층 더 깊이(층마다 적 HP +60%, 피해 +3, 분노 가속). 쓰러질 때까지 내려간다.'
@@ -581,7 +596,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                     ...(crpg ? { crpg: { background: bgId } } : C.crpg ? { crpg: { background: null, trial: true } } : {}),
                     ...(echoId ? { echo: echoId } : {}),
                     ...(mixReady ? { mutators: mix } : mutatorId ? { mutator: mutatorId } : {}),
-                    ...(depth && deepOpen ? { mode: depth } : {}),
+                    ...(depth && (deepOpen || (chronicleProto && depth === 'chronicle')) ? { mode: depth } : {}),
                   },
             )
           }}

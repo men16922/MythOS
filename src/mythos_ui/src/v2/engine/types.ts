@@ -1117,7 +1117,8 @@ export interface RunState {
 }
 
 /** Run length mode (engine/run.ts lastAct): standard (omitted), Deep Signal, Endless Signal. */
-export type RunMode = 'deep' | 'endless' | 'sea'
+/** 'chronicle' = chronicle chapter prototype (W4, hidden behind `?chronicle=1`): one act, the connector carries over. */
+export type RunMode = 'deep' | 'endless' | 'sea' | 'chronicle'
 
 /** 1.0's four choice axes: humanity (care, persuasion), dominance (force, lies), resilience (enduring), insight (reading people and systems). */
 export type ChoiceAxis = 'humanity' | 'dominance' | 'resilience' | 'insight'

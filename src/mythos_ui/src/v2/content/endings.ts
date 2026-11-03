@@ -54,3 +54,19 @@ export const ENDINGS: EndingDef[] = [
     echoBonus: 0,
   },
 ]
+
+/** Chronicle prototype (W4): the chapter end, outside the standard four (the quota counts those). */
+export const CHRONICLE_ENDINGS: EndingDef[] = [
+  {
+    // Not a loop's ending: the chapter closes and the connector carries over.
+    id: 'ending_chronicle_chapter',
+    title: { ko: '1장 끝', en: 'End of Chapter One' },
+    image: 'v2/ending/ending_chronicle_chapter.webp',
+    text: {
+      ko: '보스가 쓰러진 골목에 비가 다시 내린다. 루프는 닫히지 않는다. 당신은 이 도시에서 쌓은 것을 그대로 들고 다음 장으로 걸어간다. 스탯, 관계, 평판, 그리고 손에 익은 카드 세 장.',
+      en: 'Rain falls again on the alley where the boss went down. The loop does not close. You walk into the next chapter carrying what you built here: your stats, your ties, your standing, and three cards that know your hands.',
+    },
+    requires: { mode: 'chronicle' },
+    echoBonus: 20,
+  },
+]

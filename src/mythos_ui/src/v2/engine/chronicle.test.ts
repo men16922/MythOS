@@ -45,3 +45,33 @@ test('chronicle save: malformed data is dropped or clamped, never trusted', () =
   assert.deepEqual(m?.carried.coreCards, ['a', 'b', 'c'])
   assert.deepEqual(defaultCore({ deck: [] }, C), [])
 })
+
+test('chronicle prototype: a chapter is Act 1 with districts, ends at its boss, banks the connector, and the next chapter starts with it', async () => {
+  const { simulateRun } = await import('./runSim.ts')
+  const { applyRunEnd } = await import('./meta.ts')
+  const { lastAct, CHRONICLE_CHAPTER_ENDING } = await import('./run.ts')
+  assert.equal(lastAct({ mode: 'chronicle' }, C), 1)
+  let won: ReturnType<typeof simulateRun> | undefined
+  let seed = 1
+  for (; seed < 40 && !won; seed++) {
+    const r = simulateRun(seed, 'ghost', C, 'greedy', { profile: newProfile('T'), mode: 'chronicle', crpg: { background: null } })
+    if (r.won) won = r
+  }
+  assert.ok(won, 'the greedy bot clears a chapter')
+  assert.equal(won.act, 1)
+  // Bank it: rebuild the ended run the way the shell does and run applyRunEnd.
+  const start = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: seed - 1, mode: 'chronicle' }, C)
+  assert.equal(start.mode, 'chronicle')
+  assert.ok(start.crpg, 'chronicle chapters always play with districts')
+  start.stats = { str: 9, agi: 4, int: 4, cha: 4, obs: 4 }
+  const ended = { ...start, screen: { kind: 'ended', result: 'victory', endingId: CHRONICLE_CHAPTER_ENDING } } as typeof start
+  const profile = applyRunEnd(newProfile('T'), ended, C)
+  assert.equal(profile.chronicle?.chapter, 2)
+  assert.deepEqual(profile.chronicle?.chaptersDone, [1])
+  const next = newRun(profile, { archetype: 'ghost', paradox: 0, seed: 5, mode: 'chronicle' }, C)
+  assert.equal(next.stats.str, 9, 'stats carried over')
+  for (const id of profile.chronicle?.carried.coreCards ?? []) assert.ok(next.deck.some((k) => k.defId === id), `core card ${id} in the new deck`)
+  const plain = newRun(profile, { archetype: 'ghost', paradox: 0, seed: 5 }, C)
+  assert.notEqual(plain.mode, 'chronicle')
+  assert.notEqual(plain.stats.str, 9, 'a normal run ignores the chronicle')
+})

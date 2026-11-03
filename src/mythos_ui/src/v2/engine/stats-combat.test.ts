@@ -255,7 +255,8 @@ test('Volume Expansion: 12 new enemies/bosses, 15 new encounters, 8 new cards, 9
 test('world echoes: every victory ending leaves one, its text matches its numbers, and max HP lands at run start', async () => {
   const { WORLD_ECHOES } = await import('./legacy.ts')
   const { FORCED_ERASURE } = await import('./run.ts')
-  const victories = Object.keys(C.endings).filter((id) => id !== FORCED_ERASURE)
+  // A chronicle chapter end is not a loop's ending: it leaves the carried-over connector instead of an echo.
+  const victories = Object.keys(C.endings).filter((id) => id !== FORCED_ERASURE && id !== 'ending_chronicle_chapter')
   for (const id of victories) assert.equal(WORLD_ECHOES.filter((e) => e.endingId === id).length, 1, `${id} leaves exactly one echo`)
   for (const e of WORLD_ECHOES) {
     assert.ok(C.endings[e.endingId], `${e.id} names a real ending`)

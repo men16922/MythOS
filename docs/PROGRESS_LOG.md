@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Chronicle chapter 1 prototype, hidden behind `?chronicle=1` (Claude Opus 5.5, same goal)
+
+- `RunMode 'chronicle'`: one act (`CHRONICLE_CHAPTER_ACTS`), districts always on, the carried connector applied at start (stats, background, axes, approval, quests, standing, three core cards); the Act 1 boss ends it with `ending_chronicle_chapter` (gated `mode: 'chronicle'`, Codex art), and `applyRunEnd` banks the next chapter. Setup shows "Chronicle (prototype)" only with `?chronicle=1`. Standard canonical blocks unchanged (58 / 62 / 66).
+- **Verified**: engine test (the greedy bot clears a chapter; banking; the next chapter starts with the carried stats and core cards; a normal run ignores it); browser (setup option, run starts as chronicle with districts, chapter-end screen, profile banks chapter 1), 0 console errors (`outputs/qa/chronicle_ui/`). **Prototype limits**: a chapter clear counts as a loop victory for meta (wins, echoes, Paradox unlock); only chapter 1 exists; meters and NPC agendas (steps 3–4) not built. Owner judges the feel before more.
+
 ## 2026-11-04 — Chronicle (W4) step 1: save compatibility proven (Claude Opus 5.5, same goal)
 
 - `engine/chronicle.ts` + `MetaProfile.chronicle` (`ChronicleState`): what a chapter hands the next (archetype, stats, background, axes, approval, quests, faction standing, three core cards), `finishChapter`, and a validating `migrateChronicle` in `migrateProfile`. Lives in the profile: no new save slot, no server change (blobs are stored as JSON). Tests: old profiles load unchanged, a chapter round-trips through JSON and migration, malformed data is dropped or clamped, under 4 KB. Nothing playable; steps 2–5 and the owner gate: `docs/plans/2026-11-04-chronicle-ch1-slice.md`.
@@ -85,8 +90,3 @@ Last updated: 2026-11-04
 - **Built**: 13 new echoes, one per Deep Signal (6) and Sea (7) victory ending, each a small effect (credits, bond, `maxHp` (new field), opening block, final boss) plus a `scene` line, the one concrete thing that changed in the city, shown under the Act 1 title (all 16 have one).
 - **Measured** (next loop after that ending, fresh canonical 3 × 150, mixed): no echo 41.6 %; existing Remaining Ember 48.4 % (reference); Twelve-Second Light 45.8, Full Stop 42.7 (harder final boss), The Scrawl (+3 max HP) 48.7, Those Left 44.0, Off the Map 49.8 → cut to +10₵ / +2 max HP → 48.0. Every new echo at or below the reference.
 - **Verified**: `make check` (node 536, Python 338), `make test-e2e-v2`, `make playthrough-quick`; test: every victory ending has exactly one echo and its text matches its numbers; Act 1 intro line in headless muted Chromium (ko 1280×720, en 390×844, `outputs/qa/echo_ui/`), 0 console errors. Unverified: the lines' tone by a human reader.
-
-## 2026-11-04 — Undo reaches cards that reveal nothing (Claude Opus 5.5, same goal)
-
-- **Built** (reverse-engineering item 3): Z / the undo button now steps back through every action this turn that revealed nothing: moves, and cards or consumables that drew no card and left the combat RNG and the shuffle/AI streams untouched (`keepUndo` in the `playCard` / `useConsumable` / `moveUnit` wrappers; the bots' in-place calls pay nothing). A draw, a roll, an ultimate or the end of the turn makes everything before it final. Snapshots now sit on a flat `undoStack` instead of nesting (nested JSON doubles its escaping per level); a snapshot nested by an older save still undoes one step at a time, so old daily replay logs stay valid (`undoMove` keeps its name for them). Labels: "이동 취소 / undo move" → "되돌리기 / undo".
-- **Verified**: `make check` (node 535, Python 338), `make test-e2e-v2`, `make playthrough-quick`; engine tests: state after undo equals the state before the action, two-step undo, a draw ends it, no nested snapshot; real UI, headless muted, 1280×720 + 390×844 touch: a card that killed an enemy, then Z / the button → enemy back on the board, energy and hand restored, 0 console errors (`outputs/qa/undo_ui/`). Not measurable in the sim (the bot already plans with exact previews). Owner check: `docs/test/mythos2_fun_check.md` §14 (less fatigue? too easy?).

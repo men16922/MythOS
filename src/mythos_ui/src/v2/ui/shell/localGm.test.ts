@@ -60,3 +60,11 @@ test('local act intro: Act 3 is the ARK Spire, Deep / Sea acts name themselves i
     }
   }
 })
+
+test('local event opening: a procedural event names its cast person, in both languages', () => {
+  const ko = localNarrate('event', 'ko', { title: '길 잃은 신호', person: '붉은 목도리를 두른 순옥', loop: 1, party: [] }) ?? ''
+  assert.ok(ko.includes('붉은 목도리를 두른 순옥이'), ko)
+  const en = localNarrate('event', 'en', { title: 'A Lost Signal', person: 'old Mr. Kang under a plastic sheet instead of an umbrella', loop: 2, party: [] }) ?? ''
+  assert.ok(/Mr\. Kang/.test(en), en)
+  assert.ok(!/(^|\. |” )old /.test(en), `sentence-initial capital: ${en}`)
+})

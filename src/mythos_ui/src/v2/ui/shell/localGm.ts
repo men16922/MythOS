@@ -144,6 +144,17 @@ function eventLines(ko: boolean, ctx: Ctx): Line[] {
           () => `“${choice}.” The rain fills your footprints almost at once.`,
         ]
   }
+  // A procedural event's cast person (eventOpening.ts proceduralPerson): AI-off players meet them too.
+  const person = typeof ctx.person === 'string' ? ctx.person : ''
+  if (person) {
+    const Person = person.charAt(0).toUpperCase() + person.slice(1)
+    return ko
+      ? [
+          () => `${at}${person}${josa(person, '이', '가')} 먼저 당신을 알아본다.`,
+          () => `${at}골목 끝에 ${person}${josa(person, '이', '가')} 서 있다. 비를 피할 생각은 없어 보인다.`,
+        ]
+      : [() => `${at}${Person} spots you first.`, () => `${at}At the end of the alley stands ${person}, in no hurry to get out of the rain.`]
+  }
   if (seenBefore > 0) {
     return ko
       ? [

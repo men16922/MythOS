@@ -57,6 +57,24 @@ class ContextTest(unittest.TestCase):
         self.assertNotIn("직접 적어 넣은 행동", other)
         self.assertEqual(gm.improvised_block("en", {}), "")
 
+    def test_chronicle_victory_names_where_the_run_ended(self) -> None:
+        spire = gm.sanitize_context({"result": "victory", "ending": "X", "act": 3})
+        _, user = gm.narrate_messages("chronicle", "en", spire)
+        self.assertIn("atop the ARK Spire", user)
+        deep = gm.sanitize_context(
+            {
+                "result": "victory",
+                "ending": "City of Memory",
+                "act": 6,
+                "actName": "The First Record",
+            }
+        )
+        for lang in ("en", "ko"):
+            _, user = gm.narrate_messages("chronicle", lang, deep)
+            self.assertNotIn("ARK", user)
+            self.assertIn("The First Record", user)
+            self.assertIn("City of Memory", user)
+
     def test_revisited_event_opening_asks_for_deja_vu(self) -> None:
         base = {"title": "변전함", "text": "문이 뜯긴 변전함."}
 

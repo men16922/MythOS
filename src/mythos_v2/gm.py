@@ -432,6 +432,15 @@ def _context_notes(kind: NarrateKind, lang: Lang, ctx: Mapping[str, Any]) -> str
         result = _ctx_str(ctx, "result").lower()
         ending = _ctx_str(ctx, "ending", "endingTitle")
         if result == "victory":
+            act = _ctx_int(ctx, "act", "lastAct")
+            if act is not None and act > 3:
+                # Deep Signal / the Sea end past the Spire: name the act the run really ended in.
+                place = _act_name(ctx, lang)
+                if lang == "ko":
+                    tail = f" 결말 '{ending}'에 이르렀다" if ending else " 끝까지 갔다"
+                    return f"\n- 마지막 문장: 접속자는 {act}막 {place}에서{tail}."
+                tail = f" and chose the ending '{ending}'" if ending else " and saw it through"
+                return f"\n- last sentence: the connector reached Act {act}, {place},{tail}."
             if lang == "ko":
                 tail = f". 그리고 결말 '{ending}'에 이르렀다" if ending else ""
                 return (

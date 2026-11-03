@@ -18,8 +18,8 @@ allowed to decide the outcome.
   implants (passives with sets), consumables, shops, safehouses, events, a daily seed with a leaderboard.
 - **Hades-style loop.** Each loop leaves echoes; companions build bonds; the Archive unlocks cards, lore, endings.
 - **A Baldur's Gate-style layer.** Districts with d20 conversations, approval, backgrounds, quests and camp nights.
-- Content: 104 cards · 29 enemies · 39 encounters · 44 implants · 68 events · 6 companions with 3-event arcs ·
-  6 districts with 18 NPCs you can talk to in your own words · 4 endings. Korean and English throughout. Web + Android.
+- Content: 245 cards · 154 enemies · 181 encounters · 76 implants · 253 events · 14 companions ·
+  16 districts with 48 NPCs you can talk to in your own words · 17 endings. Korean and English throughout. Web + Android.
 
 ## Where the AI is — and where it is not
 

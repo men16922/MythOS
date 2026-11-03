@@ -46,7 +46,7 @@ flowchart LR
 1. **AI Off the Critical Path (`src/mythos_ui/src/v2/ui/shell/gm.ts`):** Every screen renders authored prose at **0 ms**. If Vertex AI Gemini responds within budget, the line swaps in with a `✦ AI` badge (`ui/components/AiMark.tsx`). If a call times out or the player is offline, play continues with zero spinners.
 2. **The Model Never Decides Mechanical Outcomes (`src/mythos_v2/gm.py`, `npc.py`):**
    - **Free-Text Improvise:** Players type any action in an event; Gemini classifies it into 1 of 5 stats, a difficulty clamped to **DC 3–9**, 1 reward from 5 fixed tiers, and 1 risk from 3. The pure-TS engine rolls the check.
-   - **Grounded NPC Dialogue:** Players speak to 18 district NPCs in their own words; the NPC replies in character and Gemini maps the utterance onto one of the node's open d20 intents (9 kinds).
+   - **Grounded NPC Dialogue:** Players speak to 48 district NPCs in their own words; the NPC replies in character and Gemini maps the utterance onto one of the node's open d20 intents (9 kinds).
 3. **Tail-Latency Hedging (`src/mythos_v2/llm.py`):** Scene narration fires one hedged retry after `MYTHOS_V2_GM_HEDGE_S = 4.0 s` (first response wins), cutting Vertex tail `504 DEADLINE_EXCEEDED` misses while charging late tokens from the losing leg via `on_late_usage`.
 4. **Four-Layer FinOps Cost Governance (`src/mythos_v2/budget.py`, `scripts/ops/vertex_cap/`):**
    - Per-player monthly allowance ($0.30 free / $1.50 plus; ~**$0.048 per full 3-act run** across ~63 calls).
@@ -87,7 +87,7 @@ make gm-eval               # 25-case bilingual GM evaluation suite (GM_EVAL_ARGS
 | Path | Description |
 |---|---|
 | `src/mythos_ui/src/v2/engine` | Pure-TS game engine (seeded named RNG streams, JSON state, reducers, greedy/mixed/basic bots & simulator) |
-| `src/mythos_ui/src/v2/content` | Typed bilingual (`{ko, en}`) game data: 104 cards, 29 enemies, 39 encounters, 44 implants, 68 events, 6 companions, 6 districts / 18 NPCs, 4 endings |
+| `src/mythos_ui/src/v2/content` | Typed bilingual (`{ko, en}`) game data (2026-11-04): 245 cards, 154 enemies, 181 encounters, 76 implants, 253 events, 14 companions, 6 archetypes, 6 acts, 16 districts / 48 NPCs, 40 gear, 17 endings |
 | `src/mythos_ui/src/v2/ui` | React 19 screens, 7×5 tactical board & animator, `✦ AI` provenance marks, `ArchitectHud`, procedural Web Audio SFX & adaptive music |
 | `src/mythos_ui/android` | Capacitor Android app (`docs/android.md`) |
 | `src/mythos_api` | FastAPI server (SPA static hosting, `/resources`, CORS, `/api/health`) |

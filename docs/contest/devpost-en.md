@@ -1,6 +1,6 @@
 # MYTHOS 2.0 — Signal Run (세계:접속) · Devpost submission text
 
-*Judge- and reader-facing Devpost submission draft in English. Facts as of 2026-10-25; every metric points to the
+*Judge- and reader-facing Devpost submission draft in English. Facts as of 2026-10-25 (AI touchpoints 6–7 and NPC count: 2026-11-04); every metric points to the
 repository file or log that measured it. Source architecture document: `docs/contest/architecture-en.md`; pitch summary:
 `docs/contest/pitch-en.md`.*
 
@@ -9,7 +9,7 @@ repository file or log that measured it. Source architecture document: `docs/con
 ## Elevator Pitch
 
 A deterministic cyberpunk tactics deck-builder where you read every enemy move before it lands — and a Vertex AI Gemini
-game master, 18 district NPCs, your companions and the city's administrator AI react to what you actually typed and
+game master, 48 district NPCs, your companions and the city's administrator AI react to what you actually typed and
 chose, with **0 ms critical-path blocking**, **clamped deterministic outcomes**, and a **4-layer Google Cloud cost cap**.
 
 ---
@@ -38,19 +38,24 @@ Neo-Seoul under **IX**, a polite administrator AI that scores every citizen and 
 - **Deterministic 7×5 tactical board (Into the Breach × Slay the Spire):** Every enemy telegraphs where and how hard it
   will strike next turn. You win by positioning, pushing enemies into each other, into burning tiles, live wires, or off
   broken bridges into the void.
-- **Five live AI touchpoints — always off the critical path:**
+- **Seven live touchpoints (six use the model, all off the critical path):**
   1. **Scene Narration:** The GM narrates events and act transitions shaped by your stats, trace level, and party.
      Authored prose renders at **0 ms**; if Gemini's line arrives within budget, it swaps in with a `✦ AI` badge.
   2. **Free-Text Improvise (`src/mythos_v2/gm.py`):** In any event, type any action in your own words. Gemini classifies
      it into one of 5 stats, a difficulty clamped to **DC 3–9**, one reward from 5 fixed tiers, and one risk from 3; an
      implant reward requires DC ≥ 7. The pure-TypeScript engine rolls the check.
-  3. **Grounded NPC Dialogue (`src/mythos_v2/npc.py`):** Talk to 18 district NPCs in your own words. The NPC replies in
+  3. **Grounded NPC Dialogue (`src/mythos_v2/npc.py`):** Talk to 48 district NPCs in your own words. The NPC replies in
      character and Gemini maps your words onto one of the scene's authored d20 intents (9 kinds) so the engine resolves
      state changes deterministically.
   4. **IX Loop & Boss Memory (`src/mythos_v2/gm.py`):** IX cuts in during boss fights and recalls how your previous loops
      ended (which boss killed you and how many times).
   5. **Companion Memory & Run Chronicle:** Companions remember choices you made earlier in the current run during
      safehouse conversations, and the GM composes an end-of-run chronicle from your typed Improvise actions.
+  6. **IX Learns (Paradox 10, `content/ixReads.ts`, deterministic, no model call):** At the top Paradox level IX reads what your deck leans on at the
+     start of every act and sets one authored counter for it (e.g. more armor against shove decks), shown under the
+     act title. IX also profiles your habits across loops (where your loops end, what your deck leans to) and says so.
+  7. **Procedural Events (`content/eventsProcedural.ts`):** Six authored situations whose place and person the GM
+     invents on the spot; options and outcomes stay authored, at most two per run, never on the daily seed.
 - **Live Architect HUD (`?hud=1`):** Judges and engineers can toggle an in-game telemetry overlay
   (`src/mythos_ui/src/v2/ui/components/ArchitectHud.tsx`) showing live GM call count, LLM vs. fallback share, median
   latency against the 0 ms authored baseline, remaining player allowance, active seed, named RNG streams, and daily
@@ -110,10 +115,10 @@ Neo-Seoul under **IX**, a polite administrator AI that scores every citizen and 
 
 ## Accomplishments We're Proud Of
 
-- **Complete bilingual game + production AI harness:** 104 protocol cards, 29 enemies, 39 encounters, 44 implants, 68
-  events, 6 companions with 3-event arcs, 6 districts with 18 NPCs, and 4 endings — 100% paired in Korean and English
+- **Complete bilingual game + production AI harness:** 245 protocol cards, 154 enemies, 181 encounters, 76 implants, 253
+  events, 14 companions, 16 districts with 48 NPCs, and 17 endings — 100% paired in Korean and English
   (enforced by `content.test.ts`).
-- **Bot-driven balance & QA discipline:** 355 engine/content/UI tests + 340+ Python backend tests + headless Playwright
+- **Bot-driven balance & QA discipline:** 544 engine/content/UI tests + 340 Python backend tests + headless Playwright
   UI playthroughs (`make check`). Three bots (`greedy` 95.0% win, `mixed` 30.9% win across 3 × 360 seeds, `basic` 0.0%
   win) verify that winning requires reading telegraphs and using push/hazard/void kills rather than face-tanking.
 - **Zero-spinner UX:** Players never wait on a model call; every AI line is visibly badged (`✦ AI`), logged per run, and

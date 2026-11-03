@@ -63,7 +63,7 @@ engine (`src/mythos_ui/src/v2/engine/`):
   - `risk` ∈ `{hp, trace, credits}`
   - `success` / `failure` narrative strings
   The engine then rolls `2d6 + stat >= dc` using its deterministic RNG stream and applies the whitelisted outcome.
-- **District NPC Free-Talk (`src/mythos_v2/npc.py`):** Across 6 CRPG districts and 18 NPCs, players can speak in their
+- **District NPC Free-Talk (`src/mythos_v2/npc.py`):** Across 16 CRPG districts and 48 NPCs, players can speak in their
   own words. Gemini replies in the NPC's persona and maps the player's utterance onto one of the scene's open authored
   options (`persuade`, `intimidate`, `deceive`, `bribe`, `help`, `hack`, `observe`, `ask`, `leave`). The NPC's reply
   stays on screen while the player chooses whether to commit to the mapped d20 check.

@@ -26,7 +26,9 @@ import {
   STAT_MAX,
   buyGear,
   equipGear,
+  lastAct,
   partySlots,
+  roadRecruitAt,
   trainCompanion,
   leaveReward,
   leaveRest,
@@ -101,6 +103,10 @@ export interface FightTelemetry {
   hpAfter: number
   maxHp: number
   deckSize: number
+  /** Deployed companion ids at the start of the fight. */
+  party: string[]
+  /** Cards (and consumables) played this fight, by id. */
+  plays: Record<string, number>
 }
 
 export interface RunSimOptions {
@@ -196,8 +202,9 @@ function effectValue(run: RunState, e: RunEffect, C: ContentRegistry): number {
       return run.consumables.length < MAX_CONSUMABLES ? 2 : 0
     case 'companion':
       // A free slot means a second body, passive and cards from the next fight: worth more than the Act 2 go-alone bundle
-      // (+4 max HP, +4 HP, 40₵, −10 trace ≈ 16). A full party only adds a bench seat, useful once a slot opens.
-      return run.party.length < partySlots(run) ? 20 : 6
+      // (+4 max HP, +4 HP, 40₵, −10 trace ≈ 16). A full party only adds a bench seat, useful once a slot opens — and
+      // one opens at the next act (Act 4's third slot) when nobody is waiting on the bench for it yet.
+      return companionWorth(run, C)
     case 'bond':
       return 2 * e.amount
     case 'stat':
@@ -221,8 +228,16 @@ function effectValue(run: RunState, e: RunEffect, C: ContentRegistry): number {
 export const outcomeValue = (run: RunState, o: Outcome | undefined, C: ContentRegistry): number =>
   (o?.effects ?? []).reduce((s, e) => s + effectValue(run, e, C), 0)
 
-function nodeScore(run: RunState, node: MapNode | undefined): number {
+/** What one more companion is worth now: a free slot, a slot the next act opens with nobody waiting for it, or a bench seat. */
+function companionWorth(run: RunState, C: ContentRegistry): number {
+  if (run.party.length < partySlots(run)) return 20
+  return run.act < lastAct(run, C) && run.party.length + (run.bench?.length ?? 0) < partySlots({ act: run.act + 1 }) ? 16 : 6
+}
+
+function nodeScore(run: RunState, node: MapNode | undefined, C: ContentRegistry): number {
   if (!node) return -99
+  // A marked road recruit is worth the detour when someone would fill a slot (the map shows the mark to players too).
+  if (roadRecruitAt(run, node, C) && companionWorth(run, C) >= 16) return 10
   const hp = hpPct(run)
   switch (node.kind) {
     case 'rest':
@@ -320,8 +335,8 @@ function decideMap(run: RunState, C: ContentRegistry): RunState {
   const options = reachableNodes(run)
   const look = (id: string): number => {
     const node = run.map.nodes[id]
-    const ahead = Math.max(0, ...(node?.next ?? []).map((n) => nodeScore(run, run.map.nodes[n])))
-    return nodeScore(run, node) + 0.5 * ahead
+    const ahead = Math.max(0, ...(node?.next ?? []).map((n) => nodeScore(run, run.map.nodes[n], C)))
+    return nodeScore(run, node, C) + 0.5 * ahead
   }
   const best = [...options].sort((a, b) => look(b) - look(a))[0]
   return best ? enterNode(run, best, C) : run
@@ -432,7 +447,8 @@ function decideCombat(
   maxTurns: number,
   onFight?: (f: FightTelemetry) => void,
 ): RunState {
-  let end = autoPlay(s.combat, C, policy, maxTurns)
+  const plays: Record<string, number> = {}
+  let end = autoPlay(s.combat, C, policy, maxTurns, onFight ? plays : undefined)
   if (end.phase === 'player') end = { ...end, phase: 'lost' } // stalled fights count as losses
   if (onFight) {
     const connector = end.units.find((u) => u.uid === 'connector')
@@ -446,6 +462,8 @@ function decideCombat(
       hpAfter: connector?.hp ?? 0,
       maxHp: run.maxHp,
       deckSize: run.deck.length,
+      party: run.party.map((p) => p.id),
+      plays,
     })
   }
   return updateCombat(run, end, C)

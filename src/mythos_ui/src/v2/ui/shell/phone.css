@@ -176,4 +176,9 @@
   .m2-map__scroll .m2-node__you {
     margin-top: -9px;
   }
+  /* The recruit mark sits on the drawn octagon's corner too. */
+  .m2-map__scroll .m2-node__recruit {
+    top: 8px;
+    right: 8px;
+  }
 }

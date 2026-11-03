@@ -1,6 +1,14 @@
 # Progress Log
 
-Last updated: 2026-11-03
+Last updated: 2026-11-04
+
+## 2026-11-04 — Road recruits marked on the map; card plays per line-up measured (Claude Opus 5.5, owner goal: 잔여 작업 자율 수행, 콘텐츠 추가·검증)
+
+- **Acts 2–3 in the real UI** (open since 11-03): `ui_playthrough.py` full run, assist mode, OK in 790 s → victory (`ending_noble_sacrifice`), Act 2 elite + Act 3 boss, 0 console errors.
+- **Line-up measurement** (reverse-engineering item 2): `FightTelemetry` now carries `party` and `plays` (cards and consumables by id; `autoPlay(…, plays)`), run-neutral (canonical blocks reproduce 187/450, 41/150, 40/150). Findings: the starter `packet_shot` is 22.7 % of all plays (34 % in Act 1, still 8–16 % in Acts 3–6); companion cards are 12 % of plays in Act 1 and 15–21 % after; top-8 card overlap between line-ups is low (Jaccard 0.33–0.45), so line-ups do change what gets played. Scripts: `outputs/qa/lineup_plays.ts`, `lp_report.py` (gitignored).
+- **Found**: only 22 % (Deep) / 17 % (Sea) of Act 4–6 fights had three companions although the slot opens at Act 4. The bot takes every recruit it meets (scores 14–18 vs ≤ 4 declining); the scene sits on a hidden `?` node, so ~25 of 150 Deep runs ever met one. Roll weight 5 → 15 only reached 33 %.
+- **Built**: `roadRecruitAt` (engine, shares one validity check with `resolveEventId`); the map marks that node with a small gold person badge (who waits stays hidden) and a tooltip line with the +8 Trace cost; the bot routes there when someone would fill a slot now or the next act's slot (`companionWorth`). Deep 27.3 → 30.0 %, Sea 26.7 → 30.7 % (within ±4 noise at n = 150, not re-tuned), three-companion Act 4–6 fights 22 → 61 % / 17 → 47 %; fresh unchanged.
+- **Verified**: `make check` (node 530, Python 338), `make test-e2e-v2`, `make playthrough-quick`; marker in headless muted Chromium at 1280×720 (ko) and 390×844 (en), badge on the octagon corner, tooltip line shown, 0 console errors (`outputs/qa/recruit_marker/`). Unverified: how the marker reads to a human, and a natural Deep run reaching a marked node in the real UI (set up through the dev hook).
 
 ## 2026-11-03 — Bot takes companions, Acts 2–3 re-tuned; reverse-engineering 1–3 analysed (Claude Opus 5.5, owner: 다음 작업 수행)
 
@@ -71,26 +79,3 @@ Last updated: 2026-11-03
 
 - `00169-fih` (`git-sha=e50d6fa`, Stage 1 + DLC 2) at 100 % pinned, rollback `00167-yuh`. Owner ordered it before the play verdict; that verdict, F1–F4 and art stay open. `make verify-preview` 5/5; `make url-smoke` on the preview and on production: sandbox fight won, run flow to the end, 0 console errors, anonymous and muted.
 - Unverified on production: the Act 2 route itself (needs a won profile), Google sign-in, sound.
-
-## 2026-11-01 — Relay reads true and can be reached (Claude Opus 5.5, owner: carry out the recommendation)
-
-- **Why**: merged plan Stage 3 item 3 (telegraph link, per-target preview, small-screen explanation) was reported done by omission. It was not, and the gap matched the rule's own discard condition, "misreads the real receiver".
-- **Fixed** (not deployed): the board kept showing the danger on the citizen and showed nothing on an enemy stand-in; aimed-card and move previews ignored the relay; a sweep over both tiles counted once. New pure `board/marks.ts` `boardAfter`, `expectedLoss`, `relayHit`, shared by board and panel. "대신 맞음 -N" chip, link lights up while carrying a hit, move chip on the relay. The rule explanation lasted 1.9 s: now a persistent one-line note above the sprites.
-- **Layout**: `outside_serving` and `outside_door` could not be walked to by turn 2 in 150/150 starts. Covers moved: serving (3,3) → (4,3), door (3,1) → (4,1). Now serving walk by T2 150/150, pickup walk T1 150/150, door push set up T1 150/150, guarded by `outside.test.ts`. No stat changes.
-- **Rule fix**: a debuff riding on an enemy attack stayed on the citizen while the hit moved (burn 4 per phase on the door fight, read at first as burning ground). It now follows the hit to the stand-in (`effectTargets`). Burning ground under the citizen stays: 2 in that trace, a tile effect, visible, not in the forecast.
-- **Balance** (canonical): fresh 200 / 450, unchanged. Once-won, bot declines the route: 210 / 450, unchanged. Once-won, route forced: 204 / 450 (was 209 before these fixes), bot reaches it in 68 runs, 1.03 citizens saved. No claim about fun from these.
-- **Verified**: `marks.test.ts` incl. forecast equals direct hits through a real enemy phase on all three fights, `proto.test.ts` rider test; `make check` (node 485, Python 338), `make test-e2e-v2`, `make playthrough-quick`. Real UI with real art, muted, 0 page errors: walk onto the relay (hover and standing both -9); on `outside_door` a real Shoulder Check pushes the drone onto the tile, preview shows the stand-in and clears the citizen, playing it and ending the turn: drone 14 → 3 (9 direct + 2 burn), citizen 16 → 14 (ground only). 390 px legible with placeholder art.
-- **Limits**: `proto_relay` stays boxed in, so test `enc=outside_serving`. A push rider on a hit aimed at the citizen still moves the citizen. Fun unverified.
-
-## 2026-10-31 — DLC 2 "Outside the List" built on the default rule (Claude Opus 5.5, owner: carry out the recommendation)
-
-- **Built** (not deployed): Relay is a real rule (`EncounterDef.relay`, line + dashed tile, danger moves to the stand-in). After the first escape an Act 2 event node becomes Closing Time; entering swaps the next three plain fights for `outside_serving`, `outside_pickup`, `outside_door`; the last safehouse becomes One Bowl (nobody lost) or The Closed Counter, same pay. 3 Codex stills, no new enemies or cards. Companion whispers no longer offer Improvise on scenes that forbid it. Off dailies.
-- **Balance** (canonical 3 × 150, mixed): fresh profile 200 / 450, unchanged. Rolling the scene instead read 208 with nothing else changed, so it is placed, never rolled. A once-won profile entering by force 209, declining 210; only 68 / 450 forced runs reached it, the bot cannot push enemies onto the tile, so this says nothing about fun.
-- **Verified**: engine tests for the flow, opening, dailies; the whole route in the real UI, muted, 0 console errors: Closing Time → `outside_serving` → `outside_pickup` → `outside_door` → plain fights → One Bowl (nobody lost) and The Closed Counter (one lost), on separate runs. The test set the map nodes, profile and act through the dev hook, kept the bot alive and wore foes down, and a second pass on an untouched map from Act 1 (only the profile, HP and foe HP helped) found a real bug: `placeDistrict` ran after the placement and erased the scene on runs with districts. Fixed by order, guarded by a 40-seed test, then that natural pass reached Closing Time → `outside_serving` → The Closed Counter → map, 0 console errors; the whisper shows on Closing Time and not on the closing scene. Unverified: tone, fun, the owner's verdict.
-
-## 2026-10-31 — DLC 2 proposals merged, Stage 1 built (Claude Opus 5.5, owner: "결과 나오면 추천안대로 알아서 수행해")
-
-- **Plan**: `docs/plans/2026-10-31-dlc2-merged-plan.md`, from three overnight proposals. Claims checked first: Argon's "Act 5 parts stuck" is false (Act 6 has rest nodes) and "47 encounters" is 51; the rest held. Claude's lane read `argon.md`, so their overlap is not independent confirmation.
-- **Built** (not deployed): `spendGauge` tempo terms; evolution pull ×3 + ✦ on rewards (starter recipes excluded); a recruit scene seats a crew member's duo partner; the bot deploys duos; protect rewards name who was saved; `a4_n1_returns`, `a6_n2_drafts` protect, `a5_n2_compactor`, `a6_n2_erasers` survive; `enemyHpPct` 12 → 13; sandbox-only `proto_relay`, `proto_blackout` (`ui/combat/protoEncounters.ts`, rules gated on `enc.proto`).
-- **Balance** (canonical 3 × 150, mixed): bot fix alone 202 → 204; pull ×3 212 = 47.1 %, over the band; with HP +1 **200 / 450 = 44.4 %**. Non-starter evolution runs 51 → 109 / 450. Deep Signal 45 → 41 / 150 (within noise). Duo runs 8 → 8 / 450: the pull did not move a fresh-profile bot, so no claim on duos.
-- **Limits**: on `proto_blackout` the enemy's floating number ignores ±2 (the panel and the real hit include it). Unverified: the human feel of everything above, sound, the real-play effect of duo seats.

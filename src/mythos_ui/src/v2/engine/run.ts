@@ -754,11 +754,24 @@ function beginCombat(run: RunState, encounterId: string, C: ContentRegistry): Co
   return combat
 }
 
+/** Whether an event can play now. A road recruit with nobody left to recruit gives way to another event. */
+function eventUsable(run: RunState, e: EventDef | undefined, C: ContentRegistry): e is EventDef {
+  return !!e && conditionMet(run, e.requires, C).ok && (!e.recruit || recruitCandidates(run, C).length > 0) && (!e.noise || !run.noiseMutator)
+}
+
+/**
+ * The map node holds a road recruit scene that will still play when entered (the map marks it: who waits stays
+ * hidden, that someone waits does not — so a player who wants a third companion can route there).
+ */
+export function roadRecruitAt(run: RunState, node: MapNode | undefined, C: ContentRegistry): boolean {
+  if (!node || node.kind !== 'event' || !node.eventId) return false
+  const e = C.events[node.eventId]
+  return !!e?.recruit && !run.seenEvents.includes(e.id) && eventUsable(run, e, C)
+}
+
 /** Pre-rolled event if still valid, else a fresh act event (unseen + requirements met first). */
 export function resolveEventId(run: RunState, node: MapNode, C: ContentRegistry): string | null {
-  // A road recruit with nobody left to recruit gives way to another event.
-  const usable = (e: EventDef | undefined): e is EventDef =>
-    !!e && conditionMet(run, e.requires, C).ok && (!e.recruit || recruitCandidates(run, C).length > 0) && (!e.noise || !run.noiseMutator)
+  const usable = (e: EventDef | undefined): e is EventDef => eventUsable(run, e, C)
   const pre = node.eventId ? C.events[node.eventId] : undefined
   if (usable(pre) && !run.seenEvents.includes(pre.id)) return pre.id
   const onMap = new Set(Object.values(run.map.nodes).map((n) => n.eventId))

@@ -1,6 +1,6 @@
 // Mythos 2.0 — act map (Slay-the-Spire style, boss at the top).
 import { art } from '../components/art.ts'
-import { CheckCircle2, CircleQuestionMark, Crosshair, Landmark, Package, Skull, Store, Swords, Tent, TrendingUp } from 'lucide-react'
+import { CheckCircle2, CircleQuestionMark, Crosshair, Landmark, Package, Skull, Store, Swords, Tent, TrendingUp, UserPlus } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { MapNode, NodeKind } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
@@ -94,6 +94,9 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
   }
   const enterPos = entering ? pos[entering] : undefined
 
+  // Road recruit scenes are marked (who waits stays hidden), so a player who wants another companion can route there.
+  const recruitNodes = useMemo(() => new Set(Object.keys(map.nodes).filter((id) => rx.roadRecruitAt(run, id, C))), [run, map.nodes, C])
+
   const tipFor = (n: MapNode) => {
     const enc = n.encounterId ? C.encounters[n.encounterId] : undefined
     const bonusTag =
@@ -132,6 +135,11 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
           </div>
         )}
         <div className="m2-tip__text">{tr(NODE_HINT[n.kind], lang)}</div>
+        {recruitNodes.has(n.id) && (
+          <div className="m2-tip__text" style={{ color: 'var(--m2-gold)' }}>
+            {lang === 'ko' ? '누군가 합류를 기다린다 · 영입 시 추적 +8' : 'Someone is waiting to join · recruiting adds +8 Trace'}
+          </div>
+        )}
         {reachable.has(n.id) && (
           <div className="m2-tip__text" style={{ color: 'var(--m2-amber)', marginTop: 4 }}>
             {lang === 'ko' ? '이동 시 추적 +3' : 'Entering adds +3 Trace'}
@@ -346,6 +354,11 @@ export function MapScreen({ run, C, lang, act, settings, eventsSeen }: ScreenPro
                     <Icon size={n.kind === 'elite' ? 22 : 19} strokeWidth={2.2} />
                   </button>
                 </Tooltip>
+                {recruitNodes.has(n.id) && !isVisited && (
+                  <span className="m2-node__recruit" aria-label={lang === 'ko' ? '영입 장면' : 'Recruit scene'}>
+                    <UserPlus size={11} strokeWidth={2.4} />
+                  </span>
+                )}
                 {isCur && <div className="m2-node__you">{lang === 'ko' ? '현재 위치' : 'You'}</div>}
               </div>
             )

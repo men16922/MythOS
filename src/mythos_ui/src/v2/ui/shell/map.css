@@ -329,6 +329,20 @@
 .m2-node.is-current::before {
   background: #fff;
 }
+.m2-node__recruit {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  color: var(--m2-gold);
+  background: rgba(0, 0, 0, 0.72);
+  border: 1px solid color-mix(in srgb, var(--m2-gold) 60%, transparent);
+  pointer-events: none;
+}
 .m2-node__you {
   position: absolute;
   top: 100%;

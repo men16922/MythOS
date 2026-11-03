@@ -25,6 +25,7 @@ import {
   reachableNodes,
   restBond,
   restHeal,
+  roadRecruitAt,
   restScrub,
   restUpgrade,
   setDeployment,
@@ -367,6 +368,16 @@ test('road recruit: costed recruits after the authored declines; another event w
   const everyone = structuredClone(run)
   everyone.bench = [{ id: 'han', hp: 18, maxHp: 18, bond: 0 }]
   assert.notEqual(screen(enter(everyone, 'event', { eventId: 'ev_road' }), 'event').eventId, 'ev_road')
+
+  // The map marks the node exactly while entering it would still play the scene.
+  const node = Object.values(run.map.nodes).find((n) => n.kind === 'event')
+  assert.ok(node)
+  const marked = structuredClone(run)
+  marked.map.nodes[node.id] = { ...node, eventId: 'ev_road' }
+  assert.equal(roadRecruitAt(marked, marked.map.nodes[node.id], C), true)
+  assert.equal(roadRecruitAt({ ...marked, seenEvents: [...marked.seenEvents, 'ev_road'] }, marked.map.nodes[node.id], C), false, 'seen')
+  assert.equal(roadRecruitAt({ ...marked, bench: everyone.bench }, marked.map.nodes[node.id], C), false, 'nobody left')
+  assert.equal(roadRecruitAt(marked, { ...node, eventId: 'ev_1a' }, C), false, 'an ordinary event is not marked')
 })
 
 test('defeat ends the run in Forced Erasure and banks a last death', () => {

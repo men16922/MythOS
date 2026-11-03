@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-11-04 — Road recruit scenes are marked on the map
+
+- **Decision** (agent default under the owner's "continue the remaining work autonomously", owner may reverse): a map event node holding a road recruit scene shows a small person badge and a tooltip line with its Trace cost. Who waits stays hidden; the scene still rolls on about half the maps and is never guaranteed (2026-10-30 decision unchanged).
+- **Why**: the Act 4 third slot (11-01) stayed empty in ~4 of 5 Act 4–6 fights because the only way to fill it was a hidden `?` node; raising the roll weight 3× only reached 33 %. Marking it follows "every result is previewed" and keeps the trade a route choice.
+- **Impact**: `roadRecruitAt` in `engine/run.ts`; `MapScreen` badge (`.m2-node__recruit`); the sim bot routes there when a slot would be filled. Deep/Sea mixed +3–4 pts (within noise), not re-tuned.
+
 ## 2026-10-30 — Forbidden implants keep their costs visible; noise gates are events
 
 - **Decision** (agent defaults, owner may override): a forbidden implant's cost must show in the card preview and enemy telegraphs, so no implant hides a telegraph. Noise gates are ordinary events, not a new map node kind. Event rotation is a preference, never a ban, and never applies to a daily.

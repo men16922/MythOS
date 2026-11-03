@@ -1,25 +1,16 @@
 # Next Plan
 
-Last updated: 2026-11-03
+Last updated: 2026-11-04
 
 Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`. Strategy & market roadmap: `docs/plans/2026-10-18-strategy-and-market-analysis.md`.
 
 ## Next: after the 2026-11-01 deploy
 
-Plan and order: `docs/plans/2026-11-01-next-steps-plan.md`. `[x]` DLC 2 parallel Act 2 + party and growth rework deployed on owner order: `00171-yuj`. `[x]` production `url-smoke` timeout looked at: 4/4 now, no post-fight stall in 13 runs, cause inferred. `[x]` bot trains, buys and swaps gear, fills the third slot; re-tuned: fresh 39.1 %, Deep 25.3 %, bosses at most 8.8 turns (deployed `00173-mab`). `[x]` gear rows and Act 4 four-person fight checked in the real UI. `[x]` DLC 3 The Unwritten Sea built and deployed on owner order 2026-11-02: `00173-mab` (`8973143`, rollback `00171-yuj`); `docs/plans/2026-11-01-dlc3-plan.md`. `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §13, OK new music (Lyria bills Vertex). `[x]` reverse-engineering 1–3 analysed (`docs/plans/2026-11-03-reverse-engineering-1-3.md`); its line-up measurement found the bot always went alone at Act 2: bot fixed, Acts 2–3 re-tuned, not deployed. `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §12, then W1 / W2.
+Plan and order: `docs/plans/2026-11-01-next-steps-plan.md`. `[x]` DLC 2 parallel Act 2 + party and growth rework deployed on owner order: `00171-yuj`. `[x]` production `url-smoke` timeout looked at: 4/4 now, no post-fight stall in 13 runs, cause inferred. `[x]` bot trains, buys and swaps gear, fills the third slot; re-tuned: fresh 39.1 %, Deep 25.3 %, bosses at most 8.8 turns (deployed `00173-mab`). `[x]` gear rows and Act 4 four-person fight checked in the real UI. `[x]` DLC 3 The Unwritten Sea built and deployed on owner order 2026-11-02: `00173-mab` (`8973143`, rollback `00171-yuj`); `docs/plans/2026-11-01-dlc3-plan.md`. `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §13, OK new music (Lyria bills Vertex). `[x]` reverse-engineering 1–3 analysed (`docs/plans/2026-11-03-reverse-engineering-1-3.md`); its line-up measurement found the bot always went alone at Act 2: bot fixed, Acts 2–3 re-tuned, not deployed. `[ ]` `[owner]` play `docs/test/mythos2_fun_check.md` §12, then W1 / W2. `[x]` 11-04: Acts 2–3 in the real UI; plays per line-up measured; road recruits marked on the map (Deep third slot 22 → 61 %); not deployed. `[ ]` level-up choice-of-two prototype; `[ ]` `[owner]` deploy 11-03 + 11-04.
 
 ## Next: DLC 2 pick (merged plan, 2026-10-31)
 
 `docs/plans/2026-10-31-dlc2-merged-plan.md`. `[x]` Stage 1 built (bot tempo terms, evolution/duo reachability + ✦, saved-neutral reward line, four Act 4–6 objective swaps, `enemyHpPct` 13, sandbox prototypes); not deployed. `[x]` Stage 3 built on the default rule (owner: carry out the recommendation): Relay route Outside the List in Act 2 after the first escape. `[ ]` `[owner]` play it and `proto_blackout`, confirm or reverse the rule. `[x]` deployed on owner order 2026-11-01: `00169-fih`. `[ ]` `[owner]` F1–F4 verdict and art still open. `[ ]` re-check Devpost for a Gemini / Google Cloud challenge on 2026-12-01 (a contest pulls W2 ahead).
-
-## Priority 0 — S-rank pass (Argon review, 2026-10-25)
-
-Plan + evidence: `docs/plans/2026-10-25-argon-review-and-s-rank-plan.md` (S-rank = 7 axes; agent roles §5).
-
-- `[x]` Review + refactor + rebalance + unique art (2026-10-25): `engine/statPerks.ts` single source (engine + HUD), mutator combat rules as data (`MutatorDef.combat`, text = code), `WORLD_ECHOES` table, `CONTENT.tuning`; map 8 → 7 rows; P0 mixed ~75 → ~46 % (Paradox 1/3/5 31/27/16 %); bleed = movement-only; smuggler block 2/turn; 68 Codex images replace every reused asset. `[ ]` `[owner]` deploy (production still ~75 % build).
-- `[x]` **S1–S5** (2026-10-25, same session): archetype gap 5 pts (ghost evade AGI 8, echo victory heal 5, smuggler block 3/turn); **Rage** (`rage` status, `CONTENT.tuning.rage`: elites +3 / bosses +1 per enemy phase from turn 3, Paradox 5 from turn 2) → elite loss 7.3 %, boss 8.9 turns; greedy P5 85.6 %; unique status icons (bleed/evade/focus/rage). P0 mixed 40.5 %, Paradox 1–5 34.7 → 8.7 %.
-- `[x]` Deploy: preview `00150-qen` (`a6615b7`) verified 5/5 and promoted 2026-10-25 (`--to-latest`, production 4/4; rollback `00148-nav`). `[x]` owner fun verdict **S — keep it** (2026-10-26).
-- `[x]` Smuggler payoff card `mass_hijack` (rare, cost 1: cross-area redirect + 5₵, Codex art; run-level neutral 38.9 vs 39.3 %).
 
 ## Priority 0c — DLC-scale expansion "Deep Signal" (R1–R7 built 2026-10-26)
 

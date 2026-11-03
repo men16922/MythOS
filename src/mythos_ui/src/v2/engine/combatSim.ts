@@ -36,7 +36,8 @@ import { effectiveIntentDamage, findMove, intentGeometry } from './intents.ts'
 export type BotPolicy = 'greedy' | 'basic' | 'mixed'
 
 /** Play the fight to the end (or `maxTurns`) with a bot. The event log of the result is truncated. */
-export function autoPlay(c0: CombatState, C: ContentRegistry, policy: BotPolicy, maxTurns = 25): CombatState {
+/** `plays`, when given, counts every card played this fight by card id (balance telemetry). */
+export function autoPlay(c0: CombatState, C: ContentRegistry, policy: BotPolicy, maxTurns = 25, plays?: Record<string, number>): CombatState {
   const c = leanClone(c0)
   while (c.phase === 'player' && c.turn <= maxTurns) {
     // Signal Burst / companion ultimate: a player spends the gauge as soon as it is full while two foes or an
@@ -46,6 +47,7 @@ export function autoPlay(c0: CombatState, C: ContentRegistry, policy: BotPolicy,
     if (policy === 'greedy' || (policy === 'mixed' && mixedRoll(c) < 0.75)) greedyTurn(c, C)
     else basicTurn(c, C)
     if (c.phase === 'player') endTurnInPlace(c, C)
+    if (plays) for (const ev of c.events) if (ev.t === 'card') plays[ev.cardId] = (plays[ev.cardId] ?? 0) + 1
     c.events = []
   }
   return c

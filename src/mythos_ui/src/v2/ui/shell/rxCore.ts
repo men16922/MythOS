@@ -66,6 +66,7 @@ export const rxCore = {
   enterNode: (r: R, id: string, C: C): R => Run.enterNode(r, id, C),
   spendGrowth: (r: R, stat: StatKey): R => Run.spendGrowth(r, stat),
   reachable: (r: R): string[] => (r.screen.kind === 'map' ? Run.reachableNodes(r) : []),
+  roadRecruitAt: (r: R, id: string, C: C): boolean => Run.roadRecruitAt(r, r.map.nodes[id], C),
   updateCombat: (r: R, c: CombatState, C: C): R => Run.updateCombat(r, c, C),
   abandon: (r: R): R => Run.abandonRun(r),
   discardConsumable: (r: R, index: number, C: C): R => Run.discardConsumable(r, index, C),

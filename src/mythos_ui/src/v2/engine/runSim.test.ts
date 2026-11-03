@@ -46,3 +46,19 @@ test('the bot takes a companion into a free slot over the Act 2 go-alone bundle,
   run.party.push({ ...run.party[0]!, id: 'second' })
   assert.ok(outcomeValue(run, join, CONTENT) < outcomeValue(run, alone.success, CONTENT), 'a bench seat does not')
 })
+
+test('onFight reports the deployed party and the cards played, without changing the run', () => {
+  const fights: { won: boolean; party: string[]; plays: Record<string, number> }[] = []
+  const r = simulateRun(3, 'ghost', CONTENT, 'greedy', { onFight: (f) => fights.push(f) })
+  assert.ok(fights.length >= 3)
+  for (const f of fights) {
+    for (const [id, n] of Object.entries(f.plays)) {
+      assert.ok(CONTENT.cards[id] ?? CONTENT.consumables[id], `played card or item ${id} exists`)
+      assert.ok(Number.isInteger(n) && n > 0)
+    }
+    for (const id of f.party) assert.ok(CONTENT.companions[id], `party member ${id} exists`)
+    if (f.won) assert.ok(Object.keys(f.plays).length > 0, 'a won fight played at least one card')
+  }
+  assert.ok(fights.some((f) => f.party.length > 0), 'loop 1 starts with a companion')
+  assert.deepEqual(simulateRun(3, 'ghost', CONTENT, 'greedy'), r, 'telemetry does not change the run')
+})

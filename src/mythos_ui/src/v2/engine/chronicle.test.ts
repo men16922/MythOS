@@ -67,6 +67,8 @@ test('chronicle prototype: a chapter is Act 1 with districts, ends at its boss, 
   const ended = { ...start, screen: { kind: 'ended', result: 'victory', endingId: CHRONICLE_CHAPTER_ENDING } } as typeof start
   const profile = applyRunEnd(newProfile('T'), ended, C)
   assert.equal(profile.chronicle?.chapter, 2)
+  assert.equal(profile.wins, 0, 'a chapter clear is not a loop victory')
+  assert.equal(profile.paradoxUnlocked, 0)
   assert.deepEqual(profile.chronicle?.chaptersDone, [1])
   const next = newRun(profile, { archetype: 'ghost', paradox: 0, seed: 5, mode: 'chronicle' }, C)
   assert.equal(next.stats.str, 9, 'stats carried over')

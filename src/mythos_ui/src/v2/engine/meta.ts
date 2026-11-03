@@ -457,6 +457,8 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
   if (end.kind !== 'ended') return profile
   if (profile.history.some((h) => h.id === run.id)) return profile
   const victory = end.result === 'victory'
+  // A chronicle chapter clear (prototype) is not a loop victory: it banks the chronicle, not wins or unlocks.
+  const loopWin = victory && run.mode !== 'chronicle'
   const abandoned = (run.flags[ABANDONED_FLAG] ?? 0) > 0
   const earned = computeEchoes(run, C).total
   const killedBy = runKilledBy(run)
@@ -483,10 +485,10 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     echoes: profile.echoes + earned,
     totalEchoes: profile.totalEchoes + earned,
     loops: Math.max(profile.loops + 1, run.loop),
-    wins: profile.wins + (victory ? 1 : 0),
+    wins: profile.wins + (loopWin ? 1 : 0),
     bestAct: Math.max(profile.bestAct, run.act),
     ...(run.mode === 'endless' ? { endlessBest: Math.max(profile.endlessBest ?? 0, (run.lap ?? 0) * 100 + run.act) } : {}),
-    paradoxUnlocked: victory
+    paradoxUnlocked: loopWin
       ? Math.max(profile.paradoxUnlocked, Math.min(MAX_PARADOX, run.paradox + 1))
       : profile.paradoxUnlocked,
     codex: union(profile.codex, run.codex),
@@ -494,8 +496,8 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     ...(run.daily ? {} : { records: union(profile.records ?? [], Object.keys(run.flags).filter((k) => k.startsWith('record_') && run.flags[k])) }),
     companionsMet: union(profile.companionsMet, [...run.party, ...(run.bench ?? [])].map((m) => m.id)),
     history: [record, ...profile.history].slice(0, HISTORY_CAP),
-    companionWins: victory && !run.daily ? addWins(profile.companionWins, run.party.map((m) => m.id)) : { ...(profile.companionWins ?? {}) },
-    archetypeWins: victory && !run.daily ? addWins(profile.archetypeWins, [run.archetype]) : { ...(profile.archetypeWins ?? {}) },
+    companionWins: loopWin && !run.daily ? addWins(profile.companionWins, run.party.map((m) => m.id)) : { ...(profile.companionWins ?? {}) },
+    archetypeWins: loopWin && !run.daily ? addWins(profile.archetypeWins, [run.archetype]) : { ...(profile.archetypeWins ?? {}) },
     eventsSeen: addWins(profile.eventsSeen, [...new Set(run.seenEvents)]),
     recentEvents: run.daily ? (profile.recentEvents ?? []) : [[...new Set(run.seenEvents)], ...(profile.recentEvents ?? [])].slice(0, RECENT_EVENT_LOOPS),
     bestiary: mergeBestiary(profile.bestiary, run.bestiary),

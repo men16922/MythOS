@@ -20,8 +20,9 @@ export function noteFightFeats(run: RunState, combat: CombatState, nodeKind: Nod
   if (combat.burstUsed) f[FEAT_BURSTS] = (f[FEAT_BURSTS] ?? 0) + 1
 }
 
+/** A loop won (a chronicle chapter clear is not one: it carries over instead). */
 function won(run: RunState): boolean {
-  return run.screen.kind === 'ended' && run.screen.result === 'victory'
+  return run.screen.kind === 'ended' && run.screen.result === 'victory' && run.mode !== 'chronicle'
 }
 
 function atLeast(have: number, n: number | 'all', all: number): boolean {

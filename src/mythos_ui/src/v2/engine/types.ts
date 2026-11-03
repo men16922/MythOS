@@ -1378,6 +1378,27 @@ export interface RunRecord {
   lean?: 'attack' | 'skill'
 }
 
+/**
+ * Chronicle (W4, not playable yet): the connector who carries over between chapters, kept inside the profile so it
+ * rides the existing save and sync (engine/chronicle.ts). Old profiles have none.
+ */
+export interface ChronicleState {
+  /** The chapter to play next (1–5). */
+  chapter: number
+  chaptersDone: number[]
+  carried: {
+    archetype: string
+    stats: Stats
+    background: string | null
+    axes: Partial<Record<ChoiceAxis, number>>
+    approval: Record<string, number>
+    quests: Record<string, number>
+    rep: Partial<Record<Faction, number>>
+    /** The three cards that carry over; the rest of the deck is rebuilt each chapter. */
+    coreCards: string[]
+  }
+}
+
 export interface MetaProfile {
   version: 2
   playerName: string
@@ -1401,6 +1422,8 @@ export interface MetaProfile {
   fallen?: string[]
   /** Companions at level 5 when the last run ended: a good habit in the next opening, never power (content/residue.ts). */
   veterans?: string[]
+  /** Chronicle campaign state (W4; absent until a chronicle starts). */
+  chronicle?: ChronicleState
   /** `ai`: AI-written lines (GM narration, companion replies, IX comms, Improvise judging); off = authored text only. */
   settings: { lang: Lang; sfx: boolean; bgm: boolean; fastAnim: boolean; ai: boolean }
   /** Daily-seed records by KST date key, newest kept (capped at DAILY_CAP days). */

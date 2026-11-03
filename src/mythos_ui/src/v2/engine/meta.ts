@@ -4,6 +4,7 @@
 // Pure: every function returns a new profile (or a derived value) and never touches
 // storage. A RunState is self-contained, so banking reads only the run + content.
 
+import { migrateChronicle } from './chronicle.ts'
 import { newAchievements } from './achievements.ts'
 import { mergeBestiary } from './bestiary.ts'
 import { DAILY_CAP, isBetterDaily, isDateKey } from './daily.ts'
@@ -257,6 +258,8 @@ export function migrateProfile(raw: unknown): MetaProfile {
   if (fallen.length > 0) profile.fallen = fallen
   const veterans = strList(r.veterans)
   if (veterans.length > 0) profile.veterans = veterans
+  const chronicle = r.chronicle === undefined ? undefined : migrateChronicle(r.chronicle)
+  if (chronicle) profile.chronicle = chronicle
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {
     profile.lastDeath = { killedBy: death.killedBy, act: int(death.act, 1, 99), loop: int(death.loop, 0) }

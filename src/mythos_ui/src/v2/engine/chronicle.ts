@@ -37,6 +37,13 @@ export function carryOver(run: RunState, C: Pick<ContentRegistry, 'cards'>, core
   }
 }
 
+/** The player's pick of core cards for the next chapter: ids from this run's deck, at most CORE_CARDS. */
+export function withCore(state: ChronicleState, ids: readonly string[], deck: readonly { defId: string }[]): ChronicleState {
+  const inDeck = new Set(deck.map((k) => k.defId))
+  const core = [...new Set(ids)].filter((id) => inDeck.has(id)).slice(0, CORE_CARDS)
+  return { ...state, carried: { ...state.carried, coreCards: core } }
+}
+
 /** Close a chapter: mark it done and point at the next (the last chapter stays as the final one). */
 export function finishChapter(state: ChronicleState | undefined, chapter: number, carried: ChronicleState['carried']): ChronicleState {
   const done = [...new Set([...(state?.chaptersDone ?? []), chapter])].sort((a, b) => a - b)

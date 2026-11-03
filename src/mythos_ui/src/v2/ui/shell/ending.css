@@ -376,3 +376,34 @@
     animation: none;
   }
 }
+/* Chronicle prototype: the three cards carried into the next chapter. Small and quiet. */
+.m2-ending__core {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(143, 230, 255, 0.18);
+  background: rgba(6, 18, 24, 0.72);
+}
+.m2-ending__core-head {
+  font-size: 12px;
+  color: var(--m2-cyan);
+  margin-bottom: 6px;
+}
+.m2-ending__core-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 132px;
+  overflow-y: auto;
+}
+.m2-ending__core-list button {
+  padding: 3px 8px;
+  font-size: 12px;
+  color: var(--m2-mute);
+  background: transparent;
+  border: 1px solid rgba(143, 230, 255, 0.16);
+  cursor: pointer;
+}
+.m2-ending__core-list button.is-on {
+  color: var(--m2-ink, #e6f4f7);
+  border-color: var(--m2-gold);
+}

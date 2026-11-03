@@ -77,3 +77,10 @@ test('chronicle prototype: a chapter is Act 1 with districts, ends at its boss, 
   assert.notEqual(plain.mode, 'chronicle')
   assert.notEqual(plain.stats.str, 9, 'a normal run ignores the chronicle')
 })
+
+test('chronicle: the core pick keeps only cards from the run deck, three at most', async () => {
+  const { withCore } = await import('./chronicle.ts')
+  const state = finishChapter(undefined, 1, carryOver(run(), C))
+  const deck = [{ defId: 'packet_shot' }, { defId: 'shove' }, { defId: 'covering_noise' }, { defId: 'repulse' }]
+  assert.deepEqual(withCore(state, ['shove', 'not_in_deck', 'shove', 'packet_shot', 'repulse', 'covering_noise'], deck).carried.coreCards, ['shove', 'packet_shot', 'repulse'])
+})

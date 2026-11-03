@@ -63,6 +63,30 @@ export interface EndingScreenProps extends ScreenProps {
   daily?: { outcome: SubmitOutcome | null; today: string; onBoard: () => void }
   /** Achievement ids this run earned (its banked history row). */
   achievements?: readonly string[]
+  /** Chronicle chapter end (prototype): the core cards carried into the next chapter, and the pick. */
+  carry?: { core: readonly string[]; onCore: (ids: string[]) => void }
+}
+
+/** Pick the three cards that carry into the next chapter (chronicle prototype): one tap toggles, three at most. */
+function CorePicker({ run, C, lang, core, onCore }: { run: ScreenProps['run']; C: ScreenProps['C']; lang: Lang; core: readonly string[]; onCore: (ids: string[]) => void }) {
+  const ko = lang === 'ko'
+  const ids = [...new Set(run.deck.map((k) => k.defId))].filter((id) => C.cards[id] && C.cards[id]?.type !== 'junk')
+  const toggle = (id: string): void => {
+    if (core.includes(id)) onCore(core.filter((x) => x !== id))
+    else if (core.length < 3) onCore([...core, id])
+  }
+  return (
+    <div className="m2-ending__core" data-testid="core-picker">
+      <div className="m2-ending__core-head">{ko ? `다음 장으로 가져갈 카드 ${core.length}/3` : `Cards to carry into the next chapter ${core.length}/3`}</div>
+      <div className="m2-ending__core-list">
+        {ids.map((id) => (
+          <button key={id} type="button" className={core.includes(id) ? 'is-on' : ''} aria-pressed={core.includes(id)} onClick={() => toggle(id)}>
+            {tr(C.cards[id]?.name, lang)}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 /** One quiet line under the stats: the achievements this run earned (first three named, then a count). */
@@ -104,7 +128,7 @@ function DailyRank({ date, daily, lang }: { date: string; daily: NonNullable<End
 
 const CHRONICLE_WAIT_MS = 8000
 
-export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, daily, achievements }: EndingScreenProps) {
+export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, daily, achievements, carry }: EndingScreenProps) {
   const ended = run.screen.kind === 'ended' ? run.screen : null
   const ending = ended ? C.endings[ended.endingId] : undefined
   const breakdown = useMemo(() => computeEchoes(run, C), [run, C])
@@ -221,6 +245,7 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, dail
         </div>
 
         <aside className="m2-ending__side">
+          {carry && <CorePicker run={run} C={C} lang={lang} core={carry.core} onCore={carry.onCore} />}
           <div className={`m2-tally${stage >= 2 ? ' is-in' : ''}`}>
             <div className="m2-tally__head">{ko ? '획득한 에코' : 'Echoes earned'}</div>
             <div className="m2-tally__total">

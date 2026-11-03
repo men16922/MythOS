@@ -4,6 +4,7 @@
 
 // Stylesheet order matters: the base first (every screen / component sheet overrides it), then the settings panel's
 // (the title screen's KO/EN switch builds on it); each screen imports its own sheet; phone.css comes last.
+import { withCore } from '../../engine/chronicle.ts'
 import '../../v2.css'
 import '../components/settings.css'
 import { Suspense, lazy, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from 'react'
@@ -453,6 +454,14 @@ export function GameShell() {
                 : undefined
             }
             achievements={profile.history.find((h) => h.id === run.id)?.achievements}
+            {...(run.mode === 'chronicle' && profile.chronicle && run.screen.kind === 'ended' && run.screen.result === 'victory'
+              ? {
+                  carry: {
+                    core: profile.chronicle.carried.coreCards,
+                    onCore: (ids: string[]) => profile.chronicle && setProfile({ ...profile, chronicle: withCore(profile.chronicle, ids, run.deck) }),
+                  },
+                }
+              : {})}
             onChronicle={(text) => game.attachChronicle(run.id, text)}
             onDone={() => {
               game.closeRun()

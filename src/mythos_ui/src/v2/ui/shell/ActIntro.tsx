@@ -11,10 +11,12 @@ import { logComms } from '../common/commsLog.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 import { actOf, lastAct } from '../../engine/run.ts'
+import { worldEchoOf } from '../../engine/legacy.ts'
 import './actintro.css'
 
 export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
   const actDef = actOf(run, C)
+  const echo = worldEchoOf(run)
   const introLines = tr(actDef?.intro, lang).split('\n').filter(Boolean)
   // Re-entries end with how this loop's starting companion found you (content/openings.ts).
   const opening = openingLines(run).map((l) => tr(l, lang))
@@ -71,6 +73,11 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
       <GmCard className="m2-actintro__gm" text={shown > 0 ? (gmLine?.text ?? null) : null} ai={gmLine?.ai} lang={lang} fast={settings.fastAnim} report={{ route: 'narrate', kind: 'act_intro' }} />
       <div className="m2-actintro__inner">
         {run.act === 1 && run.residue && C.residue?.[run.residue] && <p className="m2-actintro__residue">{tr(C.residue[run.residue], lang)}</p>}
+        {run.act === 1 && (run.lap ?? 0) === 0 && echo?.scene && (
+          <p className="m2-actintro__residue" data-testid="echo-scene">
+            {tr(echo.scene, lang)}
+          </p>
+        )}
         <div className="m2-actintro__num">
           {run.act}
           <small>/{run.mode === 'endless' ? '∞' : lastAct(run, C)}</small>

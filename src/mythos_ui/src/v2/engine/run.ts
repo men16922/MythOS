@@ -690,6 +690,10 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     if (worldEcho) {
       run.flags[worldEcho.id] = 1
       run.credits += worldEcho.credits ?? 0
+      if (worldEcho.maxHp) {
+        run.maxHp += worldEcho.maxHp
+        run.hp += worldEcho.maxHp
+      }
       if (worldEcho.bond) for (const m of run.party) raiseBond(run, m.id, worldEcho.bond, C)
     }
   }

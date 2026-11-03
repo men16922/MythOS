@@ -251,3 +251,27 @@ test('Volume Expansion: 12 new enemies/bosses, 15 new encounters, 8 new cards, 9
     assert.ok(C.events[evId], `event ${evId} exists`)
   }
 })
+
+test('world echoes: every victory ending leaves one, its text matches its numbers, and max HP lands at run start', async () => {
+  const { WORLD_ECHOES } = await import('./legacy.ts')
+  const { FORCED_ERASURE } = await import('./run.ts')
+  const victories = Object.keys(C.endings).filter((id) => id !== FORCED_ERASURE)
+  for (const id of victories) assert.equal(WORLD_ECHOES.filter((e) => e.endingId === id).length, 1, `${id} leaves exactly one echo`)
+  for (const e of WORLD_ECHOES) {
+    assert.ok(C.endings[e.endingId], `${e.id} names a real ending`)
+    assert.ok(e.scene?.ko && e.scene.en, `${e.id} has a scene line`)
+    for (const lang of ['ko', 'en'] as const) {
+      const text = e.text[lang]
+      if (e.credits) assert.ok(text.includes(`+${e.credits}₵`), `${e.id} ${lang}: credits`)
+      if (e.maxHp) assert.ok(text.includes(`+${e.maxHp}`) && /HP/.test(text), `${e.id} ${lang}: max HP`)
+      if (e.bond) assert.ok(text.includes(`+${e.bond}`), `${e.id} ${lang}: bond`)
+      if (e.combat?.openingBlock) assert.ok(text.includes(`+${e.combat.openingBlock}`), `${e.id} ${lang}: opening block`)
+    }
+  }
+  const rec = (endingId: string): RunRecord => ({ id: 'r1', loop: 1, archetype: 'ghost', result: 'victory', endingId, act: 6, floors: 40, echoes: 80, party: ['se_rin'], endedAt: NOW })
+  const plain = newRun({ ...newProfile('T'), loops: 1 }, { archetype: 'ghost', paradox: 0, seed: 42, now: NOW }, C)
+  const scrawl = newRun({ ...newProfile('T'), loops: 1, history: [rec('ending_endless_resistance')] }, { archetype: 'ghost', paradox: 0, seed: 42, now: NOW }, C)
+  assert.equal(scrawl.flags.world_echo_graffiti, 1)
+  assert.equal(scrawl.maxHp, plain.maxHp + 3)
+  assert.equal(scrawl.hp, plain.hp + 3)
+})

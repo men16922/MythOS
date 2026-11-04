@@ -87,6 +87,38 @@ export const ROUTE_LORE: LoreEntry[] = [
     },
   },
   {
+    id: 'lore_d_off_pitch',
+    title: { ko: '반음 어긋난 합창', en: 'The Choir Off Pitch' },
+    text: {
+      ko: '고철 묘역에 버려진 기계들은 모두 같은 꿈을 노래로 흥얼거린다. 그런데 기계마다 음이 조금씩 어긋나 있다. 그래서 노래는 늘 마지막 마디 바로 앞에서 멈춘다. 기준음 하나만 있으면 끝까지 갈 수 있다. 조율사 달은 녹슨 소리굽쇠로 그 음을 찾고 있다.',
+      en: 'The discarded machines in the scrap graveyard all hum the same dream as a song, each a little off pitch. So it always stops just before the last bar. One reference note would carry it to the end, and Dal the tuner is still searching for it with a rusted tuning fork.',
+    },
+  },
+  {
+    id: 'lore_d_minus_forty',
+    title: { ko: '영하 사십 도', en: 'Minus Forty' },
+    text: {
+      ko: '분류되지 못한 기계들은 묘역 아래 냉동 선반에 꿈을 꾸던 채로 얼려진다. 영하 사십 도에서는 꿈이 상하지 않는다. 녹이면 기계보다 꿈이 먼저 깬다. 전원, 기억, 눈의 순서로 천천히 깨우면 기계는 꿈을 끝까지 보고 일어난다. 서두르면 꿈이 서리처럼 흩어진다.',
+      en: 'Machines the graveyard could not sort are frozen mid-dream on shelves beneath it. At minus forty a dream does not spoil. Thawed, the dream wakes before the machine does. Woken slowly, power then memory then eyes, a machine sees its dream through before it rises. Hurry it, and the dream scatters like frost.',
+    },
+  },
+  {
+    id: 'lore_d_struck_streets',
+    title: { ko: '두 줄 그은 거리', en: 'The Doubly Struck Streets' },
+    text: {
+      ko: '도시의 초고에서 편집자는 거리를 빨간 펜으로 지운다. 도시가 짧을수록 관리하기 쉽다는 이유다. 지워진 거리에도 사람들은 그대로 산다. 잃은 것은 이름뿐이다. 그 이름을 다시 쓰려면 편집자 펜보다 진한 잉크가 필요하다.',
+      en: 'In the city’s first draft, the editor strikes streets out with a red pen: the shorter the city, the easier to manage. People go on living in the struck streets; only the name is gone. To write it back you need ink darker than the editor’s pen.',
+    },
+  },
+  {
+    id: 'lore_d_margins',
+    title: { ko: '본문과 여백', en: 'Text and Margin' },
+    text: {
+      ko: '최초 기록의 본문은 IX가 썼다. 여백은 루프마다 접속자들이 썼다. 필사가 하는 둘 다 옮겨 적는다. 지우개를 든 아이가 여백을 하나씩 지운다. 깨끗한 쪽이 다음 루프에 더 잘 써진다고 들었기 때문이다. 여백의 줄을 읽고 여기까지 온 접속자는 한 줄을 남기고 간다.',
+      en: 'IX wrote the text of the first record; connectors wrote the margins, one loop at a time. Ha the scribe copies both. A child with an eraser wipes the margins one by one, having been told clean pages write better next loop. A connector who got this far by reading a margin line leaves a line behind.',
+    },
+  },
+  {
     id: 'lore_d_errata',
     title: { ko: '정오표', en: 'The Errata' },
     text: {

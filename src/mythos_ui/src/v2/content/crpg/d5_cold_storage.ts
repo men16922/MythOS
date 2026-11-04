@@ -185,7 +185,7 @@ const SHELF: DialogueDef = {
           approval: { kai: 2, rem: 2 },
           success: {
             text: t('전원, 기억, 그리고 눈. 기계가 꿈의 끝을 마저 보고 나서 눈을 뜬다. “따뜻하네요.” 다른 선반들이 조용히 떨린다.', 'Power, memory, then the eyes. The machine sees its dream through before it opens its eyes. “It’s warm.” The other shelves tremble quietly.'),
-            effects: [{ kind: 'quest', id: 'q_cold_storage', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_cold_storage', stage: 2 }, { kind: 'codex', id: 'lore_d_minus_forty' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -196,7 +196,7 @@ const SHELF: DialogueDef = {
           check: { stat: 'int', dc: 12 },
           success: {
             text: t('기계가 놀라 깨어난다. 꿈 조각이 서리처럼 흩어진다. 그래도 일어선다.', 'The machine wakes with a start; pieces of the dream scatter like frost. Still, it stands.'),
-            effects: [{ kind: 'quest', id: 'q_cold_storage', stage: 2 }, { kind: 'trace', amount: 5 }],
+            effects: [{ kind: 'quest', id: 'q_cold_storage', stage: 2 }, { kind: 'codex', id: 'lore_d_minus_forty' }, { kind: 'trace', amount: 5 }],
           },
           failure: {
             text: t('경보가 울린다. 선반의 서리가 다시 두꺼워진다.', 'An alarm sounds. The frost on the shelf thickens again.'),

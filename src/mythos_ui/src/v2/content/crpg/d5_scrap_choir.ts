@@ -182,7 +182,7 @@ const CHOIR: DialogueDef = {
           requires: { quest: { id: 'q_scrap_choir', stage: 1 } },
           success: {
             text: t('기계들이 한 음으로 모인다. 마지막 마디가 처음으로 끝난다. 묘역 저편 보스 구역의 기계들까지 잠깐 멈춰 듣는다.', 'The machines gather on one note. The last bar ends for the first time. Even the machines in the boss’s sector stop for a moment to listen.'),
-            effects: [{ kind: 'quest', id: 'q_scrap_choir', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_scrap_choir', stage: 2 }, { kind: 'codex', id: 'lore_d_off_pitch' }],
           },
         },
         {
@@ -192,7 +192,7 @@ const CHOIR: DialogueDef = {
           approval: { kai: 1 },
           success: {
             text: t('삑, 하는 박자 위에 노래가 끝난다. 핍이 원 위를 한 바퀴 돈다.', 'The song ends on a beep. Pip loops once above the circle.'),
-            effects: [{ kind: 'quest', id: 'q_scrap_choir', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_scrap_choir', stage: 2 }, { kind: 'codex', id: 'lore_d_off_pitch' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {

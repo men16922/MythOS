@@ -187,7 +187,7 @@ const DRAFT: DialogueDef = {
           requires: { flag: 'fd_ink', quest: { id: 'q_first_draft', stage: 1 } },
           success: {
             text: t('이름이 줄 위로 떠오른다. 편집자 펜으로는 다시 지워지지 않는다. 장 끝에서 보스의 그림자가 표시된다.', 'The name rises above the line. The editor’s pen cannot strike it again. At the page’s end, the boss’s shadow is marked.'),
-            effects: [{ kind: 'quest', id: 'q_first_draft', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_first_draft', stage: 2 }, { kind: 'codex', id: 'lore_d_struck_streets' }],
           },
         },
         {
@@ -197,7 +197,7 @@ const DRAFT: DialogueDef = {
           requires: { flag: 'fd_pen', quest: { id: 'q_first_draft', stage: 1 } },
           success: {
             text: t('편집자의 펜으로 편집자의 줄을 지운다. 거리가 돌아오고, 펜이 손에서 바스러진다.', 'You erase the editor’s line with the editor’s pen. The street comes back; the pen crumbles in your hand.'),
-            effects: [{ kind: 'quest', id: 'q_first_draft', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_first_draft', stage: 2 }, { kind: 'codex', id: 'lore_d_struck_streets' }],
           },
         },
         {
@@ -207,7 +207,7 @@ const DRAFT: DialogueDef = {
           check: { stat: 'int', dc: 13 },
           success: {
             text: t('희미하지만 이름이 남는다. 편집자가 언젠가 다시 지우겠지만, 오늘은 아니다.', 'Faint, but the name stays. The editor will strike it again one day, but not today.'),
-            effects: [{ kind: 'quest', id: 'q_first_draft', stage: 2 }, { kind: 'trace', amount: 6 }],
+            effects: [{ kind: 'quest', id: 'q_first_draft', stage: 2 }, { kind: 'codex', id: 'lore_d_struck_streets' }, { kind: 'trace', amount: 6 }],
           },
           failure: {
             text: t('글씨가 줄 아래로 빨려 들어간다.', 'The writing sinks back under the line.'),

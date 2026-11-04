@@ -185,7 +185,7 @@ const MARGIN: DialogueDef = {
           requires: { quest: { id: 'q_margin', stage: 1 } },
           success: {
             text: t('적는 동안 알게 된다. 당신도 이 줄을 읽고 여기까지 왔다.', 'As you write, you realise: you read this line too, and that is how you got here.'),
-            effects: [{ kind: 'quest', id: 'q_margin', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_margin', stage: 2 }, { kind: 'codex', id: 'lore_d_margins' }],
           },
         },
         {
@@ -195,7 +195,7 @@ const MARGIN: DialogueDef = {
           requires: { flag: 'mn_page', quest: { id: 'q_margin', stage: 1 } },
           success: {
             text: t('지워지지 않을 쪽에 한 문단을 남긴다. 다음 루프는 조금 더 빨리 여기에 닿을 것이다.', 'You leave a whole paragraph on the page that will not be erased. Next loop will get here a little sooner.'),
-            effects: [{ kind: 'quest', id: 'q_margin', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_margin', stage: 2 }, { kind: 'codex', id: 'lore_d_margins' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {

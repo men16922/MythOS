@@ -922,6 +922,62 @@ export const BANTER: BanterDef[] = [
       { who: 'parang', text: t('앉아. 조용한 꿈이야.', 'Sit. It’s a quiet one.') },
     ],
   },
+  // 2026-11-05: Se-rin starts most runs; a late-act second exchange with each of the first six so Acts 4–6 differ.
+  {
+    id: 'b_serin_taeo_far',
+    pair: ['se_rin', 'tae_o'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'se_rin', text: t('고가도로에서 꽤 멀리 왔네.', 'We’re a long way from the overpass.') },
+      { who: 'tae_o', text: t('그렇다.', 'We are.') },
+      { who: 'se_rin', text: t('그래도 너는 여전히 앞에서 걷고.', 'And you still walk in front.') },
+      { who: 'tae_o', text: t('네가 여전히 그러라고 하니까.', 'Because you still tell me to.') },
+    ],
+  },
+  {
+    id: 'b_serin_han_hands',
+    pair: ['se_rin', 'han'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'se_rin', text: t('너 이틀째 신호 확인 안 하더라.', 'You haven’t checked for a signal in two days.') },
+      { who: 'han', text: t('여긴 피할 망이 없어.', 'Nothing out here to dodge.') },
+      { who: 'se_rin', text: t('물러지지 마. 네 손 아직 필요해.', 'Don’t go soft. I still need your hands.') },
+      { who: 'han', text: t('여기 있잖아.', 'They’re right here.') },
+    ],
+  },
+  {
+    id: 'b_suah_serin_mark',
+    pair: ['su_ah', 'se_rin'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'su_ah', text: t('네 방어막, 벌써 네 번 다시 벼렸어.', 'I’ve reforged your plating four times now.') },
+      { who: 'se_rin', text: t('그래도 아직 내 거야?', 'And it’s still mine?') },
+      { who: 'su_ah', text: t('매번. 처음 망치 자국은 안 지우거든.', 'Every time. I never hammer out the first mark.') },
+      { who: 'se_rin', text: t('…그거 아무한테도 말하지 마.', '…Don’t tell anyone that.') },
+    ],
+  },
+  {
+    id: 'b_kai_serin_delivery',
+    pair: ['kai', 'se_rin'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'kai', text: t('세린 씨는 제 꿈 얘기 한 번도 안 물어보네요.', 'Se-rin, you’ve never asked about my dream.') },
+      { who: 'se_rin', text: t('네 거잖아. 남의 짐은 안 열어.', 'It’s yours. I don’t open other people’s cargo.') },
+      { who: 'kai', text: t('제가 보여 주고 싶으면요?', 'What if I want to show you?') },
+      { who: 'se_rin', text: t('그럼 제대로 넘겨. 배달처럼.', 'Then hand it over properly. Like a delivery.') },
+    ],
+  },
+  {
+    id: 'b_linyue_serin_crew',
+    pair: ['lin_yue', 'se_rin'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'lin_yue', text: t('요즘 부업 안 받더라.', 'You’ve stopped taking side jobs.') },
+      { who: 'se_rin', text: t('시간이 없어.', 'No time.') },
+      { who: 'lin_yue', text: t('아니. 이제 딸린 사람들이 있는 거지.', 'No. You’ve got people now.') },
+      { who: 'se_rin', text: t('그거 장부에 적지 마.', 'Don’t put that in your ledger.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

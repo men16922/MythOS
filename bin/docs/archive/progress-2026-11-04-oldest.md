@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Outside the List to 30 scenes (Claude Opus 5.5, same goal)
+
+- `outside_ev_water_tank` (the one full tank on a roof over a block without water), `outside_ev_newspapers` (tomorrow's obituaries leave the off-list dead out), `outside_ev_florist` (a bouquet for a recipient who was erased), `outside_ev_radio` (a guardhouse radio leaking the Crew's patrol order); Codex art (unreviewed). While applying, a zsh pipe+heredoc re-ran the previous batch's script and duplicated four events; the content id test caught it and the duplicate block was removed before commit.
+- **Verified**: content + event-balance + outside tests; UI on the route (KO/EN, desktop/390 px), 0 console errors.
+
 ## 2026-11-04 — A second personal scene for each DLC companion (Claude Opus 5.5, same goal)
 
 - `cx_io_bookmark` (a reader who never came back; finish the book by proxy or leave the marker), `cx_miro_reflection` (the window that reflects everyone but Miro), `cx_doyun_old_tag` (Doyun's old queue number on a lost-and-found board), `cx_bel_pen` (Bel offers the leaking red pen: cut one line you choose, or break it), `cx_rem_yawn` (Rem's first yawn). Small and earned, no arc resolved; Codex art drawn from each recruit portrait (unreviewed).

@@ -902,4 +902,44 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['the last barge', 'lit window', 'old woman', 'flask of broth'],
   },
+  // 2026-11-04: Outside the List's district comes back in Act 3 (Signal+ runs on the DLC 2 route only).
+  {
+    id: 'a3_cb_laundry',
+    acts: [3],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_outside_laundry', stage: 2 } },
+    title: t('조끼 없는 도', 'Do Without the Vest'),
+    image: 'v2/events/a3_cb_laundry.webp',
+    text: t(
+      '첨탑 직원 세탁실에서 청년 하나가 수건을 갠다. 정리반 신입이던 도다. 조끼는 없다.\n“그 주에 그만뒀어요. 분실물 보고서 쓰다가.” 그가 앞치마 주머니에서 무언가를 꺼낸다. 이름표 하나다.',
+      'In the Spire staff laundry a young man is folding towels. Do, the Closing Crew rookie. No vest.\n“Quit that week. Halfway through a lost-property report.” He takes something from his apron pocket. A name tag.',
+    ),
+    options: [
+      {
+        label: t('이름표를 받는다', 'Take the tag'),
+        hint: t('추적 −8 · ◈ +3', '−8 Trace · +3 ◈'),
+        success: {
+          text: t('당신 이름이 아니다. 누군가 지켜 낸 이름이다. 도가 말한다. “주인 찾으면 줘요.”', 'Not your name. Someone’s name that was kept. Do says, “Give it back if you find them.”'),
+          effects: [
+            { kind: 'trace', amount: -8 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+      {
+        label: t('정리반의 첨탑 순찰 순서를 묻는다', 'Ask the Crew’s patrol order in the Spire'),
+        hint: t('추적 −12 · 실패 시 추적 +5', '−12 Trace · fail +5 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('도가 수건을 개며 층수를 하나씩 읊는다. 세탁실은 맨 마지막이다.', 'Folding towels, Do recites the floors one by one. The laundry is last.'),
+          effects: [{ kind: 'trace', amount: -12 }],
+        },
+        failure: {
+          text: t('대화가 길어진다. 세탁실 감독관이 문가에 선다.', 'The talk runs long. The laundry supervisor appears in the doorway.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+    ],
+    gmHints: ['do the former crew rookie', 'kept name tag', 'spire staff laundry'],
+  },
 ]

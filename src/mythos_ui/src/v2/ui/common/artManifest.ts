@@ -171,6 +171,7 @@ export const ART: {
     a3_cb_core: 'v2/events/a3_cb_core.webp',
     a3_cb_hunt: 'v2/events/a3_cb_hunt.webp',
     a3_cb_ladle: 'v2/events/a3_cb_ladle.webp',
+    a3_cb_laundry: 'v2/events/a3_cb_laundry.webp',
     a3_cb_line: 'v2/events/a3_cb_line.webp',
     a3_cb_min: 'v2/events/a3_cb_min.webp',
     a3_cb_umbrella: 'v2/events/a3_cb_umbrella.webp',

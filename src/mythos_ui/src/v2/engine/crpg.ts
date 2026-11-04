@@ -143,13 +143,17 @@ export function repTier(run: Pick<RunState, 'crpg'>, faction: Faction): -1 | 0 |
 /** Districts per act on a normal run (DLC update C+1: two, on different rows, so the CRPG layer is a real thread). */
 export const DISTRICTS_PER_ACT = 2
 
-/** Normal runs (or the Act 1 trial): up to DISTRICTS_PER_ACT event nodes of this act's map become districts (deterministic, own hash). */
-export function placeDistrict(run: RunState, map: ActMap, C: ContentRegistry): void {
+/**
+ * Normal runs (or the Act 1 trial): up to DISTRICTS_PER_ACT event nodes of this act's map become districts
+ * (deterministic, own hash). `route` is the map's route (a route map only takes that route's districts; the base map
+ * only route-less ones).
+ */
+export function placeDistrict(run: RunState, map: ActMap, C: ContentRegistry, route?: string): void {
   if (!run.crpg || run.daily || !C.crpg) return
   if (run.crpg.trial && map.act > 1) return
   const seen = new Set(run.crpg.districts)
   const pool = Object.values(C.crpg.districts)
-    .filter((d) => d.act === map.act && !seen.has(d.id))
+    .filter((d) => d.act === map.act && d.route === route && !seen.has(d.id))
     .sort((a, b) => a.id.localeCompare(b.id))
   let nodes = Object.values(map.nodes)
     .filter((n) => n.kind === 'event' && n.row > 0)

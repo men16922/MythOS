@@ -1168,6 +1168,7 @@ function takeRoute(run: RunState, id: string, C: ContentRegistry): void {
   if (run.nodeId !== null || !C.routes?.[id]) return
   run.route = id
   run.map = generateActMap(run.act, mapRng(run, run.act), C, { paradox: run.paradox, exclude: run.seenEvents, avoid: run.staleEvents ?? [], route: id })
+  placeDistrict(run, run.map, C, id)
   run.pools.cards.push(...Object.values(C.cards).filter((c) => c.route === id && !run.pools.cards.includes(c.id)).map((c) => c.id))
   run.pools.implants.push(...Object.values(C.implants).filter((i) => i.route === id && !run.pools.implants.includes(i.id)).map((i) => i.id))
   log(run, 'start', C.routes[id].name)

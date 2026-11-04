@@ -19,10 +19,13 @@ from mythos_v2.npcs import (
     d4_dream_stacks,
     d4_forbidden_index,
     d4_return_desk,
+    d4_sea_seizure_shed,
     d5_cold_storage,
     d5_scrap_choir,
+    d5_sea_barge_market,
     d6_first_draft,
     d6_margin_notes,
+    d6_sea_foghorn_post,
 )
 from mythos_v2.npcs._persona import Persona
 
@@ -48,6 +51,9 @@ for _module in (
     d6_margin_notes,
     d5_cold_storage,
     d6_first_draft,
+    d4_sea_seizure_shed,
+    d5_sea_barge_market,
+    d6_sea_foghorn_post,
 ):
     for _id, _persona in _module.PERSONAS.items():
         if _id in PERSONAS:

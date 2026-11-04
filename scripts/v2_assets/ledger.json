@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 731,
+ "codex_image_calls": 746,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4425,6 +4425,15 @@
    ],
    "ts": "2026-10-26T04:01:58"
   },
+  "v2/districts/d4_sea_seizure_shed.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Seizure Shed: inside a cavernous customs warehouse at a waterless harbor, tall shelves of ordinary belongings (an umbrella, a single shoe, a child's lunchbox) each with a blank yellow seizure tag, an inspection desk with stacked tags, an auction rail with tagged crates, a row of steel lockers, sodium lamps. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, muted harbor palette of rust, salt white, slate gray and sodium amber with cold teal. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/sea4.webp"
+   ],
+   "ts": "2026-11-04T10:33:10"
+  },
   "v2/districts/d5_cold_storage.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -4439,6 +4448,15 @@
    "refs": [],
    "ts": "2026-11-04T09:43:28"
   },
+  "v2/districts/d5_sea_barge_market.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Barge Market: dozens of old barges roped together over drowned reclamation-district streets, a floating market crossing hull to hull on planks, stalls of gray-water bottles, a translucent jellyfish-like drone drifting between ropes, one dark barge at the far end with an unlit window, gray tide. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, muted harbor palette of rust, salt white, slate gray and sodium amber with cold teal. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/sea5.webp"
+   ],
+   "ts": "2026-11-04T10:33:10"
+  },
   "v2/districts/d6_first_draft.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -4452,6 +4470,15 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Margin Notes: the wide margin of a colossal glowing page crowded with small handwritten scribbles in many hands (illegible, abstract marks only), a copying desk with a quill, a small child with a big eraser rubbing lines away, a blank strip of margin glowing at the end. Setting: the origin of all loops, a cathedral-like hall where the floor and walls are made of enormous pages and glowing written lines, golden light, drifting ink motes, deep teal shadows. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
    "refs": [],
    "ts": "2026-11-04T09:43:07"
+  },
+  "v2/districts/d6_sea_foghorn_post.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Foghorn Post: a small steel watch post halfway along a long causeway over the sea in dense fog, a large brass foghorn mounted at the post with a robed keeper blowing it, a rusted channel buoy with a lamp lashed to a pillar, a diver's ladder down to dark water, the lighthouse beam faint in the distance. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, muted harbor palette of rust, salt white, slate gray and sodium amber with cold teal. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/sea6.webp"
+   ],
+   "ts": "2026-11-04T10:33:02"
   },
   "v2/ending/ending_bond_of_the_left.webp": {
    "generations": 1,
@@ -5849,6 +5876,13 @@
    "refs": [],
    "ts": "2026-11-01T14:41:19"
   },
+  "v2/events/sea5_cb_clock.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A concrete breakwater at an abandoned harbor under an overcast sky, a flat gray tide creeping in across empty water with absolutely no ships, boats or vessels anywhere, only idle rusted cranes on the far shore; a line of longshore workers in hi-vis vests passing sandbags hand to hand; a young worker in front raising a wrist with an old shift clock and shouting, a hand bell on a post. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T11:01:08"
+  },
   "v2/events/sea5_cb_debt.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5960,6 +5994,13 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. A single young adult Korean harbor resident gripping a stiff watch handle with both hands, exhausted posture, dry sleeves, patched watertight door behind her. One restrained effect: a soft amber duty light. No text in the image.",
    "refs": [],
    "ts": "2026-11-01T14:42:43"
+  },
+  "v2/events/sea6_cb_barge.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A steel causeway on pillars in thick sea fog; below it a single old barge with one warmly lit window approaches on dark water; an elderly woman leans out of the window holding up a steel thermos flask, steam rising. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T10:59:20"
   },
   "v2/events/sea6_cb_citizen.webp": {
    "generations": 1,
@@ -6824,6 +6865,15 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Palle, the auctioneer of a memory auction house; androgynous Korean person in a sharp velvet suit, slicked hair, a holographic gavel glowing in one hand, a showman's thin smile. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:06:39"
   },
+  "v2/npcs/auctioneer_pyo.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Auctioneer Pyo, a sly well-dressed auctioneer with a loosened tie and a small wooden gavel, leaning on a rail, knowing smile. Setting: a dried, cracked harbor floor with rusted cranes and a customs warehouse, sodium amber light, salt haze. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T10:34:15"
+  },
   "v2/npcs/auditor_pyo.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -6839,11 +6889,29 @@
    ],
    "ts": "2026-11-04T04:02:54"
   },
+  "v2/npcs/barge_pilot_gil.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Pilot Gil, a stocky gruff barge pilot in an oilskin coat with rope coiled over one shoulder, rope-burned hands, steady gaze. Setting: barges roped together over flooded streets, gray water, overcast light, ropes and planks. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T10:35:29"
+  },
   "v2/npcs/bora.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Bora, a cheerful, clever Korean kid of about twelve who collects a small toll from passers-by; oversized yellow raincoat with the hood down, a sly grin, holding a clear umbrella, warm market lights. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:10:01"
+  },
+  "v2/npcs/bottle_seller_ong.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Old Ong, a weathered elderly Korean man in a worn fisherman's jacket, holding up a glass bottle half full of cloudy gray water to the light, wry kind eyes. Setting: barges roped together over flooded streets, gray water, overcast light, ropes and planks. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T10:35:25"
   },
   "v2/npcs/br_gyeom.webp": {
    "generations": 1,
@@ -6862,6 +6930,24 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Sae, a young Korean pawnshop clerk; neat bob, a cardigan with black sleeve protectors, holding a sealed envelope with a small gold hairpin drawn on it, polite guarded smile, standing behind a glass counter. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a night-market pawnshop behind them (brass scales behind glass, cases of softly glowing memory vials), warm amber lamp light with cyan and magenta rim, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
    "ts": "2026-10-26T03:59:36"
+  },
+  "v2/npcs/buoy_seven.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Buoy 7, a rusted red-and-white channel-marker buoy machine with a single round lamp on top glowing softly like an eye, lashed to a steel pillar with chains, barnacles. Setting: a steel causeway in thick sea fog, a distant lighthouse beam, cold blue-gray light. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T10:36:34"
+  },
+  "v2/npcs/cable_diver_kang.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Kang, a lean diver with a wetsuit unzipped to the chest and wet hair, holding a short piece of thick seabed cable, salt on the skin, frank grin. Setting: a steel causeway in thick sea fog, a distant lighthouse beam, cold blue-gray light. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T10:36:22"
   },
   "v2/npcs/choir_tuner_dal.webp": {
    "generations": 1,
@@ -6898,6 +6984,15 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Curator Baek, an 'optimized citizen' curator of a glass atrium; flawless Korean woman in a pristine white high-collar outfit, too-perfect calm face, sterile white light instead of neon. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:07:48"
+  },
+  "v2/npcs/customs_inspector_no.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Inspector No, a neat middle-aged customs inspector in a pressed slate uniform cap, holding a stack of blank yellow seizure tags, polite precise expression. Setting: a dried, cracked harbor floor with rusted cranes and a customs warehouse, sodium amber light, salt haze. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T10:34:21"
   },
   "v2/npcs/draft_editor_yeon.webp": {
    "generations": 1,
@@ -6977,11 +7072,38 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Iseul, a Korean teenage girl selling her own memories to pay a debt; pale, a neural jack port with a bandage behind her ear, school jacket too thin for the rain, quiet sad eyes. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:06:20"
   },
+  "v2/npcs/jellyfish_drone_mul.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Mul, a translucent jellyfish-shaped drone floating, barnacles on the tips of its tendrils, a faint warm scene of a kitchen window glowing inside its body, gentle and sad. Setting: barges roped together over flooded streets, gray water, overcast light, ropes and planks. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T10:35:28"
+  },
+  "v2/npcs/keeper_hui.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Hui, a young woman Keeper in a simple gray hooded robe with cracked lips, holding a brass foghorn, devout weary eyes, fog drifting. Setting: a steel causeway in thick sea fog, a distant lighthouse beam, cold blue-gray light. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T10:36:19"
+  },
   "v2/npcs/kiosk_dal.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Dal, an IX-licensed welfare kiosk robot: a battered public kiosk with a cracked screen face showing a glitching cartoon smile, rain dripping off its casing, stickers peeling — a machine, not a person. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:05:25"
+  },
+  "v2/npcs/longshore_boram.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Boram, a young longshore worker in a hi-vis work vest and knit cap, glancing at a bare wrist, earnest tired face. Setting: a dried, cracked harbor floor with rusted cranes and a customs warehouse, sodium amber light, salt haze. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T10:34:11"
   },
   "v2/npcs/ls_eunsol.webp": {
    "generations": 1,

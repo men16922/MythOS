@@ -1207,6 +1207,8 @@ export interface DistrictDef {
   actions: number
   pois: PoiDef[]
   outro: Text
+  /** Placed only on this route's map (e.g. 'sea_4'); a district without one is placed only on the base act map. */
+  route?: string
 }
 
 export interface BackgroundDef {

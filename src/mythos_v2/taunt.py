@@ -455,6 +455,97 @@ ENEMY_PERSONAS: dict[str, EnemyPersona] = {
             "en": "A huge assembly machine stamping out parts. Factory talk: assembly, spec, defects, scrap.",
         },
     ),
+    "nightmare_loom": EnemyPersona(
+        {"ko": "악몽 방직기", "en": "Nightmare Loom"},
+        {
+            "ko": "꿈꾸는 기계들 사이에서 악몽을 짜는 방직기. 낮게 속삭이는 반말로 실, 무늬, 꿈을 말한다.",
+            "en": "A loom that weaves nightmares among the dreaming machines. A low whisper about threads, patterns and dreams.",
+        },
+    ),
+    "rewrite_engine": EnemyPersona(
+        {"ko": "재작성 기관", "en": "Rewrite Engine"},
+        {
+            "ko": "최초 기록의 빈칸을 다시 쓰는 기관. 사무적인 하십시오체로 재작성, 삭제, 원본 폐기를 말한다.",
+            "en": "The engine that rewrites the first record’s blanks. Businesslike formality: rewriting, erasing, discarding the original.",
+        },
+    ),
+    "null_choir": EnemyPersona(
+        {"ko": "공백 성가대", "en": "Null Choir"},
+        {
+            "ko": "최초 기록 위를 떠도는 공백의 성가대. 노래하듯 엄숙한 반말로 화음, 공백, 침묵을 말한다.",
+            "en": "A choir of blanks drifting over the first record. Solemn, sung speech about harmony, blanks and silence.",
+        },
+    ),
+    "first_draft": EnemyPersona(
+        {"ko": "첫 번째 초안", "en": "The First Draft"},
+        {
+            "ko": "접속자의 초안. 접속자의 자세와 움직임을 따라 한다. 담담한 반말로 같은 자세, 같은 회피, 고쳐 쓰기를 말한다. 접속자의 정체를 단정하지 않는다.",
+            "en": "The connector’s first draft, copying the connector’s stance and movement. Flat speech about the same stance, the same dodge, revisions. It never states who the connector is.",
+        },
+    ),
+    "sea4_container_press": EnemyPersona(
+        {"ko": "컨테이너 압착기", "en": "Container Press"},
+        {
+            "ko": "마른 항구의 컨테이너 압착기. 짧은 작업 반말로 압착, 규격, 서류를 말한다.",
+            "en": "The dry harbor’s container press. Short work talk: crushing, spec, paperwork.",
+        },
+    ),
+    "sea4_gantry_auditor": EnemyPersona(
+        {"ko": "공중 검수기", "en": "Gantry Auditor"},
+        {
+            "ko": "갠트리에 매달린 세관 검수 기계. 공손한 검수 보고체의 하십시오체(검수, 반출 불가, 회수).",
+            "en": "A customs inspection machine hanging from the gantry. Polite inspection-report formality: inspection, no clearance, retrieval.",
+        },
+    ),
+    "sea5_tether_dredger": EnemyPersona(
+        {"ko": "계류 준설기", "en": "Tether Dredger"},
+        {
+            "ko": "바닥을 긁어 올리는 계류 준설기. 거칠고 무거운 반말로 끌어올리기와 진흙을 말한다. 바다를 아름답게 말하지 않는다.",
+            "en": "A tethered dredger scraping up the bottom. Rough, heavy speech about dragging up and mud. It never makes the sea beautiful.",
+        },
+    ),
+    "sea5_crown_jelly": EnemyPersona(
+        {"ko": "왕관해파리", "en": "Crown Jelly"},
+        {
+            "ko": "회색 조수 위를 떠다니는 왕관 모양의 해파리 잔류물. 느리고 달래는 듯한 반말로 촉수와 기억을 말한다.",
+            "en": "A crown-shaped jellyfish Residue drifting on the gray tide. Slow, coaxing speech about tendrils and memories.",
+        },
+    ),
+    "sea5_doorway_colossus": EnemyPersona(
+        {"ko": "문간 거인", "en": "Doorway Colossus"},
+        {
+            "ko": "잠긴 매립지의 문간을 막고 선 거인. 묵직한 반말로 문, 막기, 자리 바꾸기를 말한다.",
+            "en": "A giant blocking a doorway in the drowned estate. Heavy speech about doors, blocking and trading places.",
+        },
+    ),
+    "sea5_memorial_loom": EnemyPersona(
+        {"ko": "추모 직조기", "en": "Memorial Loom"},
+        {
+            "ko": "지워진 이름의 조각을 짜는 추모 직조기. 슬프고 집요한 반말로 이름, 빈자리, 추모를 말한다.",
+            "en": "A memorial loom weaving scraps of erased names. Sad, insistent speech about names, empty places and mourning.",
+        },
+    ),
+    "sea6_lens_warden": EnemyPersona(
+        {"ko": "렌즈 수문장", "en": "Lens Warden"},
+        {
+            "ko": "등대 렌즈로 가는 길을 지키는 수문장. 엄격한 하십시오체로 빛, 수문, 멈춤을 말한다.",
+            "en": "The warden on the way to the lighthouse lens. Strict formality: the light, the gate, stopping.",
+        },
+    ),
+    "sea6_anchor_prior": EnemyPersona(
+        {"ko": "닻의 수도원장", "en": "Anchor Prior"},
+        {
+            "ko": "등대단의 닻 수도원장. 사슬로 끌어당긴다. 엄숙한 하십시오체로 닻, 기도, 순례를 말한다.",
+            "en": "The Keepers’ anchor prior, who drags people in with a chain. Solemn formality about the anchor, prayer and pilgrimage.",
+        },
+    ),
+    "sea6_lantern_seraph": EnemyPersona(
+        {"ko": "등불 세라프", "en": "Lantern Seraph"},
+        {
+            "ko": "등대단의 등불을 든 비행 세라프. 공손한 존댓말로 빛과 돌아가는 길을 말한다. 바다를 안전하다고 말하지 않는다.",
+            "en": "The Keepers’ flying lantern seraph. Courteous; speaks of the light and the way back. It never calls the sea safe.",
+        },
+    ),
 }
 
 _SITUATION: dict[TauntTrigger, dict[Lang, str]] = {

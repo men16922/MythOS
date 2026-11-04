@@ -238,4 +238,56 @@ export const TAUNTS: Record<string, Record<TauntMoment, Text[]>> = {
     hurt: [t('조립 오류. 재조립.', 'Assembly error. Reassembling.'), t('부품은 많다. 너보다 많다.', 'There are plenty of parts. More than you.')],
     winning: [t('한 줄 압착. 규격 맞춤.', 'Pressing a row. Cutting to spec.'), t('불량품은 폐기한다.', 'Defective units are scrapped.')],
   },
+  nightmare_loom: {
+    hurt: [t('실이 끊겼다. 다시 짠다.', 'A thread snapped. Weaving again.'), t('악몽은 풀어도 다시 엉킨다.', 'Unpick a nightmare and it tangles again.')],
+    winning: [t('네 꿈에 한 올 넣었다.', 'I wove one thread into your dream.'), t('잠들면 이 무늬를 보게 될 거야.', 'When you sleep, you’ll see this pattern.')],
+  },
+  rewrite_engine: {
+    hurt: [t('문장 손상. 재작성합니다.', 'Sentence damaged. Rewriting.'), t('빈칸부터 지웁니다.', 'Erasing the blanks first.')],
+    winning: [t('발밑을 다시 쓰겠습니다.', 'I will rewrite what is under your feet.'), t('수정 완료. 원본은 폐기합니다.', 'Revision complete. Discarding the original.')],
+  },
+  null_choir: {
+    hurt: [t('화음이 흐트러졌다. 다시 맞춘다.', 'The harmony broke. Retuning.'), t('공백도 노래가 된다.', 'Even silence becomes a song.')],
+    winning: [t('들어라. 네 이름이 빠진 찬송이다.', 'Listen. A hymn with your name left out.'), t('마지막 소절은 침묵이다.', 'The last bar is silence.')],
+  },
+  first_draft: {
+    hurt: [t('그 자세, 나도 알아.', 'That stance. I know it.'), t('네가 피하는 쪽으로 나도 피해.', 'I dodge the way you dodge.')],
+    winning: [t('네가 설 자리에 내가 먼저 섰어.', 'I stood where you stand, first.'), t('고쳐 쓸 데가 많네.', 'Lots left to revise.')],
+  },
+  sea4_container_press: {
+    hurt: [t('압착판 휘었다. 다시 누른다.', 'The press plate bent. Pressing again.'), t('빈 칸은 눌러서 접는다.', 'Empty boxes get folded flat.')],
+    winning: [t('찌그러뜨린다. 규격대로.', 'Crushing. To spec.'), t('납작해지면 서류에 한 줄이다.', 'Flattened, you’re one line on a form.')],
+  },
+  sea4_gantry_auditor: {
+    hurt: [t('공중 검수 계속합니다.', 'Aerial inspection continues.'), t('위에서는 다 보입니다.', 'Everything is visible from above.')],
+    winning: [t('검수 결과: 반출 불가.', 'Inspection result: no clearance.'), t('갈고리로 회수하겠습니다.', 'Retrieving with the hook.')],
+  },
+  sea5_tether_dredger: {
+    hurt: [t('계류줄이 풀렸다. 다시 맨다.', 'The tether slipped. Tying it again.'), t('바닥에서 다 끌어 올린다.', 'I drag everything up from the bottom.')],
+    winning: [t('끌려와. 물이 너를 원한다.', 'Come here. The water wants you.'), t('준설 완료. 남는 건 진흙뿐.', 'Dredging done. Only mud is left.')],
+  },
+  sea5_crown_jelly: {
+    hurt: [t('촉수가 찢겼어. 그래도 떠.', 'A tendril tore. I still float.'), t('네 기억이 촉수에 걸렸어.', 'Your memory caught on a tendril.')],
+    winning: [t('움직이지 마. 금방 끝나.', 'Don’t move. It’ll be over soon.'), t('왕관 아래로 들어와.', 'Come under the crown.')],
+  },
+  sea5_doorway_colossus: {
+    hurt: [t('문틀이 흔들린다. 그래도 막는다.', 'The frame shakes. I still block it.'), t('이 문은 아무도 못 지나간다.', 'No one passes this door.')],
+    winning: [t('자리를 바꾸자. 너는 구덩이 옆이다.', 'Let’s trade places. You’re by the pit.'), t('문을 닫는다. 바깥은 물이다.', 'Closing the door. Outside is water.')],
+  },
+  sea5_memorial_loom: {
+    hurt: [t('이름 한 장이 찢겼어.', 'One name tore.'), t('지워진 자리는 또 채워.', 'I fill the erased places again.')],
+    winning: [t('네 이름도 짜 넣어 줄게.', 'I’ll weave your name in too.'), t('추모는 끝나지 않아.', 'The mourning never ends.')],
+  },
+  sea6_lens_warden: {
+    hurt: [t('렌즈에 금이 갔습니다. 빛은 그대로입니다.', 'The lens is cracked. The light holds.'), t('수문은 열리지 않습니다.', 'The gate does not open.')],
+    winning: [t('빛 앞에서 멈추십시오.', 'Stop before the light.'), t('얼어붙은 채로 돌아가십시오.', 'Go back the way you are, frozen.')],
+  },
+  sea6_anchor_prior: {
+    hurt: [t('사슬이 끊겨도 닻은 남습니다.', 'The chain may break. The anchor stays.'), t('기도하십시오. 끌어당깁니다.', 'Pray. I am pulling you in.')],
+    winning: [t('닻 아래 무릎 꿇으십시오.', 'Kneel beneath the anchor.'), t('여기서 멈추는 것이 순례입니다.', 'Stopping here is the pilgrimage.')],
+  },
+  sea6_lantern_seraph: {
+    hurt: [t('등불이 흔들립니다. 꺼지지는 않습니다.', 'The lantern sways. It does not go out.'), t('빛을 피하면 물에 빠집니다.', 'Dodge the light and you fall in the water.')],
+    winning: [t('불빛 아래 서 계십시오. 금방입니다.', 'Stand in the lantern light. It won’t be long.'), t('돌아가는 길만 비춰 드리겠습니다.', 'I will light only the way back.')],
+  },
 }

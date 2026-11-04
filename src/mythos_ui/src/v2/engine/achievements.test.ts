@@ -50,7 +50,7 @@ const ids = (p: MetaProfile) => p.achievements ?? []
 
 test('content: every achievement is well formed and points at real content', () => {
   const all = Object.values(C.achievements ?? {})
-  assert.equal(all.length, 81, 'DLC plan §11: 60 achievements + 4 codex completion, +5 for the 2026-11-04 content')
+  assert.equal(all.length, 85, 'DLC plan §11: 60 achievements + 4 codex completion, +5 for the 2026-11-04 content, +4 district sets (machines, record, sea, outside)')
   for (const a of all) {
     assert.ok(a.id.startsWith('ach_'), a.id)
     assert.ok(a.name.ko && a.name.en && a.text.ko && a.text.en, `${a.id} text`)
@@ -195,4 +195,24 @@ test('2026-11-04 achievements: callbacks and strangers seen, a Glass Library que
   assert.equal(has({ ...base, crpg: crpg as unknown as NonNullable<typeof base.crpg> }, 'ach_glass_quest'), false, 'stage 1 is not done')
   assert.equal(has({ ...base, crpg: { ...crpg, quests: { q_cut_names: 2 } } as unknown as NonNullable<typeof base.crpg> }, 'ach_glass_quest'), true)
   assert.equal(has({ ...base, party: [{ id: 'se_rin', hp: 20, maxHp: 20, bond: 0, level: 5 }] }, 'ach_veteran'), true)
+})
+
+test('district-set achievements: each names only real quests and fires on any one finished', async () => {
+  const { newRun } = await import('./run.ts')
+  const started = newRun({ ...newProfile('T'), wins: 1 }, { archetype: 'ghost', paradox: 0, seed: 7 }, C)
+  const base = { ...started, screen: { kind: 'ended', result: 'defeat', endingId: 'ending_forced_erasure' } } as typeof started
+  const crpg = { background: null, inspiration: 0, approval: {}, approvalBonds: {}, quests: {}, districts: [], camps: [], nextCombat: [] }
+  const has = (quests: Record<string, number>, id: string) =>
+    newAchievements(newProfile('T'), { ...base, crpg: { ...crpg, quests } as unknown as NonNullable<typeof base.crpg> }, C).includes(id)
+  for (const id of ['ach_glass_quest', 'ach_machine_quest', 'ach_record_quest', 'ach_sea_quest', 'ach_outside_quest']) {
+    const a = Object.values(C.achievements ?? {}).find((x) => x.id === id)
+    assert.ok(a && a.when.kind === 'questDone', id)
+    if (a?.when.kind !== 'questDone') continue
+    for (const q of a.when.ids) {
+      const last = C.crpg?.quests[q]?.stages.length
+      assert.ok(last, `${id}: unknown quest ${q}`)
+      assert.equal(has({ [q]: (last ?? 2) - 1 }, id), false, `${id}: ${q} unfinished`)
+      assert.equal(has({ [q]: last ?? 2 }, id), true, `${id}: ${q} finished`)
+    }
+  }
 })

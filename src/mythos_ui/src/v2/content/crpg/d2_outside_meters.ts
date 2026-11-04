@@ -188,7 +188,7 @@ const WALL: DialogueDef = {
           requires: { flag: 'outside_om_bypass', quest: { id: 'q_outside_meters', stage: 1 } },
           success: {
             text: t('바늘이 멈춘다. 밥솥 소리는 계속된다. 골목의 다른 집들도 하나둘 강 씨 선으로 옮겨 탄다.', 'The dial stops. The rice cooker keeps hissing. One by one the alley’s other flats switch over to Gang’s line.'),
-            effects: [{ kind: 'quest', id: 'q_outside_meters', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_outside_meters', stage: 2 }, { kind: 'codex', id: 'lore_d_meter_hour' }],
           },
         },
         {
@@ -197,7 +197,7 @@ const WALL: DialogueDef = {
           requires: { flag: 'outside_om_sticker', quest: { id: 'q_outside_meters', stage: 1 } },
           success: {
             text: t('미숙의 손전등이 스티커에서 멈춘다. 그녀가 장부에 “고장, 측정 불가”라고 쓴다. 그리고 당신 쪽은 보지 않는다.', 'Misuk’s torch stops on the sticker. She writes “faulty, unreadable” in the ledger, and does not look your way.'),
-            effects: [{ kind: 'quest', id: 'q_outside_meters', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_outside_meters', stage: 2 }, { kind: 'codex', id: 'lore_d_meter_hour' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -207,7 +207,7 @@ const WALL: DialogueDef = {
           check: { stat: 'cha', dc: 13 },
           success: {
             text: t('밥솥이 꺼진다. 바늘이 선다. 문 너머에서 누군가 어둠 속에 숨을 죽인다.', 'The rice cooker goes off. The dial stops. Behind the door, someone holds their breath in the dark.'),
-            effects: [{ kind: 'quest', id: 'q_outside_meters', stage: 2 }, { kind: 'trace', amount: 5 }],
+            effects: [{ kind: 'quest', id: 'q_outside_meters', stage: 2 }, { kind: 'codex', id: 'lore_d_meter_hour' }, { kind: 'trace', amount: 5 }],
           },
           failure: {
             text: t('대답이 없다. 바늘은 계속 돈다.', 'No answer. The dial keeps turning.'),

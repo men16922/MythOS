@@ -184,7 +184,7 @@ const LINE: DialogueDef = {
           check: { stat: 'agi', dc: 12 },
           success: {
             text: t('손끝이 바늘에 찔린다. 마지막 이름표가 안쪽으로 숨는다. 윤이 세탁 수레를 골목 입구로 밀어 둔다.', 'The needle pricks your fingers. The last tag hides inside. Yun pushes the laundry carts toward the alley mouth.'),
-            effects: [{ kind: 'quest', id: 'q_outside_laundry', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_outside_laundry', stage: 2 }, { kind: 'codex', id: 'lore_d_name_tags' }],
           },
           failure: {
             text: t('반쯤 뒤집었을 때 경광등이 골목을 비춘다. 서둘러 숨는다.', 'Halfway through, the beacon lights the alley. You duck out of sight.'),
@@ -197,7 +197,7 @@ const LINE: DialogueDef = {
           requires: { flag: 'outside_ld_hook', quest: { id: 'q_outside_laundry', stage: 1 } },
           success: {
             text: t('셔터가 빨랫줄 위로 덜컹 내려앉는다. 밖에서는 닫힌 가게로만 보인다. 세탁 수레들이 셔터 앞에 줄을 선다.', 'The shutter rattles down over the lines. From outside it is just another closed shop. The laundry carts line up in front of it.'),
-            effects: [{ kind: 'quest', id: 'q_outside_laundry', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_outside_laundry', stage: 2 }, { kind: 'codex', id: 'lore_d_name_tags' }],
           },
         },
         {
@@ -207,7 +207,7 @@ const LINE: DialogueDef = {
           approval: { tae_o: 1 },
           success: {
             text: t('도가 바구니를 받아 정리반 수거함 뒤에 내려놓는다. “분실물이네요. 규정상.” 그가 처음으로 웃는다.', 'Do takes the basket and sets it behind the Crew’s collection bin. “Lost property. By the rules.” He smiles for the first time.'),
-            effects: [{ kind: 'quest', id: 'q_outside_laundry', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_outside_laundry', stage: 2 }, { kind: 'codex', id: 'lore_d_name_tags' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {

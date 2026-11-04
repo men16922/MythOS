@@ -182,7 +182,7 @@ const STOP: DialogueDef = {
           requires: { flag: 'outside_bd_card', quest: { id: 'q_outside_bus', stage: 1 } },
           success: {
             text: t('카드가 들어간다. 단말이 잠깐 망설이다 문을 연다. 마흔한 명이 탄다. 정리반이 회수할 카드는 오늘 운행표에 없다.', 'The card goes in. The terminal hesitates, then opens the doors. Forty-one people board. The card the Crew came for isn’t on tonight’s schedule.'),
-            effects: [{ kind: 'quest', id: 'q_outside_bus', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_outside_bus', stage: 2 }, { kind: 'codex', id: 'lore_d_night_bus' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -191,7 +191,7 @@ const STOP: DialogueDef = {
           requires: { flag: 'outside_bd_green', quest: { id: 'q_outside_bus', stage: 1 } },
           success: {
             text: t('셔터가 올라간다. 버스가 정리반 옆을 지나 정류장에 선다. 정리반은 허용 처리된 신호를 막을 근거가 없다.', 'The shutter rises. The bus rolls past the Crew and stops at the line. They have no grounds to stop a signal processed as allowed.'),
-            effects: [{ kind: 'quest', id: 'q_outside_bus', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_outside_bus', stage: 2 }, { kind: 'codex', id: 'lore_d_night_bus' }],
           },
         },
         {
@@ -201,7 +201,7 @@ const STOP: DialogueDef = {
           check: { stat: 'agi', dc: 13 },
           success: {
             text: t('정리반이 엉뚱한 차고 칸으로 들어간 사이 버스가 빠져나간다. 경광등이 뒤늦게 돈다.', 'While the Crew search the wrong bay, the bus slips out. The beacons start late.'),
-            effects: [{ kind: 'quest', id: 'q_outside_bus', stage: 2 }, { kind: 'trace', amount: 6 }],
+            effects: [{ kind: 'quest', id: 'q_outside_bus', stage: 2 }, { kind: 'codex', id: 'lore_d_night_bus' }, { kind: 'trace', amount: 6 }],
           },
           failure: {
             text: t('정리반이 미끼를 무시한다. 당신을 본다.', 'The Crew ignore the bait. They see you.'),

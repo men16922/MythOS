@@ -7,6 +7,30 @@ import type { LoreEntry } from '../../engine/types.ts'
 export const ROUTE_LORE: LoreEntry[] = [
   // District lore (Signal+): awarded when a district quest reaches its last stage.
   {
+    id: 'lore_d_name_tags',
+    title: { ko: '꿰맨 이름표', en: 'Sewn Name Tags' },
+    text: {
+      ko: '명단 밖 사람들은 작업복 가슴에 이름표를 꿰매 단다. 서류에 남지 않는 이름이 세탁소 빨랫줄에서는 하루에 한 번씩 다시 걸린다. 정리반이 오는 밤에는 이름표를 안쪽으로 뒤집어 단다. 이름은 그대로 있고, 보이지만 않는다.',
+      en: 'People off the list sew name tags onto the chests of their work clothes. A name no file keeps is hung up again once a day on the laundry lines. On nights the Crew comes, the tags are turned inward. The name is still there. It just can’t be seen.',
+    },
+  },
+  {
+    id: 'lore_d_meter_hour',
+    title: { ko: '검침 시간', en: 'Meter Hour' },
+    text: {
+      ko: '정리반은 사람을 세지 않고 계량기 바늘을 센다. 명단 밖 집들의 전기는 전기공 한 사람이 따 준 선에서 나온다. 한 골목이 그 선 하나를 나눠 쓰면, 장부에는 한 집으로 적힌다. 밥솥 열 개가 바늘 하나로 돈다.',
+      en: 'The Crew don’t count people; they count meter dials. Power for off-list flats comes from lines one electrician tapped. When a whole alley shares a single line, the ledger records one flat. Ten rice cookers turn one dial.',
+    },
+  },
+  {
+    id: 'lore_d_night_bus',
+    title: { ko: '심야 버스', en: 'The Night Bus' },
+    text: {
+      ko: '폐점 뒤 명단 밖 사람들을 집에 데려다주는 버스는 한 대뿐이다. 어느 운행표에도 그 노선은 없다. 기사는 정류장 대신 얼굴을 외운다. 정리반이 노선 카드를 회수하면 문이 열리지 않는다. 그래서 카드는 매일 밤 다른 사람의 주머니에서 잔다.',
+      en: 'Only one bus takes off-list people home after closing. Its route is on no schedule; the driver memorizes faces instead of stops. Once the Crew pull the route card, the doors won’t open, so each night the card sleeps in someone else’s pocket.',
+    },
+  },
+  {
     id: 'lore_d_errata',
     title: { ko: '정오표', en: 'The Errata' },
     text: {

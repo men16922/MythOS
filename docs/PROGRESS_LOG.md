@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Sea district quests come back one act later (Claude Opus 5.5, same goal)
+
+- `sea5_cb_clock` (got the crew's clock back → they hold the breakwater against the flood: −10 Trace/+3◈ or +10 HP + consumable) and `sea6_cb_barge` (returned the borrowed memory → the old woman's lit barge finds you under the causeway: +12 HP, or ride it past the Keepers, AGI DC 6, −12 Trace); quest-stage gates, Codex art (unreviewed; the first breakwater render put a cargo ship in a harbor no ship reaches, re-rendered).
+- **Verified**: content + event-balance tests; UI on a Sea run (KO 1280×720, EN 390×844) resolved through the buttons, 0 console errors.
+
 ## 2026-11-04 — The Unwritten Sea gets districts (Claude Opus 5.5, same goal)
 
 - Signal+ on the Sea lost its district layer after Act 3: `advanceAct` placed districts on the base map, then `takeRoute` replaced it with the Sea map. `DistrictDef.route` + `placeDistrict(…, route)` (passed explicitly: `run.route` still holds the previous act's route at that point) + `takeRoute` places its route's districts. Base maps never take route districts; Acts 1–3 identical on Sea and Deep (`districtRoute.test.ts`).
@@ -99,7 +104,3 @@ Last updated: 2026-11-04
 - **Built**: six skeleton events in Acts 1–3 (`content/eventsProcedural.ts`: stranger's trade, lost signal, watcher, shelter, wreckage, message; Codex art, unreviewed). Options and outcomes are authored; the GM's prefetched opening line gets `procedural` (the brief) and is told to invent the place and a named person (`gm.py _procedural_note`). At most two per run (`MAX_PROCEDURAL`), never on a daily; a capped node plays another event.
 - **Verified**: engine test (cap, daily), server test (opening only, brief in the system prompt); local `make gm-eval` (`gemma4:8b-64k`, 3 reps): whole set usable 100 %; the procedural lines set a concrete place, but a person appears in about half and never by name, and one Korean line brought in Kai, who was not in the party. Vertex not evaluated (billed). Canonical mixed: fresh 41.3 % (42.9 before; blocks −1, −8, +2), Deep 34.4 % (32.7), Sea 28.0 % (31.1; −6, +2, −10). UI with GM off: two events render and resolve (ko desktop, en 390 px), 0 console errors.
 - **District NPC talk**: the six new NPCs answered free text in character on local Ollama (KO/EN, 0.7–5.3 s, all `source: llm`, intents named).
-
-## 2026-11-04 — Paradox 6–10 tuned to the plan's expert ceiling (Claude Opus 5.5, same goal)
-
-- `CONTENT.tuning.paradoxHigh` (rage at 6: 1 → 2, boss HP at 8: +20 → +40 %, new +8 % enemy HP per level above 5); texts match (content test). Greedy (3 × 60, fresh canonical): P5 88.9 · P6 84.4 · P7 78.3 · P8 66.1 · P9 63.9 · P10 53.3 % (target ~55 %, DLC plan §3.3). Other candidates: hp 8 alone 60.0 %, rage 2 / boss 40 / hp 14 38.3 %. Paradox 0 unchanged (canonical 59 / 70 / 64). Agent default, `DECISIONS.md`.

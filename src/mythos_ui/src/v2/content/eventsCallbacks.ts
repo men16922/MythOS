@@ -826,4 +826,80 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['the cold storage', 'woken machine', 'frost marks', 'warm hand'],
   },
+  // 2026-11-04: the Sea districts' quests come back one Sea act later (Signal+ runs only).
+  {
+    id: 'sea5_cb_clock',
+    acts: [5],
+    route: 'sea_5',
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_sea_seizure', stage: 2 } },
+    title: t('밀물 교대', 'The Flood Shift'),
+    image: 'v2/events/sea5_cb_clock.webp',
+    text: t(
+      '방파제 위에서 종이 울린다. 하역조다. 보람이 되찾은 교대 시계를 손목에 차고, 밀물 시각을 교대 시간처럼 외친다.\n“배는 안 와도 물은 와요!” 하역조가 모래주머니를 나른다.',
+      'A bell rings on the breakwater. The longshore crew. Boram wears the recovered shift clock and calls the flood time like a shift change.\n“No ship, but the water comes!” The crew hauls sandbags.',
+    ),
+    options: [
+      {
+        label: t('모래주머니를 같이 나른다', 'Haul sandbags with them'),
+        hint: t('추적 −10 · ◈ +3', '−10 Trace · +3 ◈'),
+        success: {
+          text: t('한 줄로 서서 주머니를 넘긴다. 세관 드론은 하역조 한 명이 늘어난 줄 모른다.', 'You stand in the line passing sacks. The customs drones don’t notice the crew is one bigger.'),
+          effects: [
+            { kind: 'trace', amount: -10 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+      {
+        label: t('교대 도시락을 얻어먹는다', 'Share the shift lunch'),
+        hint: t('+10 HP · 소모품', '+10 HP · consumable'),
+        success: {
+          text: t('보람이 도시락 뚜껑을 반으로 나눈다. 나이 든 하역꾼 하나가 남은 반찬을 당신 쪽으로 민다.', 'Boram splits a lunchbox lid in half. An older hand pushes the rest of the side dishes your way.'),
+          effects: [
+            { kind: 'hp', amount: 10 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+    ],
+    gmHints: ['longshore crew', 'recovered shift clock', 'breakwater', 'flood time'],
+  },
+  {
+    id: 'sea6_cb_barge',
+    acts: [6],
+    route: 'sea_6',
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_sea_barge', stage: 2 } },
+    title: t('불 켜진 바지선', 'The Lit Barge'),
+    image: 'v2/events/sea6_cb_barge.webp',
+    text: t(
+      '안개 낀 철탑 길 아래로 바지선 하나가 다가온다. 맨 끝 배다. 이번엔 창에 불이 켜져 있다.\n할머니가 창문을 열고 보온병을 들어 보인다. “아들 이름을 다시 불렀더니, 배가 여기까지 왔어.”',
+      'Below the fogbound causeway a barge draws close. The last barge, its window lit this time.\nThe old woman opens the window and holds up a flask. “I called my son’s name again, and the barge came all this way.”',
+    ),
+    options: [
+      {
+        label: t('보온병을 받는다', 'Take the flask'),
+        hint: t('+12 HP', '+12 HP'),
+        success: {
+          text: t('뜨거운 국물이다. 냄비에서 막 덜어 온 맛이 난다.', 'Hot broth. It tastes just ladled from the pot.'),
+          effects: [{ kind: 'hp', amount: 12 }],
+        },
+      },
+      {
+        label: t('배를 타고 철탑 아래로 돌아간다', 'Ride the barge under the causeway'),
+        hint: t('추적 −12 · 실패 시 추적 +6', '−12 Trace · fail +6 Trace'),
+        check: { stat: 'agi', dc: 6 },
+        success: {
+          text: t('등대단 초소들이 머리 위로 지나간다. 아무도 아래를 보지 않는다.', 'The Keepers’ posts pass overhead. Nobody looks down.'),
+          effects: [{ kind: 'trace', amount: -12 }],
+        },
+        failure: {
+          text: t('배가 기둥에 부딪힌다. 위에서 무적이 짧게 울린다.', 'The barge knocks a pillar. Above, a foghorn gives a short blast.'),
+          effects: [{ kind: 'trace', amount: 6 }],
+        },
+      },
+    ],
+    gmHints: ['the last barge', 'lit window', 'old woman', 'flask of broth'],
+  },
 ]

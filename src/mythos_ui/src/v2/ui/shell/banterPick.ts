@@ -26,10 +26,14 @@ export function pickBanter(run: RunState): BanterDef | null {
   if (options.length === 0) return null
   const roll = hash(`${run.seed}:banter:${run.visited.length}`)
   if (roll > BANTER_CHANCE) return null
-  // Walk the options in a per-run order so the same exchange does not come back until the others have played.
+  // Walk the options in a per-run order, and play each exchange at most once per act: a pair with one exchange used
+  // to hear it ~21 times over a six-act run (2026-11-05). Only this act's arrivals count (node ids carry the act).
   const order = [...options].sort((a, b) => hash(`${run.seed}:${a.id}`) - hash(`${run.seed}:${b.id}`))
-  const turn = run.visited.filter((_, i) => hash(`${run.seed}:banter:${i + 1}`) <= BANTER_CHANCE).length - 1
-  return order[turn % order.length] ?? null
+  const firstHere = run.visited.findIndex((id) => id in run.map.nodes)
+  if (firstHere < 0) return null
+  let turn = -1
+  for (let i = firstHere; i < run.visited.length; i++) if (hash(`${run.seed}:banter:${i + 1}`) <= BANTER_CHANCE) turn++
+  return order[turn] ?? null
 }
 
 /** Companion <-> Connector map banter when only 1 companion is deployed (e.g. Act 1). Always fires after the opening node (`visited.length === 1`). */

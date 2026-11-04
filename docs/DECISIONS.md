@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-11-05 — Map banter plays each exchange at most once per act
+
+- **Decision** (agent default under the owner's "continue autonomously", reversible: `ui/shell/banterPick.ts`): the picker counts only the current act's arrivals and stops once the pair's exchanges have played in that act, instead of cycling them all run.
+- **Why**: measured on real map ids, a pair with one exchange heard the identical lines ~21 times in a six-act run (Se-rin+Tae-o: one exchange 17 times). The owner's low-fatigue rule (memory 2026-10-24) favours quiet over repetition.
+- **Impact**: worst case 6 repeats per run (once per act); single-exchange pairs play 6×/run instead of ~21. Owner may prefer once per run (needs a small run-state record) or the old cycling.
+
 ## 2026-11-04 — Procedural events built before a contest was announced
 
 - **Decision** (agent default under the owner's "continue autonomously"): W2-3 is built now rather than when a contest is announced; six skeletons, at most two per run, outcomes authored, AI fills only the opening line.

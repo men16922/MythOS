@@ -26,18 +26,24 @@ test('banter: known companions, speakers from the pair, 2–4 short lines, both 
   for (const id of Object.keys(C.companions)) if (id !== 'se_rin') assert.ok(banterFor(['se_rin', id], 1).length + banterFor(['se_rin', id], 2).length > 0, id)
 })
 
-test('pickBanter: only with the Signal+ layer and two deployed, deterministic per node, cycles before repeating', () => {
+test('pickBanter: only with the Signal+ layer and two deployed, deterministic per node, each exchange once per act', () => {
   const base = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 3, now: '2026-10-18T00:00:00.000Z' }, C)
   const two: RunState = { ...base, screen: { kind: 'map' }, party: [...base.party, { id: 'tae_o', hp: 20, maxHp: 20, bond: 0 }] }
-  const at = (r: RunState, n: number): RunState => ({ ...r, visited: Array.from({ length: n }, (_, i) => `n${i}`) })
+  // Arrivals on this act's map (node ids from the map; the picker only counts the current act).
+  const ids = Object.keys(base.map.nodes)
+  const at = (r: RunState, n: number): RunState => ({ ...r, visited: Array.from({ length: n }, (_, i) => ids[i % ids.length] as string) })
   assert.equal(pickBanter(at(two, 3)), null, 'no layer, no banter')
   const crpg = { ...two, crpg: newCrpgState(null) }
   const picks = Array.from({ length: 30 }, (_, i) => pickBanter(at(crpg, i + 1))?.id ?? null)
   assert.deepEqual(picks, Array.from({ length: 30 }, (_, i) => pickBanter(at(crpg, i + 1))?.id ?? null))
   const played = picks.filter((p): p is string => !!p)
-  assert.ok(played.length > 5 && played.length < 25, `${played.length} of 30 nodes`)
   const pool = banterFor(['se_rin', 'tae_o'], 1).length
-  assert.equal(new Set(played.slice(0, pool)).size, Math.min(pool, played.length), 'no repeat before the pool is used up')
+  assert.ok(played.length >= 1 && played.length <= pool, `${played.length} plays for a pool of ${pool}`)
+  assert.equal(new Set(played).size, played.length, 'an exchange never repeats within an act')
+  // Earlier acts' arrivals do not use up this act's turns.
+  const later = { ...crpg, visited: ['a0old1', 'a0old2', 'a0old3', ...ids.slice(0, 12)] }
+  const laterPicks = Array.from({ length: 12 }, (_, i) => pickBanter({ ...later, visited: later.visited.slice(0, 4 + i) })?.id ?? null).filter(Boolean)
+  assert.equal(new Set(laterPicks).size, laterPicks.length)
   assert.equal(pickBanter({ ...at(crpg, 3), party: base.party }), null, 'one companion: nobody to talk to')
 })
 

@@ -82,3 +82,13 @@ test('local act intro: Deep and Sea acts 4–6 get their own place lines (no "si
     assert.equal(seen.size, 6, `${lang}: six different places`)
   }
 })
+
+test('local act intro: Outside the List gets back-alley lines, not the Data Spire', () => {
+  for (const lang of ['ko', 'en'] as const) {
+    for (const party of [[], ['Tae-o']]) {
+      const line = localNarrate('act_intro', lang, { act: 2, route: 'outside', actName: 'X', loop: 2, party }) ?? ''
+      assert.ok(!/스파이어|Spire/.test(line), `${lang}: ${line}`)
+      assert.ok(/배식|정리반|세탁|serving|Closing Crew|laundry/.test(line), `${lang}: ${line}`)
+    }
+  }
+})

@@ -159,6 +159,20 @@ function actIntro(ko: boolean, act: number, loop: number, actName: string, route
           (n) => `Connection ${loop}. Steam rises from the drain at your feet.${n ? ` ${n.name}, low: “Quiet. Patrol.”` : ' A patrol siren whoops once in the distance and cuts out.'}`,
         ]
   }
+  // Outside the List (DLC 2) replaces Act 2's map: the back alleys after closing, not the Data Spire.
+  if (act === 2 && route === 'outside') {
+    return ko
+      ? [
+          (n) => `폐점 방송이 끝나자 간판이 한 줄씩 꺼진다. 뒷골목 배식대에는 아직 줄이 있다.${n ? ` ${n.ga} 줄 맨 끝을 본다.` : ''}`,
+          (n) => `골목 끝에서 정리반 경광등이 돈다. 셔터가 하나씩 내려간다.${n ? ` ${n.ga} 낮게 말한다. “저쪽 말고, 이쪽.”` : ''}`,
+          (n) => `세탁 수레가 덜컹거리며 지나간다. 앞치마 입은 사람들이 오늘 일을 서두른다.${n ? ` ${n.ga} 수레 하나를 밀어 준다.` : ''}`,
+        ]
+      : [
+          (n) => `When the closing broadcast ends, the signs go dark row by row. There is still a line at the back-alley serving counter.${n ? ` ${n.name} looks to the end of it.` : ''}`,
+          (n) => `At the end of the alley the Closing Crew’s beacon turns. Shutters come down one by one.${n ? ` ${n.name}, low: “Not that way. This way.”` : ''}`,
+          (n) => `A laundry cart rattles past. People in aprons hurry to finish the day’s work.${n ? ` ${n.name} gives one cart a push.` : ''}`,
+        ]
+  }
   if (act === 2) {
     return ko
       ? [

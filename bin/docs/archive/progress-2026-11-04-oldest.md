@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Do comes back in Act 3 (Claude Opus 5.5, same goal)
+
+- `a3_cb_laundry` (hid the tags in the Night Laundry → Do, who quit the Crew mid-report, folds towels in the Spire laundry and hands you a kept name tag: −8 Trace/+3◈, or his patrol order, OBS DC 6, −12 Trace); Codex art. STATUS counts refreshed from `CONTENT`: 267 events / 20 callbacks / 24 districts / 72 NPCs / 24 quests.
+- **Verified**: content + event-balance tests; UI KO 1280×720 and EN 390×844 resolved, 0 console errors.
+
 ## 2026-11-04 — Outside the List gets its Act 2 district (Claude Opus 5.5, same goal)
 
 - Same gap as the Sea, older: taking the DLC 2 route at Act 2's start swaps in the route map, so Signal+ runs on it had no Act 2 district. `d2_outside_laundry` (route `outside`): the Closing Crew finds people by the name tags on their washed uniforms; learn it from Washer Yun or Do (a first-week Crew rookie), then hide the tags (pin them inward, AGI; pull Bae's rented shutter over the lines; or hand Do a basket to "lose") → boss **cover** (laundry carts as barricades). 3 personas, scene + 3 portraits by Codex (unreviewed). 24 districts / 72 NPCs.

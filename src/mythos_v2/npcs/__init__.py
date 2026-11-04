@@ -20,6 +20,7 @@ from mythos_v2.npcs import (
     d4_dream_stacks,
     d4_forbidden_index,
     d4_return_desk,
+    d4_sea_container_alley,
     d4_sea_seizure_shed,
     d5_cold_storage,
     d5_scrap_choir,
@@ -56,6 +57,7 @@ for _module in (
     d5_sea_barge_market,
     d6_sea_foghorn_post,
     d2_outside_laundry,
+    d4_sea_container_alley,
 ):
     for _id, _persona in _module.PERSONAS.items():
         if _id in PERSONAS:

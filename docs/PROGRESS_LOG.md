@@ -2,6 +2,12 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Container Alley (second Sea Act 4 district) + Signal+ measured (Claude Opus 5.5, same goal)
+
+- `d4_sea_container_alley` (route `sea_4`): families live in the dry harbor's empty containers; Customs deregisters one by taping its doors. Learn tonight's door (Clerk Oh's register, Narae on the roof, or Mujin), then void the seal with a thirty-year-old objection form, move the family across the roofs, or knock (CHA) → boss **weaken**. 3 personas, scene + 3 portraits by Codex (unreviewed). 25 districts / 75 NPCs.
+- **Signal+ measured** (`outputs/qa/crpg_ab.ts`, mixed bot, 150 seeds, every unlock), `65f66e5` (before today's districts) → HEAD: Deep 24.7 → 28.7 %, Sea 24.7 → 25.3 %. Runs ending in Acts 1–3 identical, so the change is Acts 4–6 only; within the ±6 % noise band. Not retuned.
+- **Verified**: content + route tests; UI two quest paths to stage 2 (1280×720, 390×844), 0 console errors; local Ollama 3/3 in voice (Oh names C-7 correctly).
+
 ## 2026-11-04 — Do comes back in Act 3 (Claude Opus 5.5, same goal)
 
 - `a3_cb_laundry` (hid the tags in the Night Laundry → Do, who quit the Crew mid-report, folds towels in the Spire laundry and hands you a kept name tag: −8 Trace/+3◈, or his patrol order, OBS DC 6, −12 Trace); Codex art. STATUS counts refreshed from `CONTENT`: 267 events / 20 callbacks / 24 districts / 72 NPCs / 24 quests.
@@ -98,13 +104,3 @@ Last updated: 2026-11-04
 - **Achievements 76 → 80**: Choices Come Back (two callback scenes in a run), Strangers With Names (two procedural events), Reader of the Glass Library (any of the four Act 4 district quests finished), Seasoned (a companion at level 5). New conditions `runEvents` / `questDone` / `companionLevel`; tests. Paradox 7 and 10 win achievements became reachable with the clamp fix.
 - **AI off**: the local GM opening of a procedural event now brings in the cast person too (`localGm.ts`). The first version printed the Korean name twice (`josa` already returns the word): caught in the UI check, fixed, test now counts the name.
 - **Two Deep procedural skeletons** (`pc_deep_keeper`, `pc_deep_echo`, Acts 4–6, Codex art): eight in all. Deep mixed 33.3 % (34.4 before). UI: both render with the cast person in the GM card (AI off), 0 console errors.
-
-## 2026-11-04 — Procedural events cast a person; the eval counts what players see (Claude Opus 5.5, same goal)
-
-- **Cast**: `PROCEDURAL_PEOPLE` (12 authored people, a name and one detail) → `proceduralPerson(run, eventId)` (stable per run and event) → `person` in the opening context → the GM is told to bring that person in by name. Local `gemma4:8b-64k`, 3 reps × KO/EN: 5 of 6 lines name the cast person (0 of 6 before).
-- **Eval = production**: `gm_eval.py` narration cases now apply the same absent-companion guard as `/gm/narrate` (the earlier "Kai" line would have been replaced by the authored text in the game, but the eval counted it usable). Test added.
-- **Verified**: `tests.test_v2_gm`, `tests.test_gm_eval`, `eventOpening.test.ts`; whole local eval usable 100 %.
-
-## 2026-11-04 — Sea callbacks: early choices come back on the sea too (Claude Opus 5.5, same goal)
-
-- Sea runs share Acts 1–3 but the later callbacks were Deep-only. Added `sea4_cb_list` (Dry Harbor: the copied list washes up), `sea5_cb_debt` (Tide Line: Lin-yue's interest), `sea6_cb_citizen` (Last Lighthouse: the saved citizen keeps the lamp log), same flags as their Deep counterparts, Codex art in the Sea's style (unreviewed). Sea mixed 27.6 % (28.0 before). UI: both later scenes render and resolve on their routes (ko desktop, en 390 px), 0 console errors. Not deployed.

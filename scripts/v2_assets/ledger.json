@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 751,
+ "codex_image_calls": 755,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4434,6 +4434,15 @@
    ],
    "ts": "2026-10-26T04:01:58"
   },
+  "v2/districts/d4_sea_container_alley.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Container Alley: rusted shipping containers stacked three high on a dry cracked harbor floor forming a narrow lived-in alley, laundry lines and potted plants at the doors, warm lit doorways, a few doors crossed with an X of yellow seal tape (no lettering), a small sealing cart with tape rolls, a kid sitting on a top container with legs dangling, a stall made of a container door laid flat stacked with unlabelled tins. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, muted harbor palette of rust, salt white, slate gray and sodium amber with cold teal. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/sea4.webp"
+   ],
+   "ts": "2026-11-04T11:50:44"
+  },
   "v2/districts/d4_sea_seizure_shed.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -6997,6 +7006,15 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Mr. Do, an elderly Korean collector who only buys childhood memories; immaculate grey suit, white gloves, a small glass vial of glowing memory in his fingers, unsettlingly gentle smile. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:06:38"
   },
+  "v2/npcs/container_kid_narae.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Narae, a calm sharp-eyed girl of about ten in an oversized hoodie sitting on a container roof edge, legs dangling, wind in her hair. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a dry cracked harbor floor with containers stacked into an alley, laundry and potted plants, sodium amber light, salt haze. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T11:50:23"
+  },
   "v2/npcs/coolant_trader_jang.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7065,6 +7083,15 @@
     "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
    ],
    "ts": "2026-11-04T09:45:13"
+  },
+  "v2/npcs/granny_pan.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Granny Pan, a small sturdy elderly Korean woman in a quilted vest and arm sleeves, holding an unlabelled tin can, kind shrewd smile. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a dry cracked harbor floor with containers stacked into an alley, laundry and potted plants, sodium amber light, salt haze. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T11:50:22"
   },
   "v2/npcs/half_thawed_gu.webp": {
    "generations": 1,
@@ -7278,6 +7305,15 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Naru, a Korean flood ferryman in his thirties who carries people across the water on an old door lashed to empty plastic jugs; sun-darkened skin, a wet tank top under an open rain poncho, a coil of rope over his shoulder, a long pole in his hand, a wry half-smile. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a flooded night alley of 2070s Neo-Seoul behind them (knee-deep black water, half-sunk washing machines and dead arcade cabinets), neon cyan and magenta reflections on the water, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
    "ts": "2026-10-26T03:57:42"
+  },
+  "v2/npcs/seal_clerk_oh.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Clerk Oh, a tired middle-aged customs clerk in a slate uniform with a roll of yellow tape on his wrist, holding a thick register, weary conscientious eyes. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a dry cracked harbor floor with containers stacked into an alley, laundry and potted plants, sodium amber light, salt haze. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T11:50:25"
   },
   "v2/npcs/sgt_yun.webp": {
    "generations": 1,

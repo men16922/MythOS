@@ -1,5 +1,15 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Procedural events cast a person; the eval counts what players see (Claude Opus 5.5, same goal)
+
+- **Cast**: `PROCEDURAL_PEOPLE` (12 authored people, a name and one detail) → `proceduralPerson(run, eventId)` (stable per run and event) → `person` in the opening context → the GM is told to bring that person in by name. Local `gemma4:8b-64k`, 3 reps × KO/EN: 5 of 6 lines name the cast person (0 of 6 before).
+- **Eval = production**: `gm_eval.py` narration cases now apply the same absent-companion guard as `/gm/narrate` (the earlier "Kai" line would have been replaced by the authored text in the game, but the eval counted it usable). Test added.
+- **Verified**: `tests.test_v2_gm`, `tests.test_gm_eval`, `eventOpening.test.ts`; whole local eval usable 100 %.
+
+## 2026-11-04 — Sea callbacks: early choices come back on the sea too (Claude Opus 5.5, same goal)
+
+- Sea runs share Acts 1–3 but the later callbacks were Deep-only. Added `sea4_cb_list` (Dry Harbor: the copied list washes up), `sea5_cb_debt` (Tide Line: Lin-yue's interest), `sea6_cb_citizen` (Last Lighthouse: the saved citizen keeps the lamp log), same flags as their Deep counterparts, Codex art in the Sea's style (unreviewed). Sea mixed 27.6 % (28.0 before). UI: both later scenes render and resolve on their routes (ko desktop, en 390 px), 0 console errors. Not deployed.
+
 ## 2026-11-04 — Procedural events (W2-3); new district NPCs talk (Claude Opus 5.5, same goal)
 
 - **Built**: six skeleton events in Acts 1–3 (`content/eventsProcedural.ts`: stranger's trade, lost signal, watcher, shelter, wreckage, message; Codex art, unreviewed). Options and outcomes are authored; the GM's prefetched opening line gets `procedural` (the brief) and is told to invent the place and a named person (`gm.py _procedural_note`). At most two per run (`MAX_PROCEDURAL`), never on a daily; a capped node plays another event.

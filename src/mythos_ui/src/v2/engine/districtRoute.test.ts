@@ -41,6 +41,6 @@ test('Outside the List places its own Act 2 district instead of losing the base 
     const taken = continueEvent(chooseEventOption(r, 0, C), C)
     assert.equal(taken.route, 'outside')
     const placed = Object.values(taken.map.nodes).filter((n) => n.kind === 'district').map((n) => n.districtId)
-    assert.deepEqual(placed, ['d2_outside_laundry'], `seed ${seed}`)
+    assert.deepEqual([...placed].sort(), ['d2_outside_laundry', 'd2_outside_meters'], `seed ${seed}`)
   }
 })

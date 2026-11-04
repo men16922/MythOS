@@ -2,10 +2,15 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — The Meter Wall (second DLC 2 route district) (Claude Opus 5.5, same goal)
+
+- `d2_outside_meters` (route `outside`): a turning power meter behind an off-list door flags the home for the Closing Crew. Learn tonight's meter (Misuk the slow-writing reader, Gang the electrician, or Se-rin), then stop it with Gang's bypass, a lifted "faulty" seal from Yeom's pawn window, or a knock (CHA) → boss **intel**. 3 personas, scene + 3 portraits by Codex (unreviewed). The route now places two like every act. 28 districts / 83 NPCs.
+- **Verified**: route test (the route places both); UI two quest paths to stage 2 (1280×720, 390×844), 0 console errors; local Ollama 3/3 in character. Full Sea + Signal+ UI playthrough with all six Sea districts (before this change): victory, 40 district polls (was 20), no errors.
+
 ## 2026-11-04 — Second Sea districts for Acts 5 and 6 (Claude Opus 5.5, same goal)
 
 - Every Sea act now places two, like the base acts. `d5_sea_drowned_rows` (a Residue figure in a soaked school uniform knocks on 404 every tide waiting to be called; find what the roster and a tide-touched man remember, then call it by the surname, "Seventeen", or a name Parang gives → **weaken**) and `d6_sea_cable_station` (one letter to the Lightkeeper keeps resending on relay 7; send it up the lens-room line Knot kept joined, or carry it yourself → **marked**). 5 personas, 2 scenes + 5 portraits by Codex (unreviewed). 27 districts / 80 NPCs.
-- **Verified**: content + route + chronicle tests; UI to quest stage 2 (1280×720, 390×844), 0 console errors; local Ollama 5/5 in character (Ryu deflects a stranger, plausible). Full Sea UI playthrough with these two: not run (engine unchanged since the last one).
+- **Verified**: content + route + chronicle tests; UI to quest stage 2 (1280×720, 390×844), 0 console errors; local Ollama 5/5 in character (Ryu deflects a stranger, plausible). Full Sea UI playthrough with these two: see the entry above.
 
 ## 2026-11-04 — Container Alley (second Sea Act 4 district) + Signal+ measured (Claude Opus 5.5, same goal)
 

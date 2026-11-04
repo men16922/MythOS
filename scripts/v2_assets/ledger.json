@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 762,
+ "codex_image_calls": 766,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4371,6 +4371,15 @@
    ],
    "ts": "2026-11-04T11:34:20"
   },
+  "v2/districts/d2_outside_meters.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Meter Wall: a back-alley wall at night completely covered in rows of old round electric meters with small glass dials, most still, one softly turning and lit, a fuse box hanging open with tangled wires, a barred pawnshop window glowing, a meter reader's torch beam sweeping from the far end, steam from a doorway. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, Neo-Seoul undercity noir palette. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/outside.webp"
+   ],
+   "ts": "2026-11-04T12:12:06"
+  },
   "v2/districts/d2_runner_shortcut.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7093,6 +7102,15 @@
    ],
    "ts": "2026-11-04T09:45:08"
   },
+  "v2/npcs/electrician_gang.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Mr. Gang, a wiry cheerful old electrician with a tool belt and bare calloused hands holding stripped wires, small sparks, grin. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a narrow back alley at night after closing, a wall of old electric meters, steam, a rotating amber beacon in the distance. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T12:11:55"
+  },
   "v2/npcs/eraser_child_tol.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7210,6 +7228,15 @@
    ],
    "ts": "2026-11-04T09:44:19"
   },
+  "v2/npcs/meter_reader_misuk.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Misuk, a young woman meter reader in a utility jacket with a satchel strap, a pen between her teeth, cautious kind eyes, torch in hand. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a narrow back alley at night after closing, a wall of old electric meters, steam, a rotating amber beacon in the distance. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T12:12:16"
+  },
   "v2/npcs/min_courier.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7260,6 +7287,15 @@
     "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
    ],
    "ts": "2026-11-04T04:04:17"
+  },
+  "v2/npcs/pawnbroker_yeom.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Mr. Yeom, a neat calculating middle-aged pawnbroker with a jeweler's loupe on one eye behind iron window bars, cardigan, polite thin smile. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a narrow back alley at night after closing, a wall of old electric meters, steam, a rotating amber beacon in the distance. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T12:11:48"
   },
   "v2/npcs/reading_lamp_rim.webp": {
    "generations": 1,

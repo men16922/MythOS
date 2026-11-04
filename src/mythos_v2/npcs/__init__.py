@@ -10,6 +10,7 @@ from mythos_v2.npcs import (
     d2_broker_request,
     d2_memory_auction,
     d2_outside_laundry,
+    d2_outside_meters,
     d2_runner_shortcut,
     d2_subway_hub,
     d3_glass_atrium,
@@ -62,6 +63,7 @@ for _module in (
     d4_sea_container_alley,
     d5_sea_drowned_rows,
     d6_sea_cable_station,
+    d2_outside_meters,
 ):
     for _id, _persona in _module.PERSONAS.items():
         if _id in PERSONAS:

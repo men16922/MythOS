@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Districts for Acts 5 and 6 (they had none) (Claude Opus 5.5, same goal)
+
+- `d5_scrap_choir` (discarded machines sing one dream that never ends; tune it with Dal or Kai, let it finish → boss **weaken**) and `d6_margin_notes` (every loop's connector wrote in the first record's margins; find your own hand, leave a line → **intel**); 3 NPCs each with server personas; 2 district scenes + 6 portraits by Codex (unreviewed). 18 districts / 54 NPCs. Chronicle chapters 5–6 now get a district (test).
+- **Verified**: `crpg.test.ts`; UI (Act 5 at 1280×720, Act 6 at 390×844) played to quest stage 2 through the buttons, 0 console errors; the six NPCs answered in character on local Ollama (KO/EN).
+
 ## 2026-11-04 — Outside the List comes back in Act 3 (Claude Opus 5.5, same goal)
 
 - The DLC 2 route's closing scenes now set `outside_kept` / `outside_gone`; Act 3 callbacks `a3_cb_line` ("The Line Held": a woman from the counter line now works the Spire kitchen) and `a3_cb_ladle` ("The Washed Ladle": the closed counter's ladle on the Spire kitchen wall), Codex art (unreviewed). Fresh mixed 186/450 (unchanged). UI: both render and resolve (ko desktop, en 390 px), 0 console errors. 13 callback scenes in all.

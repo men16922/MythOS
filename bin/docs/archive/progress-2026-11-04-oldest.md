@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Act 5 district quests come back in Act 6 (Claude Opus 5.5, same goal)
+
+- Main-route Act 6 had one callback. `a6_cb_choir` (finished the Scrap Choir's song → it plays in the first record: +10 HP/+3◈, or follow it, OBS DC 6, −12 Trace) and `a6_cb_cold` (woke the Cold Storage machine → it waits at a fork: +8 HP + consumable, or −10 Trace/+3◈); both gated on quest stage 2, Codex art (unreviewed). New guard: an event's quest gate names a real quest and stage.
+- **Verified**: content + event-balance tests; UI (KO 1280×720, EN 390×844) resolved through the buttons, 0 console errors. Balance: Signal+ only, canonical blocks unaffected (unmeasured).
+
 ## 2026-11-04 — The Hand-Crank Market's last two choices come back (Claude Opus 5.5, same goal)
 
 - A scan of every flag set vs read found only two never read again, both in the Act 1 district `d1_lamp_market`. `a2_cb_ku` (promised Madam Ku three buyers → her kid comes to collect: pay 30₵ for a consumable and −5 Trace, find a buyer for +20₵ at CHA DC 6, or ignore; first draft was a pure tax and `event-balance.test.ts` caught it) and `a3_cb_min` (sold out Min → he limps into the Spire as a debt courier: apologise, Tae-o pays his helmet rental for +1 bond, or walk past); Codex art (unreviewed). 21 callbacks. Every content flag is now read somewhere.

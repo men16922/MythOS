@@ -212,3 +212,8 @@ test('every NPC has a server-side AI persona (src/mythos_v2/npcs/*.py) and every
   for (const id of Object.keys(X.npcs)) assert.ok(py.includes(`"${id}": Persona(`), `no persona for ${id}`)
   for (const m of py.matchAll(/"([a-z0-9_]+)": Persona\(/g)) assert.ok(X.npcs[m[1] as string], `persona ${m[1]} has no NPC`)
 })
+
+test('camps: every companion has a camp night', () => {
+  const have = new Set(X.camps.map((c) => c.companion))
+  for (const id of COMPANIONS) assert.ok(have.has(id), `no camp night for ${id}`)
+})

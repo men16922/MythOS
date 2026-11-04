@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Camp nights for the five DLC companions (every companion now has one) (Claude Opus 5.5, same goal)
+
+- `content/crpg/camp_dialogues_more.ts`: Io tapes the folds of your map and offers a glass bookmark; Miro practises your name and asks you to say Miro's before you turn away; Doyun counts heads round the fire and asks to be called by name, not number; Bel's finger keeps finding a line to cut in your notes and reads one to the end instead; Rem, who never slept, asks how. Voices per `packs/new_companions/companions.ts`; pronouns per existing content (Io "her" fixed before commit). New test: every companion has a camp night (14/14).
+- **Verified**: crpg + content tests; UI from a Deep safehouse for all five (KO/EN, desktop/390 px) through both nodes, approval and inspiration rose, 0 console errors.
+
 ## 2026-11-04 — Camp nights for the Sea companions (Claude Opus 5.5, same goal)
 
 - Signal+ camp nights existed for the six original companions only (6 of 14). `content/crpg/camp_dialogues_sea.ts`: Mujin oils the crane hook he lowered his shift with and teaches you the crew's count ("no five"); Seo-ha draws the old harbor channels in the ash and pilots your finger through one; Parang wishes one thing inside were Parang's own and asks if the name counts. Two nodes each, small earned moments, no arc resolved; Parang takes no pronouns (three English lines fixed before commit). Their approval comes from today's Sea districts.
@@ -106,8 +111,3 @@ Last updated: 2026-11-04
 - Three Sea districts per the DLC 3 bible: `d4_sea_seizure_shed` (get the crew's seized shift clock back → boss **marked**), `d5_sea_barge_market` (return the drone's borrowed memory to the old woman on the last barge; Old Ong from Act 2 is there → **cover**), `d6_sea_foghorn_post` (sound the foghorn once in the beat from before the Lightkeeper → **intel**). Mujin / Parang / Seo-ha options; 9 personas; 3 scenes + 9 portraits by Codex (unreviewed). 23 districts / 69 NPCs.
 - **Verified**: engine + content tests (440); UI on a Sea run, all three to quest stage 2 via buttons (desktop + 390 px), 0 console errors; local Ollama 8/9 in voice, Inspector No invented a seizure number → persona pinned to 412 / shift clock, rerun correct. Full Deep + Signal+ UI playthrough before this change: victory, six bosses, 28 district polls, no errors. Full Sea + Signal+ UI playthrough after it: victory in 24 min, 20 district polls, no errors.
 - `GAMEPLAY.md` district line was stale (Acts 1–3, "one per act"): rewritten from the content.
-
-## 2026-11-04 — Act 5 district quests come back in Act 6 (Claude Opus 5.5, same goal)
-
-- Main-route Act 6 had one callback. `a6_cb_choir` (finished the Scrap Choir's song → it plays in the first record: +10 HP/+3◈, or follow it, OBS DC 6, −12 Trace) and `a6_cb_cold` (woke the Cold Storage machine → it waits at a fork: +8 HP + consumable, or −10 Trace/+3◈); both gated on quest stage 2, Codex art (unreviewed). New guard: an event's quest gate names a real quest and stage.
-- **Verified**: content + event-balance tests; UI (KO 1280×720, EN 390×844) resolved through the buttons, 0 console errors. Balance: Signal+ only, canonical blocks unaffected (unmeasured).

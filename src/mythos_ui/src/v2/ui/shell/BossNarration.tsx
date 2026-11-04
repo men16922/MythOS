@@ -121,6 +121,9 @@ export function BossNarration({ combat, C, lang, settings }: Props) {
     () => () => {
       for (const t of timers.current) window.clearTimeout(t)
       abort.current?.abort()
+      // Forget the fight too: the cleared timers held its intro, so a remount (React StrictMode's dev double mount
+      // included) must treat the fight as fresh, or the intro card never shows (2026-11-05).
+      fight.current = null
     },
     [],
   )

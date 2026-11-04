@@ -10,7 +10,8 @@ shipped behind a new commit message). Checks, each printed as PASS/FAIL:
    means it was built from uncommitted files and never matches);
 2. `/api/health` and `/api/v2/health` answer ok;
 3. `/api/v2/config` reports `auth: google` (production sign-in is on);
-4. the served `/app.js` is byte-identical to the committed `src/mythos_api/static/app.js`.
+4. the served `/app.js` is byte-identical to the committed `src/mythos_api/static/app.js`;
+5. every committed `assets/*.js|*.css` chunk is served byte-identical (app.js alone is a loader that rarely changes).
 
 Read-only: it never changes traffic. Exit 0 = all checks passed; the promote command is then printed, not run.
 """
@@ -27,6 +28,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 BUNDLE = ROOT / "src" / "mythos_api" / "static" / "app.js"
+ASSETS = BUNDLE.parent / "assets"
 REGION = "us-central1"
 SERVICE = "mythos-api"
 
@@ -143,6 +145,26 @@ def main() -> int:
         )
     except Exception as exc:
         results.append(("served app.js matches the committed build", False, str(exc)[:160]))
+    # app.js is a small loader whose bytes rarely change; the code lives in assets/*.js chunks, so compare those too
+    # (2026-11-05: a content-only deploy left app.js byte-identical, so the check above alone would pass a stale build).
+    try:
+        chunks = sorted(p for p in ASSETS.iterdir() if p.suffix in {".js", ".css"})
+        stale = [
+            p.name
+            for p in chunks
+            if hashlib.sha256(fetch(f"{base}/assets/{p.name}")).digest()
+            != hashlib.sha256(p.read_bytes()).digest()
+        ]
+        results.append(
+            (
+                "served code chunks match the committed build",
+                bool(chunks) and not stale,
+                f"{len(chunks) - len(stale)}/{len(chunks)} match"
+                + (f"; stale: {', '.join(stale[:3])}" if stale else ""),
+            )
+        )
+    except Exception as exc:
+        results.append(("served code chunks match the committed build", False, str(exc)[:160]))
 
     for name, ok, detail in results:
         print(f"{'PASS' if ok else 'FAIL'}  {name} — {detail}")

@@ -2,6 +2,10 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Owner fun check §16 for today's late content (Claude Opus 5.5, same goal)
+
+- `docs/test/mythos2_fun_check.md` §16 (owner plain language, "정상 / 문제"): late-act and route districts, backgrounds in late districts, camp nights for all fourteen, Sea pairs' banter and duos, district callbacks, signed-out act intros naming the place; one verdict-table row. No code.
+
 ## 2026-11-04 — Duos between two Sea companions (Claude Opus 5.5, same goal)
 
 - 15 duos, none pairing two Sea companions. `sea_tide_shift` (Seo-ha + Mujin: push 1 with +2 bumps, 6 block, move again), `sea_no_fifth` (Mujin + Parang: 4 to all, Mark 2, 5 block), `sea_returned_voices` (Parang + Seo-ha: recall 2, draw 2, Evade 1); same power band as the existing Sea duos, existing effect kinds only. Cut-in art by Codex with both portraits as references (first render put ships in the harbor; re-rendered). 18 duos (pinned count updated with the reason).
@@ -104,8 +108,3 @@ Last updated: 2026-11-04
 
 - `sea5_cb_container` (kept C-7 → Narae's family moved onto a barge "they can't tape"), `sea6_cb_rows` (named the figure in uniform → it guides you along the causeway's unwatched side), `a3_cb_meters` (stopped the meter → Gang offers to stop the Spire's camera circuit, INT DC 6); quest-stage gates, Codex art (unreviewed). 23 callbacks.
 - **Verified**: content + event-balance tests; UI (Sea runs for the two Sea scenes, base run for Act 3; KO desktop, EN/KO 390 px) resolved through the buttons, 0 console errors.
-
-## 2026-11-04 — The Meter Wall (second DLC 2 route district) (Claude Opus 5.5, same goal)
-
-- `d2_outside_meters` (route `outside`): a turning power meter behind an off-list door flags the home for the Closing Crew. Learn tonight's meter (Misuk the slow-writing reader, Gang the electrician, or Se-rin), then stop it with Gang's bypass, a lifted "faulty" seal from Yeom's pawn window, or a knock (CHA) → boss **intel**. 3 personas, scene + 3 portraits by Codex (unreviewed). The route now places two like every act. 28 districts / 83 NPCs.
-- **Verified**: route test (the route places both); UI two quest paths to stage 2 (1280×720, 390×844), 0 console errors; local Ollama 3/3 in character. Full Sea + Signal+ UI playthrough with all six Sea districts (before this change): victory, 40 district polls (was 20), no errors.

@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 769,
+ "codex_image_calls": 773,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4995,6 +4995,13 @@
    ],
    "ts": "2026-10-26T03:23:00"
   },
+  "v2/events/a5_cb_cut_names.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Setting: a vast dusky graveyard of discarded machines, rusted cranes, warm amber work lights and teal haze. A tall discarded android sits among scrap with a small blank paper slip pasted onto its chest plate, glossy paste glinting; it lifts its head proudly; other machines nearby look down at their own chests. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T12:54:53"
+  },
   "v2/events/a5_cb_debt.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5008,6 +5015,27 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A huge graveyard of discarded androids and machines sitting in rows, hundreds of them, all tilting their heads the same way toward a soft floating holographic image of a small yellow umbrella in the rain; their eye lenses glow faint blue; dreamlike haze. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
    "refs": [],
    "ts": "2026-11-04T03:33:25"
+  },
+  "v2/events/a5_cb_dream_shelf.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Setting: a vast dusky graveyard of discarded machines, rusted cranes, warm amber work lights and teal haze. An old film projector on top of a scrap heap throws a blank glowing white rectangle onto a hanging sheet; a ring of discarded machines sits quietly watching the white screen. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T12:54:41"
+  },
+  "v2/events/a5_cb_index.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Setting: a vast dusky graveyard of discarded machines, rusted cranes, warm amber work lights and teal haze. A small battered machine sits reading an old cloth-bound book (pages illegible), two other machines reading over its shoulder, warm lamp light on the pages. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T12:54:53"
+  },
+  "v2/events/a5_cb_miro.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Setting: a vast dusky graveyard of discarded machines, rusted cranes, warm amber work lights and teal haze. At the graveyard gate a small wheeled delivery robot has stopped, a stamped paper slip tucked into its body, a supply pack in its cargo tray, waiting politely. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T12:54:52"
   },
   "v2/events/a5_child_platform.webp": {
    "generations": 1,

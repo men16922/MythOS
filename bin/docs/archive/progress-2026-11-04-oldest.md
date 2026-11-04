@@ -1,5 +1,9 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Chronicle (W4) step 1: save compatibility proven (Claude Opus 5.5, same goal)
+
+- `engine/chronicle.ts` + `MetaProfile.chronicle` (`ChronicleState`): what a chapter hands the next (archetype, stats, background, axes, approval, quests, faction standing, three core cards), `finishChapter`, and a validating `migrateChronicle` in `migrateProfile`. Lives in the profile: no new save slot, no server change (blobs are stored as JSON). Tests: old profiles load unchanged, a chapter round-trips through JSON and migration, malformed data is dropped or clamped, under 4 KB. Nothing playable; steps 2–5 and the owner gate: `docs/plans/2026-11-04-chronicle-ch1-slice.md`.
+
 ## 2026-11-04 — Judge showcase `?showcase=1` (W2-4); the Archive keeps its authored IX line on a fallback (Claude Opus 5.5, same goal)
 
 - **Showcase** (`ui/showcase.ts`, `net/api.ts showcaseKey / showcaseBlocks`): save keys move to `mythos2.showcase.*` and save routes never leave the device; first boot builds a prepared profile (three loops dying in Act 2 with attack-leaning decks, Paradox 10 open) and a Deep Paradox 10 run at the Act 3 intro (shove deck → IX read; first nodes: `pc_watcher` and the Act 3 road recruit); opens on the Archive. Tests: namespace, blocked routes, prepared state.

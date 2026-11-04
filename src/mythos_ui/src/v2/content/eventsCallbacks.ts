@@ -1058,4 +1058,157 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['mr gang the electrician', 'spire fuse box', 'bypass'],
   },
+  // 2026-11-04: the four Glass Library districts (Act 4) come back among the Dreaming Machines (Act 5).
+  {
+    id: 'a5_cb_cut_names',
+    acts: [5],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_cut_names', stage: 2 } },
+    title: t('붙여 둔 이름', 'The Name You Pasted Back'),
+    image: 'v2/events/a5_cb_cut_names.webp',
+    text: t(
+      '고철 묘역의 버려진 기계 하나, 가슴판에 종잇조각이 붙어 있다. 잘린 이름의 서랍에서 당신이 다시 붙여 준 그 이름이다. 풀 자국이 아직 반짝인다.\n기계가 그 이름으로 자기를 소개한다.',
+      'A discarded machine in the scrap graveyard has a paper slip stuck to its chest plate: the name you pasted back from the drawer of cut names. The paste still shines.\nThe machine introduces itself by that name.',
+    ),
+    options: [
+      {
+        label: t('그 이름으로 불러 준다', 'Call it by that name'),
+        hint: t('+10 HP · ◈ +3', '+10 HP · +3 ◈'),
+        success: {
+          text: t('기계가 고개를 든다. 주변의 다른 기계들도 자기 가슴판을 내려다본다.', 'The machine lifts its head. The machines around it look down at their own chest plates.'),
+          effects: [
+            { kind: 'hp', amount: 10 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+      {
+        label: t('묘역의 길을 묻는다', 'Ask it the way through the graveyard'),
+        hint: t('추적 −12 · 실패 시 추적 +5', '−12 Trace · fail +5 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('기계가 크레인 순회가 비는 골목을 짚어 준다.', 'The machine points out the lanes the crane patrol skips.'),
+          effects: [{ kind: 'trace', amount: -12 }],
+        },
+        failure: {
+          text: t('기계가 너무 크게 대답한다. 크레인 불빛이 돈다.', 'The machine answers too loudly. The crane light swings round.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+    ],
+    gmHints: ['the pasted-back name', 'scrap graveyard', 'chest plate'],
+  },
+  {
+    id: 'a5_cb_dream_shelf',
+    acts: [5],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_dream_fragment', stage: 2 } },
+    title: t('빈 마지막 장', 'The Blank Last Page'),
+    image: 'v2/events/a5_cb_dream_shelf.webp',
+    text: t(
+      '폐기된 영사기 하나가 고철 더미 위에서 혼자 돌아간다. 꿈의 서가에서 당신이 빈 채로 남겨 둔 그 장면이다. 마지막 장에서 화면이 하얗게 멈춘다.\n기계들이 하얀 화면을 둘러싸고 앉아 있다. 아무도 결말을 채우지 않는다.',
+      'A scrapped projector runs on its own atop a heap: the scene you preserved with its last page blank in the Dream Stacks. On the last page the screen stops, white.\nMachines sit around the white screen. Nobody fills in the ending.',
+    ),
+    options: [
+      {
+        label: t('기계들 곁에 앉는다', 'Sit with the machines'),
+        hint: t('+8 HP · ◈ +3', '+8 HP · +3 ◈'),
+        success: {
+          text: t('하얀 화면을 함께 본다. 결말이 없다는 게 이상하게 편하다.', 'You watch the white screen together. Having no ending is strangely restful.'),
+          effects: [
+            { kind: 'hp', amount: 8 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+      {
+        label: t('영사기의 순회 신호를 읽는다', 'Read the projector’s patrol signal'),
+        hint: t('추적 −10 · 소모품', '−10 Trace · consumable'),
+        success: {
+          text: t('영사기 받침에 검열 색인의 순회표가 끼워져 있다. 받침 아래엔 예비 전지.', 'The censor index’s patrol table is wedged under the projector stand, with a spare battery below it.'),
+          effects: [
+            { kind: 'trace', amount: -10 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+    ],
+    gmHints: ['blank last page', 'scrapped projector', 'unfinished dream'],
+  },
+  {
+    id: 'a5_cb_index',
+    acts: [5],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_forbidden_index', stage: 2 } },
+    title: t('해독한 책의 독자', 'A Reader for the Decoded Book'),
+    image: 'v2/events/a5_cb_index.webp',
+    text: t(
+      '고철 더미 속 기계 하나가 낡은 책을 읽고 있다. 금서 색인에서 당신이 해독한 바로 그 제목이다. 해독된 번호가 퍼진 모양이다.\n기계가 책장을 넘기다 당신을 본다. “이거, 끝까지 읽어도 되는 거죠?”',
+      'A machine in the scrap is reading an old book: the very title you decoded in the Forbidden Index. The decoded mark must have spread.\nTurning a page, the machine looks up. “I’m allowed to read this to the end, aren’t I?”',
+    ),
+    options: [
+      {
+        label: t('“끝까지 읽어도 돼.”', '“Read it to the end.”'),
+        hint: t('◈ +4 · 추적 −4', '+4 ◈ · −4 Trace'),
+        success: {
+          text: t('기계가 다시 책에 고개를 묻는다. 주변 기계 몇이 어깨 너머로 같이 읽는다.', 'The machine bends back over the book. A few others read over its shoulder.'),
+          effects: [
+            { kind: 'echoes', amount: 4 },
+            { kind: 'trace', amount: -4 },
+          ],
+        },
+      },
+      {
+        label: t('책 사이에 끼운 쪽지를 본다', 'Look at the note tucked in the book'),
+        hint: t('추적 −12 · 실패 시 추적 +5', '−12 Trace · fail +5 Trace'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t('검열관이 남긴 쪽지다. 다음 수거 경로가 거꾸로 적혀 있다. 거꾸로 읽는 법은 이미 안다.', 'A censor’s note: the next collection route, written backwards. You already know how to read backwards.'),
+          effects: [{ kind: 'trace', amount: -12 }],
+        },
+        failure: {
+          text: t('쪽지가 부서진다. 기계가 실망한 소리를 낸다.', 'The note crumbles. The machine makes a disappointed sound.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+    ],
+    gmHints: ['decoded banned book', 'machine reader', 'scrap graveyard'],
+  },
+  {
+    id: 'a5_cb_miro',
+    acts: [5],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_return_record', stage: 2 } },
+    title: t('예약 확인 쪽지', 'The Reservation Slip'),
+    image: 'v2/events/a5_cb_miro.webp',
+    text: t(
+      '고철 묘역 입구, 작은 배달 기계가 당신 앞에 멈춘다. 몸통에 반납 창구의 도장이 찍힌 쪽지가 꽂혀 있다. 미로와 맞춰 본 그 열람 예약이다.\n쪽지 아래에 아이 글씨로 한 줄. “제 번호도 아직 살아 있어요.”',
+      'At the graveyard gate a small delivery machine stops before you. Tucked into its body is a slip stamped by the returns desk: the reading reservation you reconciled with Miro.\nUnder it, one line in a child’s hand. “My number is still alive too.”',
+    ),
+    options: [
+      {
+        label: t('쪽지를 받는다', 'Take the slip'),
+        hint: t('◈ +3 · 소모품', '+3 ◈ · consumable'),
+        success: {
+          text: t('배달 기계가 수령 도장을 받고 떠난다. 짐칸에 덤으로 보급품 하나를 두고.', 'The delivery machine takes your signature and goes, leaving a supply pack behind as a bonus.'),
+          effects: [
+            { kind: 'echoes', amount: 3 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+      {
+        label: t('배달 기계의 경로를 따라간다', 'Follow the delivery machine’s route'),
+        hint: t('추적 −10 · +6 HP', '−10 Trace · +6 HP'),
+        success: {
+          text: t('배달 기계는 감시가 없는 길만 안다. 그래야 배달이 끊기지 않으니까.', 'Delivery machines know only the unwatched roads. That is how deliveries never stop.'),
+          effects: [
+            { kind: 'trace', amount: -10 },
+            { kind: 'hp', amount: 6 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['miro', 'reading reservation', 'delivery machine'],
+  },
 ]

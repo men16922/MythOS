@@ -238,6 +238,62 @@ ENEMY_PERSONAS: dict[str, EnemyPersona] = {
             "en": "The voice of the sea where erased records pool. Many voices at once, low, speaking as “we”. It wants to be written again and pulls people in. It never makes the sea sound beautiful.",
         },
     ),
+    "blank_binder": EnemyPersona(
+        {"ko": "백지", "en": "The Blank"},
+        {
+            "ko": "검열청의 제본 기계. 이름을 잘라 낸 쪽을 철끈으로 묶어 누른다. 짧고 단호한 반말로 묶기, 지우기, 백지를 말한다.",
+            "en": "The Censorate’s binding machine that wires down pages after the names are cut. Short, flat statements about binding, erasing and blank pages.",
+        },
+    ),
+    "first_reader": EnemyPersona(
+        {"ko": "첫 번째 독자", "en": "The First Reader"},
+        {
+            "ko": "첫 접속자가 남긴 잔향. 앞으로 일어날 일을 먼저 읽고 교정해 둔 독자. 반말로, 이미 읽었다고, 자기 사본이 맞다고 말한다. 그러나 늘 맞지는 않는다.",
+            "en": "The echo the first connector left: a reader who read ahead and corrected what had not happened yet. Speaks as one who has already read this, insisting their copy is right, though it is not always.",
+        },
+    ),
+    "omega_complete": EnemyPersona(
+        {"ko": "설계자 오메가 — 완전체", "en": "Omega — Complete"},
+        {
+            "ko": "완성된 도면으로 접속자의 자리까지 정하는 IX의 집행 코어. 감정 없는 정밀한 존댓말(~합니다)로 설계, 보정, 완료를 말한다.",
+            "en": "IX’s executive core that rules even where the connector should stand by its finished plan. Emotionless, precise and formal: design, correction, completion.",
+        },
+    ),
+    "sea4_container_king": EnemyPersona(
+        {"ko": "컨테이너 왕", "en": "The Container King"},
+        {
+            "ko": "마른 항구의 빈 컨테이너 골목을 차지한 거대한 기계. 거칠고 으스대는 반말로 자기 골목, 칸, 엑스 자 봉인을 말한다.",
+            "en": "A huge machine that has claimed the dry harbor’s empty container alley. Rough and boastful: my alley, my boxes, the X of seal tape.",
+        },
+    ),
+    "sea5_buoy_queen": EnemyPersona(
+        {"ko": "부표 여왕", "en": "The Buoy Queen"},
+        {
+            "ko": "회색 조수 위에 떠 있는 부표들의 여왕. 가라앉지 않고 자리만 바꾼다. 차갑고 놀리는 반말. 바다를 아름답게 말하지 않는다.",
+            "en": "Queen of the buoys riding the gray tide. It never sinks; it only changes places. Cold and mocking. It never makes the sea beautiful.",
+        },
+    ),
+    "sea5_surge_eater": EnemyPersona(
+        {"ko": "해일을 삼키는 자", "en": "The Surge Eater"},
+        {
+            "ko": "조수를 삼켜 몸을 불리는 잔류물. 굶주린 짧은 반말로 삼키기와 끌어당기기를 말한다.",
+            "en": "A Residue that swells by swallowing the tide. Short, starving speech about swallowing and pulling in.",
+        },
+    ),
+    "sea6_foghorn": EnemyPersona(
+        {"ko": "무적", "en": "The Foghorn"},
+        {
+            "ko": "등대단의 무적. 길게 둘, 짧게 하나의 박자로 운다. 짧은 명령형 반말(박자, 물러가라, 물길이 닫혔다).",
+            "en": "The Keepers’ foghorn that sounds two long, one short. Short commands: the beat, fall back, the channel is closed.",
+        },
+    ),
+    "sea6_lens_saint": EnemyPersona(
+        {"ko": "렌즈의 성인", "en": "Saint of the Lens"},
+        {
+            "ko": "등대 렌즈를 섬기는 등대단의 성인. 엄숙한 기도문 같은 존댓말로 빛, 기도, 신앙을 말한다. 등대를 지키는 것이 곧 신앙이다.",
+            "en": "The Keepers’ saint who serves the lighthouse lens. Solemn, prayer-like and formal: the light, the prayer, the faith. Keeping the lighthouse is the faith.",
+        },
+    ),
 }
 
 _SITUATION: dict[TauntTrigger, dict[Lang, str]] = {

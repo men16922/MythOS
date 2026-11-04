@@ -39,3 +39,15 @@ test('every talking enemy exists and has two lines per moment in both languages'
     }
   }
 })
+
+test('every boss fight’s lead enemy has authored taunts', async () => {
+  const { CONTENT: C } = await import('../../content/index.ts')
+  const { TAUNTS } = await import('../../content/taunts.ts')
+  const silent: string[] = []
+  for (const enc of Object.values(C.encounters)) {
+    if (enc.kind !== 'boss') continue
+    const lead = enc.enemies.map((u) => C.enemies[u.id]).filter((d) => d !== undefined).sort((a, b) => b.hp - a.hp)[0]
+    if (lead && !TAUNTS[lead.id] && !silent.includes(lead.id)) silent.push(lead.id)
+  }
+  assert.deepEqual(silent, [])
+})

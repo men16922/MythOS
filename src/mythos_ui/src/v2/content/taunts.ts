@@ -114,4 +114,36 @@ export const TAUNTS: Record<string, Record<TauntMoment, Text[]>> = {
     hurt: [t('우리는 지워졌어. 또 지우려고?', 'We were erased. Again?'), t('흩어져도 돌아와. 늘 그랬어.', 'Scatter us and we come back. We always have.')],
     winning: [t('써 줘. 아무도 우리를 쓰지 않았어.', 'Write us. No one ever wrote us.'), t('네 이름도 여기 고일 거야.', 'Your name will pool here too.')],
   },
+  blank_binder: {
+    hurt: [t('철끈이 풀렸다. 다시 묶는다.', 'The binding wire slipped. Rebinding.'), t('빈칸은 찢어지지 않는다.', 'A blank cannot be torn.')],
+    winning: [t('남은 문장도 지운다.', 'The remaining sentences go too.'), t('백지가 가장 깨끗하다.', 'A blank page is the cleanest.')],
+  },
+  first_reader: {
+    hurt: [t('이 장면은 읽었는데. 이렇게 끝나지 않았어.', 'I read this scene. It didn’t end like this.'), t('교정이 필요해. 내 쪽이 맞아.', 'This needs correcting. My copy is right.')],
+    winning: [t('마지막 쪽은 내가 먼저 읽었어.', 'I read the last page first.'), t('다음 줄은 이미 알아.', 'I already know the next line.')],
+  },
+  omega_complete: {
+    hurt: [t('설계 오차. 보정합니다.', 'Design error. Correcting.'), t('완성된 도면에 흠은 없습니다.', 'A finished plan has no flaws.')],
+    winning: [t('당신의 자리는 도면에 없습니다.', 'There is no place for you on the plan.'), t('설계를 완료합니다.', 'Completing the design.')],
+  },
+  sea4_container_king: {
+    hurt: [t('용접이 터졌군. 칸 하나쯤이야.', 'A weld burst. One box is nothing.'), t('내 골목에서 나가.', 'Get out of my alley.')],
+    winning: [t('봉인해 주지. 엑스 자로.', 'I’ll seal you in. With an X.'), t('빈 칸은 많아. 너 하나 들어갈 데는 있지.', 'Plenty of empty boxes. There’s room for one more.')],
+  },
+  sea5_buoy_queen: {
+    hurt: [t('부표는 가라앉지 않아. 자리만 바꿔.', 'A buoy doesn’t sink. It only changes places.'), t('밧줄을 끊어도 나는 떠.', 'Cut the rope and I still float.')],
+    winning: [t('네 자리는 내가 가질게. 물속은 네가 가.', 'I’ll take your place. You take the water.'), t('여기 표시된 건 네 무덤이야.', 'What I’m marking here is your grave.')],
+  },
+  sea5_surge_eater: {
+    hurt: [t('배고파. 파도 하나로는 모자라.', 'Hungry. One wave isn’t enough.'), t('더 삼켜야 해. 더.', 'I have to swallow more. More.')],
+    winning: [t('삼킨다. 남는 건 거품뿐이야.', 'Swallowing. Only foam is left.'), t('이리 와. 물이 너를 끌고 와.', 'Come here. The water is bringing you.')],
+  },
+  sea6_foghorn: {
+    hurt: [t('길게 둘, 짧게 하나. 멈추지 않는다.', 'Two long, one short. It does not stop.'), t('박자를 지켜라. 물러가라.', 'Keep the beat. Fall back.')],
+    winning: [t('길게 둘. 짧게… 하나.', 'Two long. One… short.'), t('돌아가라. 이 물길은 닫혔다.', 'Turn back. This channel is closed.')],
+  },
+  sea6_lens_saint: {
+    hurt: [t('빛이 흔들려도 기도는 끊기지 않습니다.', 'The light may shake. The prayer does not break.'), t('렌즈에 흠집이 나도 빛은 나갑니다.', 'Scratch the lens and the light still goes out.')],
+    winning: [t('빛 아래 무릎 꿇으십시오. 물이 물러갑니다.', 'Kneel under the light. The water falls back.'), t('등대를 지키는 것이 신앙입니다.', 'Keeping the lighthouse is the faith.')],
+  },
 }

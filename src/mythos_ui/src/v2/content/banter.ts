@@ -730,6 +730,101 @@ export const BANTER: BanterDef[] = [
       { who: 'bel', text: t('그럼 우리 둘 다 느려졌네.', 'Then we’ve both got slower.') },
     ],
   },
+  {
+    id: 'b_linyue_seoha_paid',
+    pair: ['lin_yue', 'seo_ha'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'lin_yue', text: t('도선사는 배 한 척당 받았어?', 'Pilots got paid per ship?') },
+      { who: 'seo_ha', text: t('무사히 들인 배 한 척당이요.', 'Per ship brought in safe.') },
+      { who: 'lin_yue', text: t('못 들인 배는?', 'And the ones you didn’t?') },
+      { who: 'seo_ha', text: t('그건 아무도 안 쳐 줬어요. 나는 아직 세요.', 'Nobody paid for those. I still count them.') },
+    ],
+  },
+  {
+    id: 'b_io_mujin_catalogue',
+    pair: ['io', 'mujin'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'io', text: t('유리 도서관에는 해문항 하역조 기록이 없습니다.', 'The Glass Library holds no record of Haemun’s longshore crew.') },
+      { who: 'mujin', text: t('우린 적는 거 별로 안 한다.', 'We don’t write much.') },
+      { who: 'io', text: t('그럼 지금 목록에 올려도 되겠습니까?', 'Then may I catalogue you now?') },
+      { who: 'mujin', text: t('짧게 적어라.', 'Keep it short.') },
+    ],
+  },
+  {
+    id: 'b_io_parang_section',
+    pair: ['io', 'parang'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'io', text: t('파랑 님이 지닌 기억에는 청구 기호가 없습니다.', 'What you carry, Parang, has no shelf mark.') },
+      { who: 'parang', text: t('그럼 바다 칸에 꽂아.', 'Then shelve it under the sea.') },
+      { who: 'io', text: t('…서가에 그 분류를 새로 만들겠습니다.', '…I will add that section.') },
+    ],
+  },
+  {
+    id: 'b_miro_parang_hold',
+    pair: ['miro', 'parang'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'miro', text: t('…너도 네 이름 몰라?', '…You don’t know your own name either?') },
+      { who: 'parang', text: t('이름은 많아. 내 건 없어.', 'Got lots of names. None of them mine.') },
+      { who: 'miro', text: t('나는 하나 있어. 사람들이 자꾸 흘려.', 'I’ve got one. People keep dropping it.') },
+      { who: 'parang', text: t('그럼 네 건 내가 들고 있을게. 나 드는 거 잘해.', 'Then I’ll hold yours. I’m good at holding.') },
+    ],
+  },
+  {
+    id: 'b_doyun_rem_shutdown',
+    pair: ['doyun', 'rem'],
+    lines: [
+      { who: 'doyun', text: t('렘 씨, 종료 명령 받을 때 기계들 세었어요?', 'Rem, when the shutdown orders came, did you count the machines?') },
+      { who: 'rem', text: t('하나도 빠짐없이요.', 'Every one.') },
+      { who: 'doyun', text: t('남겨진 기계는요?', 'Any left behind?') },
+      { who: 'rem', text: t('이제는 없어요. 지금은 그 곁에 남아 있으니까요.', 'Not anymore. Now I stay beside them.') },
+    ],
+  },
+  {
+    id: 'b_mujin_doyun_foreman',
+    pair: ['mujin', 'doyun'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'mujin', text: t('자꾸 머릿수 세는군.', 'You keep counting heads.') },
+      { who: 'doyun', text: t('버릇이에요. 빠진 사람 있어요?', 'Habit. Anyone missing?') },
+      { who: 'mujin', text: t('하역조에선 반장이 센다.', 'On a crew, the foreman counts.') },
+      { who: 'doyun', text: t('그럼 저는 반장님을 셀게요.', 'Then I’ll count the foreman.') },
+    ],
+  },
+  {
+    id: 'b_bel_rem_desk',
+    pair: ['bel', 'rem'],
+    lines: [
+      { who: 'bel', text: t('너는 꿈을 껐고, 나는 문장을 잘랐지.', 'You switched off dreams. I cut sentences.') },
+      { who: 'rem', text: t('같은 일, 다른 교대였네요.', 'Same job, different shift.') },
+      { who: 'bel', text: t('같은 책상이야. 둘 다 그 책상에서 일어났고.', 'Same desk. And we both got up from it.') },
+    ],
+  },
+  {
+    id: 'b_seoha_bel_twice',
+    pair: ['seo_ha', 'bel'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'seo_ha', text: t('당신은 뭐든 두 번 읽네요.', 'You read everything twice.') },
+      { who: 'bel', text: t('옛날 버릇이야. 자를 데 찾느라.', 'Old habit. Looking for what to cut.') },
+      { who: 'seo_ha', text: t('나도 물을 두 번 읽어요. 밑에 뭐가 있나 보려고.', 'I read the water twice too. To see what’s under it.') },
+      { who: 'bel', text: t('네 쪽이 더 쓸모 있네.', 'Yours sounds more useful.') },
+    ],
+  },
+  {
+    id: 'b_rem_seoha_turns',
+    pair: ['rem', 'seo_ha'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'rem', text: t('서하 씨, 바다에서 도선사는 어떻게 쉬었어요?', 'Seo-ha, how did pilots rest at sea?') },
+      { who: 'seo_ha', text: t('번갈아요. 하나는 물을 보고, 하나는 자고.', 'In turns. One watches the water, one sleeps.') },
+      { who: 'rem', text: t('그럼 보는 쪽은 제가 할게요. 늘.', 'Then I’ll take the watching turn. Always.') },
+      { who: 'seo_ha', text: t('그럼 나는 오랜만에 밤새 자 보겠네요.', 'Then for once I’ll sleep the whole night.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

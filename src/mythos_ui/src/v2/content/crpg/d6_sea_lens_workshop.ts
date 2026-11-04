@@ -180,7 +180,7 @@ const LENS: DialogueDef = {
           requires: { flag: 'sea_lw_window', quest: { id: 'q_sea_lens', stage: 1 } },
           success: {
             text: t('점검반이 검사 기록을 읽는다. “창문… 규격에 있는 항목이군.” 렌즈가 흠과 함께 천에 싸인다. 목 영감이 고개를 끄덕인다.', 'The inspectors read the log. “Window… that’s a listed item.” The lens is wrapped with its flaw. Old Mok nods.'),
-            effects: [{ kind: 'quest', id: 'q_sea_lens', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_sea_lens', stage: 2 }, { kind: 'codex', id: 'lore_d_lens_window' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -190,7 +190,7 @@ const LENS: DialogueDef = {
           check: { stat: 'agi', dc: 12 },
           success: {
             text: t('광택제가 마르며 금이 보이지 않게 된다. 빛은 여전히 새어 나갈 것이다.', 'The polish dries and the crack disappears from view. The light will still leak through.'),
-            effects: [{ kind: 'quest', id: 'q_sea_lens', stage: 2 }, { kind: 'trace', amount: 4 }],
+            effects: [{ kind: 'quest', id: 'q_sea_lens', stage: 2 }, { kind: 'codex', id: 'lore_d_lens_window' }, { kind: 'trace', amount: 4 }],
           },
           failure: {
             text: t('광택제가 번진다. 점검반이 렌즈를 다시 연마하라고 돌려보낸다.', 'The polish smears. The inspectors send the lens back for regrinding.'),

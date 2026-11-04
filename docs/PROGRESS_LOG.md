@@ -2,11 +2,12 @@
 
 Last updated: 2026-11-04
 
-## 2026-11-04 — District codex lore, 7 districts (Claude Opus 5.5, same goal)
+## 2026-11-04 — District codex lore, 10 districts (Claude Opus 5.5, same goal)
 
 - Only one district (Glass Atrium) awarded a codex entry. Four districts whose quests reveal setting facts now award one on their final stage: `lore_d_errata` (Errata Office: the "stet" mark), `lore_d_crane_chapel`, `lore_d_old_beat` (Foghorn Post: the old beat meant "clear to enter"), `lore_d_letters` (Cable Station: "we only wanted to see the sea"; the Lightkeeper's promise stays for the ending). The lore-award test now counts district choices like the flag guards do. 45 lore.
 - **Verified**: content + achievements tests; UI: all four to stage 2 (Errata Office and Cable Station at 1280×720, Foghorn Post and Crane Chapel at 390 px), each run's codex gained its entry, 0 console errors.
 - Then the three Outside the List districts: `lore_d_name_tags` (Laundry: tags turned inward on Crew nights), `lore_d_meter_hour` (Meters: an alley sharing one tapped line reads as one flat), `lore_d_night_bus` (Bus Depot: the off-schedule route card sleeps in a different pocket each night), avoiding facts already in `lore_outside_list`/`lore_outside_closing_crew`. 48 lore. **Verified**: content tests; UI: all three to stage 2 (laundry and bus at 390 px, meters at 1280×720), codex gained each entry, 0 console errors.
+- Three Sea districts: `lore_d_shift_clock` (Seizure Shed: the crew changed shifts by the tide after the clock was seized), `lore_d_rope` (Shallows: the rope rule; what comes up goes to whoever recognizes it), `lore_d_lens_window` (Lens Workshop: Mok's deliberate flaw), avoiding facts already in the four Sea lore entries. 51 lore; 10 districts award lore. **Verified**: content tests; UI: all three to stage 2 (shed and workshop at 390 px, shallows at 1280×720), codex gained each entry, 0 console errors.
 
 ## 2026-11-04 — Curly quotes everywhere; English Sea run (Claude Opus 5.5, same goal)
 
@@ -88,8 +89,3 @@ Last updated: 2026-11-04
 
 - The route maps roll only their own events, and none of those awarded a codex entry, so the Archive's codex had nothing from either route. `content/packs/route_lore.ts`: the unnumbered square, Customs Enforcement, the gray tide, the Keepers (in the DLC 3 bible's reveal order; what the Lightkeeper promised IX stays for the ending), off the list, the Closing Crew. Each awarded by one route event's rewarding outcome, hint prefixed "Codex ·" like the base events. 41 lore (the "restore every entry" achievement now needs these too).
 - **Verified**: content + event-balance + achievements tests; UI: each of the six events played on its route (KO/EN, desktop/390 px), the run's codex gained the entry, 0 console errors.
-
-## 2026-11-04 — DLC companions can earn approval (camp nights reachable) (Claude Opus 5.5, same goal)
-
-- Approval only counts for deployed companions, and Miro, Doyun, Bel and Rem had just 2–4 positive approval sources across all districts, so their new camp nights (approval 2) were close to unreachable. Sixteen existing options now react for them by who they are: Miro likes names remembered (pasting a name back, calling the uniformed figure by its surname, "stet"), Doyun likes nobody left behind and dislikes calling someone "Seventeen", Bel likes sentences left standing (rewriting the struck street, "stet"), Rem likes dreams allowed to finish (+2 for waking the Cold Storage machine slowly, −1 for waking it at once). Positive sources now 6–7 each.
-- **Verified**: content + crpg tests; UI: Rem and Miro deployed through the Cold Storage's slow-waking path → Rem approval 2 (the camp threshold), 0 console errors.

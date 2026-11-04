@@ -182,7 +182,7 @@ const LOCKER: DialogueDef = {
           requires: { flag: 'sea_ss_form', quest: { id: 'q_sea_seizure', stage: 1 } },
           success: {
             text: t('딱지 위에 반환 도장이 찍힌다. 시계를 들고 나가는 당신을 아무도 막지 않는다. 보람이 시계를 받아 들고 교대 종을 친다.', 'A return stamp lands on the tag. Nobody stops you walking out with the clock. Boram takes it and rings the shift bell.'),
-            effects: [{ kind: 'quest', id: 'q_sea_seizure', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sea_seizure', stage: 2 }, { kind: 'codex', id: 'lore_d_shift_clock' }],
           },
         },
         {
@@ -191,7 +191,7 @@ const LOCKER: DialogueDef = {
           requires: { flag: 'sea_ss_key', quest: { id: 'q_sea_seizure', stage: 1 } },
           success: {
             text: t('딱지는 그대로 두고 시계만 꺼낸다. 하역조가 세관 뒷문 열쇠를 대신 건넨다. “우리 쪽 교대 문이에요.”', 'You leave the tag and take only the clock. The crew hands you the customs back-gate key in return. “That’s our shift door.”'),
-            effects: [{ kind: 'quest', id: 'q_sea_seizure', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_sea_seizure', stage: 2 }, { kind: 'codex', id: 'lore_d_shift_clock' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -201,7 +201,7 @@ const LOCKER: DialogueDef = {
           check: { stat: 'str', dc: 13 },
           success: {
             text: t('문이 휘어 열린다. 시계는 무사하다. 창고 전체에 경보가 울린다.', 'The door bends open. The clock is fine. The whole shed alarms.'),
-            effects: [{ kind: 'quest', id: 'q_sea_seizure', stage: 2 }, { kind: 'trace', amount: 8 }],
+            effects: [{ kind: 'quest', id: 'q_sea_seizure', stage: 2 }, { kind: 'codex', id: 'lore_d_shift_clock' }, { kind: 'trace', amount: 8 }],
           },
           failure: {
             text: t('경첩이 버틴다. 딱지가 반쯤 찢긴 채 펄럭인다.', 'The hinge holds. The tag flaps, half torn.'),

@@ -31,6 +31,30 @@ export const ROUTE_LORE: LoreEntry[] = [
     },
   },
   {
+    id: 'lore_d_shift_clock',
+    title: { ko: '압류 412번', en: 'Seizure No. 412' },
+    text: {
+      ko: '하역조의 교대 시계는 배가 들어올 때마다 종을 쳤다. 배가 끊긴 뒤에도 하역조는 그 종에 맞춰 잠들고 일어났다. 세관은 시계를 압류했다. 하역조는 그 뒤로 조수에 맞춰 교대했다. 시계가 돌아오면 첫 종은 막내가 친다.',
+      en: 'The longshore crew’s shift clock rang each time a ship came in. After the ships stopped, the crew still slept and woke by its bell. Customs seized the clock, and the crew changed shifts by the tide instead. When the clock comes back, the youngest rings the first bell.',
+    },
+  },
+  {
+    id: 'lore_d_rope',
+    title: { ko: '밧줄 규칙', en: 'The Rope Rule' },
+    text: {
+      ko: '썰물 여울에 들어가는 사람은 허리에 밧줄을 묶는다. 물가에서 다른 사람이 그 끝을 쥔다. 손에 잡히는 것 중에는 남의 기억도 섞여 있다. 그래서 건져 올린 것은 알아보는 사람에게 돌아간다. 밧줄을 놓친 사람은 돌아오지 않는다. 물에 들어갈 때는 셋, 나올 때는 둘이 되는 날도 있다.',
+      en: 'Anyone wading into the low-tide shallows ties a rope round their waist, and someone on the shore holds the other end. What the hand closes on is often a stranger’s memory, so whatever comes up goes to whoever recognizes it. Whoever loses the rope does not come back. Some days three go in and two come out.',
+    },
+  },
+  {
+    id: 'lore_d_lens_window',
+    title: { ko: '렌즈의 창문', en: 'The Window in the Lens' },
+    text: {
+      ko: '옛날 등대 렌즈에는 대개 작은 흠이 있었다. 배들은 그 흠이 만드는 깜빡임으로 자기 항구를 알아봤다. 등대단 점검표에는 흠이 불량으로 적힌다. 렌즈 장인 목 영감은 새 렌즈에 머리카락만 한 흠을 일부러 남겼다. 하룻밤에 한 번, 빛이 그 틈으로 새어 나간다.',
+      en: 'Old lighthouse lenses usually carried a small flaw, and ships knew their harbor by the flicker it made. On the Keepers’ checklist a flaw is a defect. Old Mok, the lens grinder, left a hairline one in the new lens on purpose. Once a night, light leaks through it.',
+    },
+  },
+  {
     id: 'lore_d_errata',
     title: { ko: '정오표', en: 'The Errata' },
     text: {

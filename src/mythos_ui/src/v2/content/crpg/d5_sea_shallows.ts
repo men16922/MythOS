@@ -180,7 +180,7 @@ const WATER: DialogueDef = {
           requires: { flag: 'sea_gs_rope', quest: { id: 'q_sea_shallows', stage: 1 } },
           success: {
             text: t('물이 손목을 당긴다. 봉 씨가 당긴다. 손 안에 작은 빛덩이 하나. 물가의 여자가 그걸 받아 들고 아이 이름을 부른다. 처음으로 목소리가 맞다.', 'The water pulls your wrist. Bong pulls harder. In your hand, one small lump of light. The woman at the edge takes it and calls her child’s name. For the first time, the voice is right.'),
-            effects: [{ kind: 'quest', id: 'q_sea_shallows', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sea_shallows', stage: 2 }, { kind: 'codex', id: 'lore_d_rope' }],
           },
         },
         {
@@ -190,7 +190,7 @@ const WATER: DialogueDef = {
           approval: { parang: 1 },
           success: {
             text: t('파랑이 물 위로 몸을 숙여 아이의 마지막 말을 따라 한다. 가벼운 목소리가 스스로 떠올라 파랑의 손에 닿는다.', 'Parang leans over the water and repeats the child’s last words. The light voice rises by itself and settles into Parang’s hand.'),
-            effects: [{ kind: 'quest', id: 'q_sea_shallows', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_sea_shallows', stage: 2 }, { kind: 'codex', id: 'lore_d_rope' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -200,7 +200,7 @@ const WATER: DialogueDef = {
           check: { stat: 'str', dc: 13 },
           success: {
             text: t('물이 끌어당긴다. 버틴다. 목소리를 쥐고 물러난다. 남의 기억 몇 개가 함께 묻어 나온다.', 'The water drags at you. You hold. You back out clutching the voice, a few strangers’ memories clinging on.'),
-            effects: [{ kind: 'quest', id: 'q_sea_shallows', stage: 2 }, { kind: 'hp', amount: -6 }],
+            effects: [{ kind: 'quest', id: 'q_sea_shallows', stage: 2 }, { kind: 'codex', id: 'lore_d_rope' }, { kind: 'hp', amount: -6 }],
           },
           failure: {
             text: t('물이 무릎을 꺾는다. 겨우 일어선다. 손은 비어 있다.', 'The water buckles your knees. You barely stand. Your hand is empty.'),

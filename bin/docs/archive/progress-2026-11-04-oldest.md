@@ -1,5 +1,11 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Glass Library codas (W1-4, first half) + Act 4–6 local GM line fix (Claude Opus 5.5, same goal)
+
+- **Built**: `ActDef.codas` + `actCoda` / `previousCoda` (engine/run.ts): when an act with codas is left, its leading choice axis (each axis against its ending threshold: 4 / 4 / 10 / 4, so resilience from boss wins does not always win) picks one of four closings: A Quiet Return (insight), Names Restored (humanity), The Stolen Book (dominance), The White Seal (resilience), 1.0's four Glass Library endings. Written to the chronicle and shown under the Act 5 title.
+- **Fixed** (found in the screenshot): the local GM line for every act from 3 up said "The ARK Spire", so Deep and Sea Acts 4–6 opened with Act 3's line whenever the AI line was off or fell back. Acts 4+ now get lines that name the act. The server's chronicle prompt also told the model a Deep / Sea victory ended "atop the ARK Spire"; past Act 3 it now names the act the run ended in (`gm.py`, test). Also: the act-intro residue / echo / coda line was auto-placed into the number column and squeezed the title on a 390 px phone; it now spans the row.
+- **Verified**: engine test (threshold comparison, flag, chronicle), local GM test; Act 5 intro with a coda in headless muted Chromium (ko desktop, en 390 px) before/after the layout fix, 0 console errors (`outputs/qa/coda_ui/`). Left for W1-4: the two Glass Library districts (Signal+ CRPG layer, about 600 lines each + art).
+
 ## 2026-11-04 — Callbacks: five earlier choices come back as scenes (W1-1, first part) (Claude Opus 5.5, same goal)
 
 - **Built** (`content/eventsCallbacks.ts`, 5 Codex images, unreviewed): walking past the capsule → Act 3 "Score 312" (Se-rin's bond can drop: the "Se-rin distrust" branch); cutting out Kai's core → "The Warm Core"; covering Kai with the umbrella → "The Yellow Umbrella"; Trace ≥ 60 → "Hunt Order" (the hard-push branch); copying the list instead of pulling three names → Deep Act 4 "The Copy" (records or people: Dominance / Humanity). New flags on the original options: `left_citizen`, `kai_cored`, `kai_umbrella`, `list_copied`. A scene whose flag is not set gives way to another event.

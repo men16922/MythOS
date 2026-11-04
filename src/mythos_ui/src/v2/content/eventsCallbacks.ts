@@ -576,4 +576,83 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['the saved citizen', 'lighthouse duty log', 'water line'],
   },
+  // ---- Outside the List (DLC 2 parallel Act 2): whether the counter's line held comes back in the Spire.
+  {
+    id: 'a3_cb_line',
+    acts: [3],
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'outside_kept' },
+    title: t('줄은 남았다', 'The Line Held'),
+    image: 'v2/events/a3_cb_line.webp',
+    text: t(
+      '첨탑 직원 통로에서 식판을 나르던 여자가 걸음을 멈춘다. 명단 밖 배식대 줄에서 본 얼굴이다.\n“여기 주방에도 사람이 필요하대서요. 줄은 아직 서요. 매일.”\n여자가 앞치마 주머니를 두드린다.',
+      'In a Spire staff corridor, a woman carrying trays stops. You know the face from the counter line outside the list.\n“They needed hands in the kitchen here. The line still forms. Every day.”\nShe pats her apron pocket.',
+    ),
+    options: [
+      {
+        label: t('식권을 받는다', 'Take the meal ticket'),
+        hint: t('+8 HP · ◈ +2', '+8 HP · +2 ◈'),
+        success: {
+          text: t('식권 뒷면에 직원용 승강기 번호가 적혀 있다.', 'On the back of the ticket, a staff lift number.'),
+          effects: [
+            { kind: 'hp', amount: 8 },
+            { kind: 'echoes', amount: 2 },
+          ],
+        },
+      },
+      {
+        label: t('줄 소식을 묻는다', 'Ask how the line is doing'),
+        hint: t('추적 −8 · ◈ +3 · 실패 시 추적 +5', '−8 Trace · +3 ◈ · fail +5 Trace'),
+        check: { stat: 'obs', dc: 5 },
+        success: {
+          text: t('여자가 순찰 교대 시간을 배식 시간처럼 외워 준다.', 'She recites the patrol changeover the way she would a serving time.'),
+          effects: [
+            { kind: 'trace', amount: -8 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+        failure: {
+          text: t('말이 길어진다. 통로 끝 카메라가 두 사람을 오래 본다.', 'The talk runs long. The camera at the end of the corridor watches you both.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+    ],
+    gmHints: ['the counter line held', 'spire kitchen', 'meal ticket'],
+  },
+  {
+    id: 'a3_cb_ladle',
+    acts: [3],
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'outside_gone' },
+    title: t('닦인 국자', 'The Washed Ladle'),
+    image: 'v2/events/a3_cb_ladle.webp',
+    text: t(
+      '첨탑 주방 벽에 국자 하나가 닦인 채 걸려 있다. 명단 밖 배식대의 그 국자와 같은 모양이다.\n요리사가 당신 시선을 따라온다. “그 배식대, 문 닫았죠. 거기서 왔어요?”',
+      'On the Spire kitchen wall a ladle hangs, washed clean. The same make as the one at the counter outside the list.\nThe cook follows your gaze. “That counter closed, didn’t it. You came from there?”',
+    ),
+    options: [
+      {
+        label: t('그렇다고 말한다', 'Say yes'),
+        hint: t('+25 ₵ · 실패 시 추적 +6', '+25 ₵ · fail +6 Trace'),
+        check: { stat: 'cha', dc: 5 },
+        success: {
+          text: t('요리사가 말없이 봉투 하나를 건넨다. “다시 열 때 보태요.”', 'The cook hands over an envelope without a word. “Put it toward opening again.”'),
+          effects: [{ kind: 'credits', amount: 25 }],
+        },
+        failure: {
+          text: t('요리사의 얼굴이 굳는다. 주방 전화기를 든다.', 'The cook’s face sets. He picks up the kitchen phone.'),
+          effects: [{ kind: 'trace', amount: 6 }],
+        },
+      },
+      {
+        label: t('아무 말 없이 지나간다', 'Walk past without a word'),
+        hint: t('추적 −4', '−4 Trace'),
+        success: {
+          text: t('국자가 벽에서 조금 흔들린다. 누가 건드린 것처럼.', 'The ladle sways on the wall a little, as if someone touched it.'),
+          effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+    ],
+    gmHints: ['the closed counter', 'washed ladle', 'spire kitchen'],
+  },
 ]

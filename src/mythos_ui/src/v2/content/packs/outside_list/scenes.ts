@@ -62,7 +62,7 @@ export const OUTSIDE_EVENTS: EventDef[] = [
         hint: t('+10 HP', '+10 HP'),
         success: {
           text: t('아직 따뜻하다. 다 먹고 나서야 손이 떨리는 것을 멈춘다.', 'Still warm. Only when it is gone do your hands stop shaking.'),
-          effects: [{ kind: 'hp', amount: 10 }],
+          effects: [{ kind: 'hp', amount: 10 }, { kind: 'flag', key: 'outside_kept' }],
         },
       },
       {
@@ -70,7 +70,7 @@ export const OUTSIDE_EVENTS: EventDef[] = [
         hint: t('−5 추적', '−5 Trace'),
         success: {
           text: t('뚜껑을 도로 덮는다. 쪽지 아래에 자리 번호 하나를 적어 두고 골목을 뜬다.', 'You close the lid, write a shelter number under the note, and leave the alley.'),
-          effects: [{ kind: 'trace', amount: -5 }],
+          effects: [{ kind: 'trace', amount: -5 }, { kind: 'flag', key: 'outside_kept' }],
         },
       },
     ],
@@ -93,7 +93,7 @@ export const OUTSIDE_EVENTS: EventDef[] = [
         hint: t('+10 HP', '+10 HP'),
         success: {
           text: t('식었지만 먹는다. 국자는 닦아서 도로 걸어 둔다.', 'It is cold. You eat it anyway, then wash the ladle and hang it back up.'),
-          effects: [{ kind: 'hp', amount: 10 }],
+          effects: [{ kind: 'hp', amount: 10 }, { kind: 'flag', key: 'outside_gone' }],
         },
       },
       {
@@ -101,7 +101,7 @@ export const OUTSIDE_EVENTS: EventDef[] = [
         hint: t('−5 추적', '−5 Trace'),
         success: {
           text: t('불을 끄고 뚜껑을 고쳐 덮는다. 내일 누가 오든 쓸 수 있게 해 두고 골목을 뜬다.', 'You turn the heat off, set the lid straight so whoever comes tomorrow can use it, and leave the alley.'),
-          effects: [{ kind: 'trace', amount: -5 }],
+          effects: [{ kind: 'trace', amount: -5 }, { kind: 'flag', key: 'outside_gone' }],
         },
       },
     ],

@@ -129,7 +129,8 @@ test('losing the citizens changes the ending, not the pay', () => {
   r = winFight(r, 'outside_serving', false)
   r = onNode(r, 'rest')
   assert.equal(r.screen.kind === 'event' && r.screen.eventId, 'outside_last_meal_lost')
-  const heal = (id: string) => C.events[id]?.options[0]?.success.effects
+  // Same pay either way; only the flag that Act 3 reads (outside_kept / outside_gone) differs.
+  const heal = (id: string) => C.events[id]?.options[0]?.success.effects.filter((e) => e.kind !== 'flag')
   assert.deepEqual(heal('outside_last_meal_kept'), heal('outside_last_meal_lost'))
 })
 

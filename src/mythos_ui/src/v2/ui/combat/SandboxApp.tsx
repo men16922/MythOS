@@ -31,6 +31,12 @@ function build(archetype: string, encounterId: string, extra: boolean, seed: num
       }
       run.consumables = Object.keys(C.consumables).slice(0, 3)
     }
+    // ?party=mujin,seo_ha replaces the whole party (QA of pairs the archetype default cannot reach, e.g. Sea duos).
+    const forced = (new URLSearchParams(window.location.search).get('party') ?? '').split(',').filter((id) => C.companions[id])
+    if (forced.length > 0) {
+      run.party = forced.map((id) => ({ id, hp: C.companions[id]!.maxHp, maxHp: C.companions[id]!.maxHp, bond: 0 }))
+      for (const id of forced) for (const card of C.companions[id]!.cards) run.deck.push({ uid: `sb_${card}_${run.uidCounter++}`, defId: card, upgraded: false })
+    }
     // ?lvl=5&perk=b plays every companion at that level with option b of each perk reached (a = the fixed bonuses).
     const q = new URLSearchParams(window.location.search)
     const lvl = Math.min(5, Math.max(1, Number(q.get('lvl')) || 1))

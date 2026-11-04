@@ -18,7 +18,7 @@
 - Event balance: `engine/event-balance.test.ts` (best open option 0.5–12 on the simulator's own scale).
 
 ## Browser layers (always muted, headless preferred)
-- Combat sandbox: `/?sandbox=combat&mute=1&enc=<encounterId>` (e.g. `a1_n2_nest`, `a2_elite_incinerator`, `a3_boss_ix`); `vw`/`vh` params size the stage.
+- Combat sandbox: `/?sandbox=combat&mute=1&enc=<encounterId>` (e.g. `a1_n2_nest`, `a2_elite_incinerator`, `a3_boss_ix`); `vw`/`vh` params size the stage; `party=mujin,seo_ha` sets the whole party (pairs the archetype default cannot reach), `momentum=100` starts with a full gauge (bursts, ultimates, duos).
 - Full game: Vite dev (`cd src/mythos_ui && npx vite`, proxies `/api` and `/resources` to `make api`) and the dev hook `window.__m2` (`run`, `setRun`, `setView`, `C`) to jump to a screen or fight.
 - Smoke: `make frontend-build && make test-e2e-v2` (title → setup → act intro → event → map → fight, fails on console errors).
 - Phones: Playwright context `viewport 390×844, is_mobile=True, has_touch=True`.

@@ -931,6 +931,7 @@ PERSONAS: dict[str, Persona] = {
                 "무거운 건 내가 든다.",
                 "됐다. 쉬어.",
                 "오면 받는다. 그게 일이다.",
+                "말은 짧게. 일은 길게.",
             ),
             "en": (
                 "Heard you.",
@@ -938,6 +939,7 @@ PERSONAS: dict[str, Persona] = {
                 "I'll lift the heavy end.",
                 "Enough. Rest.",
                 "If it comes, we take it. That's the job.",
+                "Talk short. Work long.",
             ),
         },
         deflect={
@@ -961,12 +963,16 @@ PERSONAS: dict[str, Persona] = {
                 "잠깐 앉아요. 물은 안 도망가요.",
                 "길은 있어요. 늘 있었어요.",
                 "그 말, 일지에 적어 둘게요.",
+                "배가 끊긴 바다에도 물길은 남아 있어요.",
+                "그 손, 키 잡던 손이랑 닮았네요.",
             ),
             "en": (
                 "Hurry and the water knows first.",
                 "Sit a moment. The water won't run off.",
                 "There's a way through. There always was.",
                 "I'll put that in the log.",
+                "Even a sea with no ships left still has its channels.",
+                "Those hands look like hands that held a wheel.",
             ),
         },
         deflect={
@@ -990,12 +996,16 @@ PERSONAS: dict[str, Persona] = {
                 "방금 그 말, 누가 해 준 적 있어.",
                 "오늘 걸은 건 기억나.",
                 "손은 차가워도 괜찮아.",
+                "그 이름, 어디서 들어 본 것 같아.",
+                "내 거 아닌 기억도 따뜻할 때가 있어.",
             ),
             "en": (
                 "This smell was in someone's kitchen.",
                 "Someone said that once.",
                 "Today's walk stayed.",
                 "Cold hands are all right.",
+                "I think I've heard that name somewhere.",
+                "A memory that isn't mine can still be warm.",
             ),
         },
         deflect={

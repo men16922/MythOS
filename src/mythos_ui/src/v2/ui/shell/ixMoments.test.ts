@@ -189,3 +189,10 @@ test('on the Sea route IX picks from its own pool, with the same triggers and ba
     }
   }
 })
+
+test('every companion has at least six authored chat replies in each language', async () => {
+  const { CONTENT: C } = await import('../../content/index.ts')
+  const short = Object.keys(C.companions).filter((id) => (COMPANION_REPLIES[id]?.ko.length ?? 0) < 6 || (COMPANION_REPLIES[id]?.en.length ?? 0) < 6)
+  assert.deepEqual(short, [])
+  for (const id of Object.keys(C.companions)) assert.equal(COMPANION_REPLIES[id]?.ko.length, COMPANION_REPLIES[id]?.en.length, id)
+})

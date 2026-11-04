@@ -146,4 +146,44 @@ export const TAUNTS: Record<string, Record<TauntMoment, Text[]>> = {
     hurt: [t('빛이 흔들려도 기도는 끊기지 않습니다.', 'The light may shake. The prayer does not break.'), t('렌즈에 흠집이 나도 빛은 나갑니다.', 'Scratch the lens and the light still goes out.')],
     winning: [t('빛 아래 무릎 꿇으십시오. 물이 물러갑니다.', 'Kneel under the light. The water falls back.'), t('등대를 지키는 것이 신앙입니다.', 'Keeping the lighthouse is the faith.')],
   },
+  enforcer_unit: {
+    hurt: [t('장갑 손상. 집행을 계속합니다.', 'Armour damaged. Enforcement continues.'), t('저항이 기록되었습니다.', 'Resistance has been recorded.')],
+    winning: [t('집행 대상 무력화 확인.', 'Enforcement target neutralised.'), t('엎드리십시오. 마지막 경고입니다.', 'Get down. Final warning.')],
+  },
+  spider_matriarch: {
+    hurt: [t('내 새끼들을 밟았구나.', 'You stepped on my little ones.'), t('알은 또 낳으면 돼.', 'There are always more eggs.')],
+    winning: [t('실에 걸렸네. 아가들아, 먹어라.', 'Caught in the web. Eat, my little ones.'), t('조용히 해. 아가들이 자.', 'Hush. The little ones are sleeping.')],
+  },
+  crimson_executioner: {
+    hurt: [t('피 냄새 좋군. 네 것도 곧이다.', 'Smells of blood. Yours soon.'), t('갈고리가 빗나갔어. 두 번은 안 빗나가.', 'The hook missed. It won’t miss twice.')],
+    winning: [t('걸렸다. 빚 받으러 왔다.', 'Hooked. I’ve come to collect.'), t('이자까지 다 받아 간다.', 'I’m taking the interest too.')],
+  },
+  night_inspector: {
+    hurt: [t('보고서에 적어 두겠습니다.', 'This goes in the report.'), t('정리반, 대형 유지.', 'Crew, hold formation.')],
+    winning: [t('마감 확인. 정리합니다.', 'Closing confirmed. Clearing.'), t('명단에 없는 분은 안내해 드리겠습니다.', 'Anyone not on the list will be shown out.')],
+  },
+  sweep_foreman: {
+    hurt: [t('빗자루 부러졌네. 상관없어.', 'Broom’s snapped. Doesn’t matter.'), t('얘들아, 빈 데 메워.', 'Lads, fill the gaps.')],
+    winning: [t('쓸어 담아. 남김없이.', 'Sweep it up. All of it.'), t('골목 깨끗해졌다.', 'Alley’s clean.')],
+  },
+  chief_censor: {
+    hurt: [t('이 줄도 지워야겠군요.', 'This line will have to go as well.'), t('삭제 사유는 필요 없습니다.', 'No reason for deletion is required.')],
+    winning: [t('남은 문장은 검열 대기입니다.', 'The remaining sentences await review.'), t('읽을 수 없는 것은 없었던 것입니다.', 'What cannot be read never was.')],
+  },
+  memory_judge: {
+    hurt: [t('법정 모독입니다. 기록하십시오.', 'Contempt of court. Enter it in the record.'), t('정숙하십시오.', 'Order in the court.')],
+    winning: [t('유죄. 기억을 몰수합니다.', 'Guilty. Your memories are forfeit.'), t('판결은 번복되지 않습니다.', 'The verdict will not be overturned.')],
+  },
+  sea4_seizure_marshal: {
+    hurt: [t('집행 방해입니다. 가중 처리합니다.', 'Obstruction. The penalty escalates.'), t('압류는 중단되지 않습니다.', 'The seizure does not stop.')],
+    winning: [t('구금합니다. 사유: 운항할 배 없음.', 'You are detained. Reason: no vessel to sail.'), t('딱지를 붙이겠습니다. 움직이지 마십시오.', 'I will tag you now. Do not move.')],
+  },
+  sea4_chief_examiner: {
+    hurt: [t('이의 신청은 서면으로 하십시오.', 'Objections must be made in writing.'), t('감찰은 계속됩니다.', 'The examination continues.')],
+    winning: [t('봉함 명령서가 발부되었습니다.', 'A sealed order has been issued.'), t('결과를 통보합니다. 불합격입니다.', 'The result is in. You have failed.')],
+  },
+  sea6_fog_cantor: {
+    hurt: [t('기도는 안개를 따라 이어집니다.', 'The prayer goes on with the fog.'), t('수련생들이여, 목소리를 높여라.', 'Novices, raise your voices.')],
+    winning: [t('노래하라. 빛 아래 물이 물러간다.', 'Sing. Under the light the water falls back.'), t('그대는 박자를 놓쳤습니다.', 'You have lost the beat.')],
+  },
 }

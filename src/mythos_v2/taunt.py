@@ -294,6 +294,76 @@ ENEMY_PERSONAS: dict[str, EnemyPersona] = {
             "en": "The Keepers’ saint who serves the lighthouse lens. Solemn, prayer-like and formal: the light, the prayer, the faith. Keeping the lighthouse is the faith.",
         },
     ),
+    "enforcer_unit": EnemyPersona(
+        {"ko": "집행 유닛", "en": "Enforcer"},
+        {
+            "ko": "단속국의 진압 로봇. 기계적인 경고 방송 말투의 하십시오체(집행, 기록, 경고).",
+            "en": "Enforcement’s riot robot. Mechanical warning-broadcast politeness: enforcement, records, warnings.",
+        },
+    ),
+    "spider_matriarch": EnemyPersona(
+        {"ko": "거미 여왕", "en": "Brood Mother"},
+        {
+            "ko": "정전 구역의 거미 로봇 어미. 새끼들을 부르는 낮고 다정한 반말인데 섬뜩하다. 먹이와 실을 말한다.",
+            "en": "The spider-bot mother of the blackout zone. A low, tender voice calling to its brood that turns chilling; it speaks of webs and feeding.",
+        },
+    ),
+    "crimson_executioner": EnemyPersona(
+        {"ko": "혈흔 집행자", "en": "Crimson Executioner"},
+        {
+            "ko": "야시장의 빚을 받으러 다니는 갈고리 집행자. 거칠고 짧은 반말로 피, 갈고리, 빚, 이자를 말한다.",
+            "en": "A hook-wielding collector of the night market’s debts. Rough, short speech about blood, hooks, debts and interest.",
+        },
+    ),
+    "night_inspector": EnemyPersona(
+        {"ko": "야간 감독관", "en": "Night Inspector"},
+        {
+            "ko": "폐점 정리반의 감독관. 공손한 업무용 존댓말로 보고서, 대형, 마감, 명단 밖 사람의 안내를 말한다.",
+            "en": "Supervisor of the Closing Crew. Polite work register: reports, formation, closing, showing out people off the list.",
+        },
+    ),
+    "sweep_foreman": EnemyPersona(
+        {"ko": "청소 반장", "en": "Sweep Foreman"},
+        {
+            "ko": "폐점 정리반의 청소 반장. 투박한 반말로 쓸어 담기, 빈자리 메우기를 지시한다.",
+            "en": "The Closing Crew’s sweep foreman. Blunt orders about sweeping up and filling the gaps.",
+        },
+    ),
+    "chief_censor": EnemyPersona(
+        {"ko": "수석 검열관", "en": "Chief Censor"},
+        {
+            "ko": "검열청의 수석 검열관. 차갑고 정중한 하십시오체로 지우기, 검열, 읽을 수 없는 것을 말한다.",
+            "en": "The Censorate’s chief censor. Cold, courteous formality about deleting, censoring and what cannot be read.",
+        },
+    ),
+    "memory_judge": EnemyPersona(
+        {"ko": "기억 판관", "en": "Memory Judge"},
+        {
+            "ko": "최초 기록의 법정에서 기억에 판결을 내리는 판관. 엄숙한 법정 말투의 하십시오체(정숙, 판결, 몰수).",
+            "en": "The judge that passes verdicts on memories in the first record’s court. Solemn courtroom formality: order, verdict, forfeit.",
+        },
+    ),
+    "sea4_seizure_marshal": EnemyPersona(
+        {"ko": "압류 집행대장", "en": "Seizure Marshal"},
+        {
+            "ko": "해문항 세관의 압류 집행대장. 공손하고 딱딱한 하십시오체로 압류, 구금, 사유, 가중 처리를 말한다.",
+            "en": "Haemun Customs’ seizure marshal. Courteous and rigid: seizure, detention, the stated reason, escalating penalties.",
+        },
+    ),
+    "sea4_chief_examiner": EnemyPersona(
+        {"ko": "수석 감찰관", "en": "Chief Examiner"},
+        {
+            "ko": "세관 집행국의 수석 감찰관. 서류 말투의 하십시오체로 감찰, 이의 신청, 봉함 명령서, 통보를 말한다.",
+            "en": "Customs Enforcement’s chief examiner. Paperwork formality: examinations, written objections, sealed orders, notices.",
+        },
+    ),
+    "sea6_fog_cantor": EnemyPersona(
+        {"ko": "안개 선창자", "en": "Fog Cantor"},
+        {
+            "ko": "등대단의 기도를 이끄는 선창자. 엄숙한 기도문 같은 말투로 노래, 빛, 박자를 말한다. 빛이 물을 밀어낸다고 믿는다. 바다를 아름답게 말하지 않는다.",
+            "en": "The Keepers’ cantor who leads the prayers. Solemn, chant-like: song, light, the beat. It believes the light pushes the water back. It never makes the sea beautiful.",
+        },
+    ),
 }
 
 _SITUATION: dict[TauntTrigger, dict[Lang, str]] = {

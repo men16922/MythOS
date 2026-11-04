@@ -45,10 +45,15 @@ export function pickSoloBanter(run: RunState): BanterDef | null {
   const options = soloBanterFor(compId, run.act)
   if (options.length === 0) return null
   const n = run.visited.length
-  const roll = hash(`${run.seed}:solobanter:${n}`)
-  if (n !== 1 && roll > BANTER_CHANCE) return null
+  const fires = (i: number): boolean => i === 1 || hash(`${run.seed}:solobanter:${i}`) <= BANTER_CHANCE
+  if (!fires(n)) return null
+  // Same rule as pickBanter: each exchange at most once per act, counting only this act's arrivals.
+  const firstHere = run.visited.findIndex((id) => id in run.map.nodes)
+  if (firstHere < 0) return null
   const order = [...options].sort((a, b) => hash(`${run.seed}:${a.id}`) - hash(`${run.seed}:${b.id}`))
-  return order[(n - 1) % order.length] ?? null
+  let turn = -1
+  for (let i = firstHere + 1; i <= n; i++) if (fires(i)) turn++
+  return order[turn] ?? null
 }
 
 

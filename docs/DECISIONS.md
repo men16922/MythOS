@@ -4,7 +4,7 @@
 
 ## 2026-11-05 — Map banter plays each exchange at most once per act
 
-- **Decision** (agent default under the owner's "continue autonomously", reversible: `ui/shell/banterPick.ts`): the picker counts only the current act's arrivals and stops once the pair's exchanges have played in that act, instead of cycling them all run.
+- **Decision** (agent default under the owner's "continue autonomously", reversible: `ui/shell/banterPick.ts`): the picker counts only the current act's arrivals and stops once the pair's exchanges have played in that act, instead of cycling them all run. Solo (companion ↔ Connector) banter follows the same rule; the run's first arrival still always plays one.
 - **Why**: measured on real map ids, a pair with one exchange heard the identical lines ~21 times in a six-act run (Se-rin+Tae-o: one exchange 17 times). The owner's low-fatigue rule (memory 2026-10-24) favours quiet over repetition.
 - **Impact**: worst case 6 repeats per run (once per act); single-exchange pairs play 6×/run instead of ~21. Owner may prefer once per run (needs a small run-state record) or the old cycling.
 

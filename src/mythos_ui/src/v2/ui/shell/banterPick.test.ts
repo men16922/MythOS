@@ -50,11 +50,16 @@ test('pickBanter: only with the Signal+ layer and two deployed, deterministic pe
 test('pickSoloBanter: Companion <-> Connector banter fires on node 1 in Act 1 when 1 companion is deployed', () => {
   assert.ok(SOLO_BANTER.length >= 6)
   const base = newRun(newProfile('T'), { archetype: 'ghost', paradox: 0, seed: 3, now: '2026-10-18T00:00:00.000Z' }, C)
-  const onMap: RunState = { ...base, screen: { kind: 'map' }, visited: ['a1_r0_c0'] }
+  const ids = Object.keys(base.map.nodes)
+  const onMap: RunState = { ...base, screen: { kind: 'map' }, visited: [ids[0] as string] }
   const solo = pickSoloBanter(onMap)
   assert.ok(solo, 'first map arrival with 1 companion guarantees solo banter')
   assert.equal(solo.pair[0], 'se_rin')
   assert.equal(solo.pair[1], 'connector')
+  // Once per act: over a whole act's arrivals, no solo exchange repeats.
+  const picks = ids.slice(0, 20).map((_, i) => pickSoloBanter({ ...onMap, visited: ids.slice(0, i + 1) })?.id).filter(Boolean)
+  assert.ok(picks.length >= 1 && picks.length <= 2, `${picks.length}`)
+  assert.equal(new Set(picks).size, picks.length)
 })
 
 

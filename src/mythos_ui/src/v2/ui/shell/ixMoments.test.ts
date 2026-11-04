@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import type { CombatEvent, CombatState, ContentRegistry, UnitState } from '../../engine/types.ts'
 import { detectMoment, isFreshFight, newMemo, turnAllows } from './ixMoments.ts'
-import { COMPANION_REPLIES, IX_LINES, pickCompanionReply, pickIxLine } from './talkLines.ts'
+import { COMPANION_REPLIES, IX_LINES, pickCompanionReply, pickIxLine, SEA_IX_LINES } from './talkLines.ts'
 
 const t = (ko: string, en: string) => ({ ko, en })
 
@@ -168,4 +168,17 @@ test('authored pickers fill names, skip unnamed variants and avoid repeats', () 
   const said = COMPANION_REPLIES.kai?.ko.slice(0, 5) ?? []
   assert.equal(pickCompanionReply('kai', 'ko', said, 0), COMPANION_REPLIES.kai?.ko[5])
   assert.ok(pickCompanionReply('unknown', 'en', [], 3))
+})
+
+test('on the Sea route IX picks from its own pool, with the same triggers and bare variants', () => {
+  assert.deepEqual(Object.keys(SEA_IX_LINES).sort(), Object.keys(IX_LINES).sort())
+  for (const [trigger, pool] of Object.entries(SEA_IX_LINES)) {
+    for (const lang of ['ko', 'en'] as const) {
+      for (let seed = 0; seed < 4; seed++) {
+        const line = pickIxLine(trigger as keyof typeof IX_LINES, lang, {}, seed, 'sea_5')
+        assert.ok(line && !line.includes('{') && pool[lang].includes(line), `${trigger} ${lang}`)
+      }
+    }
+  }
+  assert.ok(IX_LINES.boss_start.ko.includes(pickIxLine('boss_start', 'ko', {}, 1, 'outside')), 'other routes keep the city pool')
 })

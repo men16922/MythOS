@@ -124,7 +124,7 @@ export function IxComms({ combat, C, lang, settings, memoryFor, screen }: Props)
     fight.lastLineTurn = combat.turn
 
     const key = ++seq.current
-    const authored = pickIxLine(m.trigger, lang, m.names, key + combat.turn)
+    const authored = pickIxLine(m.trigger, lang, m.names, key + combat.turn, C.encounters[combat.encounterId]?.route)
     const ctrl = new AbortController()
     let llmText: string | null = null
     let shown = false
@@ -186,6 +186,11 @@ export function IxComms({ combat, C, lang, settings, memoryFor, screen }: Props)
     () => () => {
       queued.current?.cancel()
       for (const t of timers.current) window.clearTimeout(t)
+      // A remount (StrictMode's dev double mount included) must see the fight as new, or the line the cleared
+      // timers were holding (e.g. boss_start) is never shown (same trap as BossNarration, 2026-11-05).
+      seen.current = null
+      memo.current = null
+      queued.current = null
     },
     [],
   )

@@ -264,6 +264,90 @@ const GENERIC_REPLIES: Pool = {
   ],
 };
 
+/** On the Sea route (DLC 3) IX speaks about a place it erased from every record: same triggers and placeholders. */
+export const SEA_IX_LINES: Record<IxTrigger, Pool> = {
+  elite_start: {
+    ko: [
+      "지도에 없는 좌표에서 정예 개체 신호가 잡힙니다. 기록하지 않겠습니다.",
+      "{enemy}. 소속 구역은 확인되지 않습니다. 확인할 필요도 없습니다.",
+    ],
+    en: [
+      "Elite signal from a coordinate that isn't on the map. I won't log it.",
+      "{enemy}. Its sector can't be confirmed. Nor does it need to be.",
+    ],
+  },
+  boss_start: {
+    ko: [
+      "{boss}. 존재하지 않는 항구의 관리자입니다. 곧 없었던 교전이 됩니다.",
+      "이곳은 지도에서 지운 곳입니다. 접속자님도 같은 방식으로 처리됩니다.",
+    ],
+    en: [
+      "{boss}. Keeper of a harbour that doesn't exist. This will soon be an engagement that never happened.",
+      "This place was erased from the map. You will be processed the same way.",
+    ],
+  },
+  env_kill: {
+    ko: [
+      "지워진 구역에서는 파손도 지워집니다. 편리하군요.",
+      "존재하지 않는 시설의 파손은 보고되지 않습니다.",
+    ],
+    en: [
+      "In an erased sector, damage is erased too. How convenient.",
+      "Damage to facilities that don't exist goes unreported.",
+    ],
+  },
+  multi_kill: {
+    ko: [
+      "여러 개체가 한꺼번에 정지했습니다. 어차피 명단에 없던 것들입니다.",
+      "재산정할 대상이 없습니다. 이 구역은 공식적으로 비어 있습니다.",
+    ],
+    en: [
+      "Several units stopped at once. None of them were on the list anyway.",
+      "There is nothing here to reassess. This sector is officially empty.",
+    ],
+  },
+  companion_down: {
+    ko: [
+      "{companion}의 신호가 소실됐습니다. 이 구역에서는 찾지 않겠습니다.",
+      "동행자 하나가 지도 밖으로 떨어졌습니다. 회수 계획은 없습니다.",
+    ],
+    en: [
+      "{companion}'s signal is gone. I will not search this sector.",
+      "A companion has fallen off the map. No recovery is planned.",
+    ],
+  },
+  low_hp: {
+    ko: [
+      "신호가 약합니다. 여기서 끊기면 아무도 찾지 못합니다.",
+      "종료 절차를 준비합니다. 이곳엔 묘비를 세울 주소도 없습니다.",
+    ],
+    en: [
+      "Your signal is weak. Lose it here and no one will ever find you.",
+      "Preparing termination. There is no address here for a headstone.",
+    ],
+  },
+  boss_phase: {
+    ko: [
+      "{boss}의 제한이 풀렸습니다. 저와는 무관한 일입니다.",
+      "그 존재는 제 관할이 아닙니다. 행운을 빕니다.",
+    ],
+    en: [
+      "{boss}'s limits are off. That has nothing to do with me.",
+      "That thing is outside my jurisdiction. Good luck.",
+    ],
+  },
+  flawless: {
+    ko: [
+      "손상 없는 교전. 지워진 곳에서도 접속자님은 눈에 띕니다.",
+      "기록이 없는 구역에서 완벽한 기록을 남기셨군요.",
+    ],
+    en: [
+      "A clean engagement. Even in an erased place, you stand out.",
+      "A perfect record, in a sector with no records.",
+    ],
+  },
+};
+
 /** IX lines by trigger; `{enemy}` / `{boss}` / `{companion}` variants only when that name is known. */
 export const IX_LINES: Record<IxTrigger, Pool> = {
   elite_start: {
@@ -388,13 +472,15 @@ export function pickIxLine(
   lang: Lang,
   names: IxNames,
   seed: number,
+  route?: string,
 ): string {
-  const usable = IX_LINES[trigger][lang].filter((line) =>
+  const pools = route?.startsWith("sea") ? SEA_IX_LINES : IX_LINES;
+  const usable = pools[trigger][lang].filter((line) =>
     [...line.matchAll(/\{(\w+)\}/g)].every((m) => names[m[1] as keyof IxNames]),
   );
   const line =
     usable[Math.abs(Math.floor(seed)) % usable.length] ??
-    IX_LINES[trigger][lang][1] ??
+    pools[trigger][lang][1] ??
     "";
   return line.replace(
     /\{(\w+)\}/g,

@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import type { CombatEvent, CombatState, ContentRegistry, UnitState } from '../../engine/types.ts'
 import { detectMoment, isFreshFight, newMemo, turnAllows } from './ixMoments.ts'
-import { COMPANION_REPLIES, IX_LINES, pickCompanionReply, pickIxLine, SEA_IX_LINES } from './talkLines.ts'
+import { COMPANION_REPLIES, IX_LINES, OUTSIDE_IX_LINES, pickCompanionReply, pickIxLine, SEA_IX_LINES } from './talkLines.ts'
 
 const t = (ko: string, en: string) => ({ ko, en })
 
@@ -180,5 +180,12 @@ test('on the Sea route IX picks from its own pool, with the same triggers and ba
       }
     }
   }
-  assert.ok(IX_LINES.boss_start.ko.includes(pickIxLine('boss_start', 'ko', {}, 1, 'outside')), 'other routes keep the city pool')
+  assert.ok(IX_LINES.boss_start.ko.includes(pickIxLine('boss_start', 'ko', {}, 1)), 'no route keeps the city pool')
+  assert.deepEqual(Object.keys(OUTSIDE_IX_LINES).sort(), Object.keys(IX_LINES).sort())
+  for (const [trigger, pool] of Object.entries(OUTSIDE_IX_LINES)) {
+    for (const lang of ['ko', 'en'] as const) {
+      const line = pickIxLine(trigger as keyof typeof IX_LINES, lang, {}, 3, 'outside')
+      assert.ok(line && !line.includes('{') && pool[lang].includes(line), `outside ${trigger} ${lang}`)
+    }
+  }
 })

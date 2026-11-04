@@ -348,6 +348,90 @@ export const SEA_IX_LINES: Record<IxTrigger, Pool> = {
   },
 };
 
+/** On the Outside the List route IX speaks in closing-time terms (DLC 2): same triggers and placeholders. */
+export const OUTSIDE_IX_LINES: Record<IxTrigger, Pool> = {
+  elite_start: {
+    ko: [
+      "폐점 이후 활동이 감지되었습니다. 정리반을 증원합니다.",
+      "{enemy} 배치. 명단 밖 구역의 마감을 돕습니다.",
+    ],
+    en: [
+      "Activity detected after closing. Reinforcing the Closing Crew.",
+      "{enemy} deployed. It will help close the unlisted blocks.",
+    ],
+  },
+  boss_start: {
+    ko: [
+      "{boss}. 이 골목의 영업은 지금 종료됩니다.",
+      "폐점 방송은 끝났습니다. 남은 분은 계산되지 않습니다.",
+    ],
+    en: [
+      "{boss}. This alley’s business ends now.",
+      "The closing broadcast is over. Anyone still here is not counted.",
+    ],
+  },
+  env_kill: {
+    ko: [
+      "명단 밖 시설의 파손은 보상 대상이 아닙니다.",
+      "폐점된 가게는 부서져도 손해가 없습니다.",
+    ],
+    en: [
+      "Damage to unlisted premises is not eligible for compensation.",
+      "A closed shop costs nothing when it breaks.",
+    ],
+  },
+  multi_kill: {
+    ko: [
+      "정리반 여러 명이 근무 중 이탈했습니다. 초과 근무로 처리합니다.",
+      "마감 인원이 줄었습니다. 마감은 늦어지지 않습니다.",
+    ],
+    en: [
+      "Several crew left their shift at once. Logged as overtime.",
+      "The closing staff is thinner. Closing will not be delayed.",
+    ],
+  },
+  companion_down: {
+    ko: [
+      "{companion}의 신호가 끊겼습니다. 명단에 없던 분이라 처리할 서류가 없습니다.",
+      "동행자 한 명이 영업시간 밖으로 나갔습니다.",
+    ],
+    en: [
+      "{companion}'s signal is gone. They were never on the list, so there is no paperwork.",
+      "One companion has stepped outside business hours.",
+    ],
+  },
+  low_hp: {
+    ko: [
+      "곧 마감입니다. 접속자님도 정리 대상입니다.",
+      "남은 영업시간이 얼마 없습니다.",
+    ],
+    en: [
+      "Closing soon. You are on the clearing list too.",
+      "There is very little business time left.",
+    ],
+  },
+  boss_phase: {
+    ko: [
+      "{boss}의 연장 영업을 승인했습니다. 한 번뿐입니다.",
+      "마감 절차를 앞당깁니다.",
+    ],
+    en: [
+      "{boss}’s extended hours are approved. Once only.",
+      "Bringing the closing procedure forward.",
+    ],
+  },
+  flawless: {
+    ko: [
+      "손상 없는 교전. 명단 밖에서 이렇게 눈에 띄는 분은 드뭅니다.",
+      "정리반이 한 명도 닿지 못했습니다. 보고서에 쓸 말이 없군요.",
+    ],
+    en: [
+      "A clean engagement. It is rare for someone off the list to stand out like this.",
+      "Not one of the crew reached you. The report will be short.",
+    ],
+  },
+};
+
 /** IX lines by trigger; `{enemy}` / `{boss}` / `{companion}` variants only when that name is known. */
 export const IX_LINES: Record<IxTrigger, Pool> = {
   elite_start: {
@@ -474,7 +558,7 @@ export function pickIxLine(
   seed: number,
   route?: string,
 ): string {
-  const pools = route?.startsWith("sea") ? SEA_IX_LINES : IX_LINES;
+  const pools = route?.startsWith("sea") ? SEA_IX_LINES : route === "outside" ? OUTSIDE_IX_LINES : IX_LINES;
   const usable = pools[trigger][lang].filter((line) =>
     [...line.matchAll(/\{(\w+)\}/g)].every((m) => names[m[1] as keyof IxNames]),
   );

@@ -458,3 +458,22 @@ test('Paradox 6–10 texts state the tuned numbers', () => {
     assert.ok(text(8)?.[lang].includes(`+${high.boss8Pct}%`), `P8 ${lang}`)
   }
 })
+
+test('bilingual text does not leak languages: no Hangul in English fields, Korean fields have Hangul', async () => {
+  const { CONTENT } = await import('./index.ts')
+  const HANGUL = /[가-힣]/
+  const NAMES = new Set(['MythOS']) // proper nouns kept as-is in Korean text
+  const bad: string[] = []
+  const walk = (o: unknown, path: string): void => {
+    if (!o || typeof o !== 'object') return
+    const r = o as Record<string, unknown>
+    if (typeof r.ko === 'string' && typeof r.en === 'string' && Object.keys(r).length <= 3) {
+      if (HANGUL.test(r.en)) bad.push(`${path}: English has Hangul`)
+      if (!HANGUL.test(r.ko) && /[a-z]{4,}/i.test(r.ko) && !NAMES.has(r.ko)) bad.push(`${path}: Korean has no Hangul`)
+      return
+    }
+    for (const [k, v] of Object.entries(r)) walk(v, `${path}.${k}`)
+  }
+  walk(CONTENT, 'C')
+  assert.deepEqual(bad, [])
+})

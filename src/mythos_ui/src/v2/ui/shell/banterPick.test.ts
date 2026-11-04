@@ -56,3 +56,14 @@ test('banter: every pair of Sea companions has an exchange in each Sea act (a Se
   const sea = ['mujin', 'seo_ha', 'parang']
   for (const a of sea) for (const b of sea) if (a < b) for (const act of [4, 5, 6] as const) assert.ok(banterFor([a, b], act).length > 0, `${a}+${b} act ${act}`)
 })
+
+test('banter: every pair of companions who can share a party has at least one exchange', () => {
+  const ids = Object.keys(C.companions)
+  const have = new Set(BANTER.map((b) => [...b.pair].sort().join('+')))
+  const silent: string[] = []
+  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+    const key = [ids[i], ids[j]].sort().join('+')
+    if (!have.has(key)) silent.push(key)
+  }
+  assert.deepEqual(silent, [])
+})

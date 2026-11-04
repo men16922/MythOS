@@ -825,6 +825,103 @@ export const BANTER: BanterDef[] = [
       { who: 'seo_ha', text: t('그럼 나는 오랜만에 밤새 자 보겠네요.', 'Then for once I’ll sleep the whole night.') },
     ],
   },
+  {
+    id: 'b_io_seoha_paper',
+    pair: ['io', 'seo_ha'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'io', text: t('서하 님은 물길을 종이가 아니라 기억에 보관하십니다.', 'Seo-ha, you keep the channels in memory, not on paper.') },
+      { who: 'seo_ha', text: t('종이는 젖거든요.', 'Paper gets wet.') },
+      { who: 'io', text: t('제 직업에 대한 정당한 반론입니다.', 'A fair objection to my profession.') },
+      { who: 'seo_ha', text: t('그래도 당신 서가는 마르잖아요. 사본 하나 둬 줘요.', 'Your shelves stay dry, though. Keep me a copy.') },
+    ],
+  },
+  {
+    id: 'b_mujin_miro_cab',
+    pair: ['mujin', 'miro'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'mujin', text: t('꼬마. 내 눈 닿는 데 있어라.', 'Kid. Stay where I can see you.') },
+      { who: 'miro', text: t('…사람들은 금방 나를 못 봐.', '…People stop seeing me.') },
+      { who: 'mujin', text: t('크레인 운전석에선 다 보인다.', 'From a crane cab you see everything.') },
+      { who: 'miro', text: t('…그럼 그 밑에 서 있을게.', '…Then I’ll stand under it.') },
+    ],
+  },
+  {
+    id: 'b_seoha_miro_call',
+    pair: ['seo_ha', 'miro'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'seo_ha', text: t('꼬마야, 안개 속에선 열 걸음마다 네 이름을 불러요.', 'Little one, in the fog, call your name every ten steps.') },
+      { who: 'miro', text: t('…아무도 기억 못 하면?', '…What if nobody remembers it?') },
+      { who: 'seo_ha', text: t('내가 되받아 불러 줄게요. 도선사가 하는 일이 그거예요.', 'I’ll call it back. That’s what a pilot does.') },
+    ],
+  },
+  {
+    id: 'b_doyun_seoha_ships',
+    pair: ['doyun', 'seo_ha'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'doyun', text: t('서하 씨, 배를 몇 척 들였어요?', 'Seo-ha, how many ships did you bring in?') },
+      { who: 'seo_ha', text: t('들어온 배는 안 세요. 못 들어온 배만 세죠.', 'I don’t count the ones that came in. Only the ones that didn’t.') },
+      { who: 'doyun', text: t('그럼 들어온 배는 제가 셀게요.', 'Then I’ll count the ones that did.') },
+      { who: 'seo_ha', text: t('…긴 밤이 되겠네요.', '…That’ll be a long night.') },
+    ],
+  },
+  {
+    id: 'b_doyun_parang_one',
+    pair: ['doyun', 'parang'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'doyun', text: t('파랑, 지금 몇 사람 기억을 들고 있어요?', 'Parang, how many people’s memories are you carrying?') },
+      { who: 'parang', text: t('몰라. 많아.', 'Don’t know. Lots.') },
+      { who: 'doyun', text: t('그럼 한 명 이상으로 셀까요?', 'Then should I count you as more than one?') },
+      { who: 'parang', text: t('하나로 세. 나머지는 옆에서 걸으면 돼.', 'Count me as one. The rest can walk beside.') },
+    ],
+  },
+  {
+    id: 'b_bel_mujin_report',
+    pair: ['bel', 'mujin'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'bel', text: t('교대 보고서를 늘 짧게 쓰네.', 'You always write your shift reports short.') },
+      { who: 'mujin', text: t('할 말이 없다.', 'Nothing to say.') },
+      { who: 'bel', text: t('내가 읽은 제일 좋은 보고서들이 딱 그랬어.', 'The best reports I ever read were just like yours.') },
+      { who: 'mujin', text: t('…자르지 마라.', '…Don’t cut them.') },
+    ],
+  },
+  {
+    id: 'b_bel_parang_author',
+    pair: ['bel', 'parang'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'bel', text: t('네 문장은 남의 목소리로 시작하더라.', 'Your sentences start in someone else’s voice.') },
+      { who: 'parang', text: t('응.', 'Yeah.') },
+      { who: 'bel', text: t('고치진 않아. 그냥 궁금해서. 저자가 누구야?', 'I won’t edit. Just curious. Who’s the author?') },
+      { who: 'parang', text: t('잃어버린 사람.', 'Whoever lost it.') },
+    ],
+  },
+  {
+    id: 'b_mujin_rem_nightshift',
+    pair: ['mujin', 'rem'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'mujin', text: t('안 잔다며.', 'You don’t sleep, I hear.') },
+      { who: 'rem', text: t('아직 배우는 중이에요.', 'Still learning.') },
+      { who: 'mujin', text: t('그럼 야간조 해라. 크레인 운전석은 따뜻하다.', 'Then take the night shift. The crane cab is warm.') },
+      { who: 'rem', text: t('좋아요. 그거 좋겠어요.', 'I’d like that.') },
+    ],
+  },
+  {
+    id: 'b_parang_rem_dream',
+    pair: ['parang', 'rem'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'parang', text: t('내 거 아닌 꿈이 하나 있어. 기계 꿈 같아.', 'I’ve got a dream that isn’t mine. A machine’s, I think.') },
+      { who: 'rem', text: t('…잠깐 그 곁에 앉아 있어도 돼요?', '…May I sit with it a while?') },
+      { who: 'parang', text: t('앉아. 조용한 꿈이야.', 'Sit. It’s a quiet one.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

@@ -1,5 +1,11 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Four more base consumables (Claude Opus 5.5, same goal)
+
+- 12 consumables (4 Sea-only) for every event, district and camp that hands one out. Added `grapple_line` (pull the first target in a line 2 tiles, +2 bumps), `marker_flare` (cross Mark 2), `guard_foam` (an ally gains 10 block), `static_net` (cross Stun 1, rare); existing effect kinds and targets only; Codex icons (unreviewed). 16 consumables.
+- **Verified**: new `consumablesBase.test.ts` on real content (mark/stun land in the cross, foam gives 10 block, the grapple pulls a real enemy closer on a real board; an early version passed vacuously and was fixed); content/art tests; UI: combat sandbox gained `?items=` (dev-only), the three icons sat in the item slots and arming one highlighted its targets, 0 console errors.
+- **Balance, measured honestly**: fresh canonical (450) HEAD 44.7 %; with all four at first rarities 40.7 %, at the lower rarities kept (three uncommon, Static Net rare) 39.3 %; any one alone 42.0–43.1 %. Every run is inside the ±6 % band and no item stands out, but the sign is consistently down: the bot only uses an item for a clear evaluated gain, so status-only items mostly sit in its 3 slots (`combatSim.evaluate`: a stun pays through cancelled incoming damage and block only under threat, but Mark is worth 0.5 a stack, so the Marker Flare almost never clears the bot's +6 bar). **Owner call**: keep (human players use utility items; the bot can't), or hold them back.
+
 ## 2026-11-04 — Three more scenes each for the Glass Library and the First Record (Claude Opus 5.5, same goal)
 
 - Deep Acts 4 and 6 rolled from the smallest late pools (28). Act 4: `a4_reading_lamp` (one lamp, a line of readers), `a4_footnote_stairs` (stairs of footnotes, some about you), `a4_return_letters` (letters whose recipients were erased). Act 6: `a6_type_tray` (the type for your initial is missing), `a6_name_index` (the index has no room for your name), `a6_unused_drafts` (drafts of the city, one with an extra southern square, a quiet nod to the Sea). Codex art (unreviewed).

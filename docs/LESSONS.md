@@ -3,6 +3,7 @@
 Repo-specific things a future unattended iteration should know before repeating a mistake.
 One line per lesson, dated, newest on top. Lessons about the archived 1.x runtime were removed with it (branch `1.0`).
 
+- 2026-11-04: parallel shell jobs (`for s in …; do (…) & done`) print in **completion** order, so "21 22" at the end belonged to the slowest seeds, not the last two listed; print `seed:value`. And `runSim: step limit` in Endless means a run that never died (5000 steps), not a stuck loop (`next === run` throws "stuck"): raise `MAX_STEPS` locally to see it end.
 - 2026-11-04: `josa(word, …)` in `ui/common/lang.ts` returns the word **with** its particle; writing `${name}${josa(name, …)}` prints the name twice, and a substring test (`includes(name + "이")`) still passes. Assert the exact sentence or count the name, and look at the rendered line.
 - 2026-11-04: `ui_playthrough.py` plays on a live Vite dev server: editing `src/` while it runs hot-reloads modules mid-fight (a Deep run stalled in a boss fight; the rerun with no edits passed all 6 acts). Do not edit source while a playthrough runs, or run it from a separate worktree.
 - 2026-11-04: a slot the bot "fills when it can" can still sit empty because the chance never shows: the Act 4 third slot depended on a hidden map node, and the bot took every recruit it met. Before tuning the bot or the roll weight, count how often the opportunity is even reached (`TRACE` on the event screen) — here ~25 sightings in 150 Deep runs.

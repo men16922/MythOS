@@ -899,3 +899,14 @@ test('procedural events: at most two per run, never on a daily; another event ta
   const onDaily = resolveEventId(daily, at, CONTENT)
   assert.ok(onDaily && !CONTENT.events[onDaily]?.procedural, 'never on a daily')
 })
+
+test('Endless Signal: enemy HP compounds per lap (each lap adds more than the last); lap 0 is the plain act', async () => {
+  const { CONTENT } = await import('../content/index.ts')
+  const { startCombat } = await import('./combat.ts')
+  const r = newRun(unlocked(), { archetype: 'ghost', paradox: 0, seed: 3, mode: 'endless' }, CONTENT)
+  const plain = newRun(unlocked(), { archetype: 'ghost', paradox: 0, seed: 3 }, CONTENT)
+  const boss = (x: typeof r, lap: number) => Math.max(...startCombat({ ...x, act: 3, lap }, 'a3_boss_architect', CONTENT).units.filter((u) => u.side === 'enemy').map((u) => u.maxHp))
+  assert.equal(boss(r, 0), boss(plain, 0), 'lap 0 is the plain act')
+  const [h0, h1, h2, h3] = [0, 1, 2, 3].map((l) => boss(r, l)) as [number, number, number, number]
+  assert.ok(h3 - h2 > h2 - h1 && h2 - h1 > h1 - h0, `compounding: ${h0} ${h1} ${h2} ${h3}`)
+})

@@ -448,8 +448,8 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                     : 'Play one act as a chapter, deep in its districts and talks. Beat the boss and your stats, background, ties, standing and three cards carry into the next chapter. Six chapters, one connector. A prototype.'
                   : depth === 'endless'
                     ? ko
-                      ? '마지막 막을 넘기면 다시 1막, 잔향 한 층 더 깊이(층마다 적 HP +60%, 피해 +3, 분노 가속). 쓰러질 때까지 내려간다.'
-                      : 'Past the last act it starts over at Act 1, one echo layer deeper (each layer: enemies +60 % HP, +3 damage, faster Rage). Go until you fall.'
+                      ? '마지막 막을 넘기면 다시 1막, 잔향 한 층 더 깊이(층마다 적 HP 두 배, 피해 +3, 분노 가속). 쓰러질 때까지 내려간다.'
+                      : 'Past the last act it starts over at Act 1, one echo layer deeper (each layer doubles enemy HP, +3 damage, faster Rage). Go until you fall.'
                     : ko
                       ? '익숙한 3막 접속.'
                       : 'The familiar three-act run.'}

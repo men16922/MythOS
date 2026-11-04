@@ -1680,4 +1680,6 @@ export interface EnemyTuning {
    * chapter starts from a starter deck plus three core cards, so later acts need far less than a Deep run's deck does.
    */
   chronicle?: Record<number, { hpPct?: number; dmg?: number }>
+  /** Endless Signal per lap: enemy HP grows by `hpPct` % per lap (`compound`: multiplied each lap instead of added). */
+  endless?: { hpPct: number; dmg: number; compound: boolean }
 }

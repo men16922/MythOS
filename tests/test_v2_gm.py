@@ -196,6 +196,12 @@ class NarrateMessagesTest(unittest.TestCase):
         self.assertNotIn("first record", sea)
         _, act5 = gm.narrate_messages("event", "en", {"act": 5, "title": "Spare Eyes"})
         self.assertIn("scrap graveyard", act5)
+        _, boss = gm.narrate_messages(
+            "boss", "en", {"act": 4, "route": "sea_4", "boss": "Commissioner Gong"}
+        )
+        self.assertIn("Dry Harbor", boss)
+        _, deep_boss = gm.narrate_messages("boss", "en", {"act": 4, "boss": "IO"})
+        self.assertNotIn("setting texture", deep_boss)
 
 
 class FallbackNarrationTest(unittest.TestCase):

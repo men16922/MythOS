@@ -99,7 +99,7 @@ export function BossNarration({ combat, C, lang, settings }: Props) {
     fight.current = { encounterId: combat.encounterId, events: combat.events.length }
     if (fresh) {
       const intro = tr(enc.intro, lang) || (lang === 'ko' ? `${josa(name, '이', '가')} 길을 막는다.` : `${name} blocks the way.`)
-      speak(intro, { boss: name, act: enc.act, actName: tr(act?.name, lang), phase: 0, intro }, INTRO_DELAY_MS)
+      speak(intro, { boss: name, act: enc.act, actName: tr(act?.name, lang), phase: 0, intro, route: enc.route ?? '' }, INTRO_DELAY_MS)
       return
     }
     // Phase shifts that happened since the last state we saw (the boss's own phase events only).
@@ -109,7 +109,7 @@ export function BossNarration({ combat, C, lang, settings }: Props) {
       if (ev?.t === 'phase' && bossUids.has(ev.uid)) {
         const phaseText = tr(ev.text, lang)
         // Let the phase banner and the hit that caused it land first.
-        speak(phaseText, { boss: name, act: enc.act, actName: tr(act?.name, lang), phase: ev.phase, phaseText }, 1400)
+        speak(phaseText, { boss: name, act: enc.act, actName: tr(act?.name, lang), phase: ev.phase, phaseText, route: enc.route ?? '' }, 1400)
         break
       }
     }

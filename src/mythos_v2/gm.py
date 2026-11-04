@@ -460,10 +460,11 @@ _ROUTE_SENSORY: dict[str, dict[Lang, str]] = {
 
 def _context_notes(kind: NarrateKind, lang: Lang, ctx: Mapping[str, Any]) -> str:
     """Facts the model tends to hallucinate around, stated explicitly."""
-    if kind in ("event", "act_intro"):
+    if kind in ("event", "act_intro", "boss"):
         route = _ctx_str(ctx, "route")
         if route in _ROUTE_SENSORY:
             return _ROUTE_SENSORY[route][lang]
+    if kind in ("event", "act_intro"):
         act = _ctx_int(ctx, "act")
         if act in _ACT_SENSORY:
             return _ACT_SENSORY[act][lang]

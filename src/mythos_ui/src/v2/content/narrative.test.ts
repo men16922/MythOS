@@ -12,6 +12,7 @@ import { IX_LINES } from './ix.ts'
 import { ACTS } from './index.ts'
 import { UNLOCKS } from './unlocks.ts'
 import { PARADOX } from './paradox.ts'
+import { CRPG } from './crpg/index.ts'
 
 const RES = new URL('../../../../../resources/neo-seoul/', import.meta.url)
 const resExists = (rel: string): boolean => existsSync(fileURLToPath(new URL(rel, RES)))
@@ -46,6 +47,22 @@ function outcomes(e: EventDef): Outcome[] {
 function effects(e: EventDef): RunEffect[] {
   return outcomes(e).flatMap((o) => o.effects)
 }
+/**
+ * District dialogue options (Signal+) also set run flags that act events read later. Each option is wrapped as a
+ * one-option pseudo-event in its district's act, keeping its requirement (e.g. a companion) for the party check.
+ */
+const DISTRICT_SETTERS: EventDef[] = Object.values(CRPG.districts).flatMap((d) =>
+  d.pois.flatMap((poi) =>
+    Object.values(CRPG.dialogues[poi.dialogue]?.nodes ?? {}).flatMap((n) =>
+      n.options.map((o) => {
+        const out = (x: typeof o.success | undefined) => x && { ...x, effects: x.effects ?? [] }
+        return { id: `${d.id}/${poi.id}`, acts: [d.act], requires: o.requires, options: [{ ...o, success: out(o.success), failure: out(o.failure) }] } as unknown as EventDef
+      }),
+    ),
+  ),
+)
+const FLAG_SETTERS: EventDef[] = [...EVENTS, ...DISTRICT_SETTERS]
+
 function isPicker(fx: RunEffect): boolean {
   return PICKERS.has(fx.kind) || (fx.kind === 'upgrade_card' && !fx.random)
 }
@@ -286,8 +303,8 @@ test('every lore entry is awarded by at least one event', () => {
   assert.deepEqual(orphans, [])
 })
 
-test('flags read by conditions are set by some event', () => {
-  const set = new Set(EVENTS.flatMap(effects).flatMap((fx) => (fx.kind === 'flag' ? [fx.key] : [])))
+test('flags read by conditions are set by some event or district choice', () => {
+  const set = new Set(FLAG_SETTERS.flatMap(effects).flatMap((fx) => (fx.kind === 'flag' ? [fx.key] : [])))
   for (const e of EVENTS) {
     for (const c of [e.requires, ...e.options.map((o) => o.requires)]) {
       if (c?.flag) assert.ok(set.has(c.flag), `${e.id}: flag ${c.flag} is never set`)
@@ -299,7 +316,7 @@ test('a flag can be read only in the same act or later than some event that sets
   // A reader in act N is reachable only if a setter exists in an act <= N (or a setter in the same act, which
   // can roll first). A flag that is only ever set in a LATER act would leave its reader permanently locked.
   const setters = new Map<string, number>() // flag -> earliest act any event sets it in
-  for (const e of EVENTS) {
+  for (const e of FLAG_SETTERS) {
     for (const fx of effects(e)) {
       if (fx.kind !== 'flag' || (fx.value ?? 1) <= 0) continue
       const act = Math.min(...e.acts)
@@ -323,7 +340,7 @@ test('a flag reader is reachable: some setter can share its party (max two compa
   const PARTY_MAX = 2
   const needs = (e: EventDef): string[] => [e.requires?.companion, ...(e.requires?.companions ?? [])].filter((c): c is string => !!c)
   const setters = new Map<string, EventDef[]>()
-  for (const e of EVENTS) {
+  for (const e of FLAG_SETTERS) {
     for (const fx of effects(e)) {
       if (fx.kind === 'flag' && (fx.value ?? 1) > 0) setters.set(fx.key, [...(setters.get(fx.key) ?? []), e])
     }

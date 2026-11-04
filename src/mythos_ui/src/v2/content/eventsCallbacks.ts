@@ -655,4 +655,95 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['the closed counter', 'washed ladle', 'spire kitchen'],
   },
+  // 2026-11-04: the Act 1 Hand-Crank Market district's two dangling choices come back (Signal+ runs only).
+  {
+    id: 'a2_cb_ku',
+    acts: [2],
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'lm_owes_ku' },
+    title: t('구 여사의 셈', 'Madam Ku’s Sum'),
+    image: 'v2/events/a2_cb_ku.webp',
+    text: t(
+      '손전등 시장 꼬마 하나가 길을 막는다. 손에 계산기가 들려 있다.\n“구 여사님이 셋이래요. 이번 주. 지금 몇 명이에요?”',
+      'A kid from the hand-crank market blocks your way, a calculator in hand.\n“Madam Ku says three. This week. How many so far?”',
+    ),
+    options: [
+      {
+        label: t('빚을 돈으로 치른다', 'Settle it in cash'),
+        hint: t('−30 ₵ · 소모품 1 · 추적 −5', '−30 ₵ · 1 consumable · −5 Trace'),
+        requires: { minCredits: 30 },
+        success: {
+          text: t('꼬마가 칩을 세어 계산기에 찍는다. “여사님이 덤이래요.” 손발전기 등 하나를 쥐여 준다. 시장 쪽 감시가 하나 줄어든다.', 'The kid counts the chips into the calculator. “She says this one’s on the house.” A hand-crank lamp lands in your hand. One fewer set of eyes on you from the market.'),
+          effects: [{ kind: 'credits', amount: -30 }, { kind: 'consumable' }, { kind: 'trace', amount: -5 }],
+        },
+      },
+      {
+        label: t('지나가던 손님 하나를 소개한다', 'Point a passer-by her way'),
+        hint: t('+20 ₵ · 실패 시 추적 +5', '+20 ₵ · fail +5 Trace'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t('꼬마가 손님을 데리고 간다. 잠시 뒤 돌아와 수수료를 건넨다. “하나 남았대요.”', 'The kid leads the customer off, then comes back with a commission. “Two down, she says.”'),
+          effects: [{ kind: 'credits', amount: 20 }],
+        },
+        failure: {
+          text: t('손님이 단속 요원이었다. 꼬마가 달아나며 당신을 가리킨다.', 'The customer was an enforcer. The kid runs, pointing back at you.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('모른 척한다', 'Pretend not to know her'),
+        hint: t('추적 +4', '+4 Trace'),
+        success: {
+          text: t('꼬마가 계산기에 무언가를 찍는다. 시장은 셈을 잊지 않는다.', 'The kid punches something into the calculator. The market does not forget a sum.'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+    ],
+    gmHints: ['madam ku', 'a debt of three buyers', 'calculator'],
+  },
+  {
+    id: 'a3_cb_min',
+    acts: [3],
+    weight: CALLBACK_WEIGHT,
+    requires: { flag: 'sold_min' },
+    title: t('절뚝이는 배달꾼', 'The Limping Courier'),
+    image: 'v2/events/a3_cb_min.webp',
+    text: t(
+      '첨탑 하역장에 배달꾼 하나가 다리를 절며 들어온다. 헬멧에 수금 회사 마크. 민이다.\n그가 당신을 알아본다. 상자를 내려놓고, 아무 말도 하지 않는다.',
+      'A courier limps into the Spire loading bay, a collections firm’s mark on his helmet. Min.\nHe recognises you. He sets the crate down and says nothing.',
+    ),
+    options: [
+      {
+        label: t('사과한다', 'Apologise'),
+        hint: t('추적 −8 · 실패 시 추적 +4', '−8 Trace · fail +4 Trace'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t('민이 헬멧을 벗는다. “빚은 그걸로 갚았어요. 대신 평생 배달하게 됐지만.” 하역장 경비 교대 시간을 알려 준다.', 'Min takes off the helmet. “It paid the debt. I just deliver for them for life now.” He tells you when the bay guard changes.'),
+          effects: [{ kind: 'trace', amount: -8 }],
+        },
+        failure: {
+          text: t('민이 고개를 돌린다. 수금 회사 단말이 당신 얼굴을 찍는다.', 'Min turns away. The collections terminal photographs your face.'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('태오가 헬멧 대여료를 대신 낸다', 'Tae-o pays his helmet rental'),
+        hint: t('−20 ₵ · 태오 유대 +1', '−20 ₵ · Tae-o bond +1'),
+        requires: { companion: 'tae_o', minCredits: 20 },
+        success: {
+          text: t('태오가 말없이 칩을 민의 장갑에 쥐여 준다. 돌아서는 태오의 어깨가 조금 가벼워 보인다.', 'Tae-o presses chips into Min’s glove without a word. Walking back, his shoulders look a little lighter.'),
+          effects: [{ kind: 'credits', amount: -20 }, { kind: 'bond', id: 'tae_o', amount: 1 }],
+        },
+      },
+      {
+        label: t('모자를 눌러쓰고 지나간다', 'Pull your hood down and walk past'),
+        hint: t('추적 −3', '−3 Trace'),
+        success: {
+          text: t('뒤에서 상자 끄는 소리가 이어진다. 한 박자씩 절며.', 'Behind you a crate is dragged on, one limping beat at a time.'),
+          effects: [{ kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+    gmHints: ['min the courier', 'sold out', 'collections firm', 'limp'],
+  },
 ]

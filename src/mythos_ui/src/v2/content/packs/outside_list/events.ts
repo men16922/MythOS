@@ -264,6 +264,15 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
           ],
         },
       },
+      {
+        label: t('린위에가 주사위를 받아 굴려 본다', 'Lin Yue takes the die and tests it'),
+        hint: t('크레딧 +25 · 린위에 유대 +1', '+25 ₵ · Lin Yue bond +1'),
+        requires: { companion: 'lin_yue' },
+        success: {
+          text: t('린위에가 주사위를 세 번 굴려 보고 웃는다. “이거 짝수만 나와.” 전당포 주인이 장갑을 벗고 돈을 센다. “금고는 내가 옮기지.”', 'Lin Yue rolls the die three times and smiles. “This only lands even.” The pawnbroker pulls off the gloves and counts out the money. “I’ll move the safe myself.”'),
+          effects: [{ kind: 'credits', amount: 25 }, { kind: 'bond', id: 'lin_yue', amount: 1 }],
+        },
+      },
     ],
   },
   {
@@ -344,6 +353,15 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
             { kind: 'hp', amount: -5 },
             { kind: 'trace', amount: -3 },
           ],
+        },
+      },
+      {
+        label: t('태오가 의자 대신 문 앞에 선다', 'Tae-o stands at the door instead of the chair'),
+        hint: t('인간성 +1 · 태오 유대 +1', '+1 Humanity · Tae-o bond +1'),
+        requires: { companion: 'tae_o' },
+        success: {
+          text: t('태오가 의자를 치우고 문 앞에 선다. 아무 말도 하지 않는다. 정리반 불빛이 골목 끝에서 멈칫한다. 안에서 사람들이 신발 끈을 다 묶는다.', 'Tae-o moves the chair aside and stands at the door. He says nothing. The Crew’s lights hesitate at the end of the alley. Inside, everyone finishes tying their shoes.'),
+          effects: [{ kind: 'axis', axis: 'humanity' }, { kind: 'bond', id: 'tae_o', amount: 1 }],
         },
       },
     ],
@@ -795,6 +813,15 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
           effects: [{ kind: 'trace', amount: -6 }, { kind: 'echoes', amount: 2 }],
         },
       },
+      {
+        label: t('수아가 연마기로 옛집 열쇠를 다듬는다', 'Su-ah files the old-house keys on the grinder'),
+        hint: t('크레딧 +15 · 수아 유대 +1', '+15 ₵ · Su-ah bond +1'),
+        requires: { companion: 'su_ah' },
+        success: {
+          text: t('수아가 열쇠를 하나씩 연마기에 댄다. 불꽃이 튀고, 이가 정확히 맞는다. “돌아오면 한 번에 열려야지.” 주인이 수고비를 반으로 나눠 준다.', 'Su-ah sets each key to the grinder. Sparks fly; the teeth come out exact. “If they come back, it should open first try.” The owner splits the fee with her.'),
+          effects: [{ kind: 'credits', amount: 15 }, { kind: 'bond', id: 'su_ah', amount: 1 }],
+        },
+      },
     ],
   },
   {
@@ -863,6 +890,15 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
         success: {
           text: t('할머니가 문틈으로 약을 받고 사탕 한 봉지를 내민다. 봉지 안에 보급품이 섞여 있다.', 'The old lady takes the medicine through the door gap and hands over a bag of sweets with a supply pack inside.'),
           effects: [{ kind: 'trace', amount: -5 }, { kind: 'consumable' }],
+        },
+      },
+      {
+        label: t('세린이 체인을 걸고 대신 달린다', 'Se-rin fixes the chain and rides it'),
+        hint: t('◈ +5 · 세린 유대 +1', '+5 ◈ · Se-rin bond +1'),
+        requires: { companion: 'se_rin' },
+        success: {
+          text: t('세린이 체인을 한 번에 건다. “주소 줘.” 세린이 골목 셋을 질러 가 약을 문고리에 건다. 돌아와서 자전거를 배달부에게 넘긴다. “다음엔 체인 기름 쳐.”', 'Se-rin seats the chain in one go. “Address.” She cuts through three alleys, hangs the medicine on the door handle, and hands the bike back. “Oil that chain next time.”'),
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'bond', id: 'se_rin', amount: 1 }],
         },
       },
     ],
@@ -934,6 +970,15 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
         success: {
           text: t('고양이가 당신 발목에 몸을 한 번 비빈다. 가게 주인이 차 한 잔을 내준다.', 'The cat rubs once against your ankle. The shopkeeper hands you a cup of tea.'),
           effects: [{ kind: 'echoes', amount: 4 }, { kind: 'hp', amount: 3 }],
+        },
+      },
+      {
+        label: t('카이가 쪼그려 앉아 고양이를 기다린다', 'Kai crouches and waits for the cat'),
+        hint: t('HP +5 · 카이 유대 +1', '+5 HP · Kai bond +1'),
+        requires: { companion: 'kai' },
+        success: {
+          text: t('카이가 쪼그려 앉아 손을 내밀고 기다린다. 고양이가 한참 보다가 카이 손등에 이마를 댄다. 카이가 움직이지 않는다. 일행도 그동안 숨을 고른다.', 'Kai crouches with a hand out and waits. The cat studies him a long time, then presses its forehead to the back of his hand. Kai doesn’t move. The rest of you catch your breath meanwhile.'),
+          effects: [{ kind: 'hp', amount: 5 }, { kind: 'bond', id: 'kai', amount: 1 }],
         },
       },
     ],
@@ -1184,6 +1229,15 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
         success: {
           text: t('경비원이 잠결에 노래를 따라 흥얼거린다. 당신도 잠깐 앉아 쉰다.', 'The guard hums along in his sleep. You sit and rest a moment.'),
           effects: [{ kind: 'hp', amount: 6 }],
+        },
+      },
+      {
+        label: t('한이 플러그 없이 라디오를 듣는다', 'Han listens to the radio without plugging in'),
+        hint: t('추적 −8 · 한 유대 +1', '−8 Trace · Han bond +1'),
+        requires: { companion: 'han' },
+        success: {
+          text: t('한이 라디오에 귀를 바짝 댄다. 노래 사이에 섞인 순찰 지시를 손가락으로 받아 적는다. “다음 골목은 세 번째. 우린 네 번째로 가.”', 'Han presses an ear to the radio and taps out the patrol orders hidden between songs. “Next is the third alley. We take the fourth.”'),
+          effects: [{ kind: 'trace', amount: -8 }, { kind: 'bond', id: 'han', amount: 1 }],
         },
       },
     ],

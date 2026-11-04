@@ -5,7 +5,8 @@ Last updated: 2026-11-04
 ## 2026-11-05 — Deep Act 5 events (Claude Opus 5.5, same goal)
 
 - Ungated event pools per act: Deep Act 5 had 20 (Acts 1, 2, 4: 26). Added three Dreaming Machines scenes to `packs/dreaming_machines/events.ts`: `a5_oil_letters` (a robot's unsent letters to its mechanic), `a5_dream_meter` (the Legion bills a vending machine for forty years of dreaming), `a5_spare_eyes` (a jar of camera eyes). Codex image art (prompts in `scripts/v2_assets/sea_art.json`, no GCP billing). 328 events.
-- **Verified**: content + art tests; canonical deep block (150 seeds, same as HEAD worktree) 34.0 → 35.3 % (noise); UI at 390 px KO and EN: all three render, hints wrap without touching the odds, first option resolves, 0 console errors. Sea Acts 4 and 6 are also at 20; not touched yet.
+- **Verified**: content + art tests; canonical deep block (150 seeds, same as HEAD worktree) 34.0 → 35.3 % (noise); UI at 390 px KO and EN: all three render, hints wrap without touching the odds, first option resolves, 0 console errors. Sea Acts 4 and 6 were also at 20.
+- Sea Act 4: `sea4_ev_night_class` (crew kids learn to read from seizure tags), `sea4_ev_kite` (a rookie inspector stuck on the reason box for a child's kite), `sea4_ev_container_kitchen` (Customs seals the crew's burner; Mujin option) in `eventsSeaVariety.ts`, one prop each, plain short hints. Two first renders put water and ships in the Dry Harbor; re-rendered ("completely dry basin, no ships"); one retry was moderation-blocked and passed reworded. 331 events. **Verified**: content + art tests; canonical sea block 28.0 → 28.0 %; UI at 390 px KO and EN, no hint overlap, 0 console errors. Sea Act 6 still at 20.
 
 ## 2026-11-04 — District codex lore, 28 districts (Claude Opus 5.5, same goal)
 
@@ -79,8 +80,3 @@ Last updated: 2026-11-04
 ## 2026-11-04 — Owner fun check §16 for today's late content (Claude Opus 5.5, same goal)
 
 - `docs/test/mythos2_fun_check.md` §16 (owner plain language, "정상 / 문제"): late-act and route districts, backgrounds in late districts, camp nights for all fourteen, Sea pairs' banter and duos, district callbacks, signed-out act intros naming the place; one verdict-table row. No code.
-
-## 2026-11-04 — Duos between two Sea companions (Claude Opus 5.5, same goal)
-
-- 15 duos, none pairing two Sea companions. `sea_tide_shift` (Seo-ha + Mujin: push 1 with +2 bumps, 6 block, move again), `sea_no_fifth` (Mujin + Parang: 4 to all, Mark 2, 5 block), `sea_returned_voices` (Parang + Seo-ha: recall 2, draw 2, Evade 1); same power band as the existing Sea duos, existing effect kinds only. Cut-in art by Codex with both portraits as references (first render put ships in the harbor; re-rendered). 18 duos (pinned count updated with the reason).
-- **Verified**: `duos.test.ts`: each is on offer with its two companions at a full gauge and fires on the real content; art coverage test. Sea canonical (150 seeds) unchanged at 26.7 %: the bot never fields two Sea companions together with a full gauge, so the sim says nothing about these. **UI (follow-up)**: the combat sandbox gained `?party=a,b` (dev-only, replaces the whole party); with `&momentum=100` each Sea pair's duo button appeared, fired, and played its cut-in (art, name, both lines), 0 console errors.

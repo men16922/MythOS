@@ -1,6 +1,6 @@
 {
- "codex_image_calls": 861,
- "codex_image_failed": 3,
+ "codex_image_calls": 867,
+ "codex_image_failed": 4,
  "image_calls": 317,
  "image_failed": 401,
  "lyria_calls": 34,
@@ -6154,6 +6154,13 @@
    "refs": [],
    "ts": "2026-11-01T16:24:37"
   },
+  "v2/events/sea4_ev_container_kitchen.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. Inside an empty steel shipping container turned into a crew kitchen: a gas burner with a paper customs seal taped across its knob, a dented pot of soaked rice on top, folded stools along the wall. One restrained effect: cold morning light falling through the open container door across the seal. No people, seal text unreadable, no text in the image.",
+   "refs": [],
+   "ts": "2026-11-05T00:58:47"
+  },
   "v2/events/sea4_ev_export_index.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -6168,12 +6175,26 @@
    "refs": [],
    "ts": "2026-11-01T16:23:20"
   },
+  "v2/events/sea4_ev_kite.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. One young Korean customs inspector in a neat gray uniform holds a small paper kite with a frayed tail beside a clipboard, outside a corrugated customs shed; behind them the harbor basin is completely dry cracked concrete with stranded rusted cranes, no water and no ships anywhere; a child stands quietly at his side. One restrained effect: the kite's tail lifting slightly in a weak breeze. Form unreadable, no other people, no text in the image.",
+   "refs": [],
+   "ts": "2026-11-05T01:00:23"
+  },
   "v2/events/sea4_ev_memorial_stone.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. One Korean mourner paused with a paintbrush above a small memorial stone beside an empty chair outside dock lodging. White paint partly covers shallow carved grooves. One restrained effect: a single fresh paint drip. Carving unreadable, no other people, no text in the image. IMPORTANT: this harbor has NO WATER. Anything seen outside or behind is a dried-out, cracked harbor basin with rusted cranes and stranded empty wharves. No sea, no water surface, no floating ships, no reflections of water.",
    "refs": [],
    "ts": "2026-11-01T16:25:04"
+  },
+  "v2/events/sea4_ev_night_class.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. Three teenage Korean longshore-crew apprentices in work jackets sit on crates around a desk in a harbor office lit by one warm desk lamp; one holds up a yellow paper seizure tag, reading it aloud while the others listen. Through the window only an empty, completely dry harbor basin of cracked concrete and rusted cranes, no water and no ships anywhere. One restrained effect: the lamp's warm pool of light on the tag. Tag text unreadable, no other people, no text in the image.",
+   "refs": [],
+   "ts": "2026-11-05T01:01:30"
   },
   "v2/events/sea4_ev_pillow_seam.webp": {
    "generations": 1,

@@ -322,4 +322,149 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
     ],
     gmHints: ['quiet wonder', 'white fog-bow', 'the foghorn pauses'],
   },
+  // 2026-11-05: Sea Act 4 had 20 ungated events (Deep Acts 1, 2, 4: 26). Three Dry Harbor scenes, one prop each.
+  {
+    id: 'sea4_ev_night_class',
+    acts: [4],
+    route: 'sea_4',
+    title: t('딱지로 배우는 글', 'Reading from the Tags'),
+    image: 'v2/events/sea4_ev_night_class.webp',
+    text: t(
+      '불 꺼진 하역 사무실에서 하역조 아이들이 압류 딱지를 한 장씩 소리 내어 읽는다. 교과서가 없어서 세관이 붙이고 간 딱지가 교재다. “정박할, 선박, 없음.” 한 아이가 마지막 칸에서 막힌다. 사유 칸이다.',
+      'In the dark dock office the crew’s kids read seizure tags aloud, one at a time. There are no schoolbooks, so the tags Customs leaves behind are the lessons. “No. Vessel. To berth.” One kid stalls at the last box: the reason.',
+    ),
+    options: [
+      {
+        label: t('사유 칸 읽는 법을 같이 짚어 준다', 'Work through the reason box with them'),
+        hint: t('매력 8 · 성공 인간성 +1 · ◈ +5', 'CHA 8 · success: +1 Humanity · +5 ◈'),
+        check: { stat: 'cha', dc: 8 },
+        success: {
+          text: t('아이가 사유를 끝까지 읽는다. 그리고 묻는다. “배가 없으면 우리 집도 없는 거예요?” 다른 아이가 대신 답한다. “아니. 딱지에 그렇게 써 있을 뿐이야.”', 'The kid reads the reason through, then asks, “If there’s no ship, is there no house either?” Another kid answers: “No. That’s just what the tag says.”'),
+          effects: [{ kind: 'axis', axis: 'humanity' }, { kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('당신도 서류 말투에서 막힌다. 아이들이 웃는다. 수업은 다음 딱지로 넘어간다.', 'You stall on the paperwork phrasing too. The kids laugh, and the lesson moves on to the next tag.'),
+          effects: [{ kind: 'echoes', amount: 2 }],
+        },
+      },
+      {
+        label: t('딱지 묶음에서 검수 번호 규칙을 읽어 낸다', 'Work out the inspection-number pattern from the stack'),
+        hint: t('추적 −4 · 통찰 +1', '−4 Trace · +1 Insight'),
+        success: {
+          text: t('번호 앞자리는 날짜, 끝자리는 검수원이다. 오늘 이 골목을 맡은 검수원이 누군지 알게 된다. 그 사람의 순찰 길은 피하면 된다.', 'The leading digits are the date; the last ones, the inspector. Now you know who has this alley today, and which way they walk.'),
+          effects: [{ kind: 'trace', amount: -4 }, { kind: 'axis', axis: 'insight' }],
+        },
+      },
+      {
+        label: t('수업을 방해하지 않고 지나간다', 'Pass by without interrupting'),
+        hint: t('HP +4', '+4 HP'),
+        success: {
+          text: t('문밖 계단에 앉아 읽는 소리를 듣는다. 다리의 피로가 조금 풀린다.', 'You sit on the steps outside and listen to the reading. Some of the ache leaves your legs.'),
+          effects: [{ kind: 'hp', amount: 4 }],
+        },
+      },
+    ],
+    gmHints: ['crew kids', 'seizure tags as schoolbooks', 'dark dock office'],
+  },
+  {
+    id: 'sea4_ev_kite',
+    acts: [4],
+    route: 'sea_4',
+    title: t('바람 없음으로 압류', 'Seized: No Wind'),
+    image: 'v2/events/sea4_ev_kite.webp',
+    text: t(
+      '세관 창고 앞에서 신입 검수원이 아이의 연을 들고 서식을 쓰고 있다. 사유 칸에서 펜이 멈춘다. 아이는 울지 않고 옆에 서 있다. 연 꼬리에는 항구 바람에 쓸린 자국이 아직 남아 있다.',
+      'Outside the customs shed a rookie inspector holds a child’s kite and fills in a form. His pen stops at the reason box. The child stands beside him, not crying. The kite’s tail still shows where the harbor wind frayed it.',
+    ),
+    options: [
+      {
+        label: t('“바람 없음”이라고 쓰라고 일러 준다', 'Tell him to write “no wind”'),
+        hint: t('지능 9 · 성공 추적 −4 · 실패 추적 +4', 'INT 9 · success: −4 Trace · fail: +4 Trace'),
+        check: { stat: 'int', dc: 9 },
+        success: {
+          text: t('검수원이 그대로 쓴다. 바람이 없으면 연은 날지 못하고, 날지 못하는 연은 화물이 아니다. 서식이 반려된다. 연이 아이 손으로 돌아간다.', 'He writes it. No wind means no flight, and a kite that can’t fly isn’t cargo. The form is rejected, and the kite goes back to the child.'),
+          effects: [{ kind: 'trace', amount: -4 }],
+        },
+        failure: {
+          text: t('검수원이 당신 얼굴을 서식 뒷면에 적어 둔다. “참고인입니다.”', 'He notes your face on the back of the form. “A witness.”'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('“사유가 없으면 압류도 없어요.”', '“No reason, no seizure.”'),
+        hint: t('매력 9 · 성공 인간성 +1 · 크레딧 +12', 'CHA 9 · success: +1 Humanity · +12 ₵'),
+        check: { stat: 'cha', dc: 9 },
+        success: {
+          text: t('검수원이 펜을 내려놓는다. 아이가 연을 받아 들고, 아이 엄마가 당신에게 동전 몇 개를 쥐여 준다. 거절하기엔 손이 너무 단단하다.', 'He sets the pen down. The child takes the kite back, and the mother presses a few coins into your hand, too firmly to refuse.'),
+          effects: [{ kind: 'axis', axis: 'humanity' }, { kind: 'credits', amount: 12 }],
+        },
+        failure: {
+          text: t('“사유는 제가 정합니다.” 검수원이 다시 펜을 든다. 아이가 당신 소매를 놓는다.', '“I decide the reason.” He picks up the pen again. The child lets go of your sleeve.'),
+          effects: [{ kind: 'hp', amount: -2 }],
+        },
+      },
+      {
+        label: t('서식이 끝나기 전에 연을 들고 뛴다', 'Grab the kite and run before the form is done'),
+        hint: t('지배 +1 · 추적 +5 · 소모품 1개', '+1 Dominance · +5 Trace · 1 consumable'),
+        success: {
+          text: t('연 꼬리를 쥐고 컨테이너 사이로 뛴다. 아이에게 연을 넘기는 사이, 압류 대기 상자에서 쓸 만한 물건 하나가 굴러 나온다.', 'You run through the containers with the kite tail in your fist. As you hand it to the child, something useful rolls out of the seizure bin.'),
+          effects: [{ kind: 'axis', axis: 'dominance' }, { kind: 'trace', amount: 5 }, { kind: 'consumable' }],
+        },
+      },
+    ],
+    gmHints: ['rookie customs inspector', 'child’s kite', 'reason box on the form'],
+  },
+  {
+    id: 'sea4_ev_container_kitchen',
+    acts: [4],
+    route: 'sea_4',
+    title: t('비운영 연료 설비', 'Non-Operating Fuel Equipment'),
+    image: 'v2/events/sea4_ev_container_kitchen.webp',
+    text: t(
+      '빈 컨테이너 하나가 하역조의 부엌이다. 교대 시간마다 여기서 밥을 짓는다. 오늘 아침 세관이 버너에 봉인을 붙였다. “비운영 항만 연료 설비.” 냄비에는 불리기만 한 쌀이 그대로 있다.',
+      'One empty container is the crew’s kitchen; rice is cooked here at every shift change. This morning Customs sealed the burner: “Fuel equipment, non-operating port.” In the pot, the rice is soaked and never cooked.',
+    ),
+    options: [
+      {
+        label: t('봉인을 떼지 않고 버너 밑으로 선을 돌린다', 'Run a line under the burner without breaking the seal'),
+        hint: t('지능 8 · 성공 파티 회복 6 · 실패 HP −4', 'INT 8 · success: party heals 6 · fail: −4 HP'),
+        check: { stat: 'int', dc: 8 },
+        success: {
+          text: t('봉인은 그대로 붙어 있다. 불은 그 아래에서 켜진다. 밥이 된다. 하역조가 당신 그릇부터 채운다.', 'The seal stays in place; the flame lights beneath it. The rice cooks, and the crew fill your bowl first.'),
+          effects: [{ kind: 'heal_party', amount: 6 }],
+        },
+        failure: {
+          text: t('연결부가 새면서 불꽃이 손등을 핥는다. 봉인은 무사하다.', 'The joint leaks and a flame licks the back of your hand. The seal is fine.'),
+          effects: [{ kind: 'hp', amount: -4 }],
+        },
+      },
+      {
+        label: t('세관 이의 신청서를 대신 써 준다', 'Write the customs objection for them'),
+        hint: t('크레딧 −10 · 카드 1장 선택', '−10 ₵ · pick 1 card'),
+        requires: { minCredits: 10 },
+        success: {
+          text: t('인지값을 당신이 낸다. 신청서가 접수되는 동안 반장이 낡은 작업 수첩을 건넨다. 하역 순서를 적어 둔 것이다.', 'You pay the stamp fee. While the objection is logged, the foreman hands you a worn work notebook full of loading orders.'),
+          effects: [{ kind: 'credits', amount: -10 }, { kind: 'card_choice' }],
+        },
+      },
+      {
+        label: t('무진이 냄비를 크레인 배기구 위에 올린다', 'Mujin sets the pot on the crane’s exhaust'),
+        hint: t('HP +6 · 무진 유대 +1', '+6 HP · Mujin bond +1'),
+        requires: { companion: 'mujin' },
+        success: {
+          text: t('무진이 크레인 시동을 건다. 배기구가 데워진다. 아무 말 없이 냄비를 올린다. 밥은 조금 탄다. 아무도 불평하지 않는다.', 'Mujin starts the crane, and the exhaust warms. He sets the pot on it without a word. The rice burns a little. Nobody complains.'),
+          effects: [{ kind: 'hp', amount: 6 }, { kind: 'bond', id: 'mujin', amount: 1 }],
+        },
+      },
+      {
+        label: t('불린 쌀을 두고 나온다', 'Leave the soaked rice'),
+        hint: t('추적 −2', '−2 Trace'),
+        success: {
+          text: t('컨테이너 문을 닫아 준다. 세관 순찰이 안을 들여다보지 않고 지나간다.', 'You close the container door for them. The customs patrol passes without looking in.'),
+          effects: [{ kind: 'trace', amount: -2 }],
+        },
+      },
+    ],
+    gmHints: ['empty container kitchen', 'sealed burner', 'shift-change rice'],
+  },
 ]

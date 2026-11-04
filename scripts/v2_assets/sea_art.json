@@ -1015,6 +1015,18 @@
   "v2/events/a5_spare_eyes.webp": {
    "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one large glass jar with its lid half off sits on a cluttered metal parts shelf in a Neo-Seoul scrap workshop, filled with small round robot camera eyes. Each lens holds a tiny faint scene reflection; rusted bins and coils are softly unfocused behind it; one restrained effect is a soft mixed glow from the lenses on the shelf, no people and no readable text.",
    "size": "1600x900"
+  },
+  "v2/events/sea4_ev_night_class.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. Three teenage Korean longshore-crew apprentices in work jackets sit on crates around a desk in a harbor office lit by one warm desk lamp; one holds up a yellow paper seizure tag, reading it aloud while the others listen. Through the window only an empty, completely dry harbor basin of cracked concrete and rusted cranes, no water and no ships anywhere. One restrained effect: the lamp's warm pool of light on the tag. Tag text unreadable, no other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_kite.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. One young Korean customs inspector in a neat gray uniform holds a small paper kite with a frayed tail beside a clipboard, outside a corrugated customs shed; behind them the harbor basin is completely dry cracked concrete with stranded rusted cranes, no water and no ships anywhere; a child stands quietly at his side. One restrained effect: the kite's tail lifting slightly in a weak breeze. Form unreadable, no other people, no text in the image.",
+   "size": "1600x900"
+  },
+  "v2/events/sea4_ev_container_kitchen.webp": {
+   "prompt": "Painterly cyberpunk realism, eye-level, natural proportions. Inside an empty steel shipping container turned into a crew kitchen: a gas burner with a paper customs seal taped across its knob, a dented pot of soaked rice on top, folded stools along the wall. One restrained effect: cold morning light falling through the open container door across the seal. No people, seal text unreadable, no text in the image.",
+   "size": "1600x900"
   }
  },
  "sprites": [

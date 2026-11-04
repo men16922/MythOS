@@ -36,6 +36,7 @@ const FIXED: AchievementDef[] = [
   // collection
   { id: 'ach_codex_15', group: 'collection', name: t('복원 중', 'Restoring'), text: t('코덱스 기록 15개를 되살린다.', 'Restore 15 codex entries.'), when: { kind: 'codex', n: 15 } },
   { id: 'ach_codex_25', group: 'collection', name: t('읽을 수 있는 기록', 'Legible Again'), text: t('코덱스 기록 25개를 되살린다.', 'Restore 25 codex entries.'), when: { kind: 'codex', n: 25 } },
+  { id: 'ach_codex_50', group: 'collection', name: t('거의 온전한 기록', 'Nearly Whole'), text: t('코덱스 기록 50개를 되살린다.', 'Restore 50 codex entries.'), when: { kind: 'codex', n: 50 } },
   { id: 'ach_codex_all', group: 'collection', name: t('손상 없는 아카이브', 'An Uncorrupted Archive'), text: t('코덱스 기록을 모두 되살린다.', 'Restore every codex entry.'), when: { kind: 'codex', n: 'all' } },
   { id: 'ach_memories_5', group: 'collection', name: t('조용한 장면들', 'Quiet Scenes'), text: t('동료와의 기억 5개를 연다.', 'Unlock 5 companion memories.'), when: { kind: 'memories', n: 5 } },
   { id: 'ach_memories_11', group: 'collection', name: t('나눠 가진 밤들', 'Shared Nights'), text: t('동료와의 기억 11개를 연다.', 'Unlock 11 companion memories.'), when: { kind: 'memories', n: 11 } },

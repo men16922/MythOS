@@ -50,7 +50,7 @@ const ids = (p: MetaProfile) => p.achievements ?? []
 
 test('content: every achievement is well formed and points at real content', () => {
   const all = Object.values(C.achievements ?? {})
-  assert.equal(all.length, 85, 'DLC plan §11: 60 achievements + 4 codex completion, +5 for the 2026-11-04 content, +4 district sets (machines, record, sea, outside)')
+  assert.equal(all.length, 86, 'DLC plan §11: 60 achievements + 4 codex completion, +5 for the 2026-11-04 content, +4 district sets (machines, record, sea, outside), +1 codex 50 (district lore)')
   for (const a of all) {
     assert.ok(a.id.startsWith('ach_'), a.id)
     assert.ok(a.name.ko && a.name.en && a.text.ko && a.text.en, `${a.id} text`)
@@ -215,4 +215,17 @@ test('district-set achievements: each names only real quests and fires on any on
       assert.equal(has({ [q]: last ?? 2 }, id), true, `${id}: ${q} finished`)
     }
   }
+})
+
+test('the codex-50 milestone sits between 25 and all, and is reachable', async () => {
+  const { newRun } = await import('./run.ts')
+  const total = Object.keys(C.lore).length
+  assert.ok(total > 50, `${total} lore entries`)
+  const ids = Object.keys(C.lore)
+  const started = newRun({ ...newProfile('T'), wins: 1 }, { archetype: 'ghost', paradox: 0, seed: 7 }, C)
+  const run = { ...started, screen: { kind: 'ended', result: 'defeat', endingId: 'ending_forced_erasure' } } as typeof started
+  const at = (n: number) => newAchievements({ ...newProfile('T'), codex: ids.slice(0, n) }, run, C)
+  assert.ok(!at(49).includes('ach_codex_50'))
+  assert.ok(at(50).includes('ach_codex_50'))
+  assert.ok(!at(50).includes('ach_codex_all'))
 })

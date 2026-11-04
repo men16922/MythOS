@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Act 5 district quests come back in Act 6 (Claude Opus 5.5, same goal)
+
+- Main-route Act 6 had one callback. `a6_cb_choir` (finished the Scrap Choir's song → it plays in the first record: +10 HP/+3◈, or follow it, OBS DC 6, −12 Trace) and `a6_cb_cold` (woke the Cold Storage machine → it waits at a fork: +8 HP + consumable, or −10 Trace/+3◈); both gated on quest stage 2, Codex art (unreviewed). New guard: an event's quest gate names a real quest and stage.
+- **Verified**: content + event-balance tests; UI (KO 1280×720, EN 390×844) resolved through the buttons, 0 console errors. Balance: Signal+ only, canonical blocks unaffected (unmeasured).
+
 ## 2026-11-04 — The Hand-Crank Market's last two choices come back (Claude Opus 5.5, same goal)
 
 - A scan of every flag set vs read found only two never read again, both in the Act 1 district `d1_lamp_market`. `a2_cb_ku` (promised Madam Ku three buyers → her kid comes to collect: pay 30₵ for a consumable and −5 Trace, find a buyer for +20₵ at CHA DC 6, or ignore; first draft was a pure tax and `event-balance.test.ts` caught it) and `a3_cb_min` (sold out Min → he limps into the Spire as a debt courier: apologise, Tae-o pays his helmet rental for +1 bond, or walk past); Codex art (unreviewed). 21 callbacks. Every content flag is now read somewhere.
@@ -98,8 +103,3 @@ Last updated: 2026-11-04
 - **Built**: `content/ixReads.ts` + `ixReadFor` / `IX_READ_MIN` (run.ts): at Paradox 10, from Act 2, IX reads the deck's non-starter synergy tags at each act start and sets one counter for that act (six authored counters on known mechanics); applied in the combat opening; shown under the act title ("IX가 당신의 ○○을 읽었다"). The +1 damage stays.
 - **Measured** (fresh canonical, greedy 3 × 60, mixed 3 × 150): greedy P5 88.9 → P8 84.4 → P10 81.1 % (IX reads off: 79.4, i.e. the counters are within noise for the expert bot); mixed P5 11.1 → P10 2.7 %. The plan's greedy P10 ~55 % is far off: re-tuning the 6–10 ladder is an owner call.
 - **Verified**: engine tests (read thresholds, Paradox 10 only, counter in the fight), all node tests; Act 2 intro line in headless muted Chromium (ko, en), 0 console errors.
-
-## 2026-11-04 — IX reads more habits (W2-2) (Claude Opus 5.5, same goal)
-
-- **Built**: `habits()` in `ui/common/loopMemory.ts`: where loops usually end (≥ 60 % of deaths in one act), the deck's lean (`RunRecord.lean`, attack or skill > 55 % of non-starter cards, set at run end and kept on reload), the companion and the shape as before. They take turns by loop count, so the companion everyone brings (Se-rin) no longer hides the rest. `habitFact` feeds the GM's memory list; `ixHabitLine` is IX saying it to you, added to the Archive's authored IX line every other loop (works with AI off).
-- **Verified**: `loopMemory.test.ts`, `meta.test.ts` (lean thresholds, reload keeps lean and `veterans`); two `make gm-eval` cases (`ix_loop_start_habit_ko/en`) on local `gemma4:8b-64k`: whole set usable 100 %, p50 0.96 s. The model did not quote the new habit facts in either line (IX may pick any memory); the authored line names them reliably. Vertex not run (billed).

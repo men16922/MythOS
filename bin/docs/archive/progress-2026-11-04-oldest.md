@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — IX reads more habits (W2-2) (Claude Opus 5.5, same goal)
+
+- **Built**: `habits()` in `ui/common/loopMemory.ts`: where loops usually end (≥ 60 % of deaths in one act), the deck's lean (`RunRecord.lean`, attack or skill > 55 % of non-starter cards, set at run end and kept on reload), the companion and the shape as before. They take turns by loop count, so the companion everyone brings (Se-rin) no longer hides the rest. `habitFact` feeds the GM's memory list; `ixHabitLine` is IX saying it to you, added to the Archive's authored IX line every other loop (works with AI off).
+- **Verified**: `loopMemory.test.ts`, `meta.test.ts` (lean thresholds, reload keeps lean and `veterans`); two `make gm-eval` cases (`ix_loop_start_habit_ko/en`) on local `gemma4:8b-64k`: whole set usable 100 %, p50 0.96 s. The model did not quote the new habit facts in either line (IX may pick any memory); the authored line names them reliably. Vertex not run (billed).
+
 ## 2026-11-04 — Reverse-engineering 4–5 analysed; companions who reach level 5 leave a good habit (Claude Opus 5.5, same goal)
 
 - **Analysis** (`docs/plans/2026-11-04-reverse-engineering-4-5.md`, public reviews / Mega Crit news): Mewgenics' "traces, not power" was mostly in already (DLC 3 residue for companions who went down, words only); the gap was the good side. Slay the Spire 2's alternate Act 1 is DLC-sized and unmeasured (no real players yet): recorded, not built.

@@ -746,4 +746,84 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['min the courier', 'sold out', 'collections firm', 'limp'],
   },
+  // 2026-11-04: Act 5 district quests come back in Act 6 (Signal+ runs only).
+  {
+    id: 'a6_cb_choir',
+    acts: [6],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_scrap_choir', stage: 2 } },
+    title: t('끝난 노래', 'The Finished Song'),
+    image: 'v2/events/a6_cb_choir.webp',
+    text: t(
+      '최초 기록의 서가 사이로 노래가 흘러온다. 고철 묘역의 그 노래다. 이번엔 마지막 마디까지 간다.\n어디선가 스피커 하나가 기록 속에 끼어 있다. 끝난 노래가 여기까지 왔다.',
+      'A song drifts between the first record’s stacks. The scrap graveyard’s song. This time it reaches the last bar.\nSomewhere a speaker has lodged itself in the record. The finished song came all this way.',
+    ),
+    options: [
+      {
+        label: t('끝까지 듣는다', 'Listen to the end'),
+        hint: t('+10 HP · ◈ +3', '+10 HP · +3 ◈'),
+        success: {
+          text: t('마지막 음이 서가에 오래 남는다. 숨이 고르게 돌아온다.', 'The last note lingers in the stacks. Your breathing evens out.'),
+          effects: [
+            { kind: 'hp', amount: 10 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+      {
+        label: t('노래를 따라 걷는다', 'Follow the song'),
+        hint: t('추적 −12 · ◈ +2 · 실패 시 추적 +6', '−12 Trace · +2 ◈ · fail +6 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('노래가 감시가 비는 통로로만 흐른다. 기계들은 길을 안다.', 'The song only flows down corridors the watchers have left. The machines know the way.'),
+          effects: [
+            { kind: 'trace', amount: -12 },
+            { kind: 'echoes', amount: 2 },
+          ],
+        },
+        failure: {
+          text: t('메아리에 길을 잃는다. 같은 서가를 세 번 지난다.', 'You lose the way in the echoes and pass the same stack three times.'),
+          effects: [{ kind: 'trace', amount: 6 }],
+        },
+      },
+    ],
+    gmHints: ['the scrap choir', 'finished song', 'last bar', 'first record stacks'],
+  },
+  {
+    id: 'a6_cb_cold',
+    acts: [6],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_cold_storage', stage: 2 } },
+    title: t('아직 따뜻한 기계', 'The Machine Still Warm'),
+    image: 'v2/events/a6_cb_cold.webp',
+    text: t(
+      '최초 기록의 갈림길에 기계 하나가 서 있다. 냉동 보관창 맨 아래 선반에서 깨운 그 기계다. 서리 자국이 아직 어깨에 남아 있다.\n“따뜻하네요. 여기도.” 기계가 손을 내민다.',
+      'At a fork in the first record stands a machine: the one you woke from the bottom shelf of the cold storage, frost marks still on its shoulders.\n“It’s warm. Here too.” It holds out a hand.',
+    ),
+    options: [
+      {
+        label: t('손을 잡는다', 'Take its hand'),
+        hint: t('+8 HP · 소모품', '+8 HP · consumable'),
+        success: {
+          text: t('손이 따뜻하다. 기계가 품에서 꺼낸 배터리를 당신 손에 쥐여 준다.', 'The hand is warm. It presses a battery from its chest into yours.'),
+          effects: [
+            { kind: 'hp', amount: 8 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+      {
+        label: t('길 안내를 부탁한다', 'Ask it to lead the way'),
+        hint: t('추적 −10 · ◈ +3', '−10 Trace · +3 ◈'),
+        success: {
+          text: t('기계가 앞장선다. 깨어난 뒤로 이 길만 걸었다고 한다.', 'It walks ahead. It says it has walked only this road since it woke.'),
+          effects: [
+            { kind: 'trace', amount: -10 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['the cold storage', 'woken machine', 'frost marks', 'warm hand'],
+  },
 ]

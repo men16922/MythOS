@@ -602,3 +602,14 @@ test('openings: shown only on a re-entry of Act 1 that is not the daily', () => 
   assert.equal(openingLines(run({ party: [] })).length, 0)
   assert.equal(openingLines(run({ party: [{ id: 'nobody' }] })).length, 0)
 })
+
+test('an event gated on a district quest names a real quest and a stage that quest has', () => {
+  for (const e of EVENTS) {
+    for (const c of [e.requires, ...e.options.map((o) => o.requires)]) {
+      if (!c?.quest) continue
+      const q = CRPG.quests[c.quest.id]
+      assert.ok(q, `${e.id}: unknown quest ${c.quest.id}`)
+      assert.ok(c.quest.stage >= 1 && c.quest.stage <= q.stages.length, `${e.id}: ${c.quest.id} has no stage ${c.quest.stage}`)
+    }
+  }
+})

@@ -1003,6 +1003,18 @@
   "v2/art/outside.webp": {
    "prompt": "Wide 21:9 title illustration in painterly cyberpunk realism, eye level and natural proportions, showing the back alleys of Neo-Seoul's Undercity Market after closing time. A modest serving counter with a rust-aproned cook anchors the left foreground; farther along, a plum-aproned laundry runner steadies a cart with a mustard-yellow towel, and a blue-jacketed shutter repairer finishes aligning a corrugated door. At the distant bend, courteous cream-and-teal shop-closing machines wait in orderly formation beneath small amber service beacons, their maintenance tools neatly lowered. Build depth with patched awnings, tiled service walls, bundled utilities and shuttered stalls, using warm kitchen light against cool petrol-blue shadows and one restrained thread of steam above the soup pot. Preserve quiet dark space across the upper middle for a later title overlay, emphasize ordinary work continuing under procedural menace, and include no text or logos.",
    "size": "1920x1080"
+  },
+  "v2/events/a5_oil_letters.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one dented, boxy maintenance robot sits on a heap in a rain-dark Neo-Seoul scrap graveyard, writing with a stubby manipulator in an open oil-stained logbook on its knees. Three rows behind it, softly unfocused, an empty mechanic's workbench lies under a gray tarp; one restrained effect is a faint warm glow from the robot's single lens on the page, no people and no readable text.",
+   "size": "1600x900"
+  },
+  "v2/events/a5_dream_meter.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one old rust-streaked street vending machine stands among stacked scrap in a Neo-Seoul machine graveyard at night, its display dimly lit, with a crude gray utility meter bolted to its side by the Scrap Legion. Tangled cable and a distant crane are softly unfocused behind it; one restrained effect is the meter's small turning needle catching a thin line of cold light, no people and no readable text.",
+   "size": "1600x900"
+  },
+  "v2/events/a5_spare_eyes.webp": {
+   "prompt": "Painterly cyberpunk realism, eye level, natural proportions: one large glass jar with its lid half off sits on a cluttered metal parts shelf in a Neo-Seoul scrap workshop, filled with small round robot camera eyes. Each lens holds a tiny faint scene reflection; rusted bins and coils are softly unfocused behind it; one restrained effect is a soft mixed glow from the lenses on the shelf, no people and no readable text.",
+   "size": "1600x900"
   }
  },
  "sprites": [

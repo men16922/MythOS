@@ -745,4 +745,132 @@ export const MACHINE_EVENTS: EventDef[] = [
       },
     ],
   },
+  // 2026-11-05: Act 5 had the thinnest ungated pool (20 vs 26 in Acts 1, 2, 4). Three quiet graveyard scenes.
+  {
+    id: 'a5_oil_letters',
+    acts: [5],
+    title: t('정비 일지의 편지', 'Letters in the Oil Log'),
+    image: 'v2/events/a5_oil_letters.webp',
+    gmHints: ['discarded maintenance robot', 'unsent letters', 'missing mechanic'],
+    text: t(
+      '버려진 정비 로봇이 기름 묻은 일지에 무언가를 적고 있다. 수리 기록이 아니라 편지다. 받는 사람은 매번 같다. 마지막으로 자기를 고쳐 준 정비공이다. 그 정비공의 작업대는 세 줄 건너에 방수포를 덮은 채 비어 있다.',
+      'A discarded maintenance robot is writing in an oil-stained log. Not repair notes: letters, always to the same person, the mechanic who last fixed it. That mechanic’s workbench stands three rows over under a tarp, empty.',
+    ),
+    options: [
+      {
+        label: t('일지를 빈 작업대에 펼쳐 놓아 준다', 'Lay the log open on the empty workbench'),
+        hint: t('인간성 +1 · 잔향 +4', '+1 Humanity · +4 Echoes'),
+        success: {
+          text: t('로봇이 작업대 쪽으로 렌즈를 돌린다. 다음 장부터 편지 끝에 “작업대에 둠”이라는 말이 붙는다.', 'The robot turns its lens toward the bench. From the next page on, each letter ends with “left on the bench.”'),
+          effects: [{ kind: 'axis', axis: 'humanity' }, { kind: 'echoes', amount: 4 }],
+        },
+      },
+      {
+        label: t('편지 사이의 수리 메모를 읽는다', 'Read the repair notes between the letters'),
+        hint: t('지능 6 · 성공 카드 강화 1 · 실패 HP −3', 'INT 6 · success: upgrade 1 · fail: −3 HP'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t('정비공의 습관이 편지마다 남아 있다. 나사를 반 바퀴 덜 조이는 법. 당신의 장비에도 그대로 쓸 수 있다.', 'The mechanic’s habits survive in every letter: tighten each screw half a turn short. It works on your gear too.'),
+          effects: [{ kind: 'upgrade_card', count: 1, random: true }],
+        },
+        failure: {
+          text: t('기름이 번져 글씨가 지워진다. 일지를 넘기다 날카로운 철판에 손을 벤다.', 'The oil smears the writing away. Turning a page, you cut your hand on a sharp plate.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+      {
+        label: t('로봇의 여분 부품을 챙긴다', 'Take the robot’s spare parts'),
+        hint: t('크레딧 +18 · 추적 +3', '+18 ₵ · +3 Trace'),
+        success: {
+          text: t('로봇은 막지 않는다. 쓰던 문장을 끝까지 쓰고, 다음 줄을 비워 둔다.', 'The robot doesn’t stop you. It finishes its sentence and leaves the next line blank.'),
+          effects: [{ kind: 'credits', amount: 18 }, { kind: 'trace', amount: 3 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'a5_dream_meter',
+    acts: [5],
+    title: t('꿈 계량기', 'The Dream Meter'),
+    image: 'v2/events/a5_dream_meter.webp',
+    gmHints: ['Scrap Legion toll', 'metered dreaming', 'old vending machine'],
+    text: t(
+      '고철 군단이 낡은 자판기 옆에 계량기를 달아 두었다. 기계가 꿈을 꾸는 시간을 재서 주인에게 청구한다. 계량기 바늘은 사십 년째 돌고 있다. 주인은 오래전에 없다. 자판기의 불빛은 아직 “품절”을 깜빡인다.',
+      'The Scrap Legion has bolted a meter beside an old vending machine. It times how long the machine dreams and bills the owner. The needle has been turning for forty years; the owner is long gone. The machine’s light still blinks SOLD OUT.',
+    ),
+    options: [
+      {
+        label: t('밀린 꿈 값을 대신 낸다', 'Pay off the dreaming bill'),
+        hint: t('크레딧 −25 · 카드 1장 선택', '−25 ₵ · pick 1 card'),
+        requires: { minCredits: 25 },
+        success: {
+          text: t('바늘이 0으로 돌아간다. 자판기가 덜컹 하며 마지막 캔 하나를 떨어뜨린다. 캔 안에는 접힌 전술 메모가 들어 있다.', 'The needle swings back to zero. With a clunk the machine drops one last can. Inside is a folded tactics note.'),
+          effects: [{ kind: 'credits', amount: -25 }, { kind: 'card_choice' }],
+        },
+      },
+      {
+        label: t('계량기 배선을 거꾸로 꽂는다', 'Wire the meter in backwards'),
+        hint: t('민첩 6 · 성공 추적 −4 · 크레딧 +10', 'AGI 6 · success: −4 Trace · +10 ₵'),
+        check: { stat: 'agi', dc: 6 },
+        success: {
+          text: t('바늘이 거꾸로 돈다. 군단 장부에는 이제 자판기가 돈을 받을 차례로 적힌다.', 'The needle runs backwards. In the Legion’s books the machine is now owed money.'),
+          effects: [{ kind: 'trace', amount: -4 }, { kind: 'credits', amount: 10 }],
+        },
+        failure: {
+          text: t('계량기가 경고음을 낸다. 멀리서 군단 크레인이 고개를 돌린다.', 'The meter shrieks. A Legion crane in the distance turns its head.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('자판기를 깨워 꿈을 끝낸다', 'Wake the machine and end the dream'),
+        hint: t('소모품 1개', '1 consumable'),
+        success: {
+          text: t('자판기가 꿈에서 깨어 진열칸을 한 번 돌린다. 품절이 아니던 칸 하나가 남아 있었다.', 'The machine wakes and turns its racks once. One slot was never sold out.'),
+          effects: [{ kind: 'consumable' }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'a5_spare_eyes',
+    acts: [5],
+    title: t('여분의 눈', 'Spare Eyes'),
+    image: 'v2/events/a5_spare_eyes.webp',
+    gmHints: ['jar of camera eyes', 'last thing seen', 'quiet shelf'],
+    text: t(
+      '부품 선반 위 유리병에 카메라 눈알이 가득하다. 하나하나가 마지막으로 본 장면을 아직 비추고 있다. 부엌 창문, 비 오는 횡단보도, 누군가의 손바닥. 병뚜껑이 반쯤 열려 있다.',
+      'A glass jar on a parts shelf is full of camera eyes, each still showing the last thing it saw: a kitchen window, a rainy crosswalk, someone’s palm. The lid is half off.',
+    ),
+    options: [
+      {
+        label: t('눈 하나를 들여다본다', 'Look into one eye'),
+        hint: t('관찰 6 · 성공 관찰 +1 · 실패 HP −2', 'OBS 6 · success: +1 OBS · fail: −2 HP'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('장면 구석에서 순찰 경로가 보인다. 눈의 주인이 매일 지나던 길이다. 무엇을 봐야 하는지 조금 알 것 같다.', 'In the corner of the scene runs a patrol route the eye’s owner passed every day. You get a sense of what to look for.'),
+          effects: [{ kind: 'stat', stat: 'obs', amount: 1 }],
+        },
+        failure: {
+          text: t('장면이 갑자기 밝아진다. 눈이 따끔하고 한동안 초점이 맞지 않는다.', 'The scene flares bright. Your eyes sting and won’t focus for a while.'),
+          effects: [{ kind: 'hp', amount: -2 }],
+        },
+      },
+      {
+        label: t('뚜껑을 닫아 장면들을 쉬게 둔다', 'Close the lid and let the scenes rest'),
+        hint: t('HP +5', '+5 HP'),
+        success: {
+          text: t('병 안이 조용히 어두워진다. 선반 옆에 앉아 잠깐 숨을 고른다.', 'The jar goes quietly dark. You sit by the shelf and catch your breath.'),
+          effects: [{ kind: 'hp', amount: 5 }],
+        },
+      },
+      {
+        label: t('부품용으로 한 쌍을 챙긴다', 'Take a pair for parts'),
+        hint: t('크레딧 +15', '+15 ₵'),
+        success: {
+          text: t('두 눈이 손바닥 위에서 서로 다른 장면을 비춘다. 팔 때는 장면을 지워야 할 것이다.', 'In your palm the two eyes show different scenes. You’ll have to wipe them before you sell them.'),
+          effects: [{ kind: 'credits', amount: 15 }],
+        },
+      },
+    ],
+  },
 ]

@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-05 — Deep Act 5 events (Claude Opus 5.5, same goal)
+
+- Ungated event pools per act: Deep Act 5 had 20 (Acts 1, 2, 4: 26). Added three Dreaming Machines scenes to `packs/dreaming_machines/events.ts`: `a5_oil_letters` (a robot's unsent letters to its mechanic), `a5_dream_meter` (the Legion bills a vending machine for forty years of dreaming), `a5_spare_eyes` (a jar of camera eyes). Codex image art (prompts in `scripts/v2_assets/sea_art.json`, no GCP billing). 328 events.
+- **Verified**: content + art tests; canonical deep block (150 seeds, same as HEAD worktree) 34.0 → 35.3 % (noise); UI at 390 px KO and EN: all three render, hints wrap without touching the odds, first option resolves, 0 console errors. Sea Acts 4 and 6 are also at 20; not touched yet.
+
 ## 2026-11-04 — District codex lore, 28 districts (Claude Opus 5.5, same goal)
 
 - Only one district (Glass Atrium) awarded a codex entry. Four districts whose quests reveal setting facts now award one on their final stage: `lore_d_errata` (Errata Office: the "stet" mark), `lore_d_crane_chapel`, `lore_d_old_beat` (Foghorn Post: the old beat meant "clear to enter"), `lore_d_letters` (Cable Station: "we only wanted to see the sea"; the Lightkeeper's promise stays for the ending). The lore-award test now counts district choices like the flag guards do. 45 lore.
@@ -79,8 +84,3 @@ Last updated: 2026-11-04
 
 - 15 duos, none pairing two Sea companions. `sea_tide_shift` (Seo-ha + Mujin: push 1 with +2 bumps, 6 block, move again), `sea_no_fifth` (Mujin + Parang: 4 to all, Mark 2, 5 block), `sea_returned_voices` (Parang + Seo-ha: recall 2, draw 2, Evade 1); same power band as the existing Sea duos, existing effect kinds only. Cut-in art by Codex with both portraits as references (first render put ships in the harbor; re-rendered). 18 duos (pinned count updated with the reason).
 - **Verified**: `duos.test.ts`: each is on offer with its two companions at a full gauge and fires on the real content; art coverage test. Sea canonical (150 seeds) unchanged at 26.7 %: the bot never fields two Sea companions together with a full gauge, so the sim says nothing about these. **UI (follow-up)**: the combat sandbox gained `?party=a,b` (dev-only, replaces the whole party); with `&momentum=100` each Sea pair's duo button appeared, fired, and played its cut-in (art, name, both lines), 0 console errors.
-
-## 2026-11-04 — Map banter for the Sea pairs and the DLC companions (Claude Opus 5.5, same goal)
-
-- Signal+ map banter had 24 exchanges; the eight later companions appeared only once each (all with Se-rin), and no two Sea companions had any, though a Sea party is often two of them. Added eight: Mujin + Seo-ha (tide time with no water), Parang + Mujin (can Parang be "four"), Seo-ha + Parang (the old channel), Io + Miro (return cards), Bel + Io ("stet"), Rem + Kai (dreaming to the end), Doyun + Tae-o (counting who is left), Miro + Doyun (names). Voices per the companion files.
-- **Verified**: `banterPick.test.ts` (speakers, 2–4 lines, ≤ 60 chars); UI on the map (Sea Act 4 Mujin + Seo-ha KO, Deep Act 5 Rem + Kai EN 390 px) showed the exchange, 0 console errors.

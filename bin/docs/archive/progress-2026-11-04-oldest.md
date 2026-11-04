@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — A second personal scene for each DLC companion (Claude Opus 5.5, same goal)
+
+- `cx_io_bookmark` (a reader who never came back; finish the book by proxy or leave the marker), `cx_miro_reflection` (the window that reflects everyone but Miro), `cx_doyun_old_tag` (Doyun's old queue number on a lost-and-found board), `cx_bel_pen` (Bel offers the leaking red pen: cut one line you choose, or break it), `cx_rem_yawn` (Rem's first yawn). Small and earned, no arc resolved; Codex art drawn from each recruit portrait (unreviewed).
+- **Verified**: content + event-balance tests; UI with each companion deployed (KO/EN, desktop/390 px) resolved, bond +1, 0 console errors. Daily-mode full UI playthrough afterwards (the new Act 1–2 events feed it): victory in 12 min, no errors.
+
 ## 2026-11-04 — Companion-only options for the DLC and Sea companions (Claude Opus 5.5, same goal)
 
 - Io, Miro, Doyun, Bel and Rem had one personal event each and no companion-only option anywhere; Mujin, Seo-ha and Parang had none either. Sixteen options added to fitting existing events (two each; Rem in the two Act 5 quiet scenes, the Sea trio in Sea scenes), each a small reward plus a bond for that companion (the content rule: a gated bond only bonds the gating companion). Insert indentation fixed before commit.

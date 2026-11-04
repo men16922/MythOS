@@ -411,6 +411,15 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
           effects: [{ kind: 'axis', axis: 'dominance' }, { kind: 'trace', amount: 5 }, { kind: 'consumable' }],
         },
       },
+      {
+        label: t('린위에가 사유 칸 대신 금액 칸을 짚는다', 'Lin Yue points at the value box, not the reason'),
+        hint: t('추적 −4 · 린위에 유대 +1', '−4 Trace · Lin Yue bond +1'),
+        requires: { companion: 'lin_yue' },
+        success: {
+          text: t('린위에가 서식을 넘겨다본다. “압류하려면 가액을 적어야 해. 이 연 얼마야?” 검수원이 펜을 든 채 멈춘다. 값을 매길 수 없는 물건은 압류 대상이 아니다. 연이 아이에게 돌아간다.', 'Lin Yue reads over his shoulder. “To seize it you have to enter a value. What’s this kite worth?” The pen stops. An item with no value can’t be seized. The kite goes back to the child.'),
+          effects: [{ kind: 'trace', amount: -4 }, { kind: 'bond', id: 'lin_yue', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['rookie customs inspector', 'child’s kite', 'reason box on the form'],
   },
@@ -462,6 +471,15 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
         success: {
           text: t('컨테이너 문을 닫아 준다. 세관 순찰이 안을 들여다보지 않고 지나간다.', 'You close the container door for them. The customs patrol passes without looking in.'),
           effects: [{ kind: 'trace', amount: -2 }],
+        },
+      },
+      {
+        label: t('수아가 휴대 화로로 냄비를 데운다', 'Su-ah heats the pot on her travel forge'),
+        hint: t('파티 회복 6 · 수아 유대 +1', 'Party heals 6 · Su-ah bond +1'),
+        requires: { companion: 'su_ah' },
+        success: {
+          text: t('수아가 작은 화로를 꺼내 숯을 붙인다. “연료 설비는 버너잖아. 이건 대장간이야.” 쌀이 끓는다. 하역조가 수아 그릇부터 채운다.', 'Su-ah takes out a small forge and lights the coals. “The seal’s on the burner. This is a smithy.” The rice boils, and the crew fill her bowl first.'),
+          effects: [{ kind: 'heal_party', amount: 6 }, { kind: 'bond', id: 'su_ah', amount: 1 }],
         },
       },
     ],
@@ -552,6 +570,15 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
           effects: [{ kind: 'hp', amount: 6 }, { kind: 'bond', id: 'seo_ha', amount: 1 }],
         },
       },
+      {
+        label: t('한이 꺼진 전구를 귀로 하나씩 대 본다', 'Han holds each dead bulb up to his ear'),
+        hint: t('소모품 1개 · 한 유대 +1', '1 consumable · Han bond +1'),
+        requires: { companion: 'han' },
+        success: {
+          text: t('한이 전구를 하나씩 흔들어 귀에 댄다. 다섯 번째에서 멈춘다. “이건 필라멘트가 살아 있어. 꺼진 게 아니라 뺀 거야.” 창고지기가 장부를 고치고, 그 전구를 당신 가방에 넣어 준다.', 'Han shakes each bulb by his ear and stops at the fifth. “The filament’s fine. This one didn’t burn out. Someone pulled it.” The storekeeper corrects the ledger and puts the bulb in your bag.'),
+          effects: [{ kind: 'consumable' }, { kind: 'bond', id: 'han', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['Keepers’ storeroom', 'burnt-out bulbs labelled by year', 'storekeeper’s ledger'],
   },
@@ -605,6 +632,15 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
           effects: [{ kind: 'hp', amount: 4 }],
         },
       },
+      {
+        label: t('카이가 모두의 돌아오는 표를 부탁한다', 'Kai asks for return tickets for everyone'),
+        hint: t('◈ +5 · 카이 유대 +1', '+5 ◈ · Kai bond +1'),
+        requires: { companion: 'kai' },
+        success: {
+          text: t('카이가 창구에 손을 얹는다. “돌아오는 표 주세요. 일행 전부요.” 매표원이 한참 보다가 서랍을 연다. 손으로 만든 표를 사람 수대로 세어 건넨다.', 'Kai rests a hand on the counter. “Return tickets, please. For all of us.” The clerk looks at him a long while, then opens a drawer and counts out handmade tickets, one for each of you.'),
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'bond', id: 'kai', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['causeway ticket booth', 'one-way tickets to the lighthouse', 'handmade return tickets'],
   },
@@ -652,6 +688,15 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
         success: {
           text: t('젖지 않은 방바닥에 등을 댄다. 아래층에서 물 빠지는 소리가 난다.', 'You lie back on a dry floor. Downstairs, the water drains away.'),
           effects: [{ kind: 'hp', amount: 5 }],
+        },
+      },
+      {
+        label: t('태오가 침대를 혼자 들어 올린다', 'Tae-o lifts the bed by himself'),
+        hint: t('인간성 +1 · 태오 유대 +1', '+1 Humanity · Tae-o bond +1'),
+        requires: { companion: 'tae_o' },
+        success: {
+          text: t('태오가 말없이 침대를 어깨에 올린다. 계단참에서 한 번도 멈추지 않는다. 할머니가 3층 벽에 분필로 “말 없는 사람”이라고 적는다.', 'Tae-o shoulders the bed without a word and never stops on the landings. On the third-floor wall, the old woman chalks “the quiet one.”'),
+          effects: [{ kind: 'axis', axis: 'humanity' }, { kind: 'bond', id: 'tae_o', amount: 1 }],
         },
       },
     ],
@@ -748,6 +793,15 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
         success: {
           text: t('방파제 길은 젖어 있고 아무도 없다. 시장의 소란이 등 뒤로 멀어진다. 아이가 다음 손님을 부른다.', 'The breakwater path is wet and empty. The market noise falls away behind you. The kid calls the next customer.'),
           effects: [{ kind: 'trace', amount: -3 }],
+        },
+      },
+      {
+        label: t('세린이 아이와 밧줄 요령을 바꾼다', 'Se-rin trades rope tricks with the kid'),
+        hint: t('◈ +4 · 세린 유대 +1', '+4 ◈ · Se-rin bond +1'),
+        requires: { companion: 'se_rin' },
+        success: {
+          text: t('세린이 밧줄 매듭 하나를 아이에게 보여 준다. 아이가 일곱 번째 널빤지 비밀을 알려 준다. “통행료는?” “방금 냈잖아.”', 'Se-rin shows the kid one rope knot; the kid tells her the secret of the seventh plank. “What about the toll?” “You just paid it.”'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'bond', id: 'se_rin', amount: 1 }],
         },
       },
     ],

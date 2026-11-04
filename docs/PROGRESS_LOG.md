@@ -5,7 +5,7 @@ Last updated: 2026-11-04
 ## 2026-11-04 — District codex lore (Claude Opus 5.5, same goal)
 
 - Only one district (Glass Atrium) awarded a codex entry. Four districts whose quests reveal setting facts now award one on their final stage: `lore_d_errata` (Errata Office: the "stet" mark), `lore_d_crane_chapel`, `lore_d_old_beat` (Foghorn Post: the old beat meant "clear to enter"), `lore_d_letters` (Cable Station: "we only wanted to see the sea"; the Lightkeeper's promise stays for the ending). The lore-award test now counts district choices like the flag guards do. 45 lore.
-- **Verified**: content + achievements tests; UI: Errata Office (KO 1280×720) and Foghorn Post (390 px) to stage 2, the run's codex gained the entry, 0 console errors.
+- **Verified**: content + achievements tests; UI: all four to stage 2 (Errata Office and Cable Station at 1280×720, Foghorn Post and Crane Chapel at 390 px), each run's codex gained its entry, 0 console errors.
 
 ## 2026-11-04 — Curly quotes everywhere; English Sea run (Claude Opus 5.5, same goal)
 

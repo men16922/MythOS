@@ -9,6 +9,7 @@ from mythos_v2.npcs import (
     d1_substation,
     d2_broker_request,
     d2_memory_auction,
+    d2_outside_laundry,
     d2_runner_shortcut,
     d2_subway_hub,
     d3_glass_atrium,
@@ -54,6 +55,7 @@ for _module in (
     d4_sea_seizure_shed,
     d5_sea_barge_market,
     d6_sea_foghorn_post,
+    d2_outside_laundry,
 ):
     for _id, _persona in _module.PERSONAS.items():
         if _id in PERSONAS:

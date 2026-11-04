@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 746,
+ "codex_image_calls": 750,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4362,6 +4362,15 @@
    ],
    "ts": "2026-10-26T03:59:20"
   },
+  "v2/districts/d2_outside_laundry.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Night Laundry: a tiny back-alley laundry with lights on late at night, dozens of washing lines crossing the narrow alley packed with aprons and work uniforms each with a small blank cloth name patch on the chest, steam from an iron at the counter, wheeled laundry carts, a half-lowered shop shutter, a rotating amber beacon light at the far alley mouth. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, Neo-Seoul undercity noir palette. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/outside.webp"
+   ],
+   "ts": "2026-11-04T11:34:20"
+  },
   "v2/districts/d2_runner_shortcut.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -6964,6 +6973,15 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Citizen No. 0451, a Korean man at the very end of an 'optimization' queue; grey uniform jumpsuit with a number patch, shaved head, a blank exhausted stare, white corridor behind him. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:08:27"
   },
+  "v2/npcs/closing_crew_do.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Do, an uneasy young man in a stiff new dark-orange crew vest with a radio on the shoulder strap, an unlit cigarette between his fingers, conflicted eyes. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a narrow back alley at night after closing, steam, hanging laundry, a rotating amber beacon in the distance. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T11:34:18"
+  },
   "v2/npcs/collector_do.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7258,6 +7276,15 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Sergeant Yun, a Korean patrol sergeant in his forties; tired stern eyes, wet riot-police armor with a cracked visor pushed up, red patrol light on his shoulder. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:06:08"
   },
+  "v2/npcs/shutter_hook_bae.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Mr. Bae, a burly gruff older man in a stained work jacket with a long iron shutter hook resting over his shoulder, stubble, wry half-smile. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a narrow back alley at night after closing, steam, hanging laundry, a rotating amber beacon in the distance. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T11:33:50"
+  },
   "v2/npcs/small_drone_pip.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7323,6 +7350,15 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Technician Dam, a Korean ARK maintenance technician in his fifties; grey coveralls, thick heat gloves patched in three layers on the same spot, long tongs in hand, safety goggles pushed up on his forehead, steam from coolant pipes behind him. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a sterile white-and-steel ARK facility interior behind them (frosted panels, pipes, cold white light with ice-cyan accents), clinical and quiet, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
    "ts": "2026-10-26T04:00:15"
+  },
+  "v2/npcs/washer_yun.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Yun, a brisk middle-aged Korean laundry woman with rolled sleeves and a headscarf, holding a steaming iron, tired sharp eyes. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a narrow back alley at night after closing, steam, hanging laundry, a rotating amber beacon in the distance. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T11:33:53"
   },
   "v2/npcs/wound_captain_jeok.webp": {
    "generations": 1,

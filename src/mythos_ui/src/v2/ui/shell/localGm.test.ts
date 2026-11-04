@@ -92,3 +92,20 @@ test('local act intro: Outside the List gets back-alley lines, not the Data Spir
     }
   }
 })
+
+test('event GM lines on the Sea route carry no city weather (rain, neon, street lamps)', () => {
+  const city = /빗물|비가|네온|가로등|발전기|rain|puddle|neon|street lamp|generator/i
+  for (const lang of ['ko', 'en'] as const) {
+    for (const ctx of [
+      { title: 'T', route: 'sea_5' },
+      { title: 'T', route: 'sea_4', seenBefore: 2 },
+      { title: 'T', route: 'sea_6', trace: 60 },
+      { title: 'T', route: 'sea_5', choice: 'go' },
+    ]) {
+      for (let i = 0; i < 6; i++) {
+        const line = localNarrate('event', lang, { ...ctx, loop: i, party: i % 2 ? ['Mujin'] : [] })
+        assert.ok(line && !city.test(line), `${lang} ${JSON.stringify(ctx)}: ${line}`)
+      }
+    }
+  }
+})

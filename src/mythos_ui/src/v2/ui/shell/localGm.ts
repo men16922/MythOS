@@ -205,6 +205,8 @@ function eventLines(ko: boolean, ctx: Ctx): Line[] {
   const trace = Number(ctx.trace ?? 0)
   const seenBefore = Number(ctx.seenBefore ?? 0)
   const at = title ? (ko ? `‘${title}’. ` : `“${title}.” `) : ''
+  // The Sea route (DLC 3) has no rain, neon or street lamps: salt, foghorns and gray water instead.
+  const sea = String(ctx.route ?? '').startsWith('sea')
   if (choice) {
     if (ctx.success === true) {
       return ko
@@ -236,12 +238,12 @@ function eventLines(ko: boolean, ctx: Ctx): Line[] {
       ? [
           () => `“${choice}” — 정했다. 뒤돌아볼 시간은 없다.`,
           (n) => (n ? `“${choice}.” ${n.neun} 아무 말 없이 따라온다.` : null),
-          () => `“${choice}.” 빗물이 발자국을 금방 지운다.`,
+          () => (sea ? `“${choice}.” 소금기 섞인 바람이 발자국을 금방 덮는다.` : `“${choice}.” 빗물이 발자국을 금방 지운다.`),
         ]
       : [
           () => `“${choice}” — decided. No time to look back.`,
           (n) => (n ? `“${choice}.” ${n.name} follows without a word.` : null),
-          () => `“${choice}.” The rain fills your footprints almost at once.`,
+          () => (sea ? `“${choice}.” The salt wind covers your footprints almost at once.` : `“${choice}.” The rain fills your footprints almost at once.`),
         ]
   }
   // A procedural event's cast person (eventOpening.ts proceduralPerson): AI-off players meet them too.
@@ -258,11 +260,11 @@ function eventLines(ko: boolean, ctx: Ctx): Line[] {
   if (seenBefore > 0) {
     return ko
       ? [
-          () => `${at}이 장면, 본 적이 있다. 빗물이 고인 자리까지 똑같다.`,
+          () => (sea ? `${at}이 장면, 본 적이 있다. 소금이 앉은 자리까지 똑같다.` : `${at}이 장면, 본 적이 있다. 빗물이 고인 자리까지 똑같다.`),
           (n) => `${at}지난 루프에 여기서 무엇을 골랐는지, 손이 먼저 기억한다.${n ? ` ${n.neun} 그걸 모른다.` : ''}`,
         ]
       : [
-          () => `${at}You have seen this. Even the puddles sit in the same places.`,
+          () => (sea ? `${at}You have seen this. Even the salt sits in the same places.` : `${at}You have seen this. Even the puddles sit in the same places.`),
           (n) => `${at}Your hands remember what you chose here last loop.${n ? ` ${n.name} doesn't.` : ''}`,
         ]
   }
@@ -270,25 +272,25 @@ function eventLines(ko: boolean, ctx: Ctx): Line[] {
     return ko
       ? [
           (n) => `${at}머리 위로 드론 소리가 두 번 지나간다.${n ? ` ${n.ga} 손바닥을 아래로 내린다 — 낮게.` : ' 고개를 숙인다.'}`,
-          () => `${at}가로등이 하나씩 켜진다. 누군가 이 구역을 다시 훑고 있다.`,
+          () => (sea ? `${at}멀리서 세관 경광등이 돈다. 누군가 이 일대를 다시 훑고 있다.` : `${at}가로등이 하나씩 켜진다. 누군가 이 구역을 다시 훑고 있다.`),
         ]
       : [
           (n) => `${at}A drone passes overhead, twice.${n ? ` ${n.name} lowers a palm — stay low.` : ' You keep your head down.'}`,
-          () => `${at}Street lamps flick on one by one. Someone is sweeping this block again.`,
+          () => (sea ? `${at}A customs beacon turns in the distance. Someone is combing this stretch again.` : `${at}Street lamps flick on one by one. Someone is sweeping this block again.`),
         ]
   }
   return ko
     ? [
         (n) => (n ? `${at}${n.ga} 벽에 등을 붙이고 당신을 본다. 결정은 당신 몫이다.` : null),
-        () => `${at}비가 그친 틈. 오래 머물 곳은 아니다.`,
-        () => `${at}네온 간판 하나가 깜박이다 꺼진다. 주변이 조용해진다.`,
-        (n) => `${at}어디선가 발전기가 털털거린다.${n ? ` ${n.ga} 주변을 한 번 훑고 고개를 끄덕인다.` : ''}`,
+        () => (sea ? `${at}물이 빠진 틈. 오래 머물 곳은 아니다.` : `${at}비가 그친 틈. 오래 머물 곳은 아니다.`),
+        () => (sea ? `${at}멀리서 무적이 운다. 주변이 조용해진다.` : `${at}네온 간판 하나가 깜박이다 꺼진다. 주변이 조용해진다.`),
+        (n) => `${at}${sea ? '어딘가에서 녹슨 사슬이 삐걱거린다.' : '어디선가 발전기가 털털거린다.'}${n ? ` ${n.ga} 주변을 한 번 훑고 고개를 끄덕인다.` : ''}`,
       ]
     : [
         (n) => (n ? `${at}${n.name} puts their back to the wall and looks at you. Your call.` : null),
-        () => `${at}A break in the rain. Not a place to linger.`,
-        () => `${at}A neon sign stutters and dies. The street goes quiet.`,
-        (n) => `${at}Somewhere a generator coughs.${n ? ` ${n.name} sweeps the area once and nods.` : ''}`,
+        () => (sea ? `${at}The water has drawn back for now. Not a place to linger.` : `${at}A break in the rain. Not a place to linger.`),
+        () => (sea ? `${at}A foghorn sounds far off. Everything goes quiet.` : `${at}A neon sign stutters and dies. The street goes quiet.`),
+        (n) => `${at}${sea ? 'Somewhere a rusted chain creaks.' : 'Somewhere a generator coughs.'}${n ? ` ${n.name} sweeps the area once and nods.` : ''}`,
       ]
 }
 

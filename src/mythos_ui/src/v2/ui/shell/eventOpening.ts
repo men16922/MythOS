@@ -23,6 +23,7 @@ function request(run: RunState, ev: EventDef, C: ContentRegistry, lang: Lang, se
     title: tr(ev.title, lang),
     text: tr(ev.text, lang),
     act: run.act,
+    route: run.route ?? '',
     loop: run.loop,
     party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
     trace: run.trace,

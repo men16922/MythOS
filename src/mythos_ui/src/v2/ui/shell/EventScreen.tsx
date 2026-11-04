@@ -166,6 +166,7 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
       eventId: ev.id,
       title: tr(ev.title, lang),
       act: run.act,
+      route: run.route ?? '',
       loop: run.loop,
       party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
       choice: opt ? tr(opt.label, lang) : imp ? imp.action : undefined,

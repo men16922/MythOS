@@ -472,6 +472,13 @@ test('variety on the Unwritten Sea: every Sea act has a companion conflict betwe
   }
 })
 
+test('every route awards at least one codex entry (route maps roll only their own events)', () => {
+  for (const route of ['outside', 'sea_4', 'sea_5', 'sea_6']) {
+    const ids = EVENTS.filter((e) => e.route === route).flatMap(effects).flatMap((fx) => (fx.kind === 'codex' ? [fx.id] : []))
+    assert.ok(ids.length >= 1, `${route}: no codex entry`)
+  }
+})
+
 test('cross-check against the assembled registry (when it loads)', async (t) => {
   let C: import('../engine/types.ts').ContentRegistry
   try {

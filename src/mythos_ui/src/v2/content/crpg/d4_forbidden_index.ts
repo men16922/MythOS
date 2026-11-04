@@ -217,7 +217,7 @@ const WALL: DialogueDef = {
               '거꾸로 된 번호가 바로 선다. 금서 제목은 없다. 대신 분류 이유가 있다. ‘열람자에게 사서의 사각을 알려 줌.’ 사서가 보지 못하는 자리가 적힌 책이다.',
               'The backwards number stands upright. There is no title, only a reason for the ban: ‘Tells readers where the librarian cannot see.’ A book that lists the librarian’s blind spots.',
             ),
-            effects: [{ kind: 'quest', id: 'q_forbidden_index', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_forbidden_index', stage: 2 }, { kind: 'codex', id: 'lore_d_reversed_marks' }],
           },
         },
         {
@@ -227,7 +227,7 @@ const WALL: DialogueDef = {
           check: { stat: 'int', dc: 12 },
           success: {
             text: t('읽는 손이 비친다. 그래도 끝까지 읽는다. ‘사서의 사각.’ 열람등이 그 줄과 당신 이름을 나란히 적는다.', 'Your reading hand is lit. You read on anyway: ‘the librarian’s blind spots.’ The lamp writes that line and your name side by side.'),
-            effects: [{ kind: 'quest', id: 'q_forbidden_index', stage: 2 }, { kind: 'trace', amount: 6 }],
+            effects: [{ kind: 'quest', id: 'q_forbidden_index', stage: 2 }, { kind: 'codex', id: 'lore_d_reversed_marks' }, { kind: 'trace', amount: 6 }],
           },
           failure: {
             text: t('날짜부터 읽고 말았다. 번호가 다시 뒤집힌다. 열람 기록만 남는다.', 'You read the date first. The number flips back. Only your reading record remains.'),
@@ -241,7 +241,7 @@ const WALL: DialogueDef = {
           approval: { io: 2 },
           success: {
             text: t('이오가 한참 줄을 본다. “이건 제가 쓴 책이에요. 금지된 줄은 몰랐어요.” 이오가 직접 번호를 바로 읽어 준다.', 'Io studies the line a long time. “I wrote this book. I didn’t know it was banned.” Io reads the number the right way round for you.'),
-            effects: [{ kind: 'quest', id: 'q_forbidden_index', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_forbidden_index', stage: 2 }, { kind: 'codex', id: 'lore_d_reversed_marks' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {

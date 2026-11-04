@@ -119,6 +119,30 @@ export const ROUTE_LORE: LoreEntry[] = [
     },
   },
   {
+    id: 'lore_d_paper_roll',
+    title: { ko: '말소 확인증 용지', en: 'Deletion-Certificate Paper' },
+    text: {
+      ko: '스파이어 기록층의 규정 4조는 말소 전에 이름을 한 번 낭독하라고 정한다. 보관관 07은 낭독한 이름을 말소 확인증 용지에 한 번 더 인쇄해 두었다. 관리망은 종이를 읽지 않는다. 지연이 시작된 뒤로 그렇게 남은 이름이 삼천사백여섯 개다. 두루마리는 7열 냉각 서가 뒤에 숨겨져 있었다.',
+      en: 'Regulation 4 on the Spire’s records floor requires each name to be read aloud once before deletion. Archivist 07 printed every name it read a second time, on deletion-certificate paper; the control net does not read paper. Since the delays began, 3,406 names have survived that way, the roll hidden behind a cooling fan in Row Seven.',
+    },
+  },
+  {
+    id: 'lore_d_name_drawer',
+    title: { ko: '잘린 이름의 서랍', en: 'The Drawer of Cut Names' },
+    text: {
+      ko: '유리 도서관 열람실에서는 검열관이 가위로 기록에서 이름만 오려 낸다. 이름이 기록에서 가장 무거운 부분이라 그것부터 덜어야 서가가 버틴다는 것이다. 오린 이름은 아래 서랍에 떨어진다. 서랍은 한 번도 열린 적이 없다. 이름 조각 뒷면에는 원래 기록의 번호가 작게 적혀 있다. 그래서 제자리를 찾아 붙일 수 있다.',
+      en: 'In the Glass Library reading room a censor snips only the names out of the records: names are the heaviest part of a record, and the shelves hold better without them. The slips fall into a drawer below that has never been opened. On the back of each slip, small and faint, is the number of the record it came from, so it can be pasted back where it belongs.',
+    },
+  },
+  {
+    id: 'lore_d_reversed_marks',
+    title: { ko: '거꾸로 쓴 청구 기호', en: 'Shelf Marks Written Backwards' },
+    text: {
+      ko: '금서에는 제목이 없다. 제목은 검색되기 때문이다. 금서 색인 벽의 청구 기호는 모두 거꾸로 적혀 있다. 바로 읽으면 누군가 그 책을 반납해 달라고 요청하기 때문이다. 순회 열람등은 읽는 손을 비추고, 비춘 것은 기록한다. 가장 최근에 진하게 덧붙은 줄은 ‘사서의 사각’이다.',
+      en: 'Forbidden books have no titles, because titles get searched for. Every shelf mark on the Forbidden Index wall is written backwards, because read the right way round, someone asks for the book’s return. The roving reading lamp lights the reading hand and records what it lights. The most recent line, darker than the rest, reads ‘the librarian’s blind spots’.',
+    },
+  },
+  {
     id: 'lore_d_errata',
     title: { ko: '정오표', en: 'The Errata' },
     text: {

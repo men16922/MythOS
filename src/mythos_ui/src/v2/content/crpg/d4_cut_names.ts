@@ -204,7 +204,7 @@ const DRAWER: DialogueDef = {
               '기록 번호를 따라 조각을 돌려놓는다. 풀이 마르자 이음매가 사라진다. 기록 속 사람이 다시 서류에 선다. 아무도 그 자리가 잘렸던 걸 모른다.',
               'You follow the record number and put the slip back. As the paste dries, the seam disappears. The person in the record stands on the page again. No one can tell it was ever cut.',
             ),
-            effects: [{ kind: 'quest', id: 'q_cut_names', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_cut_names', stage: 2 }, { kind: 'codex', id: 'lore_d_name_drawer' }],
           },
         },
         {
@@ -214,7 +214,7 @@ const DRAWER: DialogueDef = {
           check: { stat: 'obs', dc: 12 },
           success: {
             text: t('이음매가 울퉁불퉁하다. 그래도 이름은 붙는다. 검열관이 언젠가 그 자국을 찾을 것이다.', 'The seam is lumpy, but the name holds. One day a censor will find the mark.'),
-            effects: [{ kind: 'quest', id: 'q_cut_names', stage: 2 }, { kind: 'trace', amount: 6 }],
+            effects: [{ kind: 'quest', id: 'q_cut_names', stage: 2 }, { kind: 'codex', id: 'lore_d_name_drawer' }, { kind: 'trace', amount: 6 }],
           },
           failure: {
             text: t('조각이 엉뚱한 기록에 붙는다. 서류 속 사람이 남의 이름으로 선다. 얼른 떼어 낸다.', 'The slip lands on the wrong record; a person on the page stands under someone else’s name. You peel it off fast.'),
@@ -228,7 +228,7 @@ const DRAWER: DialogueDef = {
           approval: { io: 2 },
           success: {
             text: t('이오가 둥근 첫 글자로 시작하는 조각을 골라낸다. “이 사람이에요.” 사무원의 이름표에 이름이 돌아온다. 사무원이 그 자리에서 서류를 내려놓는다.', 'Io picks out a slip beginning with a round first letter. “This one.” The name returns to the clerk’s tag. The clerk sets the papers down where they stand.'),
-            effects: [{ kind: 'quest', id: 'q_cut_names', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_cut_names', stage: 2 }, { kind: 'codex', id: 'lore_d_name_drawer' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {

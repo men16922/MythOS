@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-04
 
-## 2026-11-04 — District codex lore, 18 districts (Claude Opus 5.5, same goal)
+## 2026-11-04 — District codex lore, 21 districts (Claude Opus 5.5, same goal)
 
 - Only one district (Glass Atrium) awarded a codex entry. Four districts whose quests reveal setting facts now award one on their final stage: `lore_d_errata` (Errata Office: the "stet" mark), `lore_d_crane_chapel`, `lore_d_old_beat` (Foghorn Post: the old beat meant "clear to enter"), `lore_d_letters` (Cable Station: "we only wanted to see the sea"; the Lightkeeper's promise stays for the ending). The lore-award test now counts district choices like the flag guards do. 45 lore.
 - **Verified**: content + achievements tests; UI: all four to stage 2 (Errata Office and Cable Station at 1280×720, Foghorn Post and Crane Chapel at 390 px), each run's codex gained its entry, 0 console errors.
@@ -10,6 +10,7 @@ Last updated: 2026-11-04
 - Three Sea districts: `lore_d_shift_clock` (Seizure Shed: the crew changed shifts by the tide after the clock was seized), `lore_d_rope` (Shallows: the rope rule; what comes up goes to whoever recognizes it), `lore_d_lens_window` (Lens Workshop: Mok's deliberate flaw), avoiding facts already in the four Sea lore entries. 51 lore; 10 districts award lore. **Verified**: content tests; UI: all three to stage 2 (shed and workshop at 390 px, shallows at 1280×720), codex gained each entry, 0 console errors.
 - The other four Sea districts: `lore_d_seal_tape` (Container Alley), `lore_d_tide_table` (Dormitory: thirty years of tide tables), `lore_d_jelly_drone` (Barge Market), `lore_d_seventeen` (Drowned Rows: the knock at 404). Every Sea district now awards lore. 55 lore; 14 districts. **Verified**: content tests; UI: all four to stage 2 (two at 390 px, two at 1280×720), codex gained each entry, 0 console errors. Archive codex at 390 px (KO and EN) with all 14 district entries expanded: reads cleanly, no overflow, 0 console errors.
 - Four late Deep districts: `lore_d_off_pitch` (Scrap Choir), `lore_d_minus_forty` (Cold Storage), `lore_d_struck_streets` (First Draft), `lore_d_margins` (Margin Notes), kept distinct from the existing "same kitchen" and "Loop Engine's margins" entries. 59 lore; 18 districts. **Verified**: content tests; UI: all four to stage 2 (two at 390 px, two at 1280×720), codex gained each entry, 0 console errors.
+- Name Archive (`lore_d_paper_roll`), Cut Names (`lore_d_name_drawer`), Forbidden Index (`lore_d_reversed_marks`). Skipped on purpose: Dream Stacks (Kai's dream is "not proof of an origin"), Return Desk (Miro and vault access) and Old Wound (Tae-o's own account); a codex line there would state canon the districts leave open. 62 lore; 21 districts. **Verified**: content tests; UI: all three to stage 2, codex gained each entry, 0 console errors.
 
 ## 2026-11-04 — Curly quotes everywhere; English Sea run (Claude Opus 5.5, same goal)
 

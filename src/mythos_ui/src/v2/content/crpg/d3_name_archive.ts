@@ -135,7 +135,7 @@ const ARCHIVIST: DialogueDef = {
               '07이 한참 서 있다. 그러다 단말을 잠그고, 직접 7열로 걸어가 감열지 두루마리를 들고 온다. 주먹만큼 두껍다. 맨 끝 줄의 인쇄가 아직 따뜻하다. “방금 낭독한 분입니다.”',
               '07 stands still a long while. Then it locks the terminal, walks to Row Seven itself and comes back with a roll of thermal paper as thick as a fist. The last line is still warm from the printer. “The one I just read.”',
             ),
-            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }, { kind: 'codex', id: 'lore_d_paper_roll' }],
             goto: 'after',
           },
           failure: {
@@ -155,7 +155,7 @@ const ARCHIVIST: DialogueDef = {
               '07이 장부의 한 줄을 읽는다. 낙찰자, 낙찰가, 출처. 출처란의 이름은 지난주 07이 낭독한 이름이다. “말소 기록에는 ‘파기’라고 되어 있습니다.” 렌즈가 오래 멈춘다. “파기가 아니라 판매였군요. 그렇다면 제 기록이 틀렸습니다.” 07이 7열에서 두루마리를 가져온다. “틀린 기록은 정정되어야 합니다. 밖에서.”',
               '07 reads one line of the ledger. Buyer, price, source. The name in the source column is one 07 read aloud last week. “The deletion record says ‘destroyed’.” Its lens holds still a long time. “Not destroyed. Sold. Then my records are wrong.” 07 fetches the roll from Row Seven. “Wrong records must be corrected. Outside.”',
             ),
-            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }, { kind: 'codex', id: 'lore_d_paper_roll' }],
             goto: 'after',
           },
         },
@@ -169,7 +169,7 @@ const ARCHIVIST: DialogueDef = {
               '07이 신청 대기열을 확인한다. 자기 일련번호가 있던 칸이 비어 있다. 렌즈가 느리게 깜빡인다. “…그렇다면 저는 내일도 낭독합니다.” 07이 7열로 걸어가 두루마리를 들고 온다. “내일 읽을 이름은 내일 인쇄하겠습니다. 오늘 것은, 부탁드립니다.”',
               '07 checks the request queue. The row where its serial number sat is empty. Its lens blinks slowly. “…Then I will read again tomorrow.” 07 walks to Row Seven and comes back with the roll. “Tomorrow’s names I will print tomorrow. Today’s, I leave to you.”',
             ),
-            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }, { kind: 'codex', id: 'lore_d_paper_roll' }],
             goto: 'after',
           },
         },
@@ -497,7 +497,7 @@ const ROW7: DialogueDef = {
               '멈춘 팬 뒤에 감열지 두루마리가 있다. 주먹만큼 두껍다. 정비 승강기에 소 씨의 카드를 대자 문이 검색 없이 열린다. 드론은 계속 돈다. 정비 인력은 세는 대상이 아니다.',
               'Behind the dead fan, a roll of thermal paper as thick as a fist. You touch Mrs. So’s card to the maintenance lift and the doors open without a scan. The drone keeps turning. Maintenance staff are not something it counts.',
             ),
-            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }, { kind: 'codex', id: 'lore_d_paper_roll' }],
           },
         },
         {
@@ -512,7 +512,7 @@ const ROW7: DialogueDef = {
               '셋에 들어가 여덟에 빠진다. 두루마리가 코트 안쪽에 들어가 있다. 드론이 한 바퀴를 마저 돌고, 아무것도 달라지지 않은 7열을 본다.',
               'In on three, out on eight. The roll is inside your coat. The drone finishes its turn and looks at a Row Seven where nothing has changed.',
             ),
-            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }, { kind: 'codex', id: 'lore_d_paper_roll' }],
           },
           failure: {
             text: t(
@@ -532,7 +532,7 @@ const ROW7: DialogueDef = {
               '배달 가방을 메고 수천 번 지나다닌 검문소의 리듬이다. 드론이 돌면 서고, 멈추면 걷는다. 두루마리가 가방 바닥에 눕는다. 숨 한 번 흐트러지지 않는다.',
               'It’s the rhythm of a thousand checkpoints crossed with a courier bag. When the drone turns, you stop; when it stops, you walk. The roll lies down at the bottom of your bag. Your breathing never changes.',
             ),
-            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_names', stage: 2 }, { kind: 'codex', id: 'lore_d_paper_roll' }],
           },
         },
         {

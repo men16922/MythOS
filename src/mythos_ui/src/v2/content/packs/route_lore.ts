@@ -5,6 +5,39 @@
 import type { LoreEntry } from '../../engine/types.ts'
 
 export const ROUTE_LORE: LoreEntry[] = [
+  // District lore (Signal+): awarded when a district quest reaches its last stage.
+  {
+    id: 'lore_d_errata',
+    title: { ko: '정오표', en: 'The Errata' },
+    text: {
+      ko: '최초 기록에는 고칠 줄의 목록이 따로 있다. 다음 개정 때 목록의 모든 줄이 바르게 된다. 예외는 교정자가 “그대로 둘 것”이라고 표시한 줄뿐이다. 오자에서 생겨난 사람이 하나 있다. 그 사람이 남느냐는 그 부호 하나에 달려 있다.',
+      en: 'The first record keeps a separate list of lines to fix. At the next revision every line on it is made correct, except a line the proofreader marks “stet”. One person exists only because of a typo. Whether they remain depends on that single mark.',
+    },
+  },
+  {
+    id: 'lore_d_crane_chapel',
+    title: { ko: '크레인 예배당', en: 'The Crane Chapel' },
+    text: {
+      ko: '고철 묘역의 크레인 하나는 몇 년째 기계를 분쇄기에 넣지 않는다. 들어 올린 것을 부수는 건 자기 일이 아니라고 정했다. 그 팔 아래 흙더미마다 꿈을 끝까지 꾸고 싶어 했던 기계가 하나씩 묻혀 있다.',
+      en: 'One crane in the scrap graveyard has not fed the crusher in years; it decided breaking what it lifts is not its job. Under its arm, each mound holds one machine that wanted to finish its dream.',
+    },
+  },
+  {
+    id: 'lore_d_old_beat',
+    title: { ko: '옛 박자', en: 'The Old Beat' },
+    text: {
+      ko: '등대단의 무적은 길게 둘, 짧게 하나로 운다. 등대지기가 정한 박자다. 그 전에는 짧게 셋, 길게 하나였다. 옛 항로 신호로 “입항 허가”, 들어와도 된다는 뜻이었다. 녹슨 부표 하나가 아직 그 박자로 깜빡인다.',
+      en: 'The Keepers’ foghorn sounds two long, one short: the Lightkeeper’s beat. Before that it was three short, one long, the old channel signal for “clear to enter”: you may come in. One rusted buoy still blinks it.',
+    },
+  },
+  {
+    id: 'lore_d_letters',
+    title: { ko: '등대지기에게 가는 편지', en: 'Letters to the Lightkeeper' },
+    text: {
+      ko: '해저 케이블 중계 기지는 IX가 지운 것을 다시 바다로 밀어낸다. 그런데 밀어내도 돌아오는 기록이 있다. 수신인이 등대지기인 편지들이다. 첫 줄은 늘 같다. “저희는 바다를 보고 싶었을 뿐입니다.”',
+      en: 'The seabed cable relay pushes what IX erases back out to sea. Some records keep coming back anyway: letters addressed to the Lightkeeper. The first line is always the same. “We only wanted to see the sea.”',
+    },
+  },
   {
     id: 'lore_sea_blank_square',
     title: { ko: '번호 없는 칸', en: 'The Unnumbered Square' },

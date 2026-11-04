@@ -144,7 +144,7 @@ const RELAY: DialogueDef = {
           requires: { flag: 'sea_cs_line', quest: { id: 'q_sea_cable', stage: 1 } },
           success: {
             text: t('경고음이 멎는다. 창밖 등대의 빛이 한순간 흔들린다. 누군가 편지를 읽고 있다.', 'The warning stops. Outside, the lighthouse light wavers for a moment. Someone is reading.'),
-            effects: [{ kind: 'quest', id: 'q_sea_cable', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_sea_cable', stage: 2 }, { kind: 'codex', id: 'lore_d_letters' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -154,7 +154,7 @@ const RELAY: DialogueDef = {
           check: { stat: 'agi', dc: 12 },
           success: {
             text: t('젖은 종이 한 장이 출력기에서 나온다. 품에 넣는다. 등대지기를 만날 때 꺼낼 것이다.', 'A damp sheet slides out of the printer. You tuck it inside your coat, to take out when you meet the Lightkeeper.'),
-            effects: [{ kind: 'quest', id: 'q_sea_cable', stage: 2 }, { kind: 'trace', amount: 4 }],
+            effects: [{ kind: 'quest', id: 'q_sea_cable', stage: 2 }, { kind: 'codex', id: 'lore_d_letters' }, { kind: 'trace', amount: 4 }],
           },
           failure: {
             text: t('출력기가 종이를 씹는다. 경고음이 두 배로 커진다.', 'The printer chews the paper. The warning doubles in volume.'),

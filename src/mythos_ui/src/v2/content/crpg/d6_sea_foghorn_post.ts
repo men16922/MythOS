@@ -183,7 +183,7 @@ const HORN: DialogueDef = {
           requires: { quest: { id: 'q_sea_foghorn', stage: 1 } },
           success: {
             text: t('짧게 셋, 길게 하나. 안개가 한순간 조용해진다. 등대 렌즈가 돌아가는 방향이 보인다. 그다음 무엇을 보는지도.', 'Three short, one long. The fog falls silent for a moment. You see which way the lighthouse lens turns, and what it looks at next.'),
-            effects: [{ kind: 'quest', id: 'q_sea_foghorn', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sea_foghorn', stage: 2 }, { kind: 'codex', id: 'lore_d_old_beat' }],
           },
         },
         {
@@ -192,7 +192,7 @@ const HORN: DialogueDef = {
           requires: { flag: 'sea_fp_hint', quest: { id: 'q_sea_foghorn', stage: 1 } },
           success: {
             text: t('두 나팔이 옛 박자를 맞춘다. 근무자들이 하나둘 고개를 든다. 희가 운다. “들어와도 된다는 뜻이었구나.”', 'Two horns keep the old beat together. The keepers look up one by one. Hui is crying. “So it meant you may come in.”'),
-            effects: [{ kind: 'quest', id: 'q_sea_foghorn', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_sea_foghorn', stage: 2 }, { kind: 'codex', id: 'lore_d_old_beat' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {

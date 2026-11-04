@@ -295,9 +295,9 @@ test('companion-gated bond options only bond the gating companion', () => {
   }
 })
 
-test('every lore entry is awarded by at least one event', () => {
+test('every lore entry is awarded by at least one event or district choice', () => {
   const awarded = new Set(
-    EVENTS.flatMap(effects).flatMap((fx) => (fx.kind === 'codex' ? [fx.id] : [])),
+    FLAG_SETTERS.flatMap(effects).flatMap((fx) => (fx.kind === 'codex' ? [fx.id] : [])),
   )
   const orphans = LORE.map((l) => l.id).filter((id) => !awarded.has(id))
   assert.deepEqual(orphans, [])

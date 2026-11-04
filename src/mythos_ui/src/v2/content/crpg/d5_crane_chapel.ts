@@ -183,7 +183,7 @@ const LINE: DialogueDef = {
           requires: { flag: 'cc_ledger', quest: { id: 'q_crane_chapel', stage: 1 } },
           success: {
             text: t('들보의 갈고리가 간호 로봇을 조심스럽게 들어 올린다. 새 흙더미가 하나 생긴다. 묘역의 기계들이 감은 눈 아래로 불빛을 한 번 깜빡인다.', 'Deulbo’s hook lifts the nursing robot gently. A new mound appears. Across the graveyard, machines blink their lights once behind closed eyes.'),
-            effects: [{ kind: 'quest', id: 'q_crane_chapel', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_crane_chapel', stage: 2 }, { kind: 'codex', id: 'lore_d_crane_chapel' }],
           },
         },
         {
@@ -193,7 +193,7 @@ const LINE: DialogueDef = {
           approval: { kai: 1, rem: 1 },
           success: {
             text: t('카이가 로봇의 체온계를 쥔 손을 감싼다. 들보가 흙을 덮는다. 카이가 낮게 말한다. “꿈 끝까지 꿔.”', 'Kai folds the robot’s hand around its thermometer. Deulbo covers it with earth. Kai says quietly, “Dream it to the end.”'),
-            effects: [{ kind: 'quest', id: 'q_crane_chapel', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_crane_chapel', stage: 2 }, { kind: 'codex', id: 'lore_d_crane_chapel' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -203,7 +203,7 @@ const LINE: DialogueDef = {
           check: { stat: 'str', dc: 13 },
           success: {
             text: t('로봇이 컨베이어에서 미끄러져 나온다. 들보가 받는다. 분쇄반 경보가 울린다.', 'The robot slides off the conveyor. Deulbo catches it. The crusher crew’s alarm sounds.'),
-            effects: [{ kind: 'quest', id: 'q_crane_chapel', stage: 2 }, { kind: 'trace', amount: 7 }],
+            effects: [{ kind: 'quest', id: 'q_crane_chapel', stage: 2 }, { kind: 'codex', id: 'lore_d_crane_chapel' }, { kind: 'trace', amount: 7 }],
           },
           failure: {
             text: t('컨베이어가 손을 끌고 간다. 겨우 빼낸다.', 'The conveyor drags at your hand. You barely pull free.'),

@@ -183,7 +183,7 @@ const LIST: DialogueDef = {
           requires: { flag: 'eo_stet', quest: { id: 'q_errata', stage: 1 } },
           success: {
             text: t('점 세 개와 짧은 선. 정오표의 그 줄이 고칠 목록에서 빠진다. 오자의 윤곽이 처음으로 또렷해진다.', 'Three dots and a short line. That line leaves the list to fix. For the first time, Oja’s outline is sharp.'),
-            effects: [{ kind: 'quest', id: 'q_errata', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_errata', stage: 2 }, { kind: 'codex', id: 'lore_d_errata' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -193,7 +193,7 @@ const LIST: DialogueDef = {
           check: { stat: 'agi', dc: 13 },
           success: {
             text: t('틀린 곳과 바른 곳이 같아진다. 고칠 것이 없는 줄이 된다. 교정 종이 한 번, 헛되이 울린다.', 'Wrong and right become the same. Nothing left to fix. The proof bell rings once, for nothing.'),
-            effects: [{ kind: 'quest', id: 'q_errata', stage: 2 }, { kind: 'trace', amount: 5 }],
+            effects: [{ kind: 'quest', id: 'q_errata', stage: 2 }, { kind: 'codex', id: 'lore_d_errata' }, { kind: 'trace', amount: 5 }],
           },
           failure: {
             text: t('펜이 미끄러진다. 새 오자가 하나 생긴다. 이번엔 아무도 생겨나지 않는다.', 'The pen slips. A new typo appears. This time no one is born of it.'),

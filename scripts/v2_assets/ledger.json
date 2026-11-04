@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 845,
+ "codex_image_calls": 850,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -5615,6 +5615,15 @@
    ],
    "ts": "2026-10-26T04:50:57"
   },
+  "v2/events/cx_bel_pen.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Bel (the censor in the reference) holding out a leaking red pen toward the viewer, red ink staining her fingertips, an abandoned printing room behind. Keep the character identical to the attached reference, redrawn in this scene. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/recruit/bel.webp"
+   ],
+   "ts": "2026-11-04T19:17:15"
+  },
   "v2/events/cx_bel_retracted_cut.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5633,6 +5642,24 @@
    ],
    "ts": "2026-10-26T05:08:41"
   },
+  "v2/events/cx_doyun_old_tag.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Doyun (the person in the reference) looking at a cluttered lost-and-found corkboard where one small old paper queue-number tag is pinned (no readable number), quiet subway concourse at night. Keep the character identical to the attached reference, redrawn in this scene. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/recruit/doyun.webp"
+   ],
+   "ts": "2026-11-04T19:16:00"
+  },
+  "v2/events/cx_io_bookmark.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Io the glass librarian (the character in the reference) standing at an abandoned reading desk where a book lies open with a bookmark halfway through, a single lamp, dust in the light. Keep the character identical to the attached reference, redrawn in this scene. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/recruit/io.webp"
+   ],
+   "ts": "2026-11-04T19:16:05"
+  },
   "v2/events/cx_io_sealed_letter.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5641,6 +5668,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/io.png"
    ],
    "ts": "2026-10-26T05:08:15"
+  },
+  "v2/events/cx_miro_reflection.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Miro (the small child in the reference) waving at a rain-streaked shop window at night; passersby are reflected in the glass but Miro is not, a gap in the reflection beside a figure in a coat. Keep the character identical to the attached reference, redrawn in this scene. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/recruit/miro.webp"
+   ],
+   "ts": "2026-11-04T19:16:03"
   },
   "v2/events/cx_miro_second_footsteps.webp": {
    "generations": 1,
@@ -5659,6 +5695,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/rem-ally.png"
    ],
    "ts": "2026-10-26T05:08:58"
+  },
+  "v2/events/cx_rem_yawn.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Rem (the android executor in the reference) sitting against a safehouse wall by a small fire, caught mid-yawn and surprised by it, a hand halfway to the mouth, gentle warm light. Keep the character identical to the attached reference, redrawn in this scene. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/recruit/rem.webp"
+   ],
+   "ts": "2026-11-04T19:18:25"
   },
   "v2/events/noise_gate_origin.webp": {
    "generations": 1,

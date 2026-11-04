@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — A second personal scene for each DLC companion (Claude Opus 5.5, same goal)
+
+- `cx_io_bookmark` (a reader who never came back; finish the book by proxy or leave the marker), `cx_miro_reflection` (the window that reflects everyone but Miro), `cx_doyun_old_tag` (Doyun's old queue number on a lost-and-found board), `cx_bel_pen` (Bel offers the leaking red pen: cut one line you choose, or break it), `cx_rem_yawn` (Rem's first yawn). Small and earned, no arc resolved; Codex art drawn from each recruit portrait (unreviewed).
+- **Verified**: content + event-balance tests; UI with each companion deployed (KO/EN, desktop/390 px) resolved, bond +1, 0 console errors.
+
 ## 2026-11-04 — Companion-only options for the DLC and Sea companions (Claude Opus 5.5, same goal)
 
 - Io, Miro, Doyun, Bel and Rem had one personal event each and no companion-only option anywhere; Mujin, Seo-ha and Parang had none either. Sixteen options added to fitting existing events (two each; Rem in the two Act 5 quiet scenes, the Sea trio in Sea scenes), each a small reward plus a bond for that companion (the content rule: a gated bond only bonds the gating companion). Insert indentation fixed before commit.
@@ -98,8 +103,3 @@ Last updated: 2026-11-04
 
 - Only the Glass Library districts had a "finish one quest" achievement. Added `ach_machine_quest` (Dreaming Machines), `ach_record_quest` (First Record), `ach_sea_quest` (all nine Sea quests), `ach_outside_quest` (DLC 2 route); data only, existing `questDone` kind. 85 achievements (the pinned count test updated with the reason).
 - **Verified**: new test that every listed quest is real and each achievement fires on its final stage and not before; Archive achievements tab shows all four in KO (1280×900) and EN (390×844), 0 console errors.
-
-## 2026-11-04 — The Last-Bus Depot comes back; full runs with every district (Claude Opus 5.5, same goal)
-
-- `a3_cb_bus` (got the last bus out → Driver Gwang now drives a Spire staff shuttle, the cancelled card still on the dashboard: ride it, −12 Trace/+6 HP, or hear all forty-one got home, +4◈/consumable); Codex art. 31 callbacks.
-- **Verified**: content + event-balance tests; UI KO 1280×720 / EN 390×844 resolved, 0 console errors. Full UI playthroughs with all 34 districts in: Deep + Signal+ victory (21 min, 36 district polls), Sea + Signal+ victory (26 min, 40), no errors.

@@ -557,4 +557,170 @@ export const NEW_COMPANION_EVENTS: EventDef[] = [
       },
     ],
   },
+  // 2026-11-04: a second personal scene for each DLC companion (small and earned, no arc resolved).
+  {
+    id: 'cx_io_bookmark',
+    acts: [3, 5],
+    title: t('읽다 만 자리', 'Where the Reader Stopped'),
+    requires: { companion: 'io' },
+    speaker: 'io',
+    image: 'v2/events/cx_io_bookmark.webp',
+    gmHints: ['quiet', 'Io', 'abandoned bookmark', 'a reader who never came back'],
+    text: t(
+      '버려진 열람석에 책 한 권이 펼쳐져 있다. 중간쯤에 책갈피가 꽂혀 있다. 이오가 대출 기록을 조회한다. “이 독자는 돌아오지 않았습니다. 기록상으로는.” 이오가 책갈피를 빼지 않는다.',
+      'A book lies open on an abandoned reading desk, a bookmark halfway through. Io checks the loan record. “This reader did not return. According to the record.” Io does not remove the bookmark.',
+    ),
+    options: [
+      {
+        label: t('이오와 함께 그 자리부터 끝까지 읽는다', 'Read on from the bookmark to the end with Io'),
+        hint: t('지능 5 · 유대 +1 · ◈ +3 / HP −3', 'INT 5 · bond +1 · +3 ◈ / −3 HP'),
+        check: { stat: 'int', dc: 5 },
+        success: {
+          text: t('둘이 번갈아 소리 내어 읽는다. 마지막 장에서 이오가 책갈피를 맨 뒤에 꽂는다. “완독 처리합니다. 대리로.”', 'You take turns reading aloud. At the last page Io moves the bookmark to the very back. “Marked as finished. By proxy.”'),
+          effects: [{ kind: 'bond', id: 'io', amount: 1 }, { kind: 'echoes', amount: 3 }],
+        },
+        failure: {
+          text: t('글자가 흐릿해 눈이 아프다. 이오가 대신 마저 읽는다.', 'The print blurs and your eyes ache. Io reads the rest.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+      {
+        label: t('책갈피를 그대로 두고 덮는다', 'Leave the bookmark and close the book'),
+        hint: t('유대 +1 · 추적 −3', 'bond +1 · −3 Trace'),
+        success: {
+          text: t('이오가 책을 서가에 꽂는다. 책갈피가 그대로 남는다. “돌아올 수도 있으니까요.”', 'Io shelves the book with the bookmark still in. “They might come back.”'),
+          effects: [{ kind: 'bond', id: 'io', amount: 1 }, { kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'cx_miro_reflection',
+    acts: [3, 5],
+    title: t('비치지 않는 아이', 'The Child the Glass Leaves Out'),
+    requires: { companion: 'miro' },
+    speaker: 'miro',
+    image: 'v2/events/cx_miro_reflection.webp',
+    gmHints: ['quiet', 'Miro', 'shop window reflection', 'being left out of the picture'],
+    text: t(
+      '상점 유리창에 지나가는 사람들이 다 비친다. 미로만 비치지 않는다. 미로가 유리 앞에 서서 손을 흔든다. 유리 속 당신 옆자리는 비어 있다. “괜찮아. 늘 이래.”',
+      'Everyone passing shows in the shop window except Miro. Miro stands at the glass and waves. In the reflection, the space beside you is empty. “It’s fine. Always like this.”',
+    ),
+    options: [
+      {
+        label: t('유리에 미로의 윤곽을 분필로 그린다', 'Chalk Miro’s outline on the glass'),
+        hint: t('민첩 5 · 유대 +1 · ◈ +3 / 추적 +3', 'AGI 5 · bond +1 · +3 ◈ / +3 Trace'),
+        check: { stat: 'agi', dc: 5 },
+        success: {
+          text: t('유리 속 당신 옆에 분필 윤곽이 선다. 미로가 그 안에 쏙 들어간다. “이제 있다.”', 'A chalk outline stands beside you in the reflection. Miro steps right into it. “Now I’m there.”'),
+          effects: [{ kind: 'bond', id: 'miro', amount: 1 }, { kind: 'echoes', amount: 3 }],
+        },
+        failure: {
+          text: t('분필이 미끄러져 소리가 난다. 가게 주인이 문을 연다.', 'The chalk squeaks. The shopkeeper opens the door.'),
+          effects: [{ kind: 'trace', amount: 3 }],
+        },
+      },
+      {
+        label: t('유리 대신 미로를 본다', 'Look at Miro instead of the glass'),
+        hint: t('유대 +1 · +4 HP', 'bond +1 · +4 HP'),
+        success: {
+          text: t('미로가 고개를 든다. 당신이 보고 있다는 걸 확인하고, 작게 웃는다.', 'Miro looks up, checks that you are looking, and smiles a little.'),
+          effects: [{ kind: 'bond', id: 'miro', amount: 1 }, { kind: 'hp', amount: 4 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'cx_doyun_old_tag',
+    acts: [4, 6],
+    title: t('분실물 게시판의 번호표', 'The Number Tag on the Lost Board'),
+    requires: { companion: 'doyun' },
+    speaker: 'doyun',
+    image: 'v2/events/cx_doyun_old_tag.webp',
+    gmHints: ['quiet', 'Doyun', 'old queue number', 'lost and found board'],
+    text: t(
+      '분실물 게시판에 낡은 번호표가 핀으로 꽂혀 있다. 도윤의 예전 대기 번호다. 도윤이 한참 본다. “이걸로 불렸어요. 몇 년을.” 핀을 뽑을지 망설인다.',
+      'An old queue tag is pinned to a lost-and-found board: Doyun’s former number. Doyun looks at it a long time. “That’s what they called me. For years.” Doyun hesitates over the pin.',
+    ),
+    options: [
+      {
+        label: t('번호표를 떼어 태운다', 'Take the tag down and burn it'),
+        hint: t('유대 +1 · ◈ +4', 'bond +1 · +4 ◈'),
+        success: {
+          text: t('종이가 금방 탄다. 도윤이 재를 손바닥에 받는다. “생각보다 작네요.”', 'The paper burns quickly. Doyun catches the ash in a palm. “Smaller than I thought.”'),
+          effects: [{ kind: 'bond', id: 'doyun', amount: 1 }, { kind: 'echoes', amount: 4 }],
+        },
+      },
+      {
+        label: t('번호표 위에 이름을 써 준다', 'Write Doyun’s name over the number'),
+        hint: t('유대 +1 · +6 HP', 'bond +1 · +6 HP'),
+        success: {
+          text: t('번호 위에 이름이 겹쳐 쓰인다. 도윤이 그걸 주머니에 넣는다. “이건 가져갈게요.”', 'The name goes over the number. Doyun pockets it. “I’ll keep this one.”'),
+          effects: [{ kind: 'bond', id: 'doyun', amount: 1 }, { kind: 'hp', amount: 6 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'cx_bel_pen',
+    acts: [4, 6],
+    title: t('새는 붉은 펜', 'The Leaking Red Pen'),
+    requires: { companion: 'bel' },
+    speaker: 'bel',
+    image: 'v2/events/cx_bel_pen.webp',
+    gmHints: ['quiet', 'Bel', 'censor red pen', 'one line of your choosing'],
+    text: t(
+      '벨의 붉은 펜에서 잉크가 샌다. 벨이 그걸 당신에게 내민다. “하나만 잘라 봐. 네가 고른 줄로. 남이 아니라 네가 정하는 거.” 손끝이 붉게 물들어 있다.',
+      'Bel’s red pen is leaking. Bel holds it out to you. “Cut one line. One you choose. You decide, not someone else.” Bel’s fingertips are stained red.',
+    ),
+    options: [
+      {
+        label: t('당신 메모에서 한 줄을 지운다', 'Strike one line from your own notes'),
+        hint: t('유대 +1 · 카드 1장 제거', 'bond +1 · remove 1 card'),
+        success: {
+          text: t('당신이 고른 줄이 지워진다. 벨이 고개를 끄덕인다. “그게 편집이야. 검열이 아니라.”', 'The line you chose is struck. Bel nods. “That’s editing. Not censorship.”'),
+          effects: [{ kind: 'bond', id: 'bel', amount: 1 }, { kind: 'remove_card', count: 1 }],
+        },
+      },
+      {
+        label: t('펜을 부러뜨리자고 한다', 'Suggest breaking the pen'),
+        hint: t('유대 +1 · 추적 −5', 'bond +1 · −5 Trace'),
+        success: {
+          text: t('벨이 망설이다 펜을 두 동강 낸다. 잉크가 손에 번진다. 웃음인지 한숨인지 모를 소리를 낸다.', 'Bel hesitates, then snaps the pen in two. Ink spreads over both hands. Bel makes a sound somewhere between a laugh and a sigh.'),
+          effects: [{ kind: 'bond', id: 'bel', amount: 1 }, { kind: 'trace', amount: -5 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'cx_rem_yawn',
+    acts: [3, 6],
+    title: t('첫 하품', 'The First Yawn'),
+    requires: { companion: 'rem' },
+    speaker: 'rem',
+    image: 'v2/events/cx_rem_yawn.webp',
+    gmHints: ['quiet', 'Rem', 'learning to be tired', 'a first yawn'],
+    text: t(
+      '쉬는 동안 렘이 입을 크게 벌린다. 스스로 놀란다. “방금 그거… 뭐예요? 몸이 멋대로 했어요.” 하품이다. 한 번도 자 본 적 없는 몸이 처음으로 피곤하다고 말한다.',
+      'During a rest, Rem opens wide and is startled by it. “That just now… what was that? My body did it on its own.” A yawn. A body that has never slept says it is tired for the first time.',
+    ),
+    options: [
+      {
+        label: t('“피곤하다는 뜻이에요. 자도 돼요.”', '“It means you’re tired. You can sleep.”'),
+        hint: t('유대 +1 · 파티 회복 5', 'bond +1 · heal party 5'),
+        success: {
+          text: t('렘이 벽에 기대 눈을 감는다. 금방 다시 뜬다. “…조금 무섭네요.” 그래도 다시 감는다.', 'Rem leans against the wall and closes their eyes, then opens them again. “…A little scary.” Closes them again anyway.'),
+          effects: [{ kind: 'bond', id: 'rem', amount: 1 }, { kind: 'heal_party', amount: 5 }],
+        },
+      },
+      {
+        label: t('같이 하품을 한다', 'Yawn along'),
+        hint: t('유대 +1 · ◈ +3', 'bond +1 · +3 ◈'),
+        success: {
+          text: t('하품이 옮는다. 렘이 웃는다. “이것도 옮는 거예요? 꿈처럼?”', 'Yawns are catching. Rem laughs. “That spreads too? Like dreams?”'),
+          effects: [{ kind: 'bond', id: 'rem', amount: 1 }, { kind: 'echoes', amount: 3 }],
+        },
+      },
+    ],
+  },
 ]

@@ -149,11 +149,13 @@
   gap: 6px;
   margin-top: 6px;
 }
-/* Long hints (a noise gate spells out its whole bargain) wrap instead of running off a phone screen. */
+/* Long hints (a noise gate spells out its whole bargain) wrap instead of running off a phone screen. Compressed
+   hints with no spaces (e.g. INT8·S:+3Trace/upgrade1) may break anywhere, or they overrun the odds column. */
 .m2-option__meta .m2-chip {
   max-width: 100%;
   height: auto;
   white-space: normal;
+  overflow-wrap: anywhere;
   line-height: 1.4;
 }
 .m2-option__fail {

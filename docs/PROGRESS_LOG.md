@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — The Crew Dormitory and the Gray Shallows come back (Claude Opus 5.5, same goal)
+
+- `sea5_cb_dorm` (kept the dormitory → Cook Yeong's tide table on the breakwater post marks you passing: +12 HP, or move by the flood times, −12 Trace/+2◈) and `sea6_cb_shallows` (brought back the child's voice → it sings in the causeway fog and thins it: −12 Trace/+3◈ or +12 HP); Codex art (unreviewed). 30 callbacks.
+- **Verified**: content + event-balance tests; UI on Sea runs (KO 1280×720, EN 390×844) resolved through the buttons, 0 console errors.
+
 ## 2026-11-04 — Third Sea Act 6 district, The Lens Workshop (Claude Opus 5.5, same goal)
 
 - `d6_sea_lens_workshop` (route `sea_6`): old grinder Mok hid a hairline flaw in the Lightkeeper's new lens so the sea shows once a night; the apprentice machine Guseul found it and hasn't reported it. Find it (OBS, or Guseul persuaded / Seo-ha) and see it installed (logged as a "window", or hidden under polish, AGI) → boss **weaken**. 2 personas, scene + 2 portraits by Codex (unreviewed). Every Sea act now draws 2 of 3.
@@ -106,8 +111,3 @@ Last updated: 2026-11-04
 
 - **Integration**: `ui_playthrough.py --sea` after the day's changes: OK in 1670 s, Acts 1–6 → victory, 0 console errors; `--daily`: OK in 690 s, victory. Chapter-end screen checked at 390 px; its kicker now says "Chronicle chapter N complete" instead of "Loop complete".
 - **Agenda line**: narrate kind `agenda` (`gm.py`: one person's one step, 1–2 sentences, never the next step; fallback = the authored stage line; client local line = the same). The chapter-end screen asks once for the last moved agenda and swaps in the model line with ✦ AI only when the model answers. Local `make gm-eval` (`gemma4:8b-64k`): `agenda_ko/en` usable 100 %, p50 0.5–0.7 s, faithful (one KO line swapped a posted note for a hologram). Browser with GM off: authored line stays, 0 console errors. Vertex not run.
-
-## 2026-11-04 — Chronicle twist bank (Claude Opus 5.5, same goal)
-
-- `content/chronicleTwists.ts` (1.0 `twist_bank`): Se-rin's double role, the grid's real purpose, who you are; three beats each (hint, doubt, reveal). A campaign draws two at its first chapter end (`drawTwists`, by run seed; all six ordered pairs come up) and reveals them under the chapter titles: 2 → A1, 3 → B1, 4 → A2, 5 → B2, 6 → both reveals (`twistBeats`, `run.beats`). Tests; browser: chapter 6 shows both reveals, 0 console errors.
-- **Campaign loop**: clearing chapter 6 completes the campaign (`activeCampaign`); the next chronicle run is chapter 1 with nothing carried, and its clear starts a fresh record, agendas and twist draw. Chapters bank by the act played. Setup says "Complete · start a new campaign". Test.

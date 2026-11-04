@@ -1245,4 +1245,74 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['nursing robot', 'finished dream', 'thermometer', 'buried under the crane'],
   },
+  {
+    id: 'sea5_cb_dorm',
+    acts: [5],
+    route: 'sea_5',
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_sea_dorm', stage: 2 } },
+    title: t('밀물 칸에 적힌 이름', 'A Name in the Flood Column'),
+    image: 'v2/events/sea5_cb_dorm.webp',
+    text: t(
+      '방파제 초소 벽에 조석표 한 장이 새로 붙어 있다. 하역조 숙소 식당의 그 필체다. 오늘 밀물 칸 옆에 연필로 작게 적혀 있다. 당신이 지나간다는 표시다.\n초소 안에서 영 조리장이 보온 도시락을 들고 나온다.',
+      'A fresh tide table is pinned to the breakwater post: the same hand as on the dormitory mess wall. Beside today’s flood, in small pencil, a note that you are passing through.\nCook Yeong steps out of the post with an insulated lunchbox.',
+    ),
+    options: [
+      {
+        label: t('도시락을 받는다', 'Take the lunchbox'),
+        hint: t('+12 HP', '+12 HP'),
+        success: {
+          text: t('“숙소 지켜 준 값이에요. 아직 따뜻해요.”', '“For keeping the dormitory. Still warm.”'),
+          effects: [{ kind: 'hp', amount: 12 }],
+        },
+      },
+      {
+        label: t('조석표대로 물길을 탄다', 'Move by the tide table'),
+        hint: t('추적 −12 · ◈ +2', '−12 Trace · +2 ◈'),
+        success: {
+          text: t('밀물 시각에 맞춰 움직이자 세관 순찰이 물에 막혀 따라오지 못한다.', 'Moving to the flood times, you leave the customs patrol cut off by the water.'),
+          effects: [
+            { kind: 'trace', amount: -12 },
+            { kind: 'echoes', amount: 2 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['tide table', 'cook yeong', 'breakwater post', 'kept dormitory'],
+  },
+  {
+    id: 'sea6_cb_shallows',
+    acts: [6],
+    route: 'sea_6',
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_sea_shallows', stage: 2 } },
+    title: t('돌아온 목소리', 'The Voice That Came Back'),
+    image: 'v2/events/sea6_cb_shallows.webp',
+    text: t(
+      '철탑 길 안개 속에서 아이 목소리 하나가 노래를 부른다. 여울에서 건져 준 그 목소리다. 엄마 곁으로 돌아간 뒤 안개 속까지 퍼졌다고 한다.\n노래가 들리는 쪽만 안개가 옅다.',
+      'In the causeway fog a child’s voice is singing: the voice you brought back from the shallows. Back with its mother, it has carried even into the fog.\nThe fog is thinner only where the song can be heard.',
+    ),
+    options: [
+      {
+        label: t('노래 쪽으로 걷는다', 'Walk toward the song'),
+        hint: t('추적 −12 · ◈ +3', '−12 Trace · +3 ◈'),
+        success: {
+          text: t('옅은 안개 속에선 등대단 초소가 먼저 보인다. 피해 간다.', 'In the thin fog the Keepers’ posts show first. You go around them.'),
+          effects: [
+            { kind: 'trace', amount: -12 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+      {
+        label: t('멈춰 서서 끝까지 듣는다', 'Stop and listen to the end'),
+        hint: t('+12 HP', '+12 HP'),
+        success: {
+          text: t('짧은 노래다. 끝나자 숨이 고르게 돌아와 있다.', 'A short song. When it ends, your breathing has evened out.'),
+          effects: [{ kind: 'hp', amount: 12 }],
+        },
+      },
+    ],
+    gmHints: ['child voice', 'song in the fog', 'recovered memory'],
+  },
 ]

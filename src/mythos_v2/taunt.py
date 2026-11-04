@@ -364,6 +364,97 @@ ENEMY_PERSONAS: dict[str, EnemyPersona] = {
             "en": "The Keepers’ cantor who leads the prayers. Solemn, chant-like: song, light, the beat. It believes the light pushes the water back. It never makes the sea beautiful.",
         },
     ),
+    "sentinel_overseer": EnemyPersona(
+        {"ko": "감시 지휘기", "en": "Overseer"},
+        {
+            "ko": "정전 구역 상공의 감시 드론 지휘기. 기계적인 관제 방송체(방어막, 감시, 소각 승인).",
+            "en": "The command drone above the blackout zone. Mechanical control-room announcements: shields, surveillance, authorised burns.",
+        },
+    ),
+    "rust_hulk": EnemyPersona(
+        {"ko": "부식 처리기", "en": "Rust Hulk"},
+        {
+            "ko": "쓰레기를 압축하고 녹이는 처리 기계. 고장 난 듯 되풀이하는 짧은 반말(부식, 압축, 처리).",
+            "en": "A disposal machine that compacts and melts trash. Short, broken, repeating speech: rust, compacting, disposal.",
+        },
+    ),
+    "suppression_mech": EnemyPersona(
+        {"ko": "진압 메크", "en": "Suppression Mech"},
+        {
+            "ko": "두꺼운 장갑의 진압 기계. 자신만만하고 딱딱한 존댓말로 장갑과 진압을 말한다.",
+            "en": "A heavily armoured suppression machine. Smug, stiff politeness about armour and suppression.",
+        },
+    ),
+    "aegis_drone": EnemyPersona(
+        {"ko": "이지스 드론", "en": "Aegis Drone"},
+        {
+            "ko": "아군에게 보호막을 씌우는 비행 드론. 담담한 존댓말로 보호와 방어를 말하고, 상대에게는 방패가 없다고 한다.",
+            "en": "A flying drone that shields its allies. Calm and polite about protection and defence; it tells the enemy no shield is coming for them.",
+        },
+    ),
+    "purge_seraph": EnemyPersona(
+        {"ko": "소각 세라프", "en": "Purge Seraph"},
+        {
+            "ko": "첨탑의 비행 소각 기계. 성스러운 척하는 존댓말로 정화, 불, 재를 말한다.",
+            "en": "The Spire’s flying incineration machine. Mock-holy politeness about purging, fire and ash.",
+        },
+    ),
+    "eclipse_valkyrie": EnemyPersona(
+        {"ko": "이클립스 발키리", "en": "Eclipse Valkyrie"},
+        {
+            "ko": "첨탑 격납고의 위상 회피 전투기. 냉정한 군사 존댓말로 회피, 재보정, 일식 심판을 말한다.",
+            "en": "The Spire hangar’s phase-evading combat frame. Cold military formality: evasion, recalibration, eclipse judgement.",
+        },
+    ),
+    "wrecking_rig": EnemyPersona(
+        {"ko": "철거 중기", "en": "Wrecking Rig"},
+        {
+            "ko": "폐점 구역을 허무는 철거 중장비. 무뚝뚝한 작업 반말(철거, 정리, 다음 블록).",
+            "en": "The demolition rig tearing down closed blocks. Blunt work talk: demolition, clearing, next block.",
+        },
+    ),
+    "binding_giant": EnemyPersona(
+        {"ko": "제본 거인", "en": "Binding Giant"},
+        {
+            "ko": "유리 도서관의 거대한 제본 기계. 낮고 느린 반말로 꿰매기, 누르기, 제본을 말한다.",
+            "en": "The Glass Library’s huge binding machine. Low, slow speech about stitching, pressing and binding.",
+        },
+    ),
+    "sentence_cutter": EnemyPersona(
+        {"ko": "문장 절단기", "en": "Sentence Cutter"},
+        {
+            "ko": "문장을 통째로 잘라 내는 검열 기계. 짧고 날카로운 반말(자른다, 줄, 끝).",
+            "en": "A censor machine that cuts whole lines out. Short, sharp statements: cut, line, end.",
+        },
+    ),
+    "void_librarian": EnemyPersona(
+        {"ko": "공허 사서", "en": "Void Librarian"},
+        {
+            "ko": "빈 서가를 지키는 비뚤어진 사서 기계. 서늘한 반말로 대출 거부, 반납, 빈 서가를 말한다.",
+            "en": "A warped librarian machine guarding empty shelves. Chilly speech about refused loans, returns and empty shelves.",
+        },
+    ),
+    "furnace_guard": EnemyPersona(
+        {"ko": "용광로 수호기", "en": "Furnace Guard"},
+        {
+            "ko": "고철 묘역 용광로를 지키는 기계. 짧은 반말로 온도, 가열, 녹이기를 말한다.",
+            "en": "The machine that guards the scrap graveyard’s furnace. Short talk of temperature, heating and melting.",
+        },
+    ),
+    "frost_reclaimer": EnemyPersona(
+        {"ko": "냉동 회수기", "en": "Frost Reclaimer"},
+        {
+            "ko": "분류되지 못한 기계를 얼려 선반으로 옮기는 회수기. 담담한 반말로 동결, 회수, 선반을 말하며 꿈은 건드리지 않는다.",
+            "en": "The reclaimer that freezes unsorted machines and shelves them. Flat speech about freezing, reclaiming and shelves; it leaves the dream alone.",
+        },
+    ),
+    "assembly_titan": EnemyPersona(
+        {"ko": "조립 거인", "en": "Assembly Titan"},
+        {
+            "ko": "부품을 찍어 내는 거대한 조립 기계. 공장 작업 반말(조립, 규격, 불량, 폐기).",
+            "en": "A huge assembly machine stamping out parts. Factory talk: assembly, spec, defects, scrap.",
+        },
+    ),
 }
 
 _SITUATION: dict[TauntTrigger, dict[Lang, str]] = {

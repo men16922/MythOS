@@ -186,4 +186,56 @@ export const TAUNTS: Record<string, Record<TauntMoment, Text[]>> = {
     hurt: [t('기도는 안개를 따라 이어집니다.', 'The prayer goes on with the fog.'), t('수련생들이여, 목소리를 높여라.', 'Novices, raise your voices.')],
     winning: [t('노래하라. 빛 아래 물이 물러간다.', 'Sing. Under the light the water falls back.'), t('그대는 박자를 놓쳤습니다.', 'You have lost the beat.')],
   },
+  sentinel_overseer: {
+    hurt: [t('편대 손상. 방어막을 전개합니다.', 'Wing damaged. Deploying shields.'), t('감시는 중단되지 않습니다.', 'Surveillance does not pause.')],
+    winning: [t('한 줄 전체 소각 승인.', 'Full-row burn authorised.'), t('관측 종료. 대상 확인.', 'Observation complete. Target confirmed.')],
+  },
+  rust_hulk: {
+    hurt: [t('부식… 부식이 번진다.', 'Rust… the rust is spreading.'), t('쓰레기는 쓰레기를 녹인다.', 'Trash melts trash.')],
+    winning: [t('압축. 압축. 처리 완료.', 'Compacting. Compacting. Disposal complete.'), t('너도 녹슨다. 다 녹슨다.', 'You rust too. Everything rusts.')],
+  },
+  suppression_mech: {
+    hurt: [t('장갑 한 겹이 떨어졌습니다. 문제없습니다.', 'One armour layer gone. No issue.'), t('찔러 보시죠. 소용없습니다.', 'Go ahead and chip at it. It won’t work.')],
+    winning: [t('진압 완료까지 남은 시간: 짧음.', 'Time until suppression complete: short.'), t('무릎 꿇으십시오. 진압합니다.', 'Kneel. Suppressing.')],
+  },
+  aegis_drone: {
+    hurt: [t('보호막 재충전 중.', 'Recharging the aegis.'), t('아군 보호가 우선입니다.', 'Allied protection takes priority.')],
+    winning: [t('방어 완료. 반격은 동료가 합니다.', 'Defence complete. My allies will strike.'), t('당신을 지켜 줄 방패는 없습니다.', 'There is no shield for you.')],
+  },
+  purge_seraph: {
+    hurt: [t('불길이 꺼지지 않습니다.', 'The fire does not go out.'), t('정화는 고통스럽습니다. 원래 그렇습니다.', 'Purging hurts. It is meant to.')],
+    winning: [t('한 줄로 서십시오. 정화합니다.', 'Stand in a line. Purging.'), t('재가 되면 깨끗해집니다.', 'Ash is clean.')],
+  },
+  eclipse_valkyrie: {
+    hurt: [t('위상 회피 실패. 재보정.', 'Phase evasion failed. Recalibrating.'), t('날개 하나로도 충분합니다.', 'One wing is enough.')],
+    winning: [t('일식 심판을 내립니다.', 'Passing eclipse judgement.'), t('빛이 가려질 때 끝납니다.', 'It ends when the light is covered.')],
+  },
+  wrecking_rig: {
+    hurt: [t('붐대 손상. 철거는 계속.', 'Boom damaged. Demolition continues.'), t('건물 하나 더 남았다.', 'One more building to go.')],
+    winning: [t('주변 정리한다. 비켜.', 'Clearing the surroundings. Move.'), t('철거 완료. 다음 블록.', 'Demolition done. Next block.')],
+  },
+  binding_giant: {
+    hurt: [t('표지가 찢어졌다. 다시 꿰맨다.', 'The cover tore. Restitching.'), t('독자들아, 모여라.', 'Readers, gather.')],
+    winning: [t('책장 사이에 눌러 둔다.', 'Pressing you between the pages.'), t('제본이 끝나면 아무도 못 연다.', 'Once bound, no one opens it.')],
+  },
+  sentence_cutter: {
+    hurt: [t('칼날이 무뎌졌다. 상관없다.', 'The blade is dull. Doesn’t matter.'), t('한 줄만 남기면 된다.', 'Only one line needs to be left.')],
+    winning: [t('줄 서라. 한 번에 자른다.', 'Line up. One cut.'), t('이 문장은 여기서 끝난다.', 'This sentence ends here.')],
+  },
+  void_librarian: {
+    hurt: [t('서가가 비었다. 다시 채운다.', 'The shelf is empty. Refilling.'), t('쪽늑대들아, 풀려나라.', 'Page Wolves, loose.')],
+    winning: [t('대출 거부. 영구 반납.', 'Loan refused. Permanently returned.'), t('빈 서가에 꽂아 주지.', 'I’ll shelve you on an empty shelf.')],
+  },
+  furnace_guard: {
+    hurt: [t('온도 하강. 다시 올린다.', 'Temperature falling. Raising it.'), t('부품 하나쯤 녹여도 된다.', 'Melting one part is fine.')],
+    winning: [t('가열 완료. 주변을 녹인다.', 'Heating done. Melting the surroundings.'), t('용광로로 돌아갈 시간이다.', 'Time to go back to the furnace.')],
+  },
+  frost_reclaimer: {
+    hurt: [t('냉각 회로 손상. 회수 계속.', 'Coolant circuit damaged. Reclaiming continues.'), t('얼면 상하지 않는다.', 'What freezes doesn’t spoil.')],
+    winning: [t('한 줄 동결. 회수 대상 확보.', 'Row frozen. Reclaim target secured.'), t('선반으로 옮긴다. 꿈은 그대로 둬.', 'Moving you to a shelf. Leave the dream as it is.')],
+  },
+  assembly_titan: {
+    hurt: [t('조립 오류. 재조립.', 'Assembly error. Reassembling.'), t('부품은 많다. 너보다 많다.', 'There are plenty of parts. More than you.')],
+    winning: [t('한 줄 압착. 규격 맞춤.', 'Pressing a row. Cutting to spec.'), t('불량품은 폐기한다.', 'Defective units are scrapped.')],
+  },
 }

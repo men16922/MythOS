@@ -217,3 +217,10 @@ test('camps: every companion has a camp night', () => {
   const have = new Set(X.camps.map((c) => c.companion))
   for (const id of COMPANIONS) assert.ok(have.has(id), `no camp night for ${id}`)
 })
+
+test('every district offers at least one background option (your background keeps mattering after Act 3)', () => {
+  for (const d of Object.values(X.districts)) {
+    const n = d.pois.flatMap((p) => Object.values(X.dialogues[p.dialogue]?.nodes ?? {})).flatMap((nd) => nd.options).filter((o) => o.requires?.background).length
+    assert.ok(n >= 1, `${d.id}: no background option`)
+  }
+})

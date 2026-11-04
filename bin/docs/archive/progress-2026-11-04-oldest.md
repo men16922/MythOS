@@ -1,5 +1,15 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Second districts for Acts 5 and 6 (Claude Opus 5.5, same goal)
+
+- Every act places two districts; Acts 5–6 had one each. `d5_cold_storage` (machines frozen mid-dream; get the thaw code from Seol or buy it from Jang, wake the oldest slowly as Gu shows → boss fight **cover**) and `d6_first_draft` (streets struck from the city's first draft are still lived in; ask Mo the name, rewrite it with San's dark ink or Yeon's own pen → boss **marked**). 6 personas, 2 scenes + 6 portraits by Codex (unreviewed). 20 districts / 60 NPCs. Sea Acts 4–6 place no district (checked; unchanged).
+- **Verified**: content + chronicle tests (each of chapters 5–6 places 2); UI (Act 5 at 1280×720, Act 6 at 390×844) to quest stage 2 via buttons, 0 console errors; local Ollama: 4/6 in voice first try, Seol (archaic register) and Mo (반말) personas tightened, rerun in voice.
+
+## 2026-11-04 — Districts for Acts 5 and 6 (they had none) (Claude Opus 5.5, same goal)
+
+- `d5_scrap_choir` (discarded machines sing one dream that never ends; tune it with Dal or Kai, let it finish → boss **weaken**) and `d6_margin_notes` (every loop's connector wrote in the first record's margins; find your own hand, leave a line → **intel**); 3 NPCs each with server personas; 2 district scenes + 6 portraits by Codex (unreviewed). 18 districts / 54 NPCs. Chronicle chapters 5–6 now get a district (test).
+- **Verified**: `crpg.test.ts`; UI (Act 5 at 1280×720, Act 6 at 390×844) played to quest stage 2 through the buttons, 0 console errors; the six NPCs answered in character on local Ollama (KO/EN).
+
 ## 2026-11-04 — Outside the List comes back in Act 3 (Claude Opus 5.5, same goal)
 
 - The DLC 2 route's closing scenes now set `outside_kept` / `outside_gone`; Act 3 callbacks `a3_cb_line` ("The Line Held": a woman from the counter line now works the Spire kitchen) and `a3_cb_ladle` ("The Washed Ladle": the closed counter's ladle on the Spire kitchen wall), Codex art (unreviewed). Fresh mixed 186/450 (unchanged). UI: both render and resolve (ko desktop, en 390 px), 0 console errors. 13 callback scenes in all.

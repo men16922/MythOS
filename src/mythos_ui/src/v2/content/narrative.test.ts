@@ -461,6 +461,17 @@ test('variety: every act has a gamble, a companion conflict, an IX contact and a
   }
 })
 
+test('variety on the Unwritten Sea: every Sea act has a companion conflict between Sea companions, Acts 4–5 an IX contact', () => {
+  const SEA = new Set(['mujin', 'seo_ha', 'parang'])
+  for (const act of [4, 5, 6] as const) {
+    const pool = EVENTS.filter((e) => e.route === `sea_${act}` && e.acts.includes(act))
+    const conflicts = pool.filter((e) => e.gmHints?.[0] === 'companion conflict')
+    assert.ok(conflicts.length >= 1, `sea act ${act} lacks a companion conflict`)
+    for (const e of conflicts) assert.ok((e.requires?.companions ?? []).every((c) => SEA.has(c)), `${e.id}: Sea companions only`)
+    if (act < 6) assert.ok(pool.some((e) => e.gmHints?.[0] === 'IX contact'), `sea act ${act} lacks an IX contact`)
+  }
+})
+
 test('cross-check against the assembled registry (when it loads)', async (t) => {
   let C: import('../engine/types.ts').ContentRegistry
   try {

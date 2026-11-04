@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 802,
+ "codex_image_calls": 810,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -5806,6 +5806,15 @@
    "refs": [],
    "ts": "2026-11-04T05:19:33"
   },
+  "v2/events/sea4_cf_rations.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. At the end of a dry cracked wharf, a stack of ration crates wrapped in yellow seal tape (blank); a broad Korean dock foreman in his fifties with short graying hair and a worn orange work jacket (the man in the attached reference) has a hand on the tape while a silver-haired Korean retired harbor pilot woman in her sixties in a dark green coat grips his wrist to stop him, tense but respectful. No ships. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/mujin.png"
+   ],
+   "ts": "2026-11-04T15:28:07"
+  },
   "v2/events/sea4_classroom.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5945,6 +5954,13 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. One middle-aged Korean dock rigger in worn work clothes kneeling beside a massive crane hook, holding a pry bar beside a trapped lunch box. Dry concrete dock, intact paint above the rusted underside. One restrained effect: a few falling rust flakes. No other people, no text in the image.",
    "refs": [],
    "ts": "2026-11-01T14:36:56"
+  },
+  "v2/events/sea4_ix_blank.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Inside a dim customs warehouse with steel shelves of tagged goods, an old wall terminal glows with a cold white screen (illegible glyphs only), casting a long rectangle of light across the floor toward the viewer. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T15:26:32"
   },
   "v2/events/sea4_memorial_stone.webp": {
    "generations": 1,
@@ -6097,6 +6113,15 @@
    ],
    "ts": "2026-11-04T13:54:16"
   },
+  "v2/events/sea5_cf_borrowed.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. At a gray tide line under an overcast sky, a slight Korean child of about twelve with short black hair in a gray hooded raincoat holds out an open palm with a softly glowing lump of light; a silver-haired Korean retired harbor pilot woman in her sixties in a dark green coat (the woman in the attached reference) kneels beside the child, gently closing the child's hand around it. No ships. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/seo-ha.png"
+   ],
+   "ts": "2026-11-04T15:28:00"
+  },
   "v2/events/sea5_crane_hook.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -6131,6 +6156,13 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions, one male night attendant as the sole subject beside an industrial foghorn valve on a breakwater platform, hand on the wheel and chest lifted for a long breath, one restrained effect: a faint curl of condensed breath, no text in the image.",
    "refs": [],
    "ts": "2026-11-01T14:40:55"
+  },
+  "v2/events/sea5_ix_speaker.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A neighbourhood public loudspeaker on a pole half submerged in gray flood water among drowned low-rise flats, faint visible sound ripples and bubbles, an overcast sky, a single lit window. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T15:26:26"
   },
   "v2/events/sea5_name_called.webp": {
    "generations": 1,
@@ -6231,6 +6263,15 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A long steel causeway over the sea in dense fog, a single corridor of thinner fog with soft warm light where faint visible sound ripples drift like a song, a lone traveler in a long coat walking toward it, a distant lighthouse glow. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
    "refs": [],
    "ts": "2026-11-04T13:53:47"
+  },
+  "v2/events/sea6_cf_beam.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. On a steel causeway in sea fog beside an open electrical junction box, a broad Korean dock foreman in his fifties with short graying hair and a worn orange work jacket (the man in the attached reference) lifts heavy bolt cutters toward a cable while a slight Korean child of about twelve with short black hair in a gray hooded raincoat grips the cutters' handle to stop him; the lighthouse beam sweeping overhead. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/mujin.png"
+   ],
+   "ts": "2026-11-04T15:27:54"
   },
   "v2/events/sea6_coat_hem.webp": {
    "generations": 1,

@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Sea companion conflicts and IX contacts (Claude Opus 5.5, same goal)
+
+- The base acts guarantee a gamble, a companion conflict, an IX contact and an uncanny event (`narrative.test.ts`), but the Sea's own pools had **no** companion conflict and no IX contact in Acts 4–5. `content/eventsSeaVariety.ts`: `sea4_cf_rations` (Mujin tears the seal on the crew's rations vs Seo-ha files the claim), `sea5_cf_borrowed` (Parang returns a borrowed first-words memory to the tide vs Seo-ha lets Parang keep it), `sea6_cf_beam` (Mujin cuts the line to show the sea vs Parang, who came out of that water), `sea4_ix_blank` and `sea5_ix_speaker` (IX: "this square was not left blank by mistake", "I erased this water for your sake; that promise still stands"). New test: every Sea act has a Sea-companion conflict, Acts 4–5 an IX contact. Codex art (conflict scenes re-rendered with the companions' portraits as reference so Mujin/Seo-ha/Parang match).
+- **Verified**: content + event-balance tests; UI on Sea runs (KO/EN, desktop/390 px), the chosen side's companion gained the bond, 0 console errors. Sea canonical (150 seeds) HEAD → this: 28.7 → 26.7 %, within noise; not retuned.
+
 ## 2026-11-04 — Procedural events for the route maps (Claude Opus 5.5, same goal)
 
 - `actEventPool` requires an exact route match, so the Unwritten Sea and Outside the List rolled **no** procedural events. Added `pc_sea_tag` (Sea 4: someone clutching a thing with a seizure tag), `pc_sea_wader` (Sea 5: someone wading with a stranger's birthday in their head), `pc_sea_watch` (Sea 6: a Keeper three days alone on watch), `pc_outside_shift` (DLC 2: one last job before the Crew arrives); Codex art (unreviewed). 12 procedural. Over 60 Sea seeds the three appear on maps 9/5/8 times (the per-run cap still applies).
@@ -107,13 +112,3 @@ Last updated: 2026-11-04
 - A scan of every flag set vs read found only two never read again, both in the Act 1 district `d1_lamp_market`. `a2_cb_ku` (promised Madam Ku three buyers → her kid comes to collect: pay 30₵ for a consumable and −5 Trace, find a buyer for +20₵ at CHA DC 6, or ignore; first draft was a pure tax and `event-balance.test.ts` caught it) and `a3_cb_min` (sold out Min → he limps into the Spire as a debt courier: apologise, Tae-o pays his helmet rental for +1 bond, or walk past); Codex art (unreviewed). 21 callbacks. Every content flag is now read somewhere.
 - `narrative.test.ts` flag guards now count district dialogue options as setters (act + companion requirement), so district → act callbacks stay checked for reachability instead of failing as "never set".
 - **Verified**: content tests; UI (Ku KO 1280×720, Min EN 390×844 with Tae-o) resolved through the buttons, bond +1, 0 console errors. Fresh/deep balance unaffected (both need Signal+ district flags the canonical blocks never set): unmeasured.
-
-## 2026-11-04 — Second districts for Acts 5 and 6 (Claude Opus 5.5, same goal)
-
-- Every act places two districts; Acts 5–6 had one each. `d5_cold_storage` (machines frozen mid-dream; get the thaw code from Seol or buy it from Jang, wake the oldest slowly as Gu shows → boss fight **cover**) and `d6_first_draft` (streets struck from the city's first draft are still lived in; ask Mo the name, rewrite it with San's dark ink or Yeon's own pen → boss **marked**). 6 personas, 2 scenes + 6 portraits by Codex (unreviewed). 20 districts / 60 NPCs. Sea Acts 4–6 place no district (checked; unchanged).
-- **Verified**: content + chronicle tests (each of chapters 5–6 places 2); UI (Act 5 at 1280×720, Act 6 at 390×844) to quest stage 2 via buttons, 0 console errors; local Ollama: 4/6 in voice first try, Seol (archaic register) and Mo (반말) personas tightened, rerun in voice.
-
-## 2026-11-04 — Districts for Acts 5 and 6 (they had none) (Claude Opus 5.5, same goal)
-
-- `d5_scrap_choir` (discarded machines sing one dream that never ends; tune it with Dal or Kai, let it finish → boss **weaken**) and `d6_margin_notes` (every loop's connector wrote in the first record's margins; find your own hand, leave a line → **intel**); 3 NPCs each with server personas; 2 district scenes + 6 portraits by Codex (unreviewed). 18 districts / 54 NPCs. Chronicle chapters 5–6 now get a district (test).
-- **Verified**: `crpg.test.ts`; UI (Act 5 at 1280×720, Act 6 at 390×844) played to quest stage 2 through the buttons, 0 console errors; the six NPCs answered in character on local Ollama (KO/EN).

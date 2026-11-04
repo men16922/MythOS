@@ -181,7 +181,10 @@ test('option counts, checks and hints', () => {
     for (const o of e.options) {
       const where = `${e.id} / ${o.label.en}`
       assert.ok(o.hint, `${where}: hint`)
-      assert.ok(o.hint.ko.length <= 30 && o.hint.en.length <= 44, `${where}: hint too long`)
+      // 40 / 52: two lines in a phone option card (2026-11-05: compressed codes like `INT8·S:+3Trace/upgrade1` were
+      // rewritten in words; the odds badge shows the check and an 'On fail' chip the failure, so hints list success only).
+      assert.ok(o.hint.ko.length <= 40 && o.hint.en.length <= 52, `${where}: hint too long`)
+      assert.ok(!/\S·|·\S/.test(o.hint.ko + o.hint.en), `${where}: compressed hint (write ' · ' with spaces): ${o.hint.en}`)
       assert.ok(o.success.effects.length > 0, `${where}: success has no effect (flavour-only)`)
       if (o.check) {
         assert.ok(o.check.dc >= 3 && o.check.dc <= 9, `${where}: dc ${o.check.dc}`)

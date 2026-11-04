@@ -18,7 +18,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('빈 쪽 줄을 받아 함께 당긴다', 'Take the loose end and haul'),
-        hint: t('회복력+1·성공 HP-3,+40₵·실패 HP-6', 'Resilience+1·pass −3HP,+40₵·fail −6HP'),
+        hint: t('HP −3 · +40 ₵ · 회복력 +1', '−3 HP · +40 ₵ · Resilience +1'),
         check: { stat: 'str', dc: 8 },
         success: {
           text: t(
@@ -176,7 +176,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('칠 분을 빼고 여백의 시각을 대조한다', 'Subtract seven minutes and compare the margin'),
-        hint: t('통찰+1·성공 추적+3,카드 강화·실패 HP-5', 'Insight+1·pass +3Trace,upgrade 1·fail −5HP'),
+        hint: t('추적 +3 · 카드 강화 1 · 통찰 +1', '+3 Trace · upgrade 1 · Insight +1'),
         check: { stat: 'int', dc: 9 },
         success: {
           text: t(
@@ -245,7 +245,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('부러진 쪽을 어깨로 받쳐 밀어 올린다', 'Shoulder the broken side and push'),
-        hint: t('회복력+1·성공 HP-4,+50₵·실패 HP-7', 'Resilience+1·pass −4HP,+50₵·fail −7HP'),
+        hint: t('HP −4 · +50 ₵ · 회복력 +1', '−4 HP · +50 ₵ · Resilience +1'),
         check: { stat: 'str', dc: 9 },
         success: {
           text: t(
@@ -315,7 +315,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('감별료를 내고 물이 두드리는 간격을 읽는다', 'Pay to study the rhythm of the tapping'),
-        hint: t('−30₵·통찰+1·성공 고급3택1·실패 추적+4', '−30₵·Insight+1·pass uncommon1/3·fail +4Trace'),
+        hint: t('−30 ₵ · 고급 카드 선택 · 통찰 +1', '−30 ₵ · uncommon card pick · Insight +1'),
         requires: { minCredits: 30 },
         check: { stat: 'obs', dc: 9 },
         success: {
@@ -445,7 +445,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('손가락이 접히는 틈에 밧줄을 빼낸다', 'Pull the rope free between movements'),
-        hint: t('성공 HP-3,소모품·실패 HP-7', 'Pass −3HP,1 consumable·fail −7HP'),
+        hint: t('HP −3 · 소모품 1 · 회복력 +1', '−3 HP · 1 consumable · Resilience +1'),
         check: { stat: 'agi', dc: 9 },
         success: {
           text: t(
@@ -560,7 +560,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('들은 말만 전하고 함께 정류장을 찾는다', 'Tell her exactly what you heard and return together'),
-        hint: t('인간성+1·성공 추적+4,일행HP+8·실패HP-5', 'Humanity+1·pass +4Trace,party+8HP·fail −5HP'),
+        hint: t('추적 +4 · 일행 HP +8 · 인간성 +1', '+4 Trace · party +8 HP · Humanity +1'),
         check: { stat: 'cha', dc: 9 },
         success: {
           text: t(
@@ -615,7 +615,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('재료비를 보태고 두 손의 동작을 비교한다', 'Pay for ingredients and compare his hands'),
-        hint: t('통찰+1·성공 −20₵,일행HP+10·실패 HP-4', 'Insight+1·pass −20₵,party+10HP·fail −4HP'),
+        hint: t('−20 ₵ · 일행 HP +10 · 통찰 +1', '−20 ₵ · party +10 HP · Insight +1'),
         requires: { minCredits: 20 },
         check: { stat: 'obs', dc: 8 },
         success: {
@@ -728,7 +728,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('인양줄을 받치고 레버를 함께 내린다', 'Brace the hoist line and lower the lever with him'),
-        hint: t('성공 HP-4,카드 강화·실패 HP-8', 'Pass −4HP,upgrade 1 card·fail −8HP'),
+        hint: t('HP −4 · 카드 강화 1 · 회복력 +1', '−4 HP · upgrade 1 · Resilience +1'),
         check: { stat: 'str', dc: 9 },
         success: {
           text: t(
@@ -798,7 +798,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('목소리와 빈 줄의 순서를 맞춘다', 'Match the voices to the empty rows'),
-        hint: t('성공 추적+5,카드 제거·실패 HP-6', 'Pass +5Trace,remove 1 card·fail −6HP'),
+        hint: t('추적 +5 · 카드 제거 1 · 통찰 +1', '+5 Trace · remove 1 card · Insight +1'),
         check: { stat: 'int', dc: 9 },
         success: {
           text: t(
@@ -853,7 +853,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('숨을 나눠 쉬며 마지막 구절까지 받아 준다', 'Alternate breaths and carry the final phrase'),
-        hint: t('성공 추적+5,고급3택1·실패 HP-4', 'Pass +5Trace,uncommon 1/3·fail −4HP'),
+        hint: t('추적 +5 · 고급 카드 선택 · 인간성 +1', '+5 Trace · uncommon card pick · Humanity +1'),
         check: { stat: 'cha', dc: 8 },
         success: {
           text: t(
@@ -968,7 +968,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('식탁을 받쳐 마지막 식판까지 옮긴다', 'Steady the table and carry every plate across'),
-        hint: t('성공 추적+3,소모품·실패 HP-3 · +20 ₵', 'Pass +3Trace,1 consumable·fail −3HP · +20 ₵'),
+        hint: t('+20 ₵ · 추적 +3 · 소모품 1 · 인간성 +1', '+20 ₵ · +3 Trace · 1 consumable · Humanity +1'),
         check: { stat: 'agi', dc: 7 },
         success: {
           text: t(
@@ -1038,7 +1038,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('기억 속 밸브 순서를 끝까지 계산한다', 'Work through the remembered valve sequence'),
-        hint: t('성공 HP-4,지능+1,통찰+1·실패 HP-9', 'Pass −4HP,INT+1,Insight+1·fail −9HP'),
+        hint: t('HP −4 · 지능 +1 · 통찰 +1', '−4 HP · INT +1 · Insight +1'),
         check: { stat: 'int', dc: 9 },
         success: {
           text: t(
@@ -1107,7 +1107,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('문을 열어 두고 바닥 그림을 끝까지 따라간다', 'Keep the door open and follow the drawing to the end'),
-        hint: t('추적+6·희귀3택1·인간성+1', '+6Trace·rare card 1/3·Humanity+1'),
+        hint: t('추적 +6 · 희귀 카드 선택 · 인간성 +1', '+6 Trace · rare card pick · Humanity +1'),
         success: {
           text: t(
             '부엌 옆에 낮은 뒷문이 그려진다. 당신 몸이 그 문을 통과하던 낯선 사람의 움직임을 익힌다. 열린 입구로 거리 감시등이 들어온다.',
@@ -1151,7 +1151,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('보조 장치를 맨손으로 잡고 두 손의 차이를 찾는다', 'Hold the assist unit barehanded and compare the grips'),
-        hint: t('성공 HP-4,희귀 임플란트·실패 HP-8', 'Pass −4HP,rare implant·fail −8HP'),
+        hint: t('HP −4 · 희귀 임플란트 · 통찰 +1', '−4 HP · rare implant · Insight +1'),
         check: { stat: 'obs', dc: 9 },
         success: {
           text: t(
@@ -1177,7 +1177,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('정상 공임을 내고 당신 장비의 손잡이를 다시 맞춘다', 'Pay the full rate to have your equipment grip refitted'),
-        hint: t('−60₵·1장 강화·추적-3·회복력+1', '−60₵·upgrade 1·−3Trace·Resilience+1'),
+        hint: t('−60 ₵ · 카드 강화 1 · 추적 −3 · 회복력 +1', '−60 ₵ · upgrade 1 · −3 Trace · Resilience +1'),
         requires: { minCredits: 60 },
         success: {
           text: t(

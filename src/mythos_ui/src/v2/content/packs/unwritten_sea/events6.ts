@@ -18,7 +18,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('난간을 받치고 후크를 들어 뺀다', 'Brace the rail and lift the hook free'),
-        hint: t('근력8·✓−4HP/+40₵/회복+1·✗−7HP/추적+4', 'STR8·✓−4HP/+40₵/Res+1·✗−7HP/+4Trace'),
+        hint: t('HP −4 · +40 ₵ · 회복력 +1', '−4 HP · +40 ₵ · Resilience +1'),
         check: { stat: 'str', dc: 8 },
         success: {
           text: t(
@@ -87,7 +87,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('재봉 속도에 맞춰 천을 넘긴다', 'Feed the cloth at her sewing pace'),
-        hint: t('민첩8·✓−3HP/강화1/회복+1·✗−6HP', 'AGI8·✓−3HP/upgrade1/Res+1·✗−6HP'),
+        hint: t('HP −3 · 카드 강화 1 · 회복력 +1', '−3 HP · upgrade 1 · Resilience +1'),
         check: { stat: 'agi', dc: 8 },
         success: {
           text: t(
@@ -154,7 +154,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('도시 정리 시간과 유입 간격을 맞춘다', 'Match the purge times to the incoming surges'),
-        hint: t('지능9·✓추적+4/고급택1/통찰+1·✗−6HP/추적+4', 'INT9·✓+4Trace/unc.pick1/Ins+1·✗−6HP/+4Trace'),
+        hint: t('추적 +4 · 고급 카드 선택 · 통찰 +1', '+4 Trace · uncommon card pick · Insight +1'),
         check: { stat: 'int', dc: 9 },
         success: {
           text: t(
@@ -209,7 +209,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('불빛이 끊기는 난간 틈을 찾는다', 'Find the gap the light misses'),
-        hint: t('관찰8·✓+30₵/추적+3/통찰+1·✗−5HP/추적+5', 'OBS8·✓+30₵/+3Trace/Ins+1·✗−5HP/+5Trace'),
+        hint: t('+30 ₵ · 추적 +3 · 통찰 +1', '+30 ₵ · +3 Trace · Insight +1'),
         check: { stat: 'obs', dc: 8 },
         success: {
           text: t(
@@ -264,7 +264,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('살아 있는 숙박객으로 다시 접수시킨다', 'Register him again as a living guest'),
-        hint: t('매력7·✓+40₵/추적+5/인간+1·✗−3HP/추적+7', 'CHA7·✓+40₵/+5Trace/Hum+1·✗−3HP/+7Trace'),
+        hint: t('+40 ₵ · 추적 +5 · 인간성 +1', '+40 ₵ · +5 Trace · Humanity +1'),
         check: { stat: 'cha', dc: 7 },
         success: {
           text: t(
@@ -377,7 +377,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('뜨거운 발판에서 펌프 순서를 고친다', 'Correct the pump sequence from the hot platform'),
-        hint: t('지능9·✓−4HP/제거1/통찰+1·✗−7HP/추적+4', 'INT9·✓−4HP/remove1/Ins+1·✗−7HP/+4Trace'),
+        hint: t('HP −4 · 카드 제거 1 · 통찰 +1', '−4 HP · remove 1 card · Insight +1'),
         check: { stat: 'int', dc: 9 },
         success: {
           text: t(
@@ -505,7 +505,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('응답이 끝나는 순간의 이동법을 익힌다', 'Learn to move at the end of the reply'),
-        hint: t('관찰9·✓추적+5/희귀택1/통찰+1·✗−6HP/추적+6', 'OBS9·✓+5Trace/rare pick1/Ins+1·✗−6HP/+6Trace'),
+        hint: t('추적 +5 · 희귀 카드 선택 · 통찰 +1', '+5 Trace · rare card pick · Insight +1'),
         check: { stat: 'obs', dc: 9 },
         success: {
           text: t(
@@ -575,7 +575,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('받침을 들고 교체 부품을 꺼낸다', 'Lift the support and retrieve the spare component'),
-        hint: t('근력9·✓−6HP/희귀임플/회복+1·✗−9HP/추적+4', 'STR9·✓−6HP/rare implant/Res+1·✗−9HP/+4Trace'),
+        hint: t('HP −6 · 희귀 임플란트 · 회복력 +1', '−6 HP · rare implant · Resilience +1'),
         check: { stat: 'str', dc: 9 },
         success: {
           text: t(
@@ -706,7 +706,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('공개 인계대에서 동작을 배운다', 'Learn the sequence at the monitored handover desk'),
-        hint: t('추적+4·강화1·통찰+1·인계 완료', '+4 Trace·upgrade1·Insight+1·handover done'),
+        hint: t('추적 +4 · 카드 강화 1 · 통찰 +1 · 인계 완료', '+4 Trace · upgrade 1 · Insight +1 · handover done'),
         success: {
           text: t(
             '인계대가 당신 얼굴을 남긴다. 이라가 손목을 돌리는 각도를 고쳐 주자 버티는 데 힘이 덜 든다.\n“엄마가 가르쳐 줬어요. 남의 기억이 섞이기 전부터요.”',
@@ -722,7 +722,7 @@ export const SEA6_EVENTS: EventDef[] = [
       },
       {
         label: t('교대문을 직접 닫고 뒷길로 나간다', 'Close the watch door yourself and take the back way'),
-        hint: t('HP−3·추적−4·인간성+1·인계 완료', '−3HP·−4Trace·Humanity+1·handover done'),
+        hint: t('HP −3 · 추적 −4 · 인간성 +1 · 인계 완료', '−3 HP · −4 Trace · Humanity +1 · handover done'),
         success: {
           text: t(
             '마지막 손잡이가 손가락을 누른다. 문이 잠기자 이라가 식탁으로 돌아가 덮어 둔 저녁을 안쪽으로 옮긴다.\n“식기 전에 오면 좋겠어요. 일 얘기는 나중에 하고.”',
@@ -753,7 +753,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('발전기를 돌리며 협약을 복사한다', 'Keep the generator turning and copy the agreement'),
-        hint: t('HP−3·추적+6·통찰+1·협약 사본', '−3HP·+6Trace·Insight+1·pact copy'),
+        hint: t('HP −3 · 추적 +6 · 통찰 +1 · 협약 사본', '−3 HP · +6 Trace · Insight +1 · pact copy'),
         success: {
           text: t(
             '손잡이가 손바닥을 벗긴다. 복사기가 켜지며 열람 위치를 알리고 마지막 서명까지 인쇄한다.\n“여기까지 오지 못하게 하려고.” 당신이 출입 금지 조항을 다시 읽는다.',
@@ -799,7 +799,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('위험 설명과 협약을 함께 공개한다', 'Publish the agreement with its warning'),
-        hint: t('추적+8·희귀선택1·인간성+1·사본 전달', '+8Trace·rare pick1·Humanity+1·copy given'),
+        hint: t('추적 +8 · 희귀 카드 선택 · 인간성 +1 · 사본 전달', '+8 Trace · rare card pick · Humanity +1 · copy given'),
         success: {
           text: t(
             '당신 위치와 함께 협약이 공개된다. 열람창이 열리며 봉인됐던 항만 대응 절차도 나온다.\n“길을 보여 줬으면 위험도 끝까지 읽어 주세요.” 단원이 경고문을 당신 옆에 세운다.',
@@ -815,7 +815,7 @@ export const SEA6_EVENTS: EventDef[] = [
       },
       {
         label: t('사본을 맡기고 열람창의 외부 연결을 끊는다', 'Deposit the copy and disconnect public access'),
-        hint: t('HP−4·추적−6·회복력+1·사본 전달', '−4HP·−6Trace·Resilience+1·copy given'),
+        hint: t('HP −4 · 추적 −6 · 회복력 +1 · 사본 전달', '−4 HP · −6 Trace · Resilience +1 · copy given'),
         success: {
           text: t(
             '뻑뻑한 차단 손잡이가 손을 찢는다. 외부 열람등이 꺼지고 단원이 사본을 마른 서랍에 넣는다.\n“숨겨 두는 동안 살아남는 사람도 있어요. 당신한테도 그 말을 남겨야겠네요.”',
@@ -845,7 +845,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('해진의 발에 맞춰 가장자리를 다시 꿰맨다', 'Restitch the edge to fit Hae-jin’s foot'),
-        hint: t('민첩9·✓−3HP/소모품1/인간성+1·✗−6HP', 'AGI9·✓−3HP/consumable1/Hum+1·✗−6HP'),
+        hint: t('HP −3 · 소모품 1 · 인간성 +1', '−3 HP · 1 consumable · Humanity +1'),
         check: { stat: 'agi', dc: 9 },
         success: {
           text: t(
@@ -912,7 +912,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('당직자 대신 끝까지 돌린다', 'Take the wheel through the final turn'),
-        hint: t('근력9·✓−5HP/근력+1/회복+1·✗−8HP/추적+6', 'STR9·✓−5HP/STR+1/Res+1·✗−8HP/+6Trace'),
+        hint: t('HP −5 · 근력 +1 · 회복력 +1', '−5 HP · STR +1 · Resilience +1'),
         check: { stat: 'str', dc: 9 },
         success: {
           text: t(
@@ -982,7 +982,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('위험을 설명한 뒤 지도를 보여 주자고 설득한다', 'Argue for showing the map after explaining the danger'),
-        hint: t('매력9·✓추적+6/매력+1/인간+1·✗−3HP/추적+8', 'CHA9·✓+6Trace/CHA+1/Hum+1·✗−3HP/+8Trace'),
+        hint: t('추적 +6 · 매력 +1 · 인간성 +1', '+6 Trace · CHA +1 · Humanity +1'),
         check: { stat: 'cha', dc: 9 },
         success: {
           text: t(
@@ -1081,7 +1081,7 @@ export const SEA6_EVENTS: EventDef[] = [
     options: [
       {
         label: t('뜨거운 배관을 옮겨 일행도 쉴 자리를 만든다', 'Shift the hot pipe to make room for everyone'),
-        hint: t('HP −6·일행 HP +10·회복력 +1·+10 ₵', '−6 HP·party heals 10 HP·Resilience +1·+10 ₵'),
+        hint: t('+10 ₵ · HP −6 · 일행 HP +10 · 회복력 +1', '+10 ₵ · −6 HP · party +10 HP · Resilience +1'),
         success: {
           text: t(
             '달아오른 배관이 팔을 데운다. 벤치 전체에 온기가 돌고 일행이 차례로 몸을 눕힌다.\n“문은 제가 볼게요.” 관리인이 등받이 없는 의자를 끌어간다.',

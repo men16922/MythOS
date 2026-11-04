@@ -469,7 +469,7 @@ export const NEW_COMPANION_EVENTS: EventDef[] = [
     options: [
       {
         label: t('도윤과 함께 창구에 재확인을 요청한다', 'Ask the hatch attendant to check again with Doyun'),
-        hint: t('매력 5 · 유대 +1·모두 회복 4 / 추적 +4', 'CHA 5 · bond +1, party +4 HP / +4 Trace'),
+        hint: t('도윤 유대 +1 · 일행 HP +4', 'Doyun bond +1 · party +4 HP'),
         check: { stat: 'cha', dc: 5 },
         success: {
           text: t('도윤이 노인의 이름을 듣고 창구 안에 전한다. 덜어 둔 배급통이 다시 열린다. 셋이 자리를 잡자 도윤도 그제야 숟가락을 든다.', 'Doyun asks the elder’s name and relays it through the hatch. A reserve pot opens. Only once everyone is seated does Doyun pick up a spoon.'),

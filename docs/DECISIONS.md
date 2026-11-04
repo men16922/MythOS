@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-11-05 — Open owner calls decided by the agent (owner: "결정도 자율적으로 수행하라고")
+
+- **Decision**: (1) banter stays once per act; (2) Sea hints: the 52 compressed codes are rewritten in words from each option's success effects (the odds badge already shows the check and an "On fail" chip the failure), the limit goes 30/44 → 40/52 (two lines in a phone card) and a test now rejects compressed hints; (3) the four new consumables stay; (4) the Codex-image art made in this goal is accepted on the agent's review (each image checked against the brief; the two that put water and ships in the Dry Harbor were re-rendered); (5) the five districts without lore stay without (they would settle a companion's open story); (6) deploy after the gate and `make verify-preview`.
+- **Why**: the owner delegated these calls. Each is reversible: hints and limits are data, consumables can be pulled from `consumables.ts`, art can be re-rendered, a deploy can be rolled back to the previous revision.
+- **Not decided**: the fun check (§16) is a human's play-feel verdict; the agent cannot give it.
+
 ## 2026-11-05 — Map banter plays each exchange at most once per act
 
 - **Decision** (agent default under the owner's "continue autonomously", reversible: `ui/shell/banterPick.ts`): the picker counts only the current act's arrivals and stops once the pair's exchanges have played in that act, instead of cycling them all run. Solo (companion ↔ Connector) banter follows the same rule; the run's first arrival still always plays one.

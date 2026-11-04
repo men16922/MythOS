@@ -274,7 +274,7 @@ export const MACHINE_EVENTS: EventDef[] = [
     options: [
       {
         label: t('삭제 도장 아래 눌린 글자를 읽는다', 'Read the impressions beneath the erasure stamps'),
-        hint: t('관찰 5 · 성공 기록·추적 −4 · 실패 +4', 'OBS 5 · record, −4 Trace / fail: +4 Trace'),
+        hint: t('추적 −4 · 기록', '−4 Trace · codex'),
         check: { stat: 'obs', dc: 5 },
         success: {
           text: t('옆빛을 비추자 MythOS와 전쟁 전 날짜가 드러난다. 사본을 챙기고 외부 조회선을 끊는다.', 'Sidelight reveals MythOS and a prewar date. You take a copy, then disconnect the external query line.'),

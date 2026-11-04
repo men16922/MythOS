@@ -85,7 +85,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('지워진 시각을 맞춰 작업 순서를 고친다', 'Reconstruct the times and revise your working sequence'),
-        hint: t('지능8·성추적+3/강화1/통찰+1·실추적+6', 'INT8·S:+3Trace/upgrade1/Ins+1·F:+6Trace'),
+        hint: t('추적 +3 · 카드 강화 1 · 통찰 +1', '+3 Trace · upgrade 1 · Insight +1'),
         check: { stat: 'int', dc: 8 },
         success: {
           text: t(
@@ -151,7 +151,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('사다리를 내려가 장화를 주워 준다', 'Climb down and retrieve the boot'),
-        hint: t('민첩7·성−3HP/소모품1/인간성+1·실−6HP', 'AGI7·S:−3HP/consumable/Hum+1·F:−6HP'),
+        hint: t('HP −3 · 소모품 1 · 인간성 +1', '−3 HP · 1 consumable · Humanity +1'),
         check: { stat: 'agi', dc: 7 },
         success: {
           text: t(
@@ -218,7 +218,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('검사등을 켜고 쓸린 순서를 읽는다', 'Switch on the inspection light and read the scrape marks'),
-        hint: t('관찰8·추적+4·성고급카드3택1/통찰+1·실−5HP', 'OBS8·+4Trace·S:uncommon card3→1/Ins+1·F:−5HP'),
+        hint: t('추적 +4 · 고급 카드 선택 · 통찰 +1', '+4 Trace · uncommon card pick · Insight +1'),
         check: { stat: 'obs', dc: 8 },
         success: {
           text: t(
@@ -436,7 +436,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('전극 접점을 골라 신체 보조장치를 시험한다', 'Select clean contacts and test a body support implant'),
-        hint: t('관찰9·성−4HP/고급임플란트1/통찰+1·실−7HP', 'OBS9·S:−4HP/uncommon implant/Ins+1·F:−7HP'),
+        hint: t('HP −4 · 고급 임플란트 · 통찰 +1', '−4 HP · uncommon implant · Insight +1'),
         check: { stat: 'obs', dc: 9 },
         success: {
           text: t(
@@ -503,7 +503,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('이름을 옮겨 적고 재접수를 약속한다', 'Copy the names and promise to submit them again'),
-        hint: t('추적+5·인간성+1·명단 재접수 해금', '+5 Trace · Humanity+1 · unlock resubmission'),
+        hint: t('추적 +5 · 인간성 +1 · 명단 재접수 해금', '+5 Trace · Humanity +1 · unlock resubmission'),
         success: {
           text: t(
             '도윤이 한 글자씩 읽고 당신이 받아 적는다. 복사 감지등이 책상 아래에서 켜진다.\n도윤은 마른 사본을 당신에게 주고 접수 창구 번호를 적어 준다.',
@@ -518,7 +518,7 @@ export const SEA4_EVENTS: EventDef[] = [
       },
       {
         label: t('흡수지와 수기 복사 비용을 댄다', 'Pay for blotting paper and a handwritten copy'),
-        hint: t('−30₵·통찰+1·명단 재접수 해금', '−30 ₵ · Insight+1 · unlock resubmission'),
+        hint: t('−30 ₵ · 통찰 +1 · 명단 재접수 해금', '−30 ₵ · Insight +1 · unlock resubmission'),
         requires: { minCredits: 30 },
         success: {
           text: t(
@@ -563,7 +563,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('주소 대신 실제 인계 시간을 접수하게 한다', 'Ask the clerk to accept the handover time as evidence'),
-        hint: t('매력9·성추적+4/제거1/통찰+1·실추적+8', 'CHA9·S:+4Trace/remove1/Ins+1·F:+8Trace'),
+        hint: t('추적 +4 · 카드 제거 1 · 통찰 +1', '+4 Trace · remove 1 card · Insight +1'),
         check: { stat: 'cha', dc: 9 },
         success: {
           text: t(
@@ -629,7 +629,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('생존이 수당 취소 사유인지 따져 묻는다', 'Challenge the clause that disqualifies survivors'),
-        hint: t('매력7·성+40₵/추적+4/인간성+1·실추적+7', 'CHA7·S:+40₵/+4Trace/Hum+1·F:+7Trace'),
+        hint: t('+40 ₵ · 추적 +4 · 인간성 +1', '+40 ₵ · +4 Trace · Humanity +1'),
         check: { stat: 'cha', dc: 7 },
         success: {
           text: t(
@@ -755,7 +755,7 @@ export const SEA4_EVENTS: EventDef[] = [
       },
       {
         label: t('그림은 덮고 학생 이름을 검사판에서 뗀다', 'Cover the drawing and remove the pupil’s name from inspection'),
-        hint: t('−3 HP·추적 −3·통찰 −1·인간성 +1·+10 ₵', '−3 HP·−3 Trace·Insight −1·Humanity +1·+10 ₵'),
+        hint: t('+10 ₵ · HP −3 · 추적 −3 · 통찰 −1 · 인간성 +1', '+10 ₵ · −3 HP · −3 Trace · Insight −1 · Humanity +1'),
         success: {
           text: t(
             '검사판의 날카로운 테두리에 손이 긁힌다. 이름표를 빼고 갈색 종이를 다시 붙인다.\n혜주가 원본을 수업 공책 사이에 넣는다. 카메라에는 마른 땅 그림만 남는다.',
@@ -785,7 +785,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('제동판을 들어 보조장치를 꺼낸다', 'Lift the brake plate and recover the support'),
-        hint: t('근력9·성−4HP/고급임플란트1/회복력+1·실−8HP', 'STR9·S:−4HP/uncommon implant/Res+1·F:−8HP'),
+        hint: t('HP −4 · 고급 임플란트 · 회복력 +1', '−4 HP · uncommon implant · Resilience +1'),
         check: { stat: 'str', dc: 9 },
         success: {
           text: t(
@@ -852,7 +852,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('재료비를 내고 옛 계산으로 배식량을 맞춘다', 'Pay for ingredients and restore the old calculation'),
-        hint: t('지능7·−20₵·성팀HP+10/통+1·실+4HP/추+3', 'INT7·−20₵·S:party+10HP/Ins+1·F:party+4HP/+3T'),
+        hint: t('−20 ₵ · 일행 HP +10 · 통찰 +1', '−20 ₵ · party +10 HP · Insight +1'),
         requires: { minCredits: 20 },
         check: { stat: 'int', dc: 7 },
         success: {
@@ -938,7 +938,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('점검등을 켜고 가려진 깊이 표시를 읽는다', 'Use the inspection light to read the covered depth marks'),
-        hint: t('관찰9·성추적+5/관찰+1/통찰+1·실−3HP/추적+7', 'OBS9·S:+5Trace/OBS+1/Ins+1·F:−3HP/+7Trace'),
+        hint: t('추적 +5 · 관찰 +1 · 통찰 +1', '+5 Trace · OBS +1 · Insight +1'),
         check: { stat: 'obs', dc: 9 },
         success: {
           text: t(
@@ -992,7 +992,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('감사 단말에서 남은 수치를 대조한다', 'Compare the surviving figures on the audit terminal'),
-        hint: t('지능9·성추적+6/강화2/통찰+1·실추적+10', 'INT9·S:+6Trace/upgrade2/Ins+1·F:+10Trace'),
+        hint: t('추적 +6 · 카드 강화 2 · 통찰 +1', '+6 Trace · upgrade 2 · Insight +1'),
         check: { stat: 'int', dc: 9 },
         success: {
           text: t(
@@ -1059,7 +1059,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('수선비를 내고 숙자의 작업실에 숨는다', 'Pay for repairs and shelter in Suk-ja’s workroom'),
-        hint: t('매력6·−20₵·성추적−6/실추적+4', 'CHA6·−20₵·S:−6Trace·F:+4Trace'),
+        hint: t('−20 ₵ · 추적 −6', '−20 ₵ · −6 Trace'),
         requires: { minCredits: 20 },
         check: { stat: 'cha', dc: 6 },
         success: {
@@ -1085,7 +1085,7 @@ export const SEA4_EVENTS: EventDef[] = [
       },
       {
         label: t('굳은 솜을 뜯어내고 일행의 깔개를 만든다', 'Pull apart the hardened filling to make pads for the group'),
-        hint: t('−3 HP·일행 HP +4·인간성 +1·+10 ₵', '−3 HP·party heals 4 HP·Humanity +1·+10 ₵'),
+        hint: t('+10 ₵ · HP −3 · 일행 HP +4 · 인간성 +1', '+10 ₵ · −3 HP · party +4 HP · Humanity +1'),
         success: {
           text: t(
             '굳은 솜 사이 철심이 손가락을 찌른다. 숙자가 풀린 솜을 깨끗한 천에 나눠 넣는다.\n당신 일행은 새 깔개 위에서 눌린 관절을 편다.',
@@ -1143,7 +1143,7 @@ export const SEA4_EVENTS: EventDef[] = [
       },
       {
         label: t('공개 표석을 떼고 숙소 안으로 옮긴다', 'Remove the public marker and carry it into the lodging'),
-        hint: t('−4 HP·추적 −4·통찰 −1·인간성 +1·+10 ₵', '−4 HP·−4 Trace·Insight −1·Humanity +1·+10 ₵'),
+        hint: t('+10 ₵ · HP −4 · 추적 −4 · 통찰 −1 · 인간성 +1', '+10 ₵ · −4 HP · −4 Trace · Insight −1 · Humanity +1'),
         success: {
           text: t(
             '돌 밑에 손이 눌린다. 차인이 받침을 빼고 문을 열어 준다.\n밖에서는 이름과 장소가 사라진다. 안에서는 차인이 페인트 묻은 면을 벽으로 돌려 세운다.',
@@ -1173,7 +1173,7 @@ export const SEA4_EVENTS: EventDef[] = [
     options: [
       {
         label: t('눌린 바늘축을 펴고 실제 방향을 맞춘다', 'Straighten the spindle and restore the true bearing'),
-        hint: t('민첩9·성−3HP/민첩+1/통찰+1·실−6HP', 'AGI9·S:−3HP/AGI+1/Ins+1·F:−6HP'),
+        hint: t('HP −3 · 민첩 +1 · 통찰 +1', '−3 HP · AGI +1 · Insight +1'),
         check: { stat: 'agi', dc: 9 },
         success: {
           text: t(
@@ -1196,7 +1196,7 @@ export const SEA4_EVENTS: EventDef[] = [
       },
       {
         label: t('출항 안내를 재생하며 표지의 모순을 익힌다', 'Play the departure briefing and study the conflicting signs'),
-        hint: t('추적+4·고급카드3택1·회복력+1', '+4 Trace · uncommon cards3→1 · Resilience +1'),
+        hint: t('추적 +4 · 고급 카드 선택 · 회복력 +1', '+4 Trace · uncommon card pick · Resilience +1'),
         success: {
           text: t(
             '재생기가 당신의 열람을 기록한다. 안내 음성은 닫힌 문을 향하라고 세 번 말한다.\n당신은 실제 출구를 눈으로 확인하며 잘못된 지시에 대응할 순서를 고른다.',

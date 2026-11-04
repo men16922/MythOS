@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Third districts for Acts 5 and 6 (variety) (Claude Opus 5.5, same goal)
+
+- Acts 1–4 draw 2 of 4 districts; Acts 5–6 had exactly 2, so they never changed between runs. `d5_crane_chapel` (a crane AI buries machines instead of crushing them; get tonight's next-in-line, a dreaming nursing robot, buried → **weaken**) and `d6_errata_office` (Oja exists only because of a typo listed for deletion; mark the line "stet" → **marked**). 6 personas, 2 scenes + 6 portraits by Codex (unreviewed; Oja re-rendered so the misprint outline shows). 30 districts / 89 NPCs. Over 40 seeds each pair of three now appears (Act 5 12/13/14, Act 6 16/16/8).
+- **Verified**: content + route + chronicle tests; UI to quest stage 2 (1280×720, 390×844), 0 console errors; local Ollama 6/6 in character.
+
 ## 2026-11-04 — The Glass Library districts come back among the Dreaming Machines (Claude Opus 5.5, same goal)
 
 - None of the four Act 4 district quests returned later. Act 5 now has `a5_cb_cut_names` (a scrapped machine wears the name you pasted back), `a5_cb_dream_shelf` (a projector plays the dream you kept with its blank last page), `a5_cb_index` (a machine reads the book you decoded), `a5_cb_miro` (a delivery machine brings your reading reservation with Miro's note); quest-stage gates, Codex art (unreviewed). 27 callbacks. Quests still not read by any later event: Act 6 ones (no later act) and Acts 1–3 ones that already return as flags in later districts.
@@ -102,8 +107,3 @@ Last updated: 2026-11-04
 - **Meters** (`engine/chapterMeters.ts`, chronicle runs only): pressure +1 per node, −3 at a safehouse, at 6+ every enemy opens with 1 Rage; integrity starts 6, −1 per failed check (events and district talk), +1 per quest stage, at 0 the remaining districts play as events. One quiet top-bar line with a tooltip.
 - **Agendas** (`content/chronicleAgendas.ts`, `advanceAgendas`): Se-rin, Lin-yue, IX, Kai and the people on the list; each moves at most one stage per chapter when what the connector carried out allows it; shown on the chapter-end screen; saved in `ChronicleState.agendas`.
 - **Verified**: engine tests (meters, rage at the threshold, district closing, agenda stepping); browser: meters line on the map, agenda line at the chapter end, 0 console errors. Normal runs untouched (no meters, canonical blocks unchanged by construction).
-
-## 2026-11-04 — Chronicle chapter 1 prototype, hidden behind `?chronicle=1` (Claude Opus 5.5, same goal)
-
-- `RunMode 'chronicle'`: one act (`CHRONICLE_CHAPTER_ACTS`), districts always on, the carried connector applied at start (stats, background, axes, approval, quests, standing, three core cards); the Act 1 boss ends it with `ending_chronicle_chapter` (gated `mode: 'chronicle'`, Codex art), and `applyRunEnd` banks the next chapter. Setup shows "Chronicle (prototype)" only with `?chronicle=1`. Standard canonical blocks unchanged (58 / 62 / 66).
-- **Verified**: engine test (the greedy bot clears a chapter; banking; the next chapter starts with the carried stats and core cards; a normal run ignores it); browser (setup option, run starts as chronicle with districts, chapter-end screen, profile banks chapter 1), 0 console errors (`outputs/qa/chronicle_ui/`). **Chapter-end pick (step 5)**: the ending screen of a cleared chapter lists the deck's cards; one tap toggles, three carry over (`withCore`; browser: swap one, the banked chronicle follows). **Prototype limits**: only chapter 1 exists (a chapter clear earns echoes but is not a loop victory: no wins, Paradox unlocks or victory achievements); meters and NPC agendas (steps 3–4) not built. Owner judges the feel before more.

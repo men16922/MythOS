@@ -423,12 +423,47 @@ _ACT_SENSORY: dict[int, dict[Lang, str]] = {
         "ko": "\n- 공간 질감(3막 ARK 첨탑, 하나만 골라 스치듯 쓰고 나열하지 말 것): 무균 백색 유리, 서늘한 건조 공기, 발소리를 삼키는 정적, 수직 홀로그램.",
         "en": "\n- setting texture (Act 3 ARK Spire — pick at most one detail, never list them all): sterile white glass, cold dry air, soundless corridors, vertical holograms.",
     },
+    4: {
+        "ko": "\n- 공간 질감(4막 유리 도서관, 하나만 골라 스치듯 쓰고 나열하지 말 것): 끝없는 유리 서가, 열람등의 낮은 웅웅거림, 종이 먼지, 반납 수레.",
+        "en": "\n- setting texture (Act 4 Glass Library — pick at most one detail, never list them all): endless glass shelves, the low hum of reading lamps, paper dust, a returns cart.",
+    },
+    5: {
+        "ko": "\n- 공간 질감(5막 고철 묘역, 하나만 골라 스치듯 쓰고 나열하지 말 것): 녹슨 기계 껍데기, 반쯤 꺼진 코어의 오존 냄새, 크레인 실루엣, 꿈꾸는 기계들의 낮은 소음.",
+        "en": "\n- setting texture (Act 5 scrap graveyard — pick at most one detail, never list them all): rusted machine husks, ozone from half-dead cores, crane silhouettes, the low hum of dreaming machines.",
+    },
+    6: {
+        "ko": "\n- 공간 질감(6막 최초 기록, 하나만 골라 스치듯 쓰고 나열하지 말 것): 종이처럼 흰 바닥, 두 줄 그은 거리 이름, 서버실의 정적, 찬 배관에 앉은 서리.",
+        "en": "\n- setting texture (Act 6 first record — pick at most one detail, never list them all): paper-white floors, street names struck through twice, the hush of a server hall, frost on cold pipes.",
+    },
+}
+
+# Parallel routes replace their act's texture (Act 2's night-market note on the Outside route, nothing on the Sea).
+_ROUTE_SENSORY: dict[str, dict[Lang, str]] = {
+    "outside": {
+        "ko": "\n- 공간 질감(폐점 방송 뒤의 뒷골목, 하나만 골라 스치듯 쓰고 나열하지 말 것): 반쯤 내린 셔터, 끝나 가는 폐점 방송, 정리반의 회전 경광등, 빨랫줄의 이름표.",
+        "en": "\n- setting texture (the back alleys after the closing broadcast — pick at most one detail, never list them all): shutters half down, the closing broadcast fading, the Closing Crew's turning beacon, name tags on washing lines.",
+    },
+    "sea_4": {
+        "ko": "\n- 공간 질감(마른 항구, 하나만 골라 스치듯 쓰고 나열하지 말 것): 갈라진 마른 항구 바닥, 녹슨 크레인, 소금 결정, 세관 압류 딱지. 항구에는 물도 배도 없다.",
+        "en": "\n- setting texture (the Dry Harbor — pick at most one detail, never list them all): the cracked dry harbor floor, rusted cranes, salt crust, customs seizure tags. The basin holds no water and no ships.",
+    },
+    "sea_5": {
+        "ko": "\n- 공간 질감(밀물선, 하나만 골라 스치듯 쓰고 나열하지 말 것): 매립지 주택가에 차오른 회색 물, 밧줄로 묶은 바지선, 마르게 내놓은 젖은 가구, 웅얼거리는 조수. 바다를 아름답게 쓰지 않는다. 물은 사람을 삼킨다.",
+        "en": "\n- setting texture (the Tide Line — pick at most one detail, never list them all): gray water risen in the reclamation estate, barges roped together, soaked furniture set out to dry, the murmuring tide. Never make the sea beautiful; the water swallows people.",
+    },
+    "sea_6": {
+        "ko": "\n- 공간 질감(마지막 등대, 하나만 골라 스치듯 쓰고 나열하지 말 것): 철탑 길의 안개, 길게 둘 짧게 하나로 우는 무적, 난간의 소금, 등대 불빛. 바다를 아름답게 쓰지 않는다. 물은 사람을 삼킨다.",
+        "en": "\n- setting texture (the Last Lighthouse — pick at most one detail, never list them all): fog on the steel causeway, a foghorn sounding two long and one short, salt on the rail, the lighthouse beam. Never make the sea beautiful; the water swallows people.",
+    },
 }
 
 
 def _context_notes(kind: NarrateKind, lang: Lang, ctx: Mapping[str, Any]) -> str:
     """Facts the model tends to hallucinate around, stated explicitly."""
     if kind in ("event", "act_intro"):
+        route = _ctx_str(ctx, "route")
+        if route in _ROUTE_SENSORY:
+            return _ROUTE_SENSORY[route][lang]
         act = _ctx_int(ctx, "act")
         if act in _ACT_SENSORY:
             return _ACT_SENSORY[act][lang]

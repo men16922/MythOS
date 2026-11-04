@@ -182,6 +182,20 @@ class NarrateMessagesTest(unittest.TestCase):
         self.assertIn("companion: 세린", user)
         _, act2_user = gm.narrate_messages("event", "ko", {"act": 2, "title": "야시장"})
         self.assertIn("공간 질감(2막 야시장 하층", act2_user)
+        # A parallel route replaces its act's texture; Acts 4-6 have their own.
+        _, outside = gm.narrate_messages(
+            "event", "ko", {"act": 2, "route": "outside", "title": "셔터"}
+        )
+        self.assertIn("폐점 방송 뒤의 뒷골목", outside)
+        self.assertNotIn("야시장 하층", outside)
+        _, sea = gm.narrate_messages(
+            "event", "en", {"act": 6, "route": "sea_6", "title": "One Way"}
+        )
+        self.assertIn("Last Lighthouse", sea)
+        self.assertIn("Never make the sea beautiful", sea)
+        self.assertNotIn("first record", sea)
+        _, act5 = gm.narrate_messages("event", "en", {"act": 5, "title": "Spare Eyes"})
+        self.assertIn("scrap graveyard", act5)
 
 
 class FallbackNarrationTest(unittest.TestCase):

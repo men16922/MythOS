@@ -28,6 +28,14 @@ const SHOP_PLACE: Record<number, { ko: string; en: string; bg: string }> = {
   6: { ko: '암시장 · 여백의 좌판', en: 'Black market · A stall in the margins', bg: 'v2/events/a6_margin_lottery.webp' },
 }
 
+/** Parallel routes trade in their own places (DLC 2 Outside the List, DLC 3 the Sea), keyed by route. */
+const ROUTE_SHOP_PLACE: Record<string, { ko: string; en: string; bg: string }> = {
+  outside: { ko: '폐점 뒤 · 전당포 창구', en: 'After closing · The pawn window', bg: 'v2/events/outside_ev_pawn_ticket.webp' },
+  sea_4: { ko: '세관 창고 · 경매 난간', en: 'Customs shed · The auction rail', bg: 'v2/districts/d4_sea_seizure_shed.webp' },
+  sea_5: { ko: '바지선 시장 · 병 좌판', en: 'Barge market · The bottle stall', bg: 'v2/events/sea5_ev_bottle_seller.webp' },
+  sea_6: { ko: '렌즈 작업장 · 불량 렌즈 상자', en: 'Lens workshop · The crate of rejects', bg: 'v2/districts/d6_sea_lens_workshop.webp' },
+}
+
 export function ShopScreen({ run, C, lang, act }: ScreenProps) {
   const [bought, setBought] = useState<string | null>(null)
   if (run.screen.kind !== 'shop') return null
@@ -35,7 +43,7 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
   const ko = lang === 'ko'
   const credits = run.credits
   // The market moves with the act (it read "night market" inside the ARK Spire).
-  const place = SHOP_PLACE[run.act] ?? SHOP_PLACE[2]!
+  const place = (run.route ? ROUTE_SHOP_PLACE[run.route] : undefined) ?? SHOP_PLACE[run.act] ?? SHOP_PLACE[2]!
   // Service previews come from the engine reducers themselves (run with unlimited credits), so the
   // numbers shown are exactly what the purchase does — no duplicated constants.
   const rich = { ...run, credits: Number.MAX_SAFE_INTEGER }

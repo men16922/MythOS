@@ -467,4 +467,145 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
     ],
     gmHints: ['empty container kitchen', 'sealed burner', 'shift-change rice'],
   },
+  // 2026-11-05: Sea Act 6 had 20 ungated events. Three causeway scenes, one prop each.
+  {
+    id: 'sea6_ev_rail_salt',
+    acts: [6],
+    route: 'sea_6',
+    title: t('난간의 소금', 'Salt on the Rail'),
+    image: 'v2/events/sea6_ev_rail_salt.webp',
+    text: t(
+      '철탑 길 난간에 소금이 두껍게 앉아 있다. 등대단원 하나가 교대마다 주걱으로 긁어낸다. 소금이 쌓이면 손이 미끄러지고, 안개 속에서 난간을 놓치면 아래는 물이다. “하루라도 거르면 다음 사람이 미끄러져요.”',
+      'Salt crusts the causeway railing. One of the Keepers scrapes it off with a paddle every shift. Let it build and hands slip, and anyone who loses the rail in the fog goes into the water below. “Skip one day and the next person slips.”',
+    ),
+    options: [
+      {
+        label: t('주걱을 받아 다음 구간을 긁는다', 'Take a paddle and scrape the next stretch'),
+        hint: t('근력 8 · 성공 회복력 +1 · 파티 회복 5', 'STR 8 · success: +1 Resilience · party +5 HP'),
+        check: { stat: 'str', dc: 8 },
+        success: {
+          text: t('소금이 판 째로 떨어져 나간다. 다 긁고 나니 등대단원이 보온병 뚜껑에 따뜻한 물을 따라 일행에게 돌린다.', 'The salt comes off in sheets. When you finish, the Keeper pours warm water into a flask cap and passes it round your party.'),
+          effects: [{ kind: 'axis', axis: 'resilience' }, { kind: 'heal_party', amount: 5 }],
+        },
+        failure: {
+          text: t('주걱이 미끄러져 손등이 난간 모서리에 긁힌다. 소금이 상처에 스민다.', 'The paddle slips and the back of your hand scrapes the rail’s edge. Salt gets into the cut.'),
+          effects: [{ kind: 'hp', amount: -4 }],
+        },
+      },
+      {
+        label: t('긁어낸 소금을 자루에 담아 간다', 'Bag the scraped salt to sell'),
+        hint: t('크레딧 +16', '+16 ₵'),
+        success: {
+          text: t('등대단원이 말리지 않는다. “어차피 내일 또 앉아요.” 자루가 생각보다 무겁다.', 'The Keeper doesn’t stop you. “It’ll settle again tomorrow.” The bag is heavier than you expected.'),
+          effects: [{ kind: 'credits', amount: 16 }],
+        },
+      },
+      {
+        label: t('난간을 놓지 않고 그대로 지나간다', 'Keep a hand on the rail and walk on'),
+        hint: t('추적 −3', '−3 Trace'),
+        success: {
+          text: t('손바닥이 소금에 쓸린다. 안개가 당신을 등대단원과 구분하지 못한다. 순찰 표지기가 그냥 지나간다.', 'The salt scours your palm. In the fog you look like any Keeper, and the patrol marker passes you by.'),
+          effects: [{ kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+    gmHints: ['salt-crusted causeway railing', 'Keeper with a scraping paddle', 'fog over the water below'],
+  },
+  {
+    id: 'sea6_ev_spare_bulbs',
+    acts: [6],
+    route: 'sea_6',
+    title: t('여분의 전구', 'Spare Bulbs'),
+    image: 'v2/events/sea6_ev_spare_bulbs.webp',
+    text: t(
+      '등대단 창고 선반에 다 쓴 전구가 줄지어 있다. 버리지 않는다. 전구마다 꺼진 해가 적혀 있다. 맨 끝에 아직 쓰지 않은 전구 몇 개가 상자째 남아 있다. 창고지기가 장부를 펼친다. “가져가려면 꺼진 걸 하나 대신 두고 가요.”',
+      'On the Keepers’ storeroom shelf, burnt-out bulbs stand in rows. None are thrown away; each is labelled with the year it went dark. At the end, a few unused bulbs are still in their box. The storekeeper opens a ledger. “Take one, and leave a dead one in its place.”',
+    ),
+    options: [
+      {
+        label: t('가진 고물 하나를 꺼진 전구 자리에 둔다', 'Leave a piece of your scrap in place of a dead bulb'),
+        hint: t('소모품 1개 · 추적 +3', '1 consumable · +3 Trace'),
+        success: {
+          text: t('창고지기가 고물을 들어 보고 장부에 적는다. “꺼진 해는 오늘.” 새 전구 하나가 당신 가방에 들어간다.', 'The storekeeper weighs your scrap and logs it: “Went dark: today.” A new bulb goes into your bag.'),
+          effects: [{ kind: 'consumable' }, { kind: 'trace', amount: 3 }],
+        },
+      },
+      {
+        label: t('장부에서 전구가 가장 많이 꺼진 해를 찾는다', 'Find the year the most bulbs went dark'),
+        hint: t('관찰 9 · 성공 통찰 +1 · 카드 1장 선택', 'OBS 9 · success: +1 Insight · pick 1 card'),
+        check: { stat: 'obs', dc: 9 },
+        success: {
+          text: t('한 해에 전구가 서른 개 넘게 꺼졌다. 그해 등대는 밤새 최대 출력으로 켜져 있었다. 장부 여백에 그날의 대응 순서가 적혀 있다.', 'In one year more than thirty bulbs burned out; the light ran at full power every night. In the margin, someone wrote down how they held.'),
+          effects: [{ kind: 'axis', axis: 'insight' }, { kind: 'card_choice' }],
+        },
+        failure: {
+          text: t('숫자가 안개에 젖어 번진다. 창고지기가 장부를 덮는다.', 'The numbers are blurred with fog-damp. The storekeeper closes the ledger.'),
+          effects: [{ kind: 'hp', amount: -2 }],
+        },
+      },
+      {
+        label: t('서하가 전구 하나의 해를 읽는다', 'Seo-ha reads the year on one bulb'),
+        hint: t('HP +6 · 서하 유대 +1', '+6 HP · Seo-ha bond +1'),
+        requires: { companion: 'seo_ha' },
+        success: {
+          text: t('서하가 전구를 오래 들고 있다. “내가 마지막으로 배를 들여보낸 해구나.” 서하가 그 전구를 선반 앞쪽으로 옮겨 놓는다.', 'Seo-ha holds the bulb a long time. “The year I brought in my last ship.” She moves it to the front of the shelf.'),
+          effects: [{ kind: 'hp', amount: 6 }, { kind: 'bond', id: 'seo_ha', amount: 1 }],
+        },
+      },
+    ],
+    gmHints: ['Keepers’ storeroom', 'burnt-out bulbs labelled by year', 'storekeeper’s ledger'],
+  },
+  {
+    id: 'sea6_ev_one_way',
+    acts: [6],
+    route: 'sea_6',
+    title: t('편도', 'One Way'),
+    image: 'v2/events/sea6_ev_one_way.webp',
+    text: t(
+      '철탑 길 입구에 매표소가 있다. 다니는 배는 없다. 매표원은 그래도 표를 끊는다. 행선지는 하나뿐이다. “등대, 편도.” 돌아오는 표는 팔지 않는다. “돌아오는 사람은 표가 필요 없어서요.”',
+      'At the head of the causeway stands a ticket booth. No boats run, but the clerk still punches tickets, all to one place: “Lighthouse, one way.” There are no return tickets. “People who come back don’t need one.”',
+    ),
+    options: [
+      {
+        label: t('편도표를 한 장 산다', 'Buy a one-way ticket'),
+        hint: t('크레딧 −12 · 카드 1장 선택', '−12 ₵ · pick 1 card'),
+        requires: { minCredits: 12 },
+        success: {
+          text: t('매표원이 표에 구멍을 뚫는다. 뒷면에 철탑 길의 안개 대피 지점이 인쇄되어 있다. 아무도 읽지 않는 면이다.', 'The clerk punches the ticket. On the back is a map of the causeway’s fog shelters, the side nobody reads.'),
+          effects: [{ kind: 'credits', amount: -12 }, { kind: 'card_choice' }],
+        },
+      },
+      {
+        label: t('“돌아온 사람이 정말 있어요?”', '“Has anyone actually come back?”'),
+        hint: t('매력 9 · 성공 인간성 +1 · ◈ +5', 'CHA 9 · success: +1 Humanity · +5 ◈'),
+        check: { stat: 'cha', dc: 9 },
+        success: {
+          text: t('매표원이 서랍을 연다. 쓰지 않은 돌아오는 표가 한 묶음 있다. 직접 만든 것이다. “혹시 몰라서요.” 한 장을 당신에게 건넨다.', 'The clerk opens a drawer: a bundle of unused return tickets, handmade. “Just in case.” One goes to you.'),
+          effects: [{ kind: 'axis', axis: 'humanity' }, { kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('매표원이 창구 가림막을 내린다. “다음 손님.”', 'The clerk lowers the window shade. “Next.”'),
+          effects: [{ kind: 'trace', amount: 3 }],
+        },
+      },
+      {
+        label: t('파랑이 표 한 장을 알아본다', 'Parang recognises a ticket'),
+        hint: t('◈ +6 · 파랑 유대 +1', '+6 ◈ · Parang bond +1'),
+        requires: { companion: 'parang' },
+        success: {
+          text: t('파랑이 창구에 붙은 견본 표를 가리킨다. “이거 쥐고 있었어. 내 손 말고, 그 사람 손.” 매표원이 견본을 떼어 파랑에게 준다.', 'Parang points at the sample ticket taped to the window. “I held this. Not my hand. Theirs.” The clerk peels it off and gives it to Parang.'),
+          effects: [{ kind: 'echoes', amount: 6 }, { kind: 'bond', id: 'parang', amount: 1 }],
+        },
+      },
+      {
+        label: t('표를 사지 않고 지나간다', 'Walk past without a ticket'),
+        hint: t('HP +4', '+4 HP'),
+        success: {
+          text: t('매표소 처마 밑에서 잠깐 안개를 피한다. 숨이 고르다.', 'You shelter from the fog under the booth’s eaves for a moment and get your breath back.'),
+          effects: [{ kind: 'hp', amount: 4 }],
+        },
+      },
+    ],
+    gmHints: ['causeway ticket booth', 'one-way tickets to the lighthouse', 'handmade return tickets'],
+  },
 ]

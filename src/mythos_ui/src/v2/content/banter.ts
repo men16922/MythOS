@@ -607,6 +607,69 @@ export const BANTER: BanterDef[] = [
       { who: 'lin_yue', text: t('장부가 기억해. 나는 밤마다 장부를 펴고.', 'The ledger will. And I open it every night.') },
     ],
   },
+  {
+    id: 'b_parang_taeo_post',
+    pair: ['parang', 'tae_o'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'parang', text: t('말뚝처럼 서 있네.', 'You stand like a mooring post.') },
+      { who: 'tae_o', text: t('누군가는 서 있어야 한다.', 'Someone has to stand.') },
+      { who: 'parang', text: t('그럼 나는 뒤에 앉아 있을게.', 'Then I’ll sit behind you.') },
+      { who: 'tae_o', text: t('그래라.', 'Do that.') },
+    ],
+  },
+  {
+    id: 'b_mujin_han_lever',
+    pair: ['han', 'mujin'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'han', text: t('그 크레인, 망에 안 물려 있지?', 'That crane isn’t on the grid, is it?') },
+      { who: 'mujin', text: t('레버다. 손으로 민다.', 'It’s levers. Hands push them.') },
+      { who: 'han', text: t('나랑 같네.', 'Same as me.') },
+      { who: 'mujin', text: t('그럼 너도 오래 간다.', 'Then you’ll last too.') },
+    ],
+  },
+  {
+    id: 'b_suah_mujin_hook',
+    pair: ['su_ah', 'mujin'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'su_ah', text: t('그 크레인 후크, 뭘로 만든 거야?', 'That crane hook. What’s it made of?') },
+      { who: 'mujin', text: t('나보다 오래된 쇠.', 'Steel older than me.') },
+      { who: 'su_ah', text: t('부러지면 나한테 가져와.', 'If it ever breaks, bring it to me.') },
+      { who: 'mujin', text: t('안 부러진다. …그래도 기억해 두지.', 'It won’t. …I’ll remember, though.') },
+    ],
+  },
+  {
+    id: 'b_linyue_rem_account',
+    pair: ['lin_yue', 'rem'],
+    lines: [
+      { who: 'lin_yue', text: t('밤새 안 자고 지키는 거, 그거 값 받아야 하는 일이야.', 'Staying up all night on watch. That’s work you should be paid for.') },
+      { who: 'rem', text: t('아직 배우는 중이라서요.', 'I’m still learning.') },
+      { who: 'lin_yue', text: t('배우는 것도 공짜는 아니지.', 'Learning isn’t free either.') },
+      { who: 'rem', text: t('그럼 외상으로 해 둬요. 잠드는 법 배우면 갚을게요.', 'Then put it on my tab. I’ll pay when I learn how to fall asleep.') },
+    ],
+  },
+  {
+    id: 'b_doyun_io_count',
+    pair: ['doyun', 'io'],
+    lines: [
+      { who: 'doyun', text: t('이오 씨는 밤마다 책을 다 세요?', 'Io, do you count every book every night?') },
+      { who: 'io', text: t('한 권도 빠짐없이 셉니다.', 'Every one, without exception.') },
+      { who: 'doyun', text: t('저도 그래요. 사람이지만.', 'Me too. People, though.') },
+      { who: 'io', text: t('그렇다면 같은 방식으로 분류하고 계신 겁니다.', 'Then you file by the same method.') },
+    ],
+  },
+  {
+    id: 'b_miro_rem_awake',
+    pair: ['miro', 'rem'],
+    lines: [
+      { who: 'miro', text: t('…너 안 자?', '…You don’t sleep?') },
+      { who: 'rem', text: t('아직 못 배웠어요.', 'I never learned how.') },
+      { who: 'miro', text: t('그럼 밤새 나 안 잊어버리겠네.', 'Then you won’t forget me overnight.') },
+      { who: 'rem', text: t('그건 약속할 수 있어요.', 'That I can promise.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

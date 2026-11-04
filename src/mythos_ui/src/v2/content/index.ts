@@ -28,6 +28,7 @@ import { EVENTS as BASE_EVENTS } from './events.ts'
 import { OUTSIDE_ACT, OUTSIDE_CARDS, OUTSIDE_ENCOUNTERS, OUTSIDE_ENEMIES, OUTSIDE_EVENTS, OUTSIDE_ROUTE, OUTSIDE_ROUTE_EVENTS } from './packs/outside_list/index.ts'
 import { LORE as BASE_LORE } from './lore.ts'
 import { DEEP_LORE } from './packs/deep_lore.ts'
+import { ROUTE_LORE } from './packs/route_lore.ts'
 import { CHRONICLE_ENDINGS, ENDINGS as BASE_ENDINGS } from './endings.ts'
 import { IX_LINES } from './ix.ts'
 import { ACTS as BASE_ACTS } from './acts.ts'
@@ -50,7 +51,7 @@ const ENEMIES = [...BASE_ENEMIES, ...GLASS_ENEMIES, ...MACHINE_ENEMIES, ...ORIGI
 const ENCOUNTERS = [...BASE_ENCOUNTERS, ...OUTSIDE_ENCOUNTERS, ...GLASS_ENCOUNTERS, ...MACHINE_ENCOUNTERS, ...ORIGIN_ENCOUNTERS, ...SEA4_ENCOUNTERS, ...SEA5_ENCOUNTERS, ...SEA6_ENCOUNTERS]
 const EVENTS = [...BASE_EVENTS, ...OUTSIDE_EVENTS, ...OUTSIDE_ROUTE_EVENTS, ...GLASS_EVENTS, ...MACHINE_EVENTS, ...ORIGIN_EVENTS, ...NEW_COMPANION_EVENTS, ...SEA_SCENES, ...SEA_COMPANION_EVENTS, ...SEA4_EVENTS, ...SEA5_EVENTS, ...SEA6_EVENTS]
 const ENDINGS = [...BASE_ENDINGS, ...ORIGIN_ENDINGS, ...SEA_ENDINGS, ...CHRONICLE_ENDINGS]
-const LORE = [...BASE_LORE, ...DEEP_LORE]
+const LORE = [...BASE_LORE, ...DEEP_LORE, ...ROUTE_LORE]
 const ACTS: Record<ActId, ActDef> = { ...BASE_ACTS, 4: GLASS_ACT, 5: MACHINE_ACT, 6: ORIGIN_ACT }
 
 function byId<T extends { id: string }>(xs: readonly T[]): Record<string, T> {

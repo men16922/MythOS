@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Codex lore for the Sea and Outside the List (Claude Opus 5.5, same goal)
+
+- The route maps roll only their own events, and none of those awarded a codex entry, so the Archive's codex had nothing from either route. `content/packs/route_lore.ts`: the unnumbered square, Customs Enforcement, the gray tide, the Keepers (in the DLC 3 bible's reveal order; what the Lightkeeper promised IX stays for the ending), off the list, the Closing Crew. Each awarded by one route event's rewarding outcome, hint prefixed "Codex ·" like the base events. 41 lore (the "restore every entry" achievement now needs these too).
+- **Verified**: content + event-balance + achievements tests; UI: each of the six events played on its route (KO/EN, desktop/390 px), the run's codex gained the entry, 0 console errors.
+
 ## 2026-11-04 — DLC companions can earn approval (camp nights reachable) (Claude Opus 5.5, same goal)
 
 - Approval only counts for deployed companions, and Miro, Doyun, Bel and Rem had just 2–4 positive approval sources across all districts, so their new camp nights (approval 2) were close to unreachable. Sixteen existing options now react for them by who they are: Miro likes names remembered (pasting a name back, calling the uniformed figure by its surname, "stet"), Doyun likes nobody left behind and dislikes calling someone "Seventeen", Bel likes sentences left standing (rewriting the struck street, "stet"), Rem likes dreams allowed to finish (+2 for waking the Cold Storage machine slowly, −1 for waking it at once). Positive sources now 6–7 each.
@@ -109,8 +114,3 @@ Last updated: 2026-11-04
 
 - Same gap as the Sea, older: taking the DLC 2 route at Act 2's start swaps in the route map, so Signal+ runs on it had no Act 2 district. `d2_outside_laundry` (route `outside`): the Closing Crew finds people by the name tags on their washed uniforms; learn it from Washer Yun or Do (a first-week Crew rookie), then hide the tags (pin them inward, AGI; pull Bae's rented shutter over the lines; or hand Do a basket to "lose") → boss **cover** (laundry carts as barricades). 3 personas, scene + 3 portraits by Codex (unreviewed). 24 districts / 72 NPCs.
 - **Verified**: `districtRoute.test.ts` (taking the route places exactly this district); UI on the route, two quest paths to stage 2 (1280×720, 390×844), 0 console errors; local Ollama 3/3 in voice.
-
-## 2026-11-04 — Sea district quests come back one act later (Claude Opus 5.5, same goal)
-
-- `sea5_cb_clock` (got the crew's clock back → they hold the breakwater against the flood: −10 Trace/+3◈ or +10 HP + consumable) and `sea6_cb_barge` (returned the borrowed memory → the old woman's lit barge finds you under the causeway: +12 HP, or ride it past the Keepers, AGI DC 6, −12 Trace); quest-stage gates, Codex art (unreviewed; the first breakwater render put a cargo ship in a harbor no ship reaches, re-rendered).
-- **Verified**: content + event-balance tests; UI on a Sea run (KO 1280×720, EN 390×844) resolved through the buttons, 0 console errors.

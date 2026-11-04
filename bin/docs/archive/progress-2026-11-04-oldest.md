@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Sea district quests come back one act later (Claude Opus 5.5, same goal)
+
+- `sea5_cb_clock` (got the crew's clock back → they hold the breakwater against the flood: −10 Trace/+3◈ or +10 HP + consumable) and `sea6_cb_barge` (returned the borrowed memory → the old woman's lit barge finds you under the causeway: +12 HP, or ride it past the Keepers, AGI DC 6, −12 Trace); quest-stage gates, Codex art (unreviewed; the first breakwater render put a cargo ship in a harbor no ship reaches, re-rendered).
+- **Verified**: content + event-balance tests; UI on a Sea run (KO 1280×720, EN 390×844) resolved through the buttons, 0 console errors.
+
 ## 2026-11-04 — The Unwritten Sea gets districts (Claude Opus 5.5, same goal)
 
 - Signal+ on the Sea lost its district layer after Act 3: `advanceAct` placed districts on the base map, then `takeRoute` replaced it with the Sea map. `DistrictDef.route` + `placeDistrict(…, route)` (passed explicitly: `run.route` still holds the previous act's route at that point) + `takeRoute` places its route's districts. Base maps never take route districts; Acts 1–3 identical on Sea and Deep (`districtRoute.test.ts`).

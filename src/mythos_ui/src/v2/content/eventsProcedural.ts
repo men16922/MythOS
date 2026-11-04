@@ -420,11 +420,11 @@ export const PROCEDURAL_EVENTS: EventDef[] = [
     options: [
       {
         label: t('딱지를 떼어 준다', 'Peel the tag off for them'),
-        hint: t('◈ +5 · 실패 시 추적 +6', '+5 ◈ · fail +6 Trace'),
+        hint: t('코덱스 · ◈ +5 · 실패 시 추적 +6', 'Codex · +5 ◈ · fail +6 Trace'),
         check: { stat: 'agi', dc: 6 },
         success: {
           text: t('딱지가 한 번에 떨어진다. 그가 물건을 더 꼭 안는다.', 'The tag comes off in one go. They hold the thing tighter.'),
-          effects: [{ kind: 'echoes', amount: 5 }],
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'codex', id: 'lore_sea_customs' }],
         },
         failure: {
           text: t('딱지가 찢어지며 경보 칩이 울린다.', 'The tag tears and its alarm chip goes off.'),
@@ -512,12 +512,13 @@ export const PROCEDURAL_EVENTS: EventDef[] = [
     options: [
       {
         label: t('한 시간 대신 서 준다', 'Stand an hour for them'),
-        hint: t('추적 −10 · ◈ +3', '−10 Trace · +3 ◈'),
+        hint: t('코덱스 · 추적 −10 · ◈ +3', 'Codex · −10 Trace · +3 ◈'),
         success: {
           text: t('등대단원이 난간에 기대 잠든다. 깨어나서 초소 순찰표를 건넨다.', 'The Keeper sleeps against the rail. Waking, they hand you the posts’ patrol table.'),
           effects: [
             { kind: 'trace', amount: -10 },
             { kind: 'echoes', amount: 3 },
+            { kind: 'codex', id: 'lore_sea_keepers' },
           ],
         },
       },
@@ -572,12 +573,13 @@ export const PROCEDURAL_EVENTS: EventDef[] = [
       },
       {
         label: t('정리반 쪽을 망봐 준다', 'Keep watch toward the Crew'),
-        hint: t('추적 −8 · ◈ +3', '−8 Trace · +3 ◈'),
+        hint: t('코덱스 · 추적 −8 · ◈ +3', 'Codex · −8 Trace · +3 ◈'),
         success: {
           text: t('경광등이 다가올 때마다 신호를 준다. 둘 다 무사히 골목을 빠져나간다.', 'Each time the beacon nears you signal. You both get out of the alley clean.'),
           effects: [
             { kind: 'trace', amount: -8 },
             { kind: 'echoes', amount: 3 },
+            { kind: 'codex', id: 'lore_outside_closing_crew' },
           ],
         },
       },

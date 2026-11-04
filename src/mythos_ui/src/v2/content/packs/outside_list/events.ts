@@ -497,7 +497,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
     options: [
       {
         label: t('등록번호 대신 배식 시간을 접수하게 한다', 'Have IX accept serving hours in place of a number'),
-        hint: t('매력 6 · +30 ₵, 추적 +3 · 실패 추적 +5', 'CHA 6 · +30 ₵, +3 Trace · fail: +5 Trace'),
+        hint: t('코덱스 · +30 ₵, 추적 +3 · 실패 추적 +5', 'Codex · +30 ₵, +3 Trace · fail +5 Trace'),
         check: { stat: 'cha', dc: 6 },
         success: {
           text: t(
@@ -507,6 +507,7 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
           effects: [
             { kind: 'credits', amount: 30 },
             { kind: 'trace', amount: 3 },
+            { kind: 'codex', id: 'lore_outside_list' },
           ],
         },
         failure: {

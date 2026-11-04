@@ -136,11 +136,11 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
     options: [
       {
         label: t('“누구를 위해 비웠지?”라고 묻는다', 'Ask: “Blank for whose sake?”'),
-        hint: t('◈ +6 · 실패 시 추적 +6', '+6 ◈ · fail +6 Trace'),
+        hint: t('코덱스 · ◈ +6 · 실패 시 추적 +6', 'Codex · +6 ◈ · fail +6 Trace'),
         check: { stat: 'int', dc: 6 },
         success: {
           text: t('단말이 한참 깜빡인다. “약속이 있었습니다.” 그 말만 남기고 화면이 꺼진다.', 'The terminal blinks a long while. “There was a promise.” Only that, and the screen goes dark.'),
-          effects: [{ kind: 'echoes', amount: 6 }],
+          effects: [{ kind: 'echoes', amount: 6 }, { kind: 'codex', id: 'lore_sea_blank_square' }],
         },
         failure: {
           text: t('“질문이 기록되었습니다.” 창고 경보등이 켜진다.', '“Your question has been logged.” The shed’s warning lamp comes on.'),
@@ -174,13 +174,14 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
     options: [
       {
         label: t('“그 약속, 누구랑 했지?”', '“Who did you make that promise with?”'),
-        hint: t('추적 −8 · ◈ +3 · 실패 시 추적 +5', '−8 Trace · +3 ◈ · fail +5 Trace'),
+        hint: t('코덱스 · 추적 −8 · ◈ +3 · 실패 추적 +5', 'Codex · −8 Trace · +3 ◈ · fail +5 Trace'),
         check: { stat: 'cha', dc: 6 },
         success: {
           text: t('확성기가 지직거린다. “등대에 먼저 있던 자와.” 그다음은 물소리뿐이다.', 'The speaker crackles. “With the one who was at the lighthouse first.” After that, only water.'),
           effects: [
             { kind: 'trace', amount: -8 },
             { kind: 'echoes', amount: 3 },
+            { kind: 'codex', id: 'lore_sea_gray_tide' },
           ],
         },
         failure: {

@@ -29,6 +29,7 @@ from mythos_v2.npcs import (
     d5_scrap_choir,
     d5_sea_barge_market,
     d5_sea_drowned_rows,
+    d5_sea_shallows,
     d6_errata_office,
     d6_first_draft,
     d6_margin_notes,
@@ -70,6 +71,7 @@ for _module in (
     d5_crane_chapel,
     d6_errata_office,
     d4_sea_dormitory,
+    d5_sea_shallows,
 ):
     for _id, _persona in _module.PERSONAS.items():
         if _id in PERSONAS:

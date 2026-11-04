@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Third Sea Act 5 district, The Gray Shallows (Claude Opus 5.5, same goal)
+
+- `d5_sea_shallows` (route `sea_5`): at low tide memory-fishers wade into the gray shallows on ropes; a mother lost her child's voice to the last flood. Learn where it sank (Bong at the rope post, Ae-ri the fisher, the mother's photo, or Parang), then bring it back on Bong's rope, by Parang calling it, or by force (STR, costs HP) → boss **marked**. 2 personas, scene + 2 portraits by Codex (unreviewed). Sea Act 5 draws 2 of 3.
+- **Verified**: content + route tests; UI two quest paths to stage 2 (1280×720, 390×844), 0 console errors; local Ollama 2/2 after pinning Bong's register (first reply drifted into dialect 반말).
+
 ## 2026-11-04 — Third Sea Act 4 district, The Crew Dormitory (Claude Opus 5.5, same goal)
 
 - `d4_sea_dormitory` (route `sea_4`): Customs condemns the longshore dormitory at midnight as "housing for a non-operating port"; the oldest hand's daily tide table is legally the port's operating log. Prove it with the harbor act from Cook Yeong, thirty years of tables carried out by the night shift (Mujin wakes them), or a bluff (CHA) → boss **cover**. The foreman role stays with Mujin (bible), so the text names "the oldest hand", not "the foreman". 2 personas, scene + 2 portraits by Codex (unreviewed). Sea Act 4 now draws 2 of 3.
@@ -107,9 +112,3 @@ Last updated: 2026-11-04
 - Chapter N plays Act N (with its gifts) and ends at that act's boss; `CHRONICLE_CHAPTERS` 6 (the DLC plan sketched five; the six acts exist). Each chapter starts from a starter deck plus three core cards, so `tuning.chronicle` lightens Acts 3–6 (HP −60/−90/−140/−180 %, damage −5/−6/−10/−12) for chronicle runs only.
 - **Measured** (mixed, typical carried connector): chapter 1 93 %, 2 50 %, 3 56 % (was 5.6 untuned), 4 53 %, 5 56 %, 6 53 % (was 0); greedy chapter 6 97 %. Ending and setup text now chapter-neutral ("Chapter 4 of 6").
 - **Verified**: engine test (chapter 4 starts on Act 4 with its gifts; enemies lighter than the same fight in Deep Signal); browser: chapter 4 from setup opens Act 4 as 4/6, 0 console errors. Still a hidden prototype (`?chronicle=1`).
-
-## 2026-11-04 — Chronicle meters and NPC agendas (W4 steps 3–4, prototype only) (Claude Opus 5.5, same goal)
-
-- **Meters** (`engine/chapterMeters.ts`, chronicle runs only): pressure +1 per node, −3 at a safehouse, at 6+ every enemy opens with 1 Rage; integrity starts 6, −1 per failed check (events and district talk), +1 per quest stage, at 0 the remaining districts play as events. One quiet top-bar line with a tooltip.
-- **Agendas** (`content/chronicleAgendas.ts`, `advanceAgendas`): Se-rin, Lin-yue, IX, Kai and the people on the list; each moves at most one stage per chapter when what the connector carried out allows it; shown on the chapter-end screen; saved in `ChronicleState.agendas`.
-- **Verified**: engine tests (meters, rage at the threshold, district closing, agenda stepping); browser: meters line on the map, agenda line at the chapter end, 0 console errors. Normal runs untouched (no meters, canonical blocks unchanged by construction).

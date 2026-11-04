@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 786,
+ "codex_image_calls": 789,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4511,6 +4511,15 @@
    ],
    "ts": "2026-11-04T12:02:08"
   },
+  "v2/districts/d5_sea_shallows.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Gray Shallows: past a concrete breakwater at low tide, a wide strip of flat gray shallow water under an overcast sky; several people with ropes tied round their waists wade out waist-deep, ropes running back to wooden posts held by a man bracing his feet; small soft glowing lumps of light floating on a darker patch of water; a woman kneeling at the water's edge holding a photo; a wet basket of glowing shells. No ships or boats. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, muted harbor palette of salt white, slate gray and cold teal with warm glows. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/sea5.webp"
+   ],
+   "ts": "2026-11-04T13:34:54"
+  },
   "v2/districts/d6_errata_office.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7344,6 +7353,15 @@
    ],
    "ts": "2026-11-04T09:44:19"
   },
+  "v2/npcs/memory_fisher_aeri.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Ae-ri, a lean young woman in waders with wet hair holding a dripping wicker basket of small softly glowing shell-like lumps of light, frank gaze. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: gray tidal shallows beyond a concrete breakwater at low tide, overcast light, ropes and wooden posts. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T13:34:34"
+  },
   "v2/npcs/mess_cook_yeong.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7478,6 +7496,15 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Tess, the returns-clerk construct of the Glass Library: a slender porcelain-and-brass automaton with a calm porcelain face and a transparent glass chest in which a small receipt printer turns, a blank paper receipt strip feeding out, polite and mechanical. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: the Glass Library, a vast archive of towering frosted and clear glass shelves with antique brass fittings, cold white light with ice-blue glints and a few warm gold lamps, drifting paper pages and dust motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
    "ts": "2026-10-26T04:02:03"
+  },
+  "v2/npcs/rope_holder_bong.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Mr. Bong, a broad weathered middle-aged man in an oilskin jacket gripping a taut rope wound round a wooden post, callused hands, steady eyes. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: gray tidal shallows beyond a concrete breakwater at low tide, overcast light, ropes and wooden posts. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T13:34:35"
   },
   "v2/npcs/rs_dami.webp": {
    "generations": 1,

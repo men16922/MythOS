@@ -1052,4 +1052,140 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
       },
     ],
   },
+  // 2026-11-04 (4): four more (30 route events).
+  {
+    id: 'outside_ev_water_tank',
+    acts: [2],
+    route: 'outside',
+    title: t('옥상 물탱크', 'The Rooftop Tank'),
+    image: 'v2/events/outside_ev_water_tank.webp',
+    gmHints: ['옥상 물탱크', '단수된 골목', '물을 나르는 이웃들'],
+    text: t(
+      '단수된 골목 건물 옥상에 물탱크 하나가 아직 차 있다. 이웃들이 양동이를 들고 계단에 줄을 섰다. 밸브가 녹슬어 안 돌아간다.',
+      'On a rooftop over the alley where the water was cut, one tank is still full. Neighbours queue on the stairs with buckets. The valve has rusted shut.',
+    ),
+    options: [
+      {
+        label: t('밸브를 비틀어 연다', 'Wrench the valve open'),
+        hint: t('근력 5 · 성공 파티 회복 8 · 실패 −3 HP', 'STR 5 · success: heal party 8 · fail: −3 HP'),
+        check: { stat: 'str', dc: 5 },
+        success: {
+          text: t('밸브가 끽 소리를 내며 돈다. 물줄기가 양동이마다 떨어진다. 맨 끝 사람까지.', 'The valve shrieks and turns. Water falls into every bucket, to the last person in line.'),
+          effects: [{ kind: 'heal_party', amount: 8 }],
+        },
+        failure: {
+          text: t('렌치가 미끄러져 손등을 긁는다.', 'The wrench slips and scrapes your knuckles.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+      {
+        label: t('양동이 나르는 걸 돕는다', 'Help carry the buckets down'),
+        hint: t('◈ +3 · 추적 −3', '+3 ◈ · −3 Trace'),
+        success: {
+          text: t('계단 네 층. 한 집에서 고맙다며 창문 너머로 사탕을 건넨다.', 'Four flights of stairs. One family hands sweets through a window in thanks.'),
+          effects: [{ kind: 'echoes', amount: 3 }, { kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_newspapers',
+    acts: [2],
+    route: 'outside',
+    title: t('내일 자 신문', 'Tomorrow’s Paper'),
+    image: 'v2/events/outside_ev_newspapers.webp',
+    gmHints: ['새벽 신문 묶음', '명단 밖 사람이 빠진 부고란', '신문을 접는 배달원'],
+    text: t(
+      '신문 배달원이 내일 자 신문 묶음을 푼다. 부고란을 펼쳐 보인다. “명단 밖 사람은 안 실어요. 죽어도요.” 빈칸이 하나 있다.',
+      'A paper carrier unbundles tomorrow’s papers and opens the obituaries. “People off the list don’t get printed. Not even when they die.” There is one blank.',
+    ),
+    options: [
+      {
+        label: t('빈칸에 이름 하나를 적어 넣는다', 'Write a name into the blank'),
+        hint: t('매력 5 · 성공 ◈ +5 · 실패 추적 +4', 'CHA 5 · success: +5 ◈ · fail: +4 Trace'),
+        check: { stat: 'cha', dc: 5 },
+        success: {
+          text: t('배달원이 그 장을 맨 위에 올린다. “이 집에는 이걸로 넣을게요.”', 'The carrier puts that copy on top. “This house gets this one.”'),
+          effects: [{ kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('잉크가 번진다. 배달원이 다른 장으로 바꾼다. 인쇄소 단말이 오류를 기록한다.', 'The ink runs. The carrier swaps the page. The print shop terminal logs an error.'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('묶음 나르는 걸 돕는다', 'Help carry the bundles'),
+        hint: t('+15 ₵', '+15 ₵'),
+        success: {
+          text: t('새벽 첫 골목까지. 배달원이 품삯과 함께 남는 신문 한 부를 준다.', 'As far as the first alley at dawn. The carrier pays you and gives you a spare copy.'),
+          effects: [{ kind: 'credits', amount: 15 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_florist',
+    acts: [2],
+    route: 'outside',
+    title: t('마지막 꽃다발', 'The Last Bouquet'),
+    image: 'v2/events/outside_ev_florist.webp',
+    gmHints: ['문 닫는 꽃집', '시들기 직전의 꽃', '받을 사람이 지워진 주문서'],
+    text: t(
+      '꽃집 주인이 시들기 직전의 꽃으로 마지막 다발을 묶는다. 주문서의 받는 사람 칸이 지워져 있다. “주문은 들어왔는데, 받을 사람이 없대요.”',
+      'The florist ties a last bouquet from flowers about to wilt. The recipient field on the order is blank. “The order came in, but they say there’s no one to receive it.”',
+    ),
+    options: [
+      {
+        label: t('그 꽃을 배식대에 갖다 놓는다', 'Take the bouquet to the serving counter'),
+        hint: t('◈ +4 · 추적 −3', '+4 ◈ · −3 Trace'),
+        success: {
+          text: t('국자를 든 사람이 꽃을 보고 한참 서 있다. 배식대 위에 빈 병을 세워 꽂는다.', 'The one with the ladle looks at the flowers a long while, then stands them in an empty bottle on the counter.'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'trace', amount: -3 }],
+        },
+      },
+      {
+        label: t('남은 꽃을 정리하는 걸 돕는다', 'Help clear the leftover flowers'),
+        hint: t('+4 HP · +10 ₵', '+4 HP · +10 ₵'),
+        success: {
+          text: t('꽃잎 냄새가 손에 밴다. 주인이 수고비를 주며 웃는다. “내일도 피어요, 다른 게.”', 'The scent stays on your hands. The florist pays you, smiling. “Something else blooms tomorrow.”'),
+          effects: [{ kind: 'hp', amount: 4 }, { kind: 'credits', amount: 10 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_radio',
+    acts: [2],
+    route: 'outside',
+    title: t('경비실 라디오', 'The Guardhouse Radio'),
+    image: 'v2/events/outside_ev_radio.webp',
+    gmHints: ['경비실 낡은 라디오', '정리반 무전이 섞이는 주파수', '졸고 있는 경비원'],
+    text: t(
+      '아파트 경비실 라디오에서 노래 사이로 무전이 섞인다. 정리반 순찰 무전이다. 경비원은 졸고 있다. 라디오만 혼자 정리반의 다음 골목을 말한다.',
+      'In an apartment guardhouse, a radio mixes Crew patrol chatter in between songs. The guard dozes. Only the radio speaks, naming the Crew’s next alley.',
+    ),
+    options: [
+      {
+        label: t('주파수를 맞춰 순찰 순서를 듣는다', 'Tune in and listen to the patrol order'),
+        hint: t('지능 5 · 성공 추적 −8 · 실패 추적 +4', 'INT 5 · success: −8 Trace · fail: +4 Trace'),
+        check: { stat: 'int', dc: 5 },
+        success: {
+          text: t('다음, 그다음, 그다음. 정리반이 어디로 갈지 다 들린다.', 'Next, then next, then next. You hear everywhere the Crew will go.'),
+          effects: [{ kind: 'trace', amount: -8 }],
+        },
+        failure: {
+          text: t('잡음이 커져 경비원이 깬다. 누구냐고 묻는다.', 'The static gets loud and wakes the guard, who asks who you are.'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('노래 채널로 돌려 둔다', 'Switch it back to the music'),
+        hint: t('+6 HP', '+6 HP'),
+        success: {
+          text: t('경비원이 잠결에 노래를 따라 흥얼거린다. 당신도 잠깐 앉아 쉰다.', 'The guard hums along in his sleep. You sit and rest a moment.'),
+          effects: [{ kind: 'hp', amount: 6 }],
+        },
+      },
+    ],
+  },
 ]

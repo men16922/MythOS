@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 850,
+ "codex_image_calls": 854,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -5816,6 +5816,13 @@
    "refs": [],
    "ts": "2026-11-01T15:03:36"
   },
+  "v2/events/outside_ev_florist.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A tiny florist stall closing at night, the florist tying a last bouquet of slightly wilting flowers, buckets of leftover blooms, warm lamp light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T19:49:06"
+  },
   "v2/events/outside_ev_gas_ring.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5851,6 +5858,13 @@
    "refs": [],
    "ts": "2026-11-01T15:02:55"
   },
+  "v2/events/outside_ev_newspapers.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Before dawn in a back alley, a paper carrier untying bundles of newspapers (illegible print only) on an upturned crate, one page held open, a bicycle with a basket nearby. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T19:49:14"
+  },
   "v2/events/outside_ev_pawn_ticket.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5864,6 +5878,13 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. An old public payphone at the end of a narrow back alley at night, an elderly man in a worn coat counting coins in his palm with the receiver tucked under his chin, a rotating amber beacon at the alley mouth. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
    "refs": [],
    "ts": "2026-11-04T17:19:35"
+  },
+  "v2/events/outside_ev_radio.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A small apartment guardhouse booth at night, an old radio glowing on the desk, an elderly guard dozing in a chair, rain on the window. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T19:49:09"
   },
   "v2/events/outside_ev_seal.webp": {
    "generations": 1,
@@ -5906,6 +5927,13 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. An old dark vending machine at the end of a wet back alley at night, a child knocking on its side with a small fist while a can tumbles into the tray, faint glow behind its glass. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
    "refs": [],
    "ts": "2026-11-04T18:35:02"
+  },
+  "v2/events/outside_ev_water_tank.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A rusty rooftop water tank at night over a back alley, a rusted valve wheel, neighbours with buckets queued on the stairwell leading up, city lights beyond. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T19:49:14"
   },
   "v2/events/outside_last_meal_kept.webp": {
    "generations": 1,

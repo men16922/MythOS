@@ -104,6 +104,15 @@ const DO: DialogueDef = {
           },
         },
         {
+          label: t('전직 단속관으로서 도에게 말을 건다', 'Talk to Do as a former officer'),
+          intent: 'ask',
+          requires: { background: 'enforcer' },
+          success: {
+            text: t('도가 당신 말투에 자세를 고친다. “선배님이셨어요?” 이름표 이야기가 술술 나온다. 안 보이면 보고 안 한다는 것까지.', 'Do straightens at your tone. “You were on the job?” The name-tag business spills out, down to “if I can’t see it, I don’t report it”.'),
+            effects: [{ kind: 'quest', id: 'q_outside_laundry', stage: 1 }, { kind: 'flag', key: 'outside_ld_do' }],
+          },
+        },
+        {
           label: t('입구를 피해 간다', 'Avoid the alley mouth'),
           intent: 'leave',
           success: { text: t('담배 연기가 경광등 빛에 섞인다.', 'Smoke mixes with the beacon light.') },

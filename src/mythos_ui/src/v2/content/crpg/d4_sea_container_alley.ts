@@ -69,6 +69,15 @@ const OH: DialogueDef = {
           },
         },
         {
+          label: t('봉인 수레의 다음 경로를 읽는다', 'Read the sealing cart’s next route'),
+          intent: 'ask',
+          requires: { background: 'runner' },
+          success: {
+            text: t('바퀴 자국과 테이프 조각이 길을 말해 준다. 운반책의 눈이다. 다음 줄, 왼쪽에서 네 번째. C-7이다.', 'Wheel tracks and scraps of tape tell the route, to a runner’s eye. Next row, fourth from the left: C-7.'),
+            effects: [{ kind: 'quest', id: 'q_sea_container', stage: 1 }],
+          },
+        },
+        {
           label: t('수레를 지나친다', 'Pass the cart'),
           intent: 'leave',
           success: { text: t('테이프가 찌익 풀린다.', 'Tape unspools with a rip.') },

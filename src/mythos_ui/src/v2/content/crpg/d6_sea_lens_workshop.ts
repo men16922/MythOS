@@ -110,6 +110,15 @@ const GUSEUL: DialogueDef = {
           },
         },
         {
+          label: t('흠을 다른 이름으로 등록하자고 한다', 'Suggest registering the flaw under another name'),
+          intent: 'persuade',
+          requires: { background: 'broker' },
+          success: {
+            text: t('중개인은 이름 바꾸는 법을 안다. 구슬이 검사 기록에 “창문”이라고 적는다. 흠의 위치도 함께.', 'A broker knows how to rename things. Guseul logs it as a “window” in the inspection record, location included.'),
+            effects: [{ kind: 'quest', id: 'q_sea_lens', stage: 1 }, { kind: 'flag', key: 'sea_lw_window' }],
+          },
+        },
+        {
           label: t('견습 기계를 지나친다', 'Pass the apprentice'),
           intent: 'leave',
           success: { text: t('검사 빛이 다음 렌즈로 옮겨 간다.', 'The inspection light moves to the next lens.') },

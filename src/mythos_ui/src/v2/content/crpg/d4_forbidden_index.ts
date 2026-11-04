@@ -78,6 +78,15 @@ const CIPHER: DialogueDef = {
           },
         },
         {
+          label: t('소문 하나를 암호 열쇠와 바꾸자고 한다', 'Trade a rumour for the cipher key'),
+          intent: 'offer',
+          requires: { background: 'broker' },
+          success: {
+            text: t('중개인의 셈법이 통한다. 금서 소문 하나가 넘어가고 해독 열쇠가 돌아온다.', 'The broker’s arithmetic works. One rumour about a banned book goes over; the cipher key comes back.'),
+            effects: [{ kind: 'quest', id: 'q_forbidden_index', stage: 1 }],
+          },
+        },
+        {
           label: t('열람석을 떠난다', 'Leave the desk'),
           intent: 'leave',
           success: { text: t('펜 소리가 다시 시작된다. 한 줄, 또 한 줄.', 'The pen starts again. One line, another.') },

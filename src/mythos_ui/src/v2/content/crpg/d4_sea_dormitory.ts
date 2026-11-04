@@ -105,6 +105,15 @@ const CHUL: DialogueDef = {
           },
         },
         {
+          label: t('철의 과로를 살펴 준다', 'Check Chul for exhaustion'),
+          intent: 'offer',
+          requires: { background: 'medic' },
+          success: {
+            text: t('맥을 짚고 물을 먹인다. 정신이 든 철이 말한다. “지난 조석표요? 할아버지 사물함에 삼십 년치.”', 'You take his pulse and get water into him. Clear-headed, Chul says, “The old tide tables? Thirty years of them in the old man’s locker.”'),
+            effects: [{ kind: 'quest', id: 'q_sea_dorm', stage: 1 }],
+          },
+        },
+        {
           label: t('철을 자게 둔다', 'Let Chul sleep'),
           intent: 'leave',
           success: { text: t('코 고는 소리가 이어진다.', 'The snoring resumes.') },

@@ -108,6 +108,15 @@ const MO: DialogueDef = {
           },
         },
         {
+          label: t('거리 이름을 되찾는 거래를 제안한다', 'Offer to broker the street’s name back'),
+          intent: 'offer',
+          requires: { background: 'broker' },
+          success: {
+            text: t('모가 처음으로 웃는다. “거래라면 알아요.” 지워진 거리 이름을 또박또박 불러 준다.', 'Mo smiles for the first time. “Trades I understand.” Mo says the struck-out street’s name clearly.'),
+            effects: [{ kind: 'quest', id: 'q_first_draft', stage: 1 }],
+          },
+        },
+        {
           label: t('골목을 나온다', 'Leave the alley'),
           intent: 'leave',
           success: { text: t('지워진 창문 하나에 불이 켜진다.', 'A light comes on in one erased window.') },

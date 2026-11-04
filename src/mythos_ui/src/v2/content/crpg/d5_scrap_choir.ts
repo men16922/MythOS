@@ -65,6 +65,15 @@ const TUNER: DialogueDef = {
           },
         },
         {
+          label: t('달의 귀를 살펴 준다', 'Examine Dal’s ears'),
+          intent: 'offer',
+          requires: { background: 'medic' },
+          success: {
+            text: t('오래 소리굽쇠를 대 온 귀가 한쪽만 먹먹하다. 처치하자 달이 놓치던 낮은 음이 들린다. “이거였네요.”', 'Years of tuning forks have dulled one ear. After you treat it, Dal hears the low note that kept slipping by. “That’s the one.”'),
+            effects: [{ kind: 'quest', id: 'q_scrap_choir', stage: 1 }],
+          },
+        },
+        {
           label: t('조율대를 떠난다', 'Leave the post'),
           intent: 'leave',
           success: { text: t('소리굽쇠가 다음 기계에 닿는다.', 'The fork touches the next machine.') },

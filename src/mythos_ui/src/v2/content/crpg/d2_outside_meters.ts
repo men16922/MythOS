@@ -154,6 +154,15 @@ const YEOM: DialogueDef = {
           },
         },
         {
+          label: t('염 씨와 업계 이야기를 나눈다', 'Talk shop with Yeom'),
+          intent: 'offer',
+          requires: { background: 'broker' },
+          success: {
+            text: t('염 씨가 돋보기를 벗는다. 중개인끼리 통하는 셈이 있다. 서랍에서 “고장” 스티커 한 장이 넘어온다.', 'Yeom takes off the loupe. Brokers understand each other’s sums. A “faulty” seal sticker comes out of the drawer.'),
+            effects: [{ kind: 'flag', key: 'outside_om_sticker' }],
+          },
+        },
+        {
           label: t('창구를 떠난다', 'Leave the window'),
           intent: 'leave',
           success: { text: t('돋보기에 불빛이 반짝인다.', 'Light glints off the loupe.') },

@@ -63,6 +63,15 @@ const SCRIBE: DialogueDef = {
           },
         },
         {
+          label: t('여백에서 운반책 약어를 찾는다', 'Look for courier shorthand in the margins'),
+          intent: 'ask',
+          requires: { background: 'runner' },
+          success: {
+            text: t('손에 익은 약어가 하나 있다. 당신 필체로 적힌 운반책 표식이다. 하가 그 줄을 짚는다.', 'One abbreviation is second nature to you: a courier’s mark in your own hand. Ha points to that line.'),
+            effects: [{ kind: 'quest', id: 'q_margin', stage: 1 }],
+          },
+        },
+        {
           label: t('필사대를 떠난다', 'Leave the desk'),
           intent: 'leave',
           success: { text: t('펜 소리가 계속된다.', 'The pen keeps going.') },

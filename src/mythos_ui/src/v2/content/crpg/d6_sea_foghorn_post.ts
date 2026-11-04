@@ -66,6 +66,15 @@ const HUI: DialogueDef = {
           },
         },
         {
+          label: t('갈라진 입술과 숨을 처치한다', 'Treat Hui’s cracked lips and breathing'),
+          intent: 'offer',
+          requires: { background: 'medic' },
+          success: {
+            text: t('연고를 바르고 숨 쉬는 법을 바로잡아 준다. 희가 처음으로 편히 숨을 쉰다. “…부표 7호가 다른 박자로 깜빡여요.”', 'You apply salve and correct how she breathes. Hui breathes easily for the first time. “…Buoy 7 blinks a different beat.”'),
+            effects: [{ kind: 'flag', key: 'sea_fp_hint' }, { kind: 'hp', amount: 3 }],
+          },
+        },
+        {
           label: t('교대석을 떠난다', 'Leave the seat'),
           intent: 'leave',
           success: { text: t('길게 둘, 짧게 하나.', 'Two long, one short.') },

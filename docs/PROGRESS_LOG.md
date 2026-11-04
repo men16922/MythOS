@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Backgrounds matter after Act 3 (Claude Opus 5.5, same goal)
+
+- Signal+ backgrounds (enforcer, broker, medic, runner) had options only in the Acts 1–4 districts; the 20 districts from the Glass Library's last two onward (Acts 4–6, the Sea, Outside the List) had none. Each now has one background option, five per background, placed on the person it fits (the enforcer cites procedure to inspectors, the broker rebalances ledgers, the medic treats Dal's ear or Hui's breathing, the runner reads courier marks and routes); most are a no-roll shortcut to the quest's first stage or the flag the district already uses.
+- **Verified**: content + crpg tests; UI with each background on one district (medic Scrap Choir, enforcer Seizure Shed, broker Crane Chapel, runner Bus Depot) through the new option to quest stage 2, 0 console errors. Balance: the simulator plays Signal+ without a background, so these never fire there; with a background, unmeasured.
+
 ## 2026-11-04 — Camp nights for the five DLC companions (every companion now has one) (Claude Opus 5.5, same goal)
 
 - `content/crpg/camp_dialogues_more.ts`: Io tapes the folds of your map and offers a glass bookmark; Miro practises your name and asks you to say Miro's before you turn away; Doyun counts heads round the fire and asks to be called by name, not number; Bel's finger keeps finding a line to cut in your notes and reads one to the end instead; Rem, who never slept, asks how. Voices per `packs/new_companions/companions.ts`; pronouns per existing content (Io "her" fixed before commit). New test: every companion has a camp night (14/14).
@@ -104,10 +109,3 @@ Last updated: 2026-11-04
 
 - `sea5_cb_clock` (got the crew's clock back → they hold the breakwater against the flood: −10 Trace/+3◈ or +10 HP + consumable) and `sea6_cb_barge` (returned the borrowed memory → the old woman's lit barge finds you under the causeway: +12 HP, or ride it past the Keepers, AGI DC 6, −12 Trace); quest-stage gates, Codex art (unreviewed; the first breakwater render put a cargo ship in a harbor no ship reaches, re-rendered).
 - **Verified**: content + event-balance tests; UI on a Sea run (KO 1280×720, EN 390×844) resolved through the buttons, 0 console errors.
-
-## 2026-11-04 — The Unwritten Sea gets districts (Claude Opus 5.5, same goal)
-
-- Signal+ on the Sea lost its district layer after Act 3: `advanceAct` placed districts on the base map, then `takeRoute` replaced it with the Sea map. `DistrictDef.route` + `placeDistrict(…, route)` (passed explicitly: `run.route` still holds the previous act's route at that point) + `takeRoute` places its route's districts. Base maps never take route districts; Acts 1–3 identical on Sea and Deep (`districtRoute.test.ts`).
-- Three Sea districts per the DLC 3 bible: `d4_sea_seizure_shed` (get the crew's seized shift clock back → boss **marked**), `d5_sea_barge_market` (return the drone's borrowed memory to the old woman on the last barge; Old Ong from Act 2 is there → **cover**), `d6_sea_foghorn_post` (sound the foghorn once in the beat from before the Lightkeeper → **intel**). Mujin / Parang / Seo-ha options; 9 personas; 3 scenes + 9 portraits by Codex (unreviewed). 23 districts / 69 NPCs.
-- **Verified**: engine + content tests (440); UI on a Sea run, all three to quest stage 2 via buttons (desktop + 390 px), 0 console errors; local Ollama 8/9 in voice, Inspector No invented a seizure number → persona pinned to 412 / shift clock, rerun correct. Full Deep + Signal+ UI playthrough before this change: victory, six bosses, 28 district polls, no errors. Full Sea + Signal+ UI playthrough after it: victory in 24 min, 20 district polls, no errors.
-- `GAMEPLAY.md` district line was stale (Acts 1–3, "one per act"): rewritten from the content.

@@ -66,6 +66,15 @@ const HA: DialogueDef = {
           },
         },
         {
+          label: t('404호의 진료 카드를 찾아본다', 'Look for 404’s clinic card'),
+          intent: 'ask',
+          requires: { background: 'medic' },
+          success: {
+            text: t('관리실 구급함에 젖은 진료 카드가 있다. 이름 칸은 비었고 성만 남았다. 의료인의 눈엔 그걸로 충분하다.', 'In the warden’s first-aid box, a soaked clinic card: the given name blank, only the surname left. To a medic’s eye, that is enough.'),
+            effects: [{ kind: 'quest', id: 'q_sea_rows', stage: 1 }],
+          },
+        },
+        {
           label: t('관리실을 나온다', 'Leave the room'),
           intent: 'leave',
           success: { text: t('명부가 빨랫줄에서 뚝뚝 떨어진다.', 'The roster drips on its line.') },

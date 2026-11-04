@@ -155,6 +155,15 @@ const PILOT: DialogueDef = {
           },
         },
         {
+          label: t('바지선 사이를 뛰며 밧줄을 건넨다', 'Run the ropes across the barges'),
+          intent: 'offer',
+          requires: { background: 'runner' },
+          success: {
+            text: t('운반책의 발이 판자를 안다. 끊어질 뻔한 줄 셋을 이어 놓는다. 길이 처음으로 고개를 숙인다.', 'A runner’s feet know planks. You reconnect three ropes about to part. Gil bows his head for the first time.'),
+            effects: [{ kind: 'inspiration', amount: 1 }, { kind: 'trace', amount: -4 }],
+          },
+        },
+        {
           label: t('키잡이를 떠난다', 'Leave the helm'),
           intent: 'leave',
           success: { text: t('매듭이 하나 더 단단해진다.', 'One more knot pulls tight.') },

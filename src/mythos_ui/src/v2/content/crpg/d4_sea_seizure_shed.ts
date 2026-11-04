@@ -65,6 +65,15 @@ const NO: DialogueDef = {
           },
         },
         {
+          label: t('집행 절차 용어로 반환을 요청한다', 'Request the return in enforcement procedure terms'),
+          intent: 'ask',
+          requires: { background: 'enforcer' },
+          success: {
+            text: t('노 검수원이 당신 말투를 알아듣는다. “동업자시군요.” 반환 서식과 412번 열쇠 번호가 함께 나온다.', 'Inspector No recognises the way you talk. “A colleague, I see.” The return form and the key number for 412 come out together.'),
+            effects: [{ kind: 'quest', id: 'q_sea_seizure', stage: 1 }, { kind: 'flag', key: 'sea_ss_form' }],
+          },
+        },
+        {
           label: t('검수대를 떠난다', 'Leave the desk'),
           intent: 'leave',
           success: { text: t('딱지 넘기는 소리가 이어진다.', 'The tags keep turning.') },

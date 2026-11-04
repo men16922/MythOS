@@ -65,6 +65,15 @@ const RYU: DialogueDef = {
           },
         },
         {
+          label: t('등대단 점검 말투로 잠금 해제를 지시한다', 'Order the relay unlocked in an inspector’s tone'),
+          intent: 'ask',
+          requires: { background: 'enforcer' },
+          success: {
+            text: t('류가 반사적으로 경례를 반쯤 한다. 7번 중계기의 잠금이 풀린다. 류가 뒤늦게 묻는다. “…어느 소속이시죠?”', 'Ryu half-salutes by reflex. Relay 7 unlocks. Only then does Ryu ask, “…Which unit are you with?”'),
+            effects: [{ kind: 'quest', id: 'q_sea_cable', stage: 1 }],
+          },
+        },
+        {
           label: t('콘솔을 떠난다', 'Leave the console'),
           intent: 'leave',
           success: { text: t('경고음이 계속된다.', 'The warning keeps sounding.') },

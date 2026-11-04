@@ -109,6 +109,15 @@ const PIL: DialogueDef = {
           },
         },
         {
+          label: t('필 반장의 장부를 같이 맞춘다', 'Balance Foreman Pil’s ledger with him'),
+          intent: 'offer',
+          requires: { background: 'broker' },
+          success: {
+            text: t('숫자를 두 번 옮기자 한 대가 부품 회수로 빠진다. 필이 장부를 덮는다. “이건 제가 안 봤어요.”', 'Move two figures and one machine drops out as parts recovery. Pil closes the ledger. “I didn’t see that.”'),
+            effects: [{ kind: 'quest', id: 'q_crane_chapel', stage: 1 }, { kind: 'flag', key: 'cc_ledger' }],
+          },
+        },
+        {
           label: t('천막을 나온다', 'Leave the tent'),
           intent: 'leave',
           success: { text: t('지시서가 다시 접힌다.', 'The work order is folded again.') },

@@ -106,6 +106,15 @@ const GU: DialogueDef = {
           },
         },
         {
+          label: t('언 관절을 살펴 준다', 'Check Gu’s frozen joints'),
+          intent: 'offer',
+          requires: { background: 'medic' },
+          success: {
+            text: t('관절에 맺힌 서리를 천천히 녹이는 순서가 있다. 구가 웃는다. “사람 몸이랑 똑같네. 천천히.” 깨우는 순서를 함께 정리한다.', 'There is an order for thawing frost in a joint. Gu grins. “Same as a person. Slowly.” You work out the waking order together.'),
+            effects: [{ kind: 'flag', key: 'cs_slow' }, { kind: 'inspiration', amount: 1 }],
+          },
+        },
+        {
           label: t('구를 쉬게 둔다', 'Let Gu rest'),
           intent: 'leave',
           success: { text: t('구가 언 다리를 두드리며 흥얼거린다.', 'Gu taps his frozen legs and hums.') },

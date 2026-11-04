@@ -67,6 +67,15 @@ const GWANG: DialogueDef = {
           },
         },
         {
+          label: t('폐지된 노선을 뛰어 본 적 있다고 말한다', 'Say you used to run the cancelled route'),
+          intent: 'ask',
+          requires: { background: 'runner' },
+          success: {
+            text: t('광 기사가 눈을 크게 뜬다. “그 노선 승객이었어요?” 서랍에서 만료되지 않은 옛 노선 카드를 꺼낸다.', 'Gwang’s eyes widen. “You rode that route?” He takes the never-expired old route card from a drawer.'),
+            effects: [{ kind: 'quest', id: 'q_outside_bus', stage: 1 }, { kind: 'flag', key: 'outside_bd_card' }],
+          },
+        },
+        {
           label: t('운전석을 떠난다', 'Leave the driver’s seat'),
           intent: 'leave',
           success: { text: t('광 기사가 백미러를 고쳐 단다.', 'Gwang adjusts the mirror.') },

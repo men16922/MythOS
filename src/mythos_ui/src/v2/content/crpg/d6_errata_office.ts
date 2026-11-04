@@ -69,6 +69,15 @@ const JEONG: DialogueDef = {
           },
         },
         {
+          label: t('교정 절차의 예외 조항을 묻는다', 'Ask about the exception clause in the correction procedure'),
+          intent: 'ask',
+          requires: { background: 'enforcer' },
+          success: {
+            text: t('조항을 짚자 정 교정자가 한숨을 쉬며 부호를 그려 보인다. 점 세 개와 짧은 선. “규정을 아시는 분이군요.”', 'When you cite the clause, Jeong sighs and draws the mark: three dots and a short line. “You know your regulations.”'),
+            effects: [{ kind: 'flag', key: 'eo_stet' }],
+          },
+        },
+        {
           label: t('책상을 떠난다', 'Leave the desk'),
           intent: 'leave',
           success: { text: t('돋보기가 다음 줄로 옮겨 간다.', 'The magnifier moves to the next line.') },

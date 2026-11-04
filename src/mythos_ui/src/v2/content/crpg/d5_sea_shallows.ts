@@ -64,6 +64,15 @@ const BONG: DialogueDef = {
           },
         },
         {
+          label: t('운반책 매듭으로 직접 몸을 묶는다', 'Tie yourself on with a runner’s knot'),
+          intent: 'offer',
+          requires: { background: 'runner' },
+          success: {
+            text: t('봉 씨가 매듭을 보고 고개를 끄덕인다. “그 매듭은 안 풀려요. 들어가요. 내가 잡을게.”', 'Bong looks at the knot and nods. “That one won’t slip. Go in. I’ve got you.”'),
+            effects: [{ kind: 'flag', key: 'sea_gs_rope' }, { kind: 'inspiration', amount: 1 }],
+          },
+        },
+        {
           label: t('말뚝을 떠난다', 'Leave the post'),
           intent: 'leave',
           success: { text: t('밧줄이 팽팽하게 당겨진다.', 'The rope pulls taut.') },

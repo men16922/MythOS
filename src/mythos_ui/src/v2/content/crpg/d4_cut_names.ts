@@ -70,6 +70,15 @@ const CUTTER: DialogueDef = {
           },
         },
         {
+          label: t('기록 보존 명령 조항을 들이댄다', 'Cite the records-retention order'),
+          intent: 'ask',
+          requires: { background: 'enforcer' },
+          success: {
+            text: t('단속관 시절 외운 조항이다. 재단사가 가위를 내려놓고 서랍 열쇠를 꺼낸다.', 'A clause you memorised as an enforcer. The cutter sets down the scissors and takes out the drawer key.'),
+            effects: [{ kind: 'quest', id: 'q_cut_names', stage: 1 }],
+          },
+        },
+        {
           label: t('재단대를 지나친다', 'Pass the table'),
           intent: 'leave',
           success: { text: t('사각, 사각. 이름이 한 줄씩 가벼워진다.', 'Snip, snip. Line by line, the names grow lighter.') },

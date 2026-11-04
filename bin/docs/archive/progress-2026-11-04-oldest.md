@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Four more night-market scenes for Act 2 (Claude Opus 5.5, same goal)
+
+- Act 2 rolled from 37 against Act 3's 51. `a2_debt_tattoo` (debts tattooed on a child's arm, one line per payment), `a2_fortune_machine` (it prints before you pay: "you stood here last time too"), `a2_silence_tea` (tea paid for with an hour of silence, where IX can't hear), `a2_rat_post` (rats carrying mail for the unlisted); Codex art (unreviewed).
+- **Verified**: content + event-balance tests; UI (KO/EN, desktop/390 px) each resolved, 0 console errors. Fresh canonical (450) HEAD → this: 39.3 → 40.2 %, within noise.
+
 ## 2026-11-04 — Outside the List to 30 scenes (Claude Opus 5.5, same goal)
 
 - `outside_ev_water_tank` (the one full tank on a roof over a block without water), `outside_ev_newspapers` (tomorrow's obituaries leave the off-list dead out), `outside_ev_florist` (a bouquet for a recipient who was erased), `outside_ev_radio` (a guardhouse radio leaking the Crew's patrol order); Codex art (unreviewed). While applying, a zsh pipe+heredoc re-ran the previous batch's script and duplicated four events; the content id test caught it and the duplicate block was removed before commit.

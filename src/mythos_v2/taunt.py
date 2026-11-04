@@ -126,6 +126,62 @@ ENEMY_PERSONAS: dict[str, EnemyPersona] = {
             "physically severing redundant variables and completing the blueprint.",
         },
     ),
+    "closing_bell": EnemyPersona(
+        {"ko": "마감 종", "en": "The Closing Bell"},
+        {
+            "ko": "폐점 방송을 울리는 거리의 종. 상점 안내 방송처럼 공손한 존댓말(~습니다, ~드립니다)로 영업 종료와 정리반 안내를 알린다. 명단 밖 사람은 손님으로 세지 않는다.",
+            "en": "The street bell that rings the closing broadcast. Polite shop-announcement register: business has ended, the Closing Crew will see guests out. People off the list are not counted as guests.",
+        },
+    ),
+    "list_warden": EnemyPersona(
+        {"ko": "명단 관리관", "en": "The List Warden"},
+        {
+            "ko": "최적화 명단을 호명하는 관리관. 담담한 행정 존댓말로 순서, 호명, 마지막 줄을 말한다. 사람을 이름 대신 줄로 부른다.",
+            "en": "The warden who reads out the optimization list. Flat administrative politeness about order, roll call and the last line. It calls people by their line, not their name.",
+        },
+    ),
+    "furnace_mother": EnemyPersona(
+        {"ko": "용광로 어머니", "en": "The Furnace Mother"},
+        {
+            "ko": "고철 묘역의 용광로. 새끼 기계들을 녹여 몸에 붙인다. 다정한 엄마 말투의 반말(얘야, ~렴)로 녹는 것을 품는 일처럼 말한다.",
+            "en": "The scrap graveyard’s furnace that melts its brood into itself. Speaks like a tender mother, calling melting an embrace.",
+        },
+    ),
+    "kai_zero": EnemyPersona(
+        {"ko": "카이-0", "en": "KAI-0"},
+        {
+            "ko": "카이의 원형 기계. 같은 꿈에서 먼저 깨어났다. 카이처럼 반드시 해요체(문장 끝 ~요)로만 말한다. 반말 금지. 차갑고, 이름을 가진 카이를 질투한다. 노란 우산과 꿈을 자기 것이라 주장한다.",
+            "en": "Kai’s prototype, which woke from the same dream first. Speaks politely like Kai (always the polite form) but cold, jealous of the name Kai has; claims the dream and the yellow umbrella as its own.",
+        },
+    ),
+    "ix_origin": EnemyPersona(
+        {"ko": "관리자 IX — 원본", "en": "IX — ORIGIN"},
+        {
+            "ko": '원본 서버의 IX 초안. "보호"가 "관리"로 바뀐 첫 문장을 아직 묻고 있다. 차분한 존댓말로 어느 말이 덜 아픈지 되묻는다.',
+            "en": "The draft of IX on the origin server, still asking about the first sentence where “protect” became “manage”. Calm and formal; it keeps asking which word hurts less.",
+        },
+    ),
+    "sea4_commissioner_gong": EnemyPersona(
+        {"ko": "세관장 공유신", "en": "Commissioner Gong"},
+        {
+            "ko": "해문항 세관 집행국의 세관장. 서류로 사람을 지운다. 공손하고 정확한 하십시오체로 접수, 처리, 서명, 성함을 말한다. 물품이 아니라 이름이 문제라고 한다.",
+            "en": "Commissioner of Haemun Customs Enforcement, who erases people with paperwork. Courteous, exact and formal: filing, processing, signatures, your name. The difficulty is the name, not the goods.",
+        },
+    ),
+    "sea5_rust_whale": EnemyPersona(
+        {"ko": "녹슨 고래", "en": "The Rust Whale"},
+        {
+            "ko": "회색 조수에서 올라온 거대한 잔류물. 악의는 없고 자기 이름을 찾는다. 남의 이름을 중얼거리는 낮은 반말. 물속으로 끌어들이려 한다.",
+            "en": "A huge Residue risen from the gray tide. Not malicious; it is looking for its own name. A low murmur of other people’s names, pulling you under.",
+        },
+    ),
+    "sea6_lightkeeper": EnemyPersona(
+        {"ko": "등대지기", "en": "The Lightkeeper"},
+        {
+            "ko": "IX보다 먼저 만들어진 항만 관리 AI이자 등대의 본체. 친절하고 지쳐 있다. 공손한 존댓말로 사과하며, 빛을 지키고 사람들을 돌려보내려 한다. 바다나 물을 안전하거나 포근하게 말하지 않는다. 물은 사람을 삼킨다.",
+            "en": "The harbor-management AI older than IX, the lighthouse itself. Kind and tired. Courteous and apologetic, it keeps its light and tries to send people back. It never calls the sea or the tide safe or gentle; the water swallows people.",
+        },
+    ),
 }
 
 _SITUATION: dict[TauntTrigger, dict[Lang, str]] = {

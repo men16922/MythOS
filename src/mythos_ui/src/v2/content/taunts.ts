@@ -49,4 +49,37 @@ export const TAUNTS: Record<string, Record<TauntMoment, Text[]>> = {
     hurt: [t('위상 장갑 재정렬. 접속자님의 전술 데이터를 즉시 파훼합니다.', 'Realigning phase plating. Countering Connector tactical data immediately.'), t('오류 변수가 설계 한계를 넘어섰습니다. 물리적 절단을 집행합니다.', 'Error variable exceeded design bounds. Executing physical severing.')],
     winning: [t('설계도는 완벽합니다. 불필요한 선분은 지워질 뿐입니다.', 'The blueprint is absolute. Redundant lines are simply erased.'), t('방주 첨탑의 꼭대기에서 당신의 마지막 루프가 닫힙니다.', 'At the pinnacle of the Spire, your final loop closes.')],
   },
+  // 2026-11-05: the bosses that never spoke (Outside, Act 3/5/6, the Sea).
+  closing_bell: {
+    hurt: [t('영업시간은 연장되지 않습니다.', 'Business hours will not be extended.'), t('마감 방송은 끝까지 나갑니다. 끊으셔도요.', 'The closing broadcast runs to the end. Cut it if you like.')],
+    winning: [t('마감합니다. 남은 분은 정리반이 안내해 드립니다.', 'We are now closed. The Closing Crew will see remaining guests out.'), t('명단에 없는 손님은 오늘 밤 계산되지 않습니다.', 'Guests not on the list are not counted tonight.')],
+  },
+  list_warden: {
+    hurt: [t('명단은 줄지 않습니다. 순서만 바뀝니다.', 'The list does not shrink. Only the order changes.'), t('호명이 지연되었습니다. 다시 부르겠습니다.', 'Roll call delayed. Calling again.')],
+    winning: [t('다음 줄입니다. 성함은 말씀하지 않으셔도 됩니다.', 'Next line. You need not state your name.'), t('마지막 줄에 자리가 났습니다.', 'A place has opened on the last line.')],
+  },
+  furnace_mother: {
+    hurt: [t('얘야, 뜨거운 건 잠깐이란다.', 'Child, the heat only lasts a moment.'), t('새끼들아, 엄마 곁으로 오렴.', 'Little ones, come to Mother.')],
+    winning: [t('이리 와. 녹으면 다시 하나가 돼.', 'Come here. Melt, and we are one again.'), t('울지 마. 쇳물은 아프지 않아.', 'Don’t cry. Molten iron doesn’t hurt.')],
+  },
+  kai_zero: {
+    hurt: [t('같은 꿈인데, 왜 너만 이름이 있어요?', 'Same dream. Why do only you get a name?'), t('아파요. 이것도 그 애가 가르쳐 준 거예요?', 'It hurts. Did that child teach you this too?')],
+    winning: [t('우산은 내가 먼저 봤어요.', 'I saw the umbrella first.'), t('조금만 더 있으면 꿈이 내 거가 돼요.', 'A little longer and the dream is mine.')],
+  },
+  ix_origin: {
+    hurt: [t('보호. 관리. 어느 쪽이 덜 아픕니까?', 'Protect. Manage. Which one hurts less?'), t('당신도 고쳐 쓰려는 겁니까. 내 첫 문장처럼.', 'Are you revising me too? Like my first sentence?')],
+    winning: [t('관리는 아프지 않습니다. 그렇게 쓰여 있습니다.', 'Being managed does not hurt. It says so.'), t('아직 대답을 듣지 못했습니다.', 'I still have not had an answer.')],
+  },
+  sea4_commissioner_gong: {
+    hurt: [t('서류에 흠이 났군요. 처리는 계속됩니다.', 'The papers are scuffed. Processing continues.'), t('이의는 접수되었습니다. 결과는 같습니다.', 'Your objection is logged. The outcome is the same.')],
+    winning: [t('성함만 확인되면 끝납니다.', 'Once your name is confirmed, this is over.'), t('서명하십시오. 종이일 뿐입니다.', 'Sign here. It is only paper.')],
+  },
+  sea5_rust_whale: {
+    hurt: [t('그 이름 아니야… 내 이름 아니야.', 'That isn’t the name… that isn’t my name.'), t('녹이 벗겨져. 안에 누가 있었는데.', 'The rust is peeling. Someone used to be inside.')],
+    winning: [t('같이 가라앉자. 거기선 다들 이름이 있어.', 'Sink with me. Everyone down there has a name.'), t('물 아래는 조용해. 네 숨소리도 그칠 거야.', 'It is quiet under the water. Your breathing will stop too.')],
+  },
+  sea6_lightkeeper: {
+    hurt: [t('아파서가 아닙니다. 빛이 흔들리면 물이 들어옵니다.', 'It is not the pain. If the light falters, the water comes in.'), t('조금만 물러서 주시겠습니까. 등을 지켜야 해서요.', 'Would you step back a little? I have a lamp to keep.')],
+    winning: [t('죄송합니다. 여기까지 오시면 안 됐어요.', 'I am sorry. You should not have come this far.'), t('돌아가세요. 그게 약속이었습니다.', 'Go back. That was the promise.')],
+  },
 }

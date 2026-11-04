@@ -4,7 +4,7 @@ Last updated: 2026-11-04
 
 ## 2026-11-04 — Curly quotes everywhere; English Sea run (Claude Opus 5.5, same goal)
 
-- A scan found 67 pairs of straight `"` quotes in older prose (Deep/Sea boss phase lines, act intros, endings, records) where the rest of the game uses “ ”; converted mechanically inside single-quoted literals (prose only, checked in the diff). Follow-up: 88 straight apostrophes in English text (card text like “an enemy's attack”, boss names, `C-17's`, `Censors'`) became ’ the same way; one test expected the old `Se-rin's` and was updated. The bilingual content test now rejects straight double quotes and straight apostrophes.
+- A scan found 67 pairs of straight `"` quotes in older prose (Deep/Sea boss phase lines, act intros, endings, records) where the rest of the game uses “ ”; converted mechanically inside single-quoted literals (prose only, checked in the diff). Follow-up: 88 straight apostrophes in English text (card text like “an enemy's attack”, boss names, `C-17's`, `Censors'`) became ’ the same way; one test expected the old `Se-rin's` and was updated. Then 103 hyphens used as minus signs (mostly older Sea hints like "-4 HP") became − like the other 887. The bilingual content test now rejects straight double quotes, straight apostrophes and hyphen-minus before a number; three-dot ellipses were already absent.
 - Full **English** Sea + Signal+ UI playthrough: victory in 27 min, 36 district and 80 dialogue polls, no errors.
 
 ## 2026-11-04 — Four more night-market scenes for Act 2 (Claude Opus 5.5, same goal)

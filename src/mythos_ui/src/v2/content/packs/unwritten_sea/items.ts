@@ -565,7 +565,7 @@ export const SEA_IMPLANTS: ImplantDef[] = [
   {
     id: 'sea_return_spool',
     name: t('귀항 실패', 'Return Spool'),
-    text: t('전투당 1회, 이번 턴 시작으로 되감는다. 손패 크기 -1.', 'Rewind to the start of the current turn once per combat. Hand size -1.'),
+    text: t('전투당 1회, 이번 턴 시작으로 되감는다. 손패 크기 −1.', 'Rewind to the start of the current turn once per combat. Hand size −1.'),
     rarity: 'boss',
     forbidden: true,
     icon: 'v2/implants/sea_return_spool.webp',

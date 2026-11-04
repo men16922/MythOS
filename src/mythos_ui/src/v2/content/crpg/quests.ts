@@ -58,6 +58,6 @@ export const QUESTS: QuestDef[] = [
       t('보관관 07은 지워진 시민들의 이름을 몰래 남겨 두었다. 누군가 그것을 밖으로 가져가 주기를 기다린다.', 'Archivist 07 has secretly kept the names of erased citizens. It is waiting for someone to carry them out.'),
       t('이름 목록을 받았다. 첨탑의 경비 체계가 그 이름들 때문에 흔들린다.', 'You carry the list of names. The Spire’s guard systems falter around them.'),
     ],
-    payoff: { stage: 2, bossMod: 'weaken', text: t('되살아난 이름들이 경비 체계를 흔든다: 적 체력 -25%.', 'Restored names shake the guard systems: enemies at -25% HP.') },
+    payoff: { stage: 2, bossMod: 'weaken', text: t('되살아난 이름들이 경비 체계를 흔든다: 적 체력 −25%.', 'Restored names shake the guard systems: enemies at −25% HP.') },
   },
 ]

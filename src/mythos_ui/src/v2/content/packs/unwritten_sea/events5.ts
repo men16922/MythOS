@@ -18,7 +18,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('빈 쪽 줄을 받아 함께 당긴다', 'Take the loose end and haul'),
-        hint: t('회복력+1·성공 HP-3,+40₵·실패 HP-6', 'Resilience+1·pass -3HP,+40₵·fail -6HP'),
+        hint: t('회복력+1·성공 HP-3,+40₵·실패 HP-6', 'Resilience+1·pass −3HP,+40₵·fail −6HP'),
         check: { stat: 'str', dc: 8 },
         success: {
           text: t(
@@ -44,7 +44,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('구호소 자리를 사서 일행과 연숙을 들인다', 'Pay for shelter for Yeon-suk and your group'),
-        hint: t('-30 ₵ · 일행 HP +6 · 인간성 +1', '-30 ₵ · party heals 6 HP · Humanity +1'),
+        hint: t('−30 ₵ · 일행 HP +6 · 인간성 +1', '−30 ₵ · party heals 6 HP · Humanity +1'),
         requires: { minCredits: 30 },
         success: {
           text: t(
@@ -60,7 +60,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('젖은 줄을 걷어 작업대를 비운다', 'Clear the wet rope from the work platform'),
-        hint: t('HP -2 · 인간성 +1 · +15 ₵', '-2 HP · Humanity +1 · +15 ₵'),
+        hint: t('HP −2 · 인간성 +1 · +15 ₵', '−2 HP · Humanity +1 · +15 ₵'),
         success: {
           text: t(
             '젖은 줄을 걷다 손가락이 쓸린다. 연숙이 빈 작업대에 앉아 숨을 고른다. 휘파람이 멎자 둘이 나란히 줄을 정리한다.',
@@ -88,7 +88,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('소매를 원래 크기로 붙들어 준다', 'Hold the sleeve at its original size'),
-        hint: t('HP -3 · 통찰 +2', '-3 HP · Insight +2'),
+        hint: t('HP −3 · 통찰 +2', '−3 HP · Insight +2'),
         success: {
           text: t(
             '흔들리는 수선대에 손을 짚다 바늘이 손가락을 꿴다. 미옥은 시접을 남겨 꿰맨다. 완성된 소매는 누구에게도 맞춰 보지 않는다.',
@@ -147,7 +147,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('물속에 손을 넣고 손바닥에 이름을 써 준다', 'Write the name on its palm underwater'),
-        hint: t('HP -4 · 추적 -4 · 통찰 +1 · +15 ₵', '-4 HP · -4 Trace · Insight +1 · +15 ₵'),
+        hint: t('HP −4 · 추적 −4 · 통찰 +1 · +15 ₵', '−4 HP · −4 Trace · Insight +1 · +15 ₵'),
         success: {
           text: t(
             '차가운 손을 잡자 모르는 아이에게 신발을 신기던 기억이 손목까지 밀려온다. 입을 다문 채 획을 마친다. 정류장 감시등은 빈 도로를 훑고 지나간다.',
@@ -176,7 +176,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('칠 분을 빼고 여백의 시각을 대조한다', 'Subtract seven minutes and compare the margin'),
-        hint: t('통찰+1·성공 추적+3,카드 강화·실패 HP-5', 'Insight+1·pass +3Trace,upgrade 1·fail -5HP'),
+        hint: t('통찰+1·성공 추적+3,카드 강화·실패 HP-5', 'Insight+1·pass +3Trace,upgrade 1·fail −5HP'),
         check: { stat: 'int', dc: 9 },
         success: {
           text: t(
@@ -202,7 +202,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('관리인의 덮개 달린 운반차를 빌린다', 'Hire the attendant’s covered transport'),
-        hint: t('-40 ₵ · 추적 -5', '-40 ₵ · -5 Trace'),
+        hint: t('−40 ₵ · 추적 −5', '−40 ₵ · −5 Trace'),
         requires: { minCredits: 40 },
         success: {
           text: t(
@@ -217,7 +217,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('작업등을 가리고 계단을 직접 살핀다', 'Shield the work light and inspect the steps'),
-        hint: t('HP -2 · 추적 -2 · +10 ₵', '-2 HP · -2 Trace · +10 ₵'),
+        hint: t('HP −2 · 추적 −2 · +10 ₵', '−2 HP · −2 Trace · +10 ₵'),
         success: {
           text: t(
             '작업등 앞에 몸을 세우고 낮은 계단을 더듬는다. 거친 모서리에 손이 벗겨진다. 카메라가 어두워진 계단을 지나치는 동안 관리인은 여백을 접지 않는다.',
@@ -245,7 +245,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('부러진 쪽을 어깨로 받쳐 밀어 올린다', 'Shoulder the broken side and push'),
-        hint: t('회복력+1·성공 HP-4,+50₵·실패 HP-7', 'Resilience+1·pass -4HP,+50₵·fail -7HP'),
+        hint: t('회복력+1·성공 HP-4,+50₵·실패 HP-7', 'Resilience+1·pass −4HP,+50₵·fail −7HP'),
         check: { stat: 'str', dc: 9 },
         success: {
           text: t(
@@ -271,7 +271,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('대체 수레 값을 보태고 예비 보급품을 받는다', 'Help rent another cart and take a spare supply'),
-        hint: t('-30 ₵ · 소모품 1개 · 인간성 +1', '-30 ₵ · 1 consumable · Humanity +1'),
+        hint: t('−30 ₵ · 소모품 1개 · 인간성 +1', '−30 ₵ · 1 consumable · Humanity +1'),
         requires: { minCredits: 30 },
         success: {
           text: t(
@@ -287,7 +287,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('짐을 나눠 들고 경사로를 여러 번 오른다', 'Carry the load up the ramp in smaller trips'),
-        hint: t('HP -2 · 인간성 +1 · +15 ₵', '-2 HP · Humanity +1 · +15 ₵'),
+        hint: t('HP −2 · 인간성 +1 · +15 ₵', '−2 HP · Humanity +1 · +15 ₵'),
         success: {
           text: t(
             '작은 짐도 여러 번 들면 팔이 저린다. 현태가 빈 수레를 밀어 올리고 부러진 손잡이를 챙긴다. 마지막 짐은 둘이 하나씩 나눠 든다.',
@@ -315,7 +315,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('감별료를 내고 물이 두드리는 간격을 읽는다', 'Pay to study the rhythm of the tapping'),
-        hint: t('-30₵·통찰+1·성공 고급3택1·실패 추적+4', '-30₵·Insight+1·pass uncommon1/3·fail +4Trace'),
+        hint: t('−30₵·통찰+1·성공 고급3택1·실패 추적+4', '−30₵·Insight+1·pass uncommon1/3·fail +4Trace'),
         requires: { minCredits: 30 },
         check: { stat: 'obs', dc: 9 },
         success: {
@@ -343,7 +343,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('덮개 친 휴식 자리를 빌린다', 'Rent a place beneath the awning'),
-        hint: t('-20 ₵ · 일행 HP +5 · 인간성 +1', '-20 ₵ · party heals 5 HP · Humanity +1'),
+        hint: t('−20 ₵ · 일행 HP +5 · 인간성 +1', '−20 ₵ · party heals 5 HP · Humanity +1'),
         requires: { minCredits: 20 },
         success: {
           text: t(
@@ -359,7 +359,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('병을 옮기는 동안 마개를 붙들어 준다', 'Hold the stoppers while he moves the bottles'),
-        hint: t('HP -2 · 인간성 +1', '-2 HP · Humanity +1'),
+        hint: t('HP −2 · 인간성 +1', '−2 HP · Humanity +1'),
         success: {
           text: t(
             '마개를 누른 손에 병목이 파고든다. 노인이 병을 그늘로 옮긴다. 마지막 병을 내려놓을 때 당신 입에서 나오려던 주문도 잦아든다.',
@@ -416,7 +416,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('스캐너를 떼어 안쪽으로 돌려 놓는다', 'Unbolt the scanner and turn it inward'),
-        hint: t('HP -3 · 추적 -4 · 인간성 +1', '-3 HP · -4 Trace · Humanity +1'),
+        hint: t('HP −3 · 추적 −4 · 인간성 +1', '−3 HP · −4 Trace · Humanity +1'),
         success: {
           text: t(
             '뜨거운 고정쇠가 손을 데운다. 스캐너가 제 화면을 찍고 신규 임차인 심사를 시작한다. 복남이 소리 없이 웃는 동안 당신은 뒤편으로 빠진다.',
@@ -445,7 +445,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('손가락이 접히는 틈에 밧줄을 빼낸다', 'Pull the rope free between movements'),
-        hint: t('성공 HP-3,소모품·실패 HP-7', 'Pass -3HP,1 consumable·fail -7HP'),
+        hint: t('성공 HP-3,소모품·실패 HP-7', 'Pass −3HP,1 consumable·fail −7HP'),
         check: { stat: 'agi', dc: 9 },
         success: {
           text: t(
@@ -471,7 +471,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('정비공에게 비용을 내고 낮은 점검길로 안내받는다', 'Pay the mechanic to guide you along the inspection path'),
-        hint: t('-30 ₵ · 추적 -5', '-30 ₵ · -5 Trace'),
+        hint: t('−30 ₵ · 추적 −5', '−30 ₵ · −5 Trace'),
         requires: { minCredits: 30 },
         success: {
           text: t(
@@ -486,7 +486,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('난간을 짚고 구조 손짓을 끝까지 따라 한다', 'Hold the rail and repeat the rescue gestures'),
-        hint: t('HP -2 · 통찰 +1 · +15 ₵', '-2 HP · Insight +1 · +15 ₵'),
+        hint: t('HP −2 · 통찰 +1 · +15 ₵', '−2 HP · Insight +1 · +15 ₵'),
         success: {
           text: t(
             '차가운 난간을 오래 쥐자 손마디가 쑤신다. 정비공과 당신이 남은 숨을 표시한다. 금속 손은 밧줄에 걸린 채 같은 손짓을 돌려준다.',
@@ -515,7 +515,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('물속에 서서 손목이 기억하는 동작을 끝낸다', 'Stay in the water and finish the remembered movement'),
-        hint: t('HP -4 · 통찰 +2 · 방의 기억 보존', '-4 HP · Insight +2 · keep room memory'),
+        hint: t('HP −4 · 통찰 +2 · 방의 기억 보존', '−4 HP · Insight +2 · keep room memory'),
         success: {
           text: t(
             '남의 관절통이 팔꿈치까지 올라온다. 당신은 문을 조금 열고 문턱을 손끝으로 두 번 두드린다. 누군가 늘 하던 귀가 인사다.',
@@ -560,7 +560,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('들은 말만 전하고 함께 정류장을 찾는다', 'Tell her exactly what you heard and return together'),
-        hint: t('인간성+1·성공 추적+4,일행HP+8·실패HP-5', 'Humanity+1·pass +4Trace,party+8HP·fail -5HP'),
+        hint: t('인간성+1·성공 추적+4,일행HP+8·실패HP-5', 'Humanity+1·pass +4Trace,party+8HP·fail −5HP'),
         check: { stat: 'cha', dc: 9 },
         success: {
           text: t(
@@ -586,7 +586,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('위치를 알려 주고 물이 닿지 않는 담길로 떠난다', 'Give her the location and leave by the dry wall'),
-        hint: t('HP -3 · 추적 -5 · 회복력 +1 · +10 ₵', '-3 HP · -5 Trace · Resilience +1 · +10 ₵'),
+        hint: t('HP −3 · 추적 −5 · 회복력 +1 · +10 ₵', '−3 HP · −5 Trace · Resilience +1 · +10 ₵'),
         success: {
           text: t(
             '수선공이 위치를 되뇌며 그물바늘을 챙긴다. 당신은 거친 담을 넘어 손바닥을 긁힌다. 감시등은 정류장으로 가는 길을 비춘다.',
@@ -615,7 +615,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('재료비를 보태고 두 손의 동작을 비교한다', 'Pay for ingredients and compare his hands'),
-        hint: t('통찰+1·성공 -20₵,일행HP+10·실패 HP-4', 'Insight+1·pass -20₵,party+10HP·fail -4HP'),
+        hint: t('통찰+1·성공 −20₵,일행HP+10·실패 HP-4', 'Insight+1·pass −20₵,party+10HP·fail −4HP'),
         requires: { minCredits: 20 },
         check: { stat: 'obs', dc: 8 },
         success: {
@@ -657,7 +657,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('철판을 닦으며 두 손의 움직임을 지켜본다', 'Clean the griddle and watch both hands'),
-        hint: t('HP -2 · 통찰 +1', '-2 HP · Insight +1'),
+        hint: t('HP −2 · 통찰 +1', '−2 HP · Insight +1'),
         success: {
           text: t(
             '철판을 닦던 손에 열이 오른다. 주방장이 불을 줄이고 왼손을 펼친다. 당신이 같은 손을 펴 보이자 그는 없는 화상을 문지르다 멈춘다.',
@@ -699,7 +699,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('주민만 들이고 바깥에서 차수문을 내린다', 'Admit the resident and lower the flood door outside'),
-        hint: t('HP -3 · 추적 -6 · 회복력 +1 · +10 ₵', '-3 HP · -6 Trace · Resilience +1 · +10 ₵'),
+        hint: t('HP −3 · 추적 −6 · 회복력 +1 · +10 ₵', '−3 HP · −6 Trace · Resilience +1 · +10 ₵'),
         success: {
           text: t(
             '무거운 손잡이가 손목을 비튼다. 문이 내려오며 바깥 카메라도 가린다. 철판 안쪽에서 주민이 손바닥으로 같은 높이를 두드린다.',
@@ -728,7 +728,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('인양줄을 받치고 레버를 함께 내린다', 'Brace the hoist line and lower the lever with him'),
-        hint: t('성공 HP-4,카드 강화·실패 HP-8', 'Pass -4HP,upgrade 1 card·fail -8HP'),
+        hint: t('성공 HP-4,카드 강화·실패 HP-8', 'Pass −4HP,upgrade 1 card·fail −8HP'),
         check: { stat: 'str', dc: 9 },
         success: {
           text: t(
@@ -754,7 +754,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('철거비를 내고 구형 보조 임플란트를 인수한다', 'Pay for dismantling and take the old assist implant'),
-        hint: t('-50 ₵ · 고급 임플란트 1개 · 통찰 +1', '-50 ₵ · 1 uncommon implant · Insight +1'),
+        hint: t('−50 ₵ · 고급 임플란트 1개 · 통찰 +1', '−50 ₵ · 1 uncommon implant · Insight +1'),
         requires: { minCredits: 50 },
         success: {
           text: t(
@@ -770,7 +770,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('전원을 끊고 짐 아래 받침을 밀어 넣는다', 'Cut the power and wedge supports under the load'),
-        hint: t('HP -2 · 회복력 +1 · +15 ₵', '-2 HP · Resilience +1 · +15 ₵'),
+        hint: t('HP −2 · 회복력 +1 · +15 ₵', '−2 HP · Resilience +1 · +15 ₵'),
         success: {
           text: t(
             '받침을 밀던 손등이 바닥에 긁힌다. 정비사가 전원 꺼진 레버에서 손을 뗀다. 짐은 받침 위에 머물고 그는 빈손을 무릎에 올린다.',
@@ -798,7 +798,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('목소리와 빈 줄의 순서를 맞춘다', 'Match the voices to the empty rows'),
-        hint: t('성공 추적+5,카드 제거·실패 HP-6', 'Pass +5Trace,remove 1 card·fail -6HP'),
+        hint: t('성공 추적+5,카드 제거·실패 HP-6', 'Pass +5Trace,remove 1 card·fail −6HP'),
         check: { stat: 'int', dc: 9 },
         success: {
           text: t(
@@ -853,7 +853,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('숨을 나눠 쉬며 마지막 구절까지 받아 준다', 'Alternate breaths and carry the final phrase'),
-        hint: t('성공 추적+5,고급3택1·실패 HP-4', 'Pass +5Trace,uncommon 1/3·fail -4HP'),
+        hint: t('성공 추적+5,고급3택1·실패 HP-4', 'Pass +5Trace,uncommon 1/3·fail −4HP'),
         check: { stat: 'cha', dc: 8 },
         success: {
           text: t(
@@ -879,7 +879,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('밸브를 잠가 소리와 감시를 함께 끊는다', 'Close the valve and silence the monitoring circuit'),
-        hint: t('HP -3 · 추적 -5 · 지배 +1 · +10 ₵', '-3 HP · -5 Trace · Dominance +1 · +10 ₵'),
+        hint: t('HP −3 · 추적 −5 · 지배 +1 · +10 ₵', '−3 HP · −5 Trace · Dominance +1 · +10 ₵'),
         success: {
           text: t(
             '굳은 밸브를 돌리다 손목이 삔다. 바람 소리와 감시등이 함께 멎는다. 당직자는 소리가 사라진 뒤에도 입을 한 번 더 움직인다.',
@@ -909,7 +909,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('해체 비용을 내고 안에 남은 기억을 정리한다', 'Pay to open the locker and sort what remains'),
-        hint: t('-40 ₵ · 카드 1장 제거 · 통찰 +1', '-40 ₵ · remove 1 card · Insight +1'),
+        hint: t('−40 ₵ · 카드 1장 제거 · 통찰 +1', '−40 ₵ · remove 1 card · Insight +1'),
         requires: { minCredits: 40 },
         success: {
           text: t(
@@ -925,7 +925,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('젖은 점검구로 들어가 옛 거주자의 손길을 따라간다', 'Enter the wet access hatch and follow the former resident’s reach'),
-        hint: t('HP -4 · 관찰 +1 · 회복력 +1', '-4 HP · OBS +1 · Resilience +1'),
+        hint: t('HP −4 · 관찰 +1 · 회복력 +1', '−4 HP · OBS +1 · Resilience +1'),
         success: {
           text: t(
             '좁은 틈이 어깨를 긁는다. 벽을 보지 않아도 손이 숨은 잠금쇠를 찾는다. 돌아 나올 때는 당신 눈으로 같은 위치를 확인한다.',
@@ -968,7 +968,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('식탁을 받쳐 마지막 식판까지 옮긴다', 'Steady the table and carry every plate across'),
-        hint: t('성공 추적+3,소모품·실패 HP-3 · +20 ₵', 'Pass +3Trace,1 consumable·fail -3HP · +20 ₵'),
+        hint: t('성공 추적+3,소모품·실패 HP-3 · +20 ₵', 'Pass +3Trace,1 consumable·fail −3HP · +20 ₵'),
         check: { stat: 'agi', dc: 7 },
         success: {
           text: t(
@@ -994,7 +994,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('일행 식사 값을 내고 마지막 자리를 비워 둔다', 'Buy meals for your group and leave the last seat free'),
-        hint: t('-30 ₵ · 일행 HP +8 · 인간성 +1', '-30 ₵ · party heals 8 HP · Humanity +1'),
+        hint: t('−30 ₵ · 일행 HP +8 · 인간성 +1', '−30 ₵ · party heals 8 HP · Humanity +1'),
         requires: { minCredits: 30 },
         success: {
           text: t(
@@ -1010,7 +1010,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('식판을 씻으며 마지막 한 사람 몫을 남긴다', 'Wash the plates and leave the extra meal untouched'),
-        hint: t('HP -2 · 인간성 +1', '-2 HP · Humanity +1'),
+        hint: t('HP −2 · 인간성 +1', '−2 HP · Humanity +1'),
         success: {
           text: t(
             '뜨거운 설거지 물이 갈라진 손을 따갑게 한다. 순덕은 마지막 식판을 따로 덮는다. 당신이 빈자리를 닦는 동안에도 파가 남았는지 한 번 더 살핀다.',
@@ -1038,7 +1038,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('기억 속 밸브 순서를 끝까지 계산한다', 'Work through the remembered valve sequence'),
-        hint: t('성공 HP-4,지능+1,통찰+1·실패 HP-9', 'Pass -4HP,INT+1,Insight+1·fail -9HP'),
+        hint: t('성공 HP-4,지능+1,통찰+1·실패 HP-9', 'Pass −4HP,INT+1,Insight+1·fail −9HP'),
         check: { stat: 'int', dc: 9 },
         success: {
           text: t(
@@ -1064,7 +1064,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('무인 펌프 요금을 내고 배수 통로로 빠진다', 'Pay the unattended pump and leave through the drain passage'),
-        hint: t('-20 ₵ · 추적 -5', '-20 ₵ · -5 Trace'),
+        hint: t('−20 ₵ · 추적 −5', '−20 ₵ · −5 Trace'),
         requires: { minCredits: 20 },
         success: {
           text: t(
@@ -1079,7 +1079,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('덮개를 붙들고 세 번씩 답한다', 'Hold the cover and answer three knocks at a time'),
-        hint: t('HP -2 · 인간성 +1 · +15 ₵', '-2 HP · Humanity +1 · +15 ₵'),
+        hint: t('HP −2 · 인간성 +1 · +15 ₵', '−2 HP · Humanity +1 · +15 ₵'),
         success: {
           text: t(
             '차가운 덮개를 붙든 손이 저린다. 세 번을 듣고 세 번을 돌려준다. 밸브는 그대로 둔다. 물에서 손을 뗄 때까지 두드림 사이의 간격을 함께 기다린다.',
@@ -1122,7 +1122,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('문을 밀어 닫고 수선공을 마른 쪽으로 옮긴다', 'Push the door shut and move her onto dry ground'),
-        hint: t('HP -5 · 추적 -6 · 지배 +1', '-5 HP · -6 Trace · Dominance +1'),
+        hint: t('HP −5 · 추적 −6 · 지배 +1', '−5 HP · −6 Trace · Dominance +1'),
         success: {
           text: t(
             '휘어진 문을 밀다 어깨를 다친다. 금속 벽이 감시등을 가리고 수선공의 손도 멈춘다. 바닥에는 부엌이 들어갈 자리만 비어 있다.',
@@ -1151,7 +1151,7 @@ export const SEA5_EVENTS: EventDef[] = [
     options: [
       {
         label: t('보조 장치를 맨손으로 잡고 두 손의 차이를 찾는다', 'Hold the assist unit barehanded and compare the grips'),
-        hint: t('성공 HP-4,희귀 임플란트·실패 HP-8', 'Pass -4HP,rare implant·fail -8HP'),
+        hint: t('성공 HP-4,희귀 임플란트·실패 HP-8', 'Pass −4HP,rare implant·fail −8HP'),
         check: { stat: 'obs', dc: 9 },
         success: {
           text: t(
@@ -1177,7 +1177,7 @@ export const SEA5_EVENTS: EventDef[] = [
       },
       {
         label: t('정상 공임을 내고 당신 장비의 손잡이를 다시 맞춘다', 'Pay the full rate to have your equipment grip refitted'),
-        hint: t('-60₵·1장 강화·추적-3·회복력+1', '-60₵·upgrade 1·-3Trace·Resilience+1'),
+        hint: t('−60₵·1장 강화·추적-3·회복력+1', '−60₵·upgrade 1·−3Trace·Resilience+1'),
         requires: { minCredits: 60 },
         success: {
           text: t(

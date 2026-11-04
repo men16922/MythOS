@@ -486,6 +486,15 @@ export const ORIGIN_EVENTS: EventDef[] = [
           effects: [{ kind: 'credits', amount: 16 }],
         },
       },
+      {
+        label: t('렘이 쟁반 옆에 앉아 기다린다', 'Rem sits by the tray and waits'),
+        hint: t('파티 회복 5 · 렘 유대 +1', 'Party heals 5 · Rem bond +1'),
+        requires: { companion: 'rem' },
+        success: {
+          text: t('렘이 쟁반 옆에 앉는다. 눈이 나무를 덮고, 쟁반이 데워지고, 나무가 다시 보인다. “잠드는 게 이런 거예요?” 일행이 그 옆에서 잠깐 쉰다.', 'Rem sits beside the tray. Snow covers the tree, the tray warms, the tree shows again. “Is this what falling asleep is like?” Your party rests beside it a while.'),
+          effects: [{ kind: 'heal_party', amount: 5 }, { kind: 'bond', id: 'rem', amount: 1 }],
+        },
+      },
     ],
   },
   {
@@ -527,6 +536,15 @@ export const ORIGIN_EVENTS: EventDef[] = [
         success: {
           text: t('가격표 아래 서랍이 열린다. 패치 하나와 접지 않은 영수증이 나온다.', 'A drawer opens beneath the price tag. It holds a patch and an unfolded receipt.'),
           effects: [{ kind: 'credits', amount: -24 }, { kind: 'consumable', id: 'nanopatch' }],
+        },
+      },
+      {
+        label: t('린위에가 비친 잉크로 확률을 매긴다', 'Let Lin Yue price the odds from the ink'),
+        hint: t('크레딧 +30 · 린위에 유대 +1', '+30 ₵ · Lin Yue bond +1'),
+        requires: { companion: 'lin_yue' },
+        success: {
+          text: t('린위에가 표를 불빛에 비춰 보며 세 장을 골라낸다. “이 판은 여기서 이겨. 나머진 사지 마.” 두 장이 당첨이다.', 'Lin Yue holds the tickets to the light and picks out three. “This is where this table pays. Don’t buy the rest.” Two of them win.'),
+          effects: [{ kind: 'credits', amount: 30 }, { kind: 'bond', id: 'lin_yue', amount: 1 }],
         },
       },
     ],
@@ -585,6 +603,15 @@ export const ORIGIN_EVENTS: EventDef[] = [
         success: {
           text: t('같은 번호를 찾던 호출이 멎는다. 초안들은 여전히 앉아 있지만 천장을 올려다보지는 않는다.', 'The repeated call for the same number stops. The drafts remain seated, but they no longer look up at the ceiling.'),
           effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+      {
+        label: t('도윤이 불리지 않는 번호를 직접 부른다', 'Doyun calls the number himself'),
+        hint: t('◈ +5 · 도윤 유대 +1', '+5 ◈ · Doyun bond +1'),
+        requires: { companion: 'doyun' },
+        success: {
+          text: t('도윤이 대기표 번호를 소리 내어 부른다. 어깨까지만 그려진 초안이 고개를 든다. 코트를 집어 무릎에 다시 올린다. 도윤이 다음 번호도 부른다.', 'Doyun reads the ticket number aloud. The draft drawn only to the shoulders looks up, picks up the coat and settles it back on its lap. Doyun calls the next number too.'),
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'bond', id: 'doyun', amount: 1 }],
         },
       },
     ],

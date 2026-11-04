@@ -266,6 +266,15 @@ const A1: EventDef[] = [
           ],
         },
       },
+      {
+        label: t('카이가 렌즈 깜빡임을 읽는다', 'Let Kai read the lens’s blinking'),
+        hint: t('추적 −6 · 카이 유대 +1', '−6 Trace · Kai bond +1'),
+        requires: { companion: 'kai' },
+        success: {
+          text: t('카이가 물웅덩이 옆에 무릎을 꿇는다. “도와 달라는 게 아니에요. 조용히 꺼 달래요.” 카이가 코어 전원을 천천히 내린다. 순찰망에서 드론 하나가 조용히 빠진다.', 'Kai kneels by the puddle. “It isn’t asking for help. It’s asking to be switched off gently.” He powers the core down slowly. One drone drops quietly off the patrol net.'),
+          effects: [{ kind: 'trace', amount: -6 }, { kind: 'bond', id: 'kai', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['downed drone', 'dawn', 'salvage'],
   },

@@ -210,6 +210,15 @@ export const A1_MORE: EventDef[] = [
           ],
         },
       },
+      {
+        label: t('세린이 가방 끈 매듭을 읽는다', 'Let Se-rin read the knot on the bag strap'),
+        hint: t('크레딧 +20 · 세린 유대 +1', '+20 ₵ · Se-rin bond +1'),
+        requires: { companion: 'se_rin' },
+        success: {
+          text: t('세린이 매듭을 손가락으로 훑는다. “우리 쪽 매듭이야. 받을 사람이 기다려.” 세린이 뒷골목 길로 가방을 날라 준다. 수신인이 문간에서 수고비를 쥐여 준다.', 'Se-rin runs a finger over the knot. “That’s one of ours. Someone’s waiting for this.” She runs the bag through the back alleys, and the recipient presses a fee into your hand at the door.'),
+          effects: [{ kind: 'credits', amount: 20 }, { kind: 'bond', id: 'se_rin', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['courier', 'lockbox', 'delivery', 'temptation'],
   },
@@ -1162,6 +1171,15 @@ export const A3_MORE: EventDef[] = [
             { kind: 'trace', amount: -4 },
             { kind: 'maxHp', amount: -2 },
           ],
+        },
+      },
+      {
+        label: t('미로가 아무도 모르게 걸쇠를 연다', 'Let Miro open the latch unseen'),
+        hint: t('소모품 1개 · 미로 유대 +1', '1 consumable · Miro bond +1'),
+        requires: { companion: 'miro' },
+        success: {
+          text: t('미로가 창틀 틈으로 손을 넣는다. 누구도 미로를 보지 않는다. 걸쇠가 열린다. 청소부가 들어오며 공구함에서 하나를 꺼내 미로 손에 쥐여 준다.', 'Miro slips a hand through a gap in the frame. Nobody looks at Miro. The latch opens. The cleaner climbs in and presses something from the toolbox into Miro’s hand.'),
+          effects: [{ kind: 'consumable' }, { kind: 'bond', id: 'miro', amount: 1 }],
         },
       },
     ],

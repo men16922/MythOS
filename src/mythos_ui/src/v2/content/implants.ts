@@ -341,7 +341,7 @@ const BOSS: ImplantDef[] = [
   },
   {
     id: 'eater_maw',
-    name: t('포식자의 턱', "Eater's Maw"),
+    name: t('포식자의 턱', "Eater’s Maw"),
     text: t('에너지 +1. 손패 −1.', '+1 energy. Hand size −1.'),
     rarity: 'boss',
     icon: 'v2/implants/eater_maw.webp',
@@ -465,7 +465,7 @@ const FORBIDDEN: ImplantDef[] = [
 const SHOP: ImplantDef[] = [
   {
     id: 'merchant_ledger',
-    name: t('상인의 장부', "Merchant's Ledger"),
+    name: t('상인의 장부', "Merchant’s Ledger"),
     text: t('상점 가격 −20%. 크레딧 획득 +10%.', 'Shop prices −20%. Credits gained +10%.'),
     rarity: 'shop',
     icon: 'v2/implants/merchant_ledger.webp',
@@ -520,7 +520,7 @@ const PACK_BLACK_MARKET: ImplantDef[] = [
   },
   {
     id: 'smugglers_pocket',
-    name: t('밀수 주머니', "Smuggler's Pocket"),
+    name: t('밀수 주머니', "Smuggler’s Pocket"),
     text: t('전투 첫 턴 에너지 +2.', 'First turn of each combat: +2 energy.'),
     rarity: 'rare',
     icon: 'v2/implants/smugglers_pocket.webp',

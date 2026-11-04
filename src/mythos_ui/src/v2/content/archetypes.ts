@@ -15,7 +15,7 @@ export const ARCHETYPES: ArchetypeDef[] = [
   {
     id: 'ghost',
     name: t('유령 신호', 'Ghost Signal'),
-    tagline: t('보이지 않으면 맞지 않는다.', "What they can't see, they can't hit."),
+    tagline: t('보이지 않으면 맞지 않는다.', "What they can’t see, they can’t hit."),
     description: t(
       '관리망에서 지워진 접속자. 순간이동으로 파고들고, 밀쳐내기로 적을 저희끼리의 사선으로, 아니면 허공으로 몰아넣는다.',
       'A connector erased from the network. Blinks and shoves enemies into each other’s fire — and off the edge.',
@@ -49,7 +49,7 @@ export const ARCHETYPES: ArchetypeDef[] = [
     sprite: 'smuggler',
     burst: {
       name: t('총체적 탈취', 'Total Hijack'),
-      text: t('모든 적의 공격 방향을 뒤집고, 모든 적에게 표식 2.', "Turn every enemy's attack around. Mark 2 on every enemy."),
+      text: t('모든 적의 공격 방향을 뒤집고, 모든 적에게 표식 2.', "Turn every enemy’s attack around. Mark 2 on every enemy."),
       effects: [
         { kind: 'redirect', to: 'all_enemies' },
         { kind: 'status', status: 'mark', amount: 2, to: 'all_enemies' },

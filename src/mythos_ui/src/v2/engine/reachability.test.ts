@@ -53,7 +53,7 @@ test('the reward names the neutral a met protect bonus kept alive, and nobody wh
     assert.equal(next.screen.kind, 'reward')
     return next.screen.kind === 'reward' ? next.screen.reward : undefined
   }
-  assert.equal(won(false)?.saved?.en, "Se-rin's Cargo Drone")
+  assert.equal(won(false)?.saved?.en, 'Se-rin’s Cargo Drone')
   assert.equal(won(true)?.saved, undefined)
 })
 

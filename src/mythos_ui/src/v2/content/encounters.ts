@@ -25,7 +25,7 @@ const ACT1: EncounterDef[] = [
     enemies: [foe('scrap_drone', 4, 1), foe('scrap_drone', 4, 3), foe('maintenance_drone', 5, 2)],
     terrain: [...tiles('cover', [2, 0], [2, 4]), ...tiles('hazard', [3, 2], [3, 3])],
     bonus: { kind: 'untouched' },
-    intro: t('붉은 칸은 놈들 차례에 얻어맞는 자리다. 비켜서면 그만이다.', "Red tiles get hit on their turn. Don't be standing there."),
+    intro: t('붉은 칸은 놈들 차례에 얻어맞는 자리다. 비켜서면 그만이다.', "Red tiles get hit on their turn. Don’t be standing there."),
   },
   {
     id: 'a1_n1_crossfire',
@@ -36,7 +36,7 @@ const ACT1: EncounterDef[] = [
     enemies: [foe('sentinel_drone', 6, 2), foe('scrap_drone', 4, 1), foe('scrap_drone', 5, 3)],
     terrain: [...tiles('cover', [3, 0], [3, 4])],
     bonus: { kind: 'environment', count: 1 },
-    intro: t('감시 드론은 사선에 뭐가 있든 쏜다. 제 편이라도.', "Sentinels shoot whatever's in the line. Even their own."),
+    intro: t('감시 드론은 사선에 뭐가 있든 쏜다. 제 편이라도.', "Sentinels shoot whatever’s in the line. Even their own."),
   },
   {
     id: 'a1_n1_overpass',
@@ -47,7 +47,7 @@ const ACT1: EncounterDef[] = [
     enemies: [foe('scrap_drone', 4, 1), foe('maintenance_drone', 5, 3), foe('scrap_drone', 6, 1)],
     terrain: [...tiles('void', [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [5, 2])],
     bonus: { kind: 'environment', count: 2 },
-    intro: t('끊긴 상판 너머는 낭떠러지다. 밀어서 떨궈.', "Past the broken deck there's only the drop. Push them off."),
+    intro: t('끊긴 상판 너머는 낭떠러지다. 밀어서 떨궈.', "Past the broken deck there’s only the drop. Push them off."),
   },
   {
     id: 'a1_n1_cover',
@@ -94,10 +94,10 @@ const ACT1: EncounterDef[] = [
     backdrop: 'streets',
     enemies: [foe('tracker_spider', 5, 1), foe('scrap_drone', 4, 3), foe('scrap_drone', 6, 2)],
     terrain: [...tiles('cover', [3, 1], [3, 3])],
-    neutral: { name: t('세린의 화물 드론', "Se-rin's Cargo Drone"), sprite: 'maintenance-drone', hp: 9, pos: at(2, 2) },
+    neutral: { name: t('세린의 화물 드론', "Se-rin’s Cargo Drone"), sprite: 'maintenance-drone', hp: 9, pos: at(2, 2) },
     reinforcements: [{ turn: 2, enemies: [foe('scrap_drone', 6, 0)] }],
     bonus: { kind: 'protect' },
-    intro: t('화물 드론이 터지면 오늘 밤 거래도 날아간다.', "If the cargo drone pops, so does tonight's deal."),
+    intro: t('화물 드론이 터지면 오늘 밤 거래도 날아간다.', "If the cargo drone pops, so does tonight’s deal."),
   },
   {
     id: 'a1_n2_blackout',
@@ -166,7 +166,7 @@ const ACT1: EncounterDef[] = [
     terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('hazard', [3, 2], [4, 0], [4, 4])],
     intro: t(
       'C-17 진압 전차, 해태. 놈이 광선을 모으기 시작하면, 그 앞에 놈의 드론을 세워 둬.',
-      "HAETAE, C-17's riot tank. When it charges the beam, park its own drones in front.",
+      "HAETAE, C-17’s riot tank. When it charges the beam, park its own drones in front.",
     ),
   },
   {
@@ -179,7 +179,7 @@ const ACT1: EncounterDef[] = [
     terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('hazard', [3, 0], [3, 4], [4, 2])],
     intro: t(
       'C-17 구역 소각 기갑기, 주작. 바닥을 불바다로 만들어 퇴로를 지운다 — 불길이 번지기 전에 밀어붙여.',
-      "C-17's heavy purge walker, JUJAK. It turns the floor into a furnace to erase your retreat — push through before the fire spreads.",
+      "C-17’s heavy purge walker, JUJAK. It turns the floor into a furnace to erase your retreat — push through before the fire spreads.",
     ),
   },
   {
@@ -193,7 +193,7 @@ const ACT1: EncounterDef[] = [
     bonus: { kind: 'untouched' },
     intro: t(
       '절단견에 물리면 출혈이 남는다. 상처가 벌어진 채로 뛰어다니지 마.',
-      "Ripper Hounds leave you bleeding. Don't sprint around while a wound is open.",
+      "Ripper Hounds leave you bleeding. Don’t sprint around while a wound is open.",
     ),
   },
   {
@@ -233,7 +233,7 @@ const ACT1: EncounterDef[] = [
     terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('hazard', [3, 2], [4, 4])],
     intro: t(
       '부식 처리기의 오수는 장갑을 영구히 녹인다. 오래 끌수록 방어가 무너진다.',
-      "The Rust Hulk's sludge melts armor permanently. The longer this drags on, the thinner your guard.",
+      "The Rust Hulk’s sludge melts armor permanently. The longer this drags on, the thinner your guard.",
     ),
   },
   {
@@ -246,7 +246,7 @@ const ACT1: EncounterDef[] = [
     terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('hazard', [3, 0], [3, 4], [4, 2])],
     intro: t(
       'C-17 고속 강습기, 백호. 광학 위장으로 첫 타격을 흘려보내고 출혈 돌진을 퍼붓는다.',
-      "C-17's high-speed interceptor, BAEKHO. It grazes off first strikes with Evade and lunges with Bleed.",
+      "C-17’s high-speed interceptor, BAEKHO. It grazes off first strikes with Evade and lunges with Bleed.",
     ),
   },
 ]
@@ -262,7 +262,7 @@ const ACT2: EncounterDef[] = [
     backdrop: 'undercity',
     enemies: [foe('glitch_wraith', 5, 1), foe('glitch_wraith', 5, 3), foe('glitch_echo', 6, 2)],
     terrain: [...tiles('void', [3, 0], [3, 4], [6, 0]), ...tiles('cover', [2, 2])],
-    intro: t('망령은 떠다닌다. 허공에 밀어 넣어도 안 떨어진다. 차라리 서로 들이받게 해.', "Wraiths float — the void won't take them. Slam them into each other instead."),
+    intro: t('망령은 떠다닌다. 허공에 밀어 넣어도 안 떨어진다. 차라리 서로 들이받게 해.', "Wraiths float — the void won’t take them. Slam them into each other instead."),
   },
   {
     id: 'a2_n1_furnace',
@@ -325,7 +325,7 @@ const ACT2: EncounterDef[] = [
       { turn: 3, enemies: [foe('glitch_wraith', 6, 2)] },
     ],
     objective: { kind: 'survive', turns: 4 },
-    intro: t('린위에의 노점이 털리기 직전이다. 네 턴만 막아.', "Lin Yue's stall is about to get stripped. Hold for four turns."),
+    intro: t('린위에의 노점이 털리기 직전이다. 네 턴만 막아.', "Lin Yue’s stall is about to get stripped. Hold for four turns."),
   },
   {
     id: 'a2_n2_courier',
@@ -338,7 +338,7 @@ const ACT2: EncounterDef[] = [
     neutral: { name: t('해킹된 보급 드론', 'Hacked Supply Drone'), sprite: 'maintenance-drone', hp: 12, pos: at(2, 2) },
     reinforcements: [{ turn: 2, enemies: [foe('purge_drone', 6, 0)] }],
     bonus: { kind: 'protect' },
-    intro: t('보급 드론에 약이 실려 있다. 불똥 하나면 다 날아간다.', "The supply drone is carrying meds. One spark and it's all gone."),
+    intro: t('보급 드론에 약이 실려 있다. 불똥 하나면 다 날아간다.', "The supply drone is carrying meds. One spark and it’s all gone."),
   },
   {
     id: 'a2_event_ambush',
@@ -359,7 +359,7 @@ const ACT2: EncounterDef[] = [
     backdrop: 'undercity',
     enemies: [foe('glitch_reaver', 5, 2), foe('glitch_echo', 4, 0), foe('glitch_echo', 4, 4)],
     terrain: [...tiles('cover', [2, 2], [3, 0], [3, 4])],
-    intro: t('약탈자의 울부짖음은 귀가 아니라 덱을 찢는다.', "The Reaver's howl doesn't tear your ears. It tears your deck."),
+    intro: t('약탈자의 울부짖음은 귀가 아니라 덱을 찢는다.', "The Reaver’s howl doesn’t tear your ears. It tears your deck."),
   },
   {
     id: 'a2_elite_captain',
@@ -380,7 +380,7 @@ const ACT2: EncounterDef[] = [
     backdrop: 'industrial',
     enemies: [foe('incinerator', 6, 2), foe('purge_drone', 5, 0), foe('purge_drone', 5, 4)],
     terrain: [...tiles('hazard', [3, 1], [3, 3]), ...tiles('cover', [4, 2])],
-    intro: t('소각로는 꿈쩍도 않는다. 대신 사방을 태운다.', "The Incinerator doesn't move. It burns everywhere instead."),
+    intro: t('소각로는 꿈쩍도 않는다. 대신 사방을 태운다.', "The Incinerator doesn’t move. It burns everywhere instead."),
   },
   {
     id: 'a2_boss_echo_eater',
@@ -392,7 +392,7 @@ const ACT2: EncounterDef[] = [
     terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('hazard', [4, 0], [4, 4])],
     intro: t(
       '도시가 잊은 기억이 한 덩어리로 뭉쳤다. 놈이 먹는 건 살이 아니라 이름이다.',
-      "Everything the city forgot, balled into one hunger. It doesn't eat flesh. It eats names.",
+      "Everything the city forgot, balled into one hunger. It doesn’t eat flesh. It eats names.",
     ),
   },
   {
@@ -459,7 +459,7 @@ const ACT2: EncounterDef[] = [
     terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('hazard', [3, 2])],
     intro: t(
       '집행자의 갈고리는 출혈을 걸자마자 밀쳐서 상처를 찢는다. 벽이나 엄폐물을 등지고 버텨.',
-      "The Executioner's hook inflicts Bleed and immediately shoves you to tear the wound. Brace yourself.",
+      "The Executioner’s hook inflicts Bleed and immediately shoves you to tear the wound. Brace yourself.",
     ),
   },
   {
@@ -489,7 +489,7 @@ const ACT3: EncounterDef[] = [
     enemies: [foe('ark_executor', 4, 2), foe('ark_warden', 6, 1), foe('ark_warden', 6, 3)],
     terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('void', [4, 0], [4, 4])],
     bonus: { kind: 'environment', count: 1 },
-    intro: t('ARK 집행관의 장갑은 두껍다. 때리지 말고 떨궈.', "ARK Executors wear thick plate. Don't hit them — drop them."),
+    intro: t('ARK 집행관의 장갑은 두껍다. 때리지 말고 떨궈.', "ARK Executors wear thick plate. Don’t hit them — drop them."),
   },
   {
     id: 'a3_n1_firing_line',
@@ -500,7 +500,7 @@ const ACT3: EncounterDef[] = [
     enemies: [foe('ark_assaulter', 6, 1), foe('ark_assaulter', 6, 3), foe('ark_warden', 5, 2)],
     terrain: [...tiles('cover', [2, 0], [2, 2], [2, 4], [4, 1], [4, 3])],
     bonus: { kind: 'turn_limit', turns: 5 },
-    intro: t('표식이 붙은 자는 다음 레일탄에 쓰러진다. 표식을 단 채 사선에 서지 마.', "Whoever wears the mark drops to the next rail shot. Don't stand in the line marked."),
+    intro: t('표식이 붙은 자는 다음 레일탄에 쓰러진다. 표식을 단 채 사선에 서지 마.', "Whoever wears the mark drops to the next rail shot. Don’t stand in the line marked."),
   },
   {
     id: 'a3_n2_hunting_ground',
@@ -593,7 +593,7 @@ const ACT3: EncounterDef[] = [
     enemies: [foe('aegis_drone', 6, 2), foe('ark_executor', 4, 1), foe('ark_executor', 4, 3)],
     terrain: [...tiles('void', [4, 0], [4, 4]), ...tiles('cover', [5, 0], [5, 4])],
     bonus: { kind: 'environment', count: 1 },
-    intro: t('방어막은 추락을 막지 못한다.', "Shields don't stop a fall."),
+    intro: t('방어막은 추락을 막지 못한다.', "Shields don’t stop a fall."),
   },
   {
     id: 'a3_elite_seraph',
@@ -603,7 +603,7 @@ const ACT3: EncounterDef[] = [
     backdrop: 'spire',
     enemies: [foe('purge_seraph', 6, 2), foe('purge_drone', 5, 0), foe('purge_drone', 5, 4)],
     terrain: [...tiles('cover', [2, 2], [3, 1], [3, 3])],
-    intro: t('세라프의 불은 한 줄을 통째로 태운다. 숨을 줄을 골라.', "The Seraph's fire burns a whole row. Pick the row you hide in."),
+    intro: t('세라프의 불은 한 줄을 통째로 태운다. 숨을 줄을 골라.', "The Seraph’s fire burns a whole row. Pick the row you hide in."),
   },
   {
     id: 'a3_boss_ix',

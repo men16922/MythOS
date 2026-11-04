@@ -196,14 +196,14 @@ export const GLASS_ENEMIES: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.5,
-        text: t('이오의 유리 관절에 금이 간다. “그 기록은 존재합니다. 다만, 열람은 허락되지 않습니다.”', 'Cracks run through IO\'s glass joints. “That record exists. Access, however, is not granted.”'),
+        text: t('이오의 유리 관절에 금이 간다. “그 기록은 존재합니다. 다만, 열람은 허락되지 않습니다.”', 'Cracks run through IO’s glass joints. “That record exists. Access, however, is not granted.”'),
         effects: [
           { kind: 'block', amount: 10, to: 'owner' },
           { kind: 'status', status: 'evade', amount: 2, to: 'owner' },
         ],
       },
     ],
-    passive: t('유리성의 사서 AI. 열람 금지 광선이 검열 2를 건다. 절반에서 목록 대조(추적 조준)를 쓴다.', 'The Glass Library\'s librarian AI. Closed Stacks redacts 2; at half HP it cross-references (lock-on).'),
+    passive: t('유리성의 사서 AI. 열람 금지 광선이 검열 2를 건다. 절반에서 목록 대조(추적 조준)를 쓴다.', 'The Glass Library’s librarian AI. Closed Stacks redacts 2; at half HP it cross-references (lock-on).'),
   },
   {
     id: 'blank_binder',

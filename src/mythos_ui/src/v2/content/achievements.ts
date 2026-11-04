@@ -15,7 +15,7 @@ const FIXED: AchievementDef[] = [
   { id: 'ach_first_win', group: 'progress', name: t('출구는 있었다', 'There Was a Way Out'), text: t('처음으로 탈출한다.', 'Escape for the first time.'), when: { kind: 'wins', n: 1 } },
   { id: 'ach_wins_5', group: 'progress', name: t('반복되는 탈출', 'Repeat Escape'), text: t('5번 탈출한다.', 'Escape 5 times.'), when: { kind: 'wins', n: 5 } },
   { id: 'ach_wins_15', group: 'progress', name: t('도시의 오류', 'A Bug in the City'), text: t('15번 탈출한다.', 'Escape 15 times.'), when: { kind: 'wins', n: 15 } },
-  { id: 'ach_act_3', group: 'progress', name: t('관리자의 문 앞', "At the Administrator's Door"), text: t('3막에 도달한다.', 'Reach Act 3.'), when: { kind: 'bestAct', n: 3 } },
+  { id: 'ach_act_3', group: 'progress', name: t('관리자의 문 앞', "At the Administrator’s Door"), text: t('3막에 도달한다.', 'Reach Act 3.'), when: { kind: 'bestAct', n: 3 } },
   { id: 'ach_act_6', group: 'progress', name: t('신호의 바닥', 'Bottom of the Signal'), text: t('깊은 신호의 6막에 도달한다.', 'Reach Act 6 of the Deep Signal.'), when: { kind: 'bestAct', n: 6 } },
   { id: 'ach_arch_mastery', group: 'progress', name: t('몸에 밴 방식', 'Second Nature'), text: t('한 접속자로 6번 탈출한다(숙련 III).', 'Escape 6 times as one archetype (Mastery III).'), when: { kind: 'archMastery', wins: 6 } },
   { id: 'ach_comp_mastery', group: 'progress', name: t('말없이도 아는 사이', 'No Words Needed'), text: t('한 동료와 함께 5번 탈출한다.', 'Escape 5 times with the same companion.'), when: { kind: 'companionMastery', wins: 5 } },

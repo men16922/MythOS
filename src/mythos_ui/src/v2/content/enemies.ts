@@ -288,7 +288,7 @@ const ACT1: EnemyDef[] = [
         hpBelow: 0.5,
         text: t(
           '주작의 노심 격벽이 개방된다. 바닥의 아스팔트가 붉은 용암처럼 끓어오른다.',
-          "JUJAK's core shutters slide open. The asphalt boils like red magma beneath its feet.",
+          "JUJAK’s core shutters slide open. The asphalt boils like red magma beneath its feet.",
         ),
         effects: [{ kind: 'block', amount: 8, to: 'owner' }],
       },
@@ -475,7 +475,7 @@ const ACT1: EnemyDef[] = [
         hpBelow: 0.5,
         text: t(
           '백호의 광학 위장이 일제히 점멸한다. 날카로운 칼바람이 골목을 가른다.',
-          "BAEKHO's optical camouflage strobes. Razor winds slice through the alley.",
+          "BAEKHO’s optical camouflage strobes. Razor winds slice through the alley.",
         ),
         effects: [
           { kind: 'status', status: 'evade', amount: 2, to: 'owner' },
@@ -824,7 +824,7 @@ const ACT2: EnemyDef[] = [
       },
       {
         id: 'queen_decree',
-        name: t('여왕의 외침', "Queen's Shriek"),
+        name: t('여왕의 외침', "Queen’s Shriek"),
         pattern: 'buff',
         cooldown: 3,
         minPhase: 2,
@@ -836,7 +836,7 @@ const ACT2: EnemyDef[] = [
         hpBelow: 0.66,
         text: t(
           '아라크네의 등껍질이 갈라지며 푸른 고압 전류가 거미줄처럼 터져 나온다.',
-          "ARACHNE's carapace splits; high-voltage arcs lash across the floor like a web.",
+          "ARACHNE’s carapace splits; high-voltage arcs lash across the floor like a web.",
         ),
         effects: [{ kind: 'block', amount: 10, to: 'owner' }],
       },
@@ -1028,7 +1028,7 @@ const ACT2: EnemyDef[] = [
         hpBelow: 0.66,
         text: t(
           '현무의 중장갑 격벽이 맞물리며 독성 산성 안개가 사방으로 뿜어져 나온다.',
-          "HYEONMU's heavy plates lock into place as toxic acid mist floods the arena.",
+          "HYEONMU’s heavy plates lock into place as toxic acid mist floods the arena.",
         ),
         effects: [{ kind: 'block', amount: 10, to: 'owner' }],
       },
@@ -1195,7 +1195,7 @@ const ACT3: EnemyDef[] = [
         cooldown: 3,
       },
     ],
-    passive: t('장갑 3. 잔타격은 먹히지 않는다. 관통하거나, 표식을 쌓아 한 방에 끝내라.', "Armor 3. Chip damage won't get through. Pierce it, or stack Mark for one big hit."),
+    passive: t('장갑 3. 잔타격은 먹히지 않는다. 관통하거나, 표식을 쌓아 한 방에 끝내라.', "Armor 3. Chip damage won’t get through. Pierce it, or stack Mark for one big hit."),
     bounty: 10,
   },
   {

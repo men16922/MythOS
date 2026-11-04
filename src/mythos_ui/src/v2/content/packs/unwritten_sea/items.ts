@@ -126,7 +126,7 @@ export const SEA_CARDS: CardDef[] = [
     retain: true,
     target: { mode: 'lob', minRange: 1, range: 3 },
     effects: [{ kind: 'redirect' }],
-    text: t('적 하나의 공격을 반대 방향으로 돌린다. 포격은 다른 적을 겨눈다. 보존.', "Reverse an enemy's attack. Artillery retargets another enemy. Retain."),
+    text: t('적 하나의 공격을 반대 방향으로 돌린다. 포격은 다른 적을 겨눈다. 보존.', "Reverse an enemy’s attack. Artillery retargets another enemy. Retain."),
     upgrade: {
       cost: 0,
     },

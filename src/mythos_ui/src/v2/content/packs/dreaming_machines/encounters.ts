@@ -140,7 +140,7 @@ export const MACHINE_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'scrapyard',
     enemies: [foe('frost_reclaimer', 6, 2), foe('android_husk', 4, 1), foe('cryo_drone', 5, 4)],
     terrain: [...tiles('cover', [3, 2], [5, 0]), ...tiles('hazard', [4, 3])],
-    intro: t('회수 조준은 피할 수 없다. 얼더라도 공격은 할 수 있다 — 서 있는 자리에서 싸울 준비를 해라.', "The Reclaim Lock can't be dodged. Frozen, you can still attack — be ready to fight from where you stand."),
+    intro: t('회수 조준은 피할 수 없다. 얼더라도 공격은 할 수 있다 — 서 있는 자리에서 싸울 준비를 해라.', "The Reclaim Lock can’t be dodged. Frozen, you can still attack — be ready to fight from where you stand."),
   },
   {
     id: 'a5_elite_titan',
@@ -171,7 +171,7 @@ export const MACHINE_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'scrapyard',
     enemies: [foe('furnace_mother', 5, 2), foe('scrap_mite', 6, 0), foe('scrap_mite', 6, 4)],
     terrain: [...tiles('cover', [3, 1], [3, 3]), ...tiles('hazard', [4, 0], [4, 4])],
-    intro: t('묘역의 심장. 버려진 기계를 녹여 새 기계를 낳는다.', "The graveyard's heart. It melts the discarded down and gives birth to new machines."),
+    intro: t('묘역의 심장. 버려진 기계를 녹여 새 기계를 낳는다.', "The graveyard’s heart. It melts the discarded down and gives birth to new machines."),
   },
   {
     id: 'a5_boss_kai_zero',
@@ -181,7 +181,7 @@ export const MACHINE_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'scrapyard',
     enemies: [foe('kai_zero', 5, 2)],
     terrain: [...tiles('cover', [2, 1], [2, 3]), ...tiles('hazard', [4, 2])],
-    intro: t('카이와 같은 얼굴. 같은 꿈을 꾸다가, 먼저 깨어나 버린 기계.', "Kai's face. A machine that dreamed the same dream — and woke up first."),
+    intro: t('카이와 같은 얼굴. 같은 꿈을 꾸다가, 먼저 깨어나 버린 기계.', "Kai’s face. A machine that dreamed the same dream — and woke up first."),
   },
   {
     id: 'a5_boss_rem',

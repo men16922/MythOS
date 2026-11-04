@@ -1597,7 +1597,7 @@ export const SUAH_ARC: EventDef[] = [
   {
     id: 'a2_alchemist_vial',
     acts: [2],
-    title: t('연금술사의 시약 가판대', "The Alchemist's Stall"),
+    title: t('연금술사의 시약 가판대', "The Alchemist’s Stall"),
     image: 'v2/events/a2_alchemist_vial.webp',
     text: t(
       '야시장 구석, 방독면을 쓴 노인이 형광 녹색 액체가 끓는 유리병들을 늘어놓고 있다.\n“ARK 중장갑도 한 방울이면 종이장처럼 삭아 내리지. 대신 다룰 줄 아는 손이어야 해.”',

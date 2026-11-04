@@ -60,7 +60,7 @@ export const GLASS_ENCOUNTERS: EncounterDef[] = [
     id: 'a4_n2_bindery',
     act: 4,
     kind: 'normal',
-    name: t('검열자의 제본실', "The Censors' Bindery"),
+    name: t('검열자의 제본실', "The Censors’ Bindery"),
     backdrop: 'library',
     enemies: [foe('binding_enforcer', 4, 1), foe('binding_enforcer', 4, 3), foe('silent_librarian', 6, 2)],
     terrain: [...tiles('hazard', [3, 2]), ...tiles('void', [5, 0], [5, 4]), ...tiles('cover', [2, 0], [2, 4])],
@@ -107,7 +107,7 @@ export const GLASS_ENCOUNTERS: EncounterDef[] = [
     enemies: [foe('ink_wraith', 4, 1), foe('ink_wraith', 4, 3), foe('binding_enforcer', 5, 2), foe('lost_reader', 6, 0)],
     terrain: [...tiles('void', [6, 4]), ...tiles('cover', [2, 2], [3, 0])],
     bonus: { kind: 'untouched' },
-    intro: t('지난 루프의 낙서가 벽에 남아 있다. 당신 글씨다.', "Last loop's scribbles are still on the walls. It's your handwriting."),
+    intro: t('지난 루프의 낙서가 벽에 남아 있다. 당신 글씨다.', "Last loop’s scribbles are still on the walls. It’s your handwriting."),
   },
   // ---------------------------------------------------------------- event fight (events only, never rolled on the map)
   {
@@ -140,7 +140,7 @@ export const GLASS_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'library',
     enemies: [foe('chief_censor', 6, 2), foe('binding_enforcer', 4, 1), foe('index_drone', 5, 4)],
     terrain: [...tiles('cover', [3, 2], [5, 0]), ...tiles('hazard', [4, 3])],
-    intro: t('검은 줄은 피할 수 없다. 검열 2를 감수하고, 싼 카드부터 써라.', "The Black Bar can't be dodged. Eat the redact and lead with cheap cards."),
+    intro: t('검은 줄은 피할 수 없다. 검열 2를 감수하고, 싼 카드부터 써라.', "The Black Bar can’t be dodged. Eat the redact and lead with cheap cards."),
   },
   {
     id: 'a4_elite_cutter',

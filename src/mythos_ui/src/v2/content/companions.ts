@@ -30,13 +30,13 @@ export const COMPANIONS: CompanionDef[] = [
       effects: [{ kind: 'block', amount: 6, to: 'all_allies' }, { kind: 'refund_move', to: 'all_allies' }, { kind: 'draw', amount: 1 }],
     },
     bondLines: [
-      t('빚진 건 갚는 거야. 그게 다야.', "I pay my debts. That's all this is."),
+      t('빚진 건 갚는 거야. 그게 다야.', "I pay my debts. That’s all this is."),
       t('물거미가 왜 물거미인지 알아? 가라앉는 법을 몰라서.', "Know why they call me Water Spider? I never learned how to sink."),
-      t('다음 루프에서도 날 찾아. 이번엔 내가 먼저 손 내밀게.', "Find me next loop too. This time I'll reach out first."),
+      t('다음 루프에서도 날 찾아. 이번엔 내가 먼저 손 내밀게.', "Find me next loop too. This time I’ll reach out first."),
     ],
     barks: [
       t('왼쪽, 비었어!', 'Left side, clear!'),
-      t('뒤는 내가 맡아.', "I've got your back."),
+      t('뒤는 내가 맡아.', "I’ve got your back."),
       t('그 정도론 안 죽어.', 'That won’t kill me.'),
       t('빨리, 다음 놈!', 'Move — next one!'),
     ],
@@ -57,7 +57,7 @@ export const COMPANIONS: CompanionDef[] = [
     passiveText: t('전직 집행관: 접속자 최대 HP +5, 근력 +1.', 'Ex-enforcer: connector max HP +5, STR +1.'),
     passive: { maxHp: 5, stats: { str: 1 } },
     combatPassive: {
-      name: t('사냥개의 방패', "Hound's Shield"),
+      name: t('사냥개의 방패', "Hound’s Shield"),
       text: t('전투가 시작되면 가시 2. 태오가 공격 카드를 쓰면 방어막 4. (턴당 1회)', 'Starts each fight with Thorns 2. When Tae-o plays an attack, he gains 4 block. (Once per turn)'),
       triggers: [
         { on: 'combat_start', effects: [{ kind: 'status', status: 'thorns', amount: 2, to: 'owner' }] },
@@ -70,7 +70,7 @@ export const COMPANIONS: CompanionDef[] = [
       effects: [{ kind: 'push', dir: 'away', distance: 2, to: 'all_enemies', slam: 2, stun: true }, { kind: 'block', amount: 8, to: 'owner' }],
     },
     bondLines: [
-      t('난 명령을 따랐다. 그게 변명이 안 된다는 것도 안다.', "I followed orders. I know that's no excuse."),
+      t('난 명령을 따랐다. 그게 변명이 안 된다는 것도 안다.', "I followed orders. I know that’s no excuse."),
       t('이 흉터? 마지막으로 사람을 지킨 날 생긴 거다.', 'This scar? Got it the last time I protected someone.'),
       t('내 뒤에 서라. 이번엔 끝까지 버틴다.', "Stand behind me. This time I hold to the end."),
     ],
@@ -106,13 +106,13 @@ export const COMPANIONS: CompanionDef[] = [
       effects: [{ kind: 'draw', amount: 3 }, { kind: 'energy', amount: 1 }, { kind: 'status', status: 'mark', amount: 2, to: 'all_enemies' }],
     },
     bondLines: [
-      t('난 접속 안 해. 밖에서 뚫는 게 더 재밌거든.', "I don't plug in. Breaking in from outside is more fun."),
-      t('IX도 완벽하진 않아. 그냥 찔러 본 놈이 없었을 뿐이지.', "IX isn't perfect. Nobody's ever poked it, that's all."),
-      t('네 신호, 내가 지켜줄게. 아무도 못 찾게.', "I'll guard your signal. Nobody will ever find it."),
+      t('난 접속 안 해. 밖에서 뚫는 게 더 재밌거든.', "I don’t plug in. Breaking in from outside is more fun."),
+      t('IX도 완벽하진 않아. 그냥 찔러 본 놈이 없었을 뿐이지.', "IX isn’t perfect. Nobody’s ever poked it, that’s all."),
+      t('네 신호, 내가 지켜줄게. 아무도 못 찾게.', "I’ll guard your signal. Nobody will ever find it."),
     ],
     barks: [
       t('방향 뒤집었다!', 'Flipped it!'),
-      t('저거 내 거야.', "That one's mine."),
+      t('저거 내 거야.', "That one’s mine."),
       t('회로 튀겨 버렸어.', 'Fried the circuit.'),
       t('너무 쉬운데?', 'Too easy.'),
     ],
@@ -128,7 +128,7 @@ export const COMPANIONS: CompanionDef[] = [
     move: 3,
     cards: ['suah_forge_blades', 'suah_tempered_plate'],
     bondCards: ['suah_masterwork'],
-    passiveText: t('감정안: 카드 보상 선택지 +1.', "Appraiser's eye: card rewards offer +1 choice."),
+    passiveText: t('감정안: 카드 보상 선택지 +1.', "Appraiser’s eye: card rewards offer +1 choice."),
     passive: { rewardChoices: 1 },
     combatPassive: {
       name: t('대장간 불씨', 'Forge Ember'),
@@ -145,8 +145,8 @@ export const COMPANIONS: CompanionDef[] = [
     },
     bondLines: [
       t('기억도 쇠처럼 두드리면 모양이 잡혀.', 'Memories are like iron. Hammer them and they take shape.'),
-      t('네 잔향, 금이 많이 갔네. 내가 손봐줄게.', "Your echo's cracked all over. Let me fix it."),
-      t('이건 내 최고작이야. 너한테 줄게.', "This is my best work. It's yours."),
+      t('네 잔향, 금이 많이 갔네. 내가 손봐줄게.', "Your echo’s cracked all over. Let me fix it."),
+      t('이건 내 최고작이야. 너한테 줄게.', "This is my best work. It’s yours."),
     ],
     barks: [
       t('새로 벼렸어, 받아!', 'Fresh off the anvil — catch!'),
@@ -181,7 +181,7 @@ export const COMPANIONS: CompanionDef[] = [
     bondLines: [
       t('폐기 판정을 받은 날, 처음으로 꿈을 꿨어요.', 'The day I was marked for disposal, I dreamed for the first time.'),
       t('꿈속에서 당신을 봤어요. 그래서 따라왔어요.', 'I saw you in that dream. So I followed.'),
-      t('이건 계산이 아니에요. 제가 고른 거예요.', "This isn't a calculation. I chose this."),
+      t('이건 계산이 아니에요. 제가 고른 거예요.', "This isn’t a calculation. I chose this."),
     ],
     barks: [
       t('조준 완료.', 'Target acquired.'),
@@ -218,12 +218,12 @@ export const COMPANIONS: CompanionDef[] = [
     },
     bondLines: [
       t('세상에 공짜는 없어. 나도 마찬가지고.', "Nothing in this world is free. Me included."),
-      t('이 비녀, 어머니 거야. 팔 생각은 없어.', "This hairpin was my mother's. It's not for sale."),
-      t('이번 거래는 손해 봐도 좋아. 너라면.', "I'll take a loss on this deal. For you."),
+      t('이 비녀, 어머니 거야. 팔 생각은 없어.', "This hairpin was my mother’s. It’s not for sale."),
+      t('이번 거래는 손해 봐도 좋아. 너라면.', "I’ll take a loss on this deal. For you."),
     ],
     barks: [
       t('계산 끝났어.', 'Accounts settled.'),
-      t('비싸게 굴지 마.', "Don't play hard to get."),
+      t('비싸게 굴지 마.', "Don’t play hard to get."),
       t('수수료는 나중에.', 'Fees later.'),
       t('정확히 거기.', 'Right there.'),
     ],

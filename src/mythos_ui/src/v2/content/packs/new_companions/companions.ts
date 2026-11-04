@@ -69,7 +69,7 @@ export const NEW_COMPANIONS: CompanionDef[] = [
       t('너는 내 이름을 두 번 불렀어. 이상하지. 두 번째가 더 크게 들렸어.', 'You said my name twice. Funny. The second time was louder.'),
       t('이 책갈피, 너 줄게. 내가 사라져도 여기까지 읽었다는 거 알 수 있게.', 'Take this bookmark. So you’ll know how far I read, even if I disappear.'),
     ],
-    barks: [t('여기.', 'Here.'), t('안 보였지?', "Didn't see me, did you?"), t('조용히.', 'Quietly.'), t('다음 줄.', 'Next line.')],
+    barks: [t('여기.', 'Here.'), t('안 보였지?', "Didn’t see me, did you?"), t('조용히.', 'Quietly.'), t('다음 줄.', 'Next line.')],
   },
   {
     id: 'doyun',
@@ -99,7 +99,7 @@ export const NEW_COMPANIONS: CompanionDef[] = [
       t('저는 싸우는 법은 몰라요. 서 있는 법은 알아요.', 'I don’t know how to fight. I know how to stand.'),
       t('이번엔 제가 먼저 설게요. 당신이 그렇게 해 줬으니까요.', 'This time I’ll stand in front. You did it for me.'),
     ],
-    barks: [t('제가 막을게요!', "I've got it!"), t('괜찮아요.', "I'm okay."), t('뒤로 오세요.', 'Get behind me.'), t('아직 서 있어요.', 'Still standing.')],
+    barks: [t('제가 막을게요!', "I’ve got it!"), t('괜찮아요.', "I’m okay."), t('뒤로 오세요.', 'Get behind me.'), t('아직 서 있어요.', 'Still standing.')],
   },
   {
     id: 'bel',
@@ -112,7 +112,7 @@ export const NEW_COMPANIONS: CompanionDef[] = [
     move: 3,
     cards: ['bel_red_pen', 'bel_blackout'],
     bondCards: ['bel_uncensored'],
-    passiveText: t('편집자의 눈: 사건의 관찰 판정 +1.', "Editor's eye: +1 to Observation checks in events."),
+    passiveText: t('편집자의 눈: 사건의 관찰 판정 +1.', "Editor’s eye: +1 to Observation checks in events."),
     passive: { stats: { obs: 1 } },
     combatPassive: {
       name: t('붉은 줄', 'Red Line'),

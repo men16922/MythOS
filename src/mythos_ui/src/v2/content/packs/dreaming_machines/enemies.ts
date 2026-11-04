@@ -235,14 +235,14 @@ export const MACHINE_ENEMIES: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.5,
-        text: t('카이-0의 얼굴판이 열린다. 안에서 아이의 웃음소리 같은 잡음이 새어 나온다.', "KAI-0's faceplate opens. Static leaks out, like a child laughing."),
+        text: t('카이-0의 얼굴판이 열린다. 안에서 아이의 웃음소리 같은 잡음이 새어 나온다.', "KAI-0’s faceplate opens. Static leaks out, like a child laughing."),
         effects: [
           { kind: 'status', status: 'evade', amount: 2, to: 'owner' },
           { kind: 'block', amount: 10, to: 'owner' },
         ],
       },
     ],
-    passive: t('카이의 원형. 돌격이 빙결을 건다. 한 턴 모아 꿈 붕괴(주변 폭발)를 쓴다.', "Kai's prototype. Its rush freezes; it winds up Dream Break (nova)."),
+    passive: t('카이의 원형. 돌격이 빙결을 건다. 한 턴 모아 꿈 붕괴(주변 폭발)를 쓴다.', "Kai’s prototype. Its rush freezes; it winds up Dream Break (nova)."),
   },
   {
     id: 'rem_executor',

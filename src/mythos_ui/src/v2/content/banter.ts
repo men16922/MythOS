@@ -670,6 +670,66 @@ export const BANTER: BanterDef[] = [
       { who: 'rem', text: t('그건 약속할 수 있어요.', 'That I can promise.') },
     ],
   },
+  {
+    id: 'b_bel_han_folder',
+    pair: ['bel', 'han'],
+    lines: [
+      { who: 'bel', text: t('검열청에 비접속자 파일철이 있었어. 늘 얇았지.', 'The Censorate kept a folder on the unplugged. Always thin.') },
+      { who: 'han', text: t('얇은 게 요점이야.', 'Thin is the point.') },
+      { who: 'bel', text: t('그땐 얇은 파일이 싫었는데, 지금은 부러워.', 'I used to hate thin folders. Now I envy them.') },
+    ],
+  },
+  {
+    id: 'b_parang_han_keys',
+    pair: ['parang', 'han'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'parang', text: t('자판 치는 소리가 기억나. 엄청 빨라.', 'I remember keys clacking. Really fast.') },
+      { who: 'han', text: t('누구 손인데.', 'Whose hands?') },
+      { who: 'parang', text: t('네 손은 아냐. 너는 안 꽂잖아.', 'Not yours. You don’t plug in.') },
+      { who: 'han', text: t('…그렇지.', '…Right.') },
+    ],
+  },
+  {
+    id: 'b_suah_parang_whose',
+    pair: ['su_ah', 'parang'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'su_ah', text: t('네가 기억하는 거, 네 것도 아니잖아. 그걸로 뭘 벼려 줄 수도 있는데.', 'What you remember isn’t yours anyway. I could forge it into something.') },
+      { who: 'parang', text: t('그럼 그건 누구 거가 돼?', 'Then whose would it be?') },
+      { who: 'su_ah', text: t('…맞는 말이야. 그냥 둘게.', '…Fair. I’ll leave it be.') },
+    ],
+  },
+  {
+    id: 'b_linyue_mujin_crowbar',
+    pair: ['lin_yue', 'mujin'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'lin_yue', text: t('세관이랑은 서류로 싸워. 쇠지레보다 싸.', 'Fight Customs with paperwork. It’s cheaper than a crowbar.') },
+      { who: 'mujin', text: t('쇠지레는 거짓말 안 한다.', 'A crowbar doesn’t lie.') },
+      { who: 'lin_yue', text: t('서류도 안 해. 쓰는 사람이 하지.', 'Neither does paper. The people who write it do.') },
+      { who: 'mujin', text: t('…둘 다 챙기지.', '…I’ll bring both.') },
+    ],
+  },
+  {
+    id: 'b_io_rem_longbook',
+    pair: ['io', 'rem'],
+    lines: [
+      { who: 'io', text: t('렘 님, 독자들은 흔히 책을 읽다 잠듭니다. 긴 책을 빌려 드릴까요?', 'Rem, readers often fall asleep mid-page. Shall I lend you something long?') },
+      { who: 'rem', text: t('끝이 없는 걸로요.', 'Something without an ending.') },
+      { who: 'io', text: t('그런 책이라면 제 서가에 많습니다.', 'Of those, my shelves hold many.') },
+    ],
+  },
+  {
+    id: 'b_doyun_bel_stop',
+    pair: ['doyun', 'bel'],
+    lines: [
+      { who: 'doyun', text: t('벨 씨, 줄 긋기 전에 손 멈추는 거 봤어요.', 'Bel, I saw you stop your hand before it struck the line.') },
+      { who: 'bel', text: t('연습 중이야.', 'Practising.') },
+      { who: 'doyun', text: t('저도 연습해요. 누구 두고 가기 전에 발 멈추는 거.', 'Me too. Stopping my feet before I leave anyone behind.') },
+      { who: 'bel', text: t('그럼 우리 둘 다 느려졌네.', 'Then we’ve both got slower.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Three more scenes each for the Glass Library and the First Record (Claude Opus 5.5, same goal)
+
+- Deep Acts 4 and 6 rolled from the smallest late pools (28). Act 4: `a4_reading_lamp` (one lamp, a line of readers), `a4_footnote_stairs` (stairs of footnotes, some about you), `a4_return_letters` (letters whose recipients were erased). Act 6: `a6_type_tray` (the type for your initial is missing), `a6_name_index` (the index has no room for your name), `a6_unused_drafts` (drafts of the city, one with an extra southern square, a quiet nod to the Sea). Codex art (unreviewed).
+- **Verified**: content + event-balance tests; UI on Deep runs (KO/EN, desktop/390 px) each resolved, 0 console errors. Deep canonical (150 seeds) HEAD → this: 30.0 → 29.3 %, within noise.
+
 ## 2026-11-04 — Four more Act 1 scenes (Claude Opus 5.5, same goal)
 
 - Act 1 is played every run but rolled from the smallest base pool (26). Added `a1_curfew_siren` (a broken curfew siren keeping the block awake), `a1_rain_buckets` (kids catching rain for a block whose water was cut), `a1_dead_elevator` (three neighbours stuck between floors in a blackout), `a1_pawned_medal` (an old man's war medal on its last pawn day); 2–3 open options each, Codex art (unreviewed). 30 in the Act 1 pool.

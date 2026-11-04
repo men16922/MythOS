@@ -31,6 +31,9 @@ function build(archetype: string, encounterId: string, extra: boolean, seed: num
       }
       run.consumables = Object.keys(C.consumables).slice(0, 3)
     }
+    // ?items=grapple_line,static_net sets the carried consumables (QA of specific items).
+    const items = (new URLSearchParams(window.location.search).get('items') ?? '').split(',').filter((id) => C.consumables[id])
+    if (items.length > 0) run.consumables = items.slice(0, 3)
     // ?party=mujin,seo_ha replaces the whole party (QA of pairs the archetype default cannot reach, e.g. Sea duos).
     const forced = (new URLSearchParams(window.location.search).get('party') ?? '').split(',').filter((id) => C.companions[id])
     if (forced.length > 0) {

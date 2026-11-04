@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 834,
+ "codex_image_calls": 838,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4175,6 +4175,27 @@
    ],
    "ts": "2026-10-31T05:35:21"
   },
+  "v2/consumables/grapple_line.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). One compact grappling launcher with a coiled steel cable and a three-pronged magnetic hook. Painterly cyberpunk realism, weathered industrial materials, muted teal and steel palette with restrained amber light, strong readable silhouette, one object only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "refs": [],
+   "ts": "2026-11-04T18:00:22"
+  },
+  "v2/consumables/guard_foam.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). One pressurised aerosol canister with a wide nozzle, a puff of dense hardening grey foam emerging. Painterly cyberpunk realism, weathered industrial materials, muted teal and steel palette with restrained amber light, strong readable silhouette, one object only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "refs": [],
+   "ts": "2026-11-04T18:00:24"
+  },
+  "v2/consumables/marker_flare.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). One hand-thrown signal flare canister with a glowing red-violet tip and a pull ring. Painterly cyberpunk realism, weathered industrial materials, muted teal and steel palette with restrained amber light, strong readable silhouette, one object only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "refs": [],
+   "ts": "2026-11-04T18:00:21"
+  },
   "v2/consumables/sea_fog_canister.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -4202,6 +4223,13 @@
    "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). One waterproof industrial battery cell with ceramic seals and a recessed amber charge window. Painterly cyberpunk realism, weathered industrial materials, salt corrosion, muted teal and rust palette, restrained amber light, strong readable silhouette, one object or one figure only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
    "refs": [],
    "ts": "2026-11-01T14:49:15"
+  },
+  "v2/consumables/static_net.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). One folded throwable mesh net with tiny electrode beads along its cords, faint blue static arcing between them. Painterly cyberpunk realism, weathered industrial materials, muted teal and steel palette with restrained amber light, strong readable silhouette, one object only, isolated against a dark simple background, no text, no letters, no numbers, no logos.",
+   "refs": [],
+   "ts": "2026-11-04T18:00:23"
   },
   "v2/cutscenes/bel_uncut_note.webp": {
    "generations": 1,

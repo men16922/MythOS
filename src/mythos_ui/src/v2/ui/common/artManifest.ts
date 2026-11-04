@@ -826,7 +826,10 @@ export const IMPLANT_ART: Record<string, string> = {
 export const CONSUMABLE_ART: Record<string, string> = {
   cryo_grenade: 'v2/consumables/cryo_grenade.webp',
   emp_grenade: 'v2/consumables/emp_grenade.webp',
+  grapple_line: 'v2/consumables/grapple_line.webp',
+  guard_foam: 'v2/consumables/guard_foam.webp',
   incendiary_grenade: 'v2/consumables/incendiary_grenade.webp',
+  marker_flare: 'v2/consumables/marker_flare.webp',
   nanopatch: 'v2/consumables/nanopatch.webp',
   overload_stim: 'v2/consumables/overload_stim.webp',
   restart_core: 'v2/consumables/restart_core.webp',
@@ -834,6 +837,7 @@ export const CONSUMABLE_ART: Record<string, string> = {
   sea_line_charge: 'v2/consumables/sea_line_charge.webp',
   sea_salt_ampoule: 'v2/consumables/sea_salt_ampoule.webp',
   sea_sealed_cell: 'v2/consumables/sea_sealed_cell.webp',
+  static_net: 'v2/consumables/static_net.webp',
   stealth_cloak: 'v2/consumables/stealth_cloak.webp',
   stim_shard: 'v2/consumables/stim_shard.webp',
 }

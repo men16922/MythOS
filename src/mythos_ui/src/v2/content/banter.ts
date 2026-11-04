@@ -231,6 +231,82 @@ export const BANTER: BanterDef[] = [
       { who: 'se_rin', text: t('…밥부터 먹자.', '…Let’s eat first.') },
     ],
   },
+  // 2026-11-04: the Sea companions with each other (a Sea party is often two of them), and the DLC companions with
+  // someone other than Se-rin. Voices: Mujin clipped 반말 · Seo-ha calm 해요체 · Parang short, says its own name ·
+  // Io 하십시오체 · Miro whispered 반말 · Doyun earnest 해요체 · Bel clipped, editor's jargon · Rem sleepy 해요체.
+  {
+    id: 'b_mujin_seoha_tide',
+    pair: ['mujin', 'seo_ha'],
+    lines: [
+      { who: 'mujin', text: t('물때 맞아?', 'Tide right?') },
+      { who: 'seo_ha', text: t('맞아요. 물은 없지만 시간은 맞아요.', 'It is. No water, but the time’s right.') },
+      { who: 'mujin', text: t('그럼 됐어.', 'That’s enough, then.') },
+    ],
+  },
+  {
+    id: 'b_mujin_parang_count',
+    pair: ['parang', 'mujin'],
+    lines: [
+      { who: 'parang', text: t('무진은 왜 넷까지만 세?', 'Why does Mujin only count to four?') },
+      { who: 'mujin', text: t('다섯은 없어.', 'There’s no five.') },
+      { who: 'parang', text: t('그럼 파랑이 넷 해도 돼?', 'Then can Parang be four?') },
+      { who: 'mujin', text: t('…그래.', '…Yeah.') },
+    ],
+  },
+  {
+    id: 'b_seoha_parang_channel',
+    pair: ['seo_ha', 'parang'],
+    lines: [
+      { who: 'seo_ha', text: t('이 길, 옛날엔 물길이었어요. 배가 여기로 들어왔죠.', 'This road used to be a channel. Ships came in this way.') },
+      { who: 'parang', text: t('파랑 안에 그 배 탄 사람 기억 있어.', 'Parang has a memory of someone on that ship.') },
+      { who: 'seo_ha', text: t('그럼 그 사람한테도 길 알려 줘요.', 'Then show them the way too.') },
+    ],
+  },
+  {
+    id: 'b_io_miro_card',
+    pair: ['io', 'miro'],
+    lines: [
+      { who: 'io', text: t('미로. 반납 카드가 하나 늘었습니다.', 'Miro. You have one more return card.') },
+      { who: 'miro', text: t('…세지 마. 세면 다 남의 거 같잖아.', '…Don’t count them. It makes them all feel like someone else’s.') },
+      { who: 'io', text: t('기록에서 지우겠습니다. 이번 한 번만.', 'I will strike it from the record. This once.') },
+    ],
+  },
+  {
+    id: 'b_bel_io_margin',
+    pair: ['bel', 'io'],
+    lines: [
+      { who: 'bel', text: t('그 기록, 군더더기 많아.', 'That record’s full of padding.') },
+      { who: 'io', text: t('군더더기도 기록입니다.', 'Padding is also a record.') },
+      { who: 'bel', text: t('…알아. 살려 둬.', '…I know. Stet.') },
+    ],
+  },
+  {
+    id: 'b_rem_kai_dream',
+    pair: ['rem', 'kai'],
+    lines: [
+      { who: 'rem', text: t('어젯밤 꿈 끝까지 꿨어요?', 'Did you dream to the end last night?') },
+      { who: 'kai', text: t('아뇨. 비가 그치기 전에 깼어요.', 'No. I woke before the rain stopped.') },
+      { who: 'rem', text: t('오늘은 안 깨울게요. 끝까지 꿔요.', 'Tonight I won’t wake you. Dream it through.') },
+    ],
+  },
+  {
+    id: 'b_doyun_taeo_last',
+    pair: ['doyun', 'tae_o'],
+    lines: [
+      { who: 'doyun', text: t('뒤에 아무도 안 남았어요. 세 번 셌어요.', 'Nobody’s left behind. I counted three times.') },
+      { who: 'tae_o', text: t('나도 셌다. 네 번.', 'I counted too. Four times.') },
+      { who: 'doyun', text: t('…그럼 확실하네요.', '…Then it’s certain.') },
+    ],
+  },
+  {
+    id: 'b_miro_doyun_name',
+    pair: ['miro', 'doyun'],
+    lines: [
+      { who: 'miro', text: t('도윤. …도윤 맞지?', 'Doyun. …It is Doyun, right?') },
+      { who: 'doyun', text: t('맞아요. 미로도 미로 맞죠?', 'That’s right. And you’re Miro, right?') },
+      { who: 'miro', text: t('응. 오늘은 맞아.', 'Yeah. Today I am.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

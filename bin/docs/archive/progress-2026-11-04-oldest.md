@@ -1,5 +1,11 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — The Hand-Crank Market's last two choices come back (Claude Opus 5.5, same goal)
+
+- A scan of every flag set vs read found only two never read again, both in the Act 1 district `d1_lamp_market`. `a2_cb_ku` (promised Madam Ku three buyers → her kid comes to collect: pay 30₵ for a consumable and −5 Trace, find a buyer for +20₵ at CHA DC 6, or ignore; first draft was a pure tax and `event-balance.test.ts` caught it) and `a3_cb_min` (sold out Min → he limps into the Spire as a debt courier: apologise, Tae-o pays his helmet rental for +1 bond, or walk past); Codex art (unreviewed). 21 callbacks. Every content flag is now read somewhere.
+- `narrative.test.ts` flag guards now count district dialogue options as setters (act + companion requirement), so district → act callbacks stay checked for reachability instead of failing as "never set".
+- **Verified**: content tests; UI (Ku KO 1280×720, Min EN 390×844 with Tae-o) resolved through the buttons, bond +1, 0 console errors. Fresh/deep balance unaffected (both need Signal+ district flags the canonical blocks never set): unmeasured.
+
 ## 2026-11-04 — Second districts for Acts 5 and 6 (Claude Opus 5.5, same goal)
 
 - Every act places two districts; Acts 5–6 had one each. `d5_cold_storage` (machines frozen mid-dream; get the thaw code from Seol or buy it from Jang, wake the oldest slowly as Gu shows → boss fight **cover**) and `d6_first_draft` (streets struck from the city's first draft are still lived in; ask Mo the name, rewrite it with San's dark ink or Yeon's own pen → boss **marked**). 6 personas, 2 scenes + 6 portraits by Codex (unreviewed). 20 districts / 60 NPCs. Sea Acts 4–6 place no district (checked; unchanged).

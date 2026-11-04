@@ -4,6 +4,7 @@
 import type { CrpgContent, DialogueDef, DistrictDef, NpcDef, Faction } from '../../engine/types.ts'
 import { BACKGROUNDS } from './backgrounds.ts'
 import { CAMP_DIALOGUES } from './camp_dialogues.ts'
+import { SEA_CAMP_DIALOGUES } from './camp_dialogues_sea.ts'
 import { CAMPS } from './camps.ts'
 import { D1_LAMP_MARKET, D1_LAMP_MARKET_DIALOGUES, D1_LAMP_MARKET_NPCS } from './d1_lamp_market.ts'
 import { D1_SUBSTATION, D1_SUBSTATION_DIALOGUES, D1_SUBSTATION_NPCS } from './d1_substation.ts'
@@ -88,7 +89,7 @@ const PARTS: [DistrictDef | null, DialogueDef[], NpcDef[]][] = [
 const QUESTS = [...BASE_QUESTS, ...D1_SPIDER_DEBT_QUESTS, ...D1_LIST_SHELTER_QUESTS, ...D2_RUNNER_SHORTCUT_QUESTS, ...D2_BROKER_REQUEST_QUESTS, ...D3_VAULT_BEYOND_QUESTS, ...D3_OLD_WOUND_QUESTS, ...D4_DREAM_STACKS_QUESTS, ...D4_RETURN_DESK_QUESTS, ...D4_FORBIDDEN_INDEX_QUESTS, ...D4_CUT_NAMES_QUESTS, ...D5_SCRAP_CHOIR_QUESTS, ...D6_MARGIN_NOTES_QUESTS, ...D5_COLD_STORAGE_QUESTS, ...D6_FIRST_DRAFT_QUESTS, ...D4_SEA_SEIZURE_SHED_QUESTS, ...D5_SEA_BARGE_MARKET_QUESTS, ...D6_SEA_FOGHORN_POST_QUESTS, ...D2_OUTSIDE_LAUNDRY_QUESTS, ...D2_OUTSIDE_METERS_QUESTS, ...D5_CRANE_CHAPEL_QUESTS, ...D6_ERRATA_OFFICE_QUESTS, ...D4_SEA_DORMITORY_QUESTS, ...D5_SEA_SHALLOWS_QUESTS, ...D6_SEA_LENS_WORKSHOP_QUESTS, ...D2_OUTSIDE_BUS_DEPOT_QUESTS, ...D4_SEA_CONTAINER_ALLEY_QUESTS, ...D5_SEA_DROWNED_ROWS_QUESTS, ...D6_SEA_CABLE_STATION_QUESTS]
 
 export const DISTRICTS: DistrictDef[] = PARTS.flatMap(([d]) => (d ? [d] : []))
-export const DIALOGUES: DialogueDef[] = [...PARTS.flatMap(([, ds]) => ds), ...CAMP_DIALOGUES]
+export const DIALOGUES: DialogueDef[] = [...PARTS.flatMap(([, ds]) => ds), ...CAMP_DIALOGUES, ...SEA_CAMP_DIALOGUES]
 // Every NPC's dialogue portrait is resources/neo-seoul/v2/npcs/<id>.webp (scripts/v2_assets/gen_npc_portraits.py)
 // unless the NPC names its own.
 export const NPCS: NpcDef[] = PARTS.flatMap(([, , ns]) => ns).map((n) => ({ portrait: `v2/npcs/${n.id}.webp`, ...n }))

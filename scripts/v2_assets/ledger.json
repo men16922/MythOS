@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 820,
+ "codex_image_calls": 824,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -5596,12 +5596,26 @@
    "refs": [],
    "ts": "2026-10-31T21:46:39"
   },
+  "v2/events/outside_ev_bakery.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A small night bakery in a back alley, a baker with a rolling pin over the last lump of dough beside a glowing brick oven with its door open, warm light spilling into the dark alley. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:28:59"
+  },
   "v2/events/outside_ev_barber.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye level, natural proportions: one tired neighborhood barber in a washed burgundy apron pauses with a comb and closed scissors beside an empty chair after closing in Neo-Seoul's Undercity Market. Angle the mirror toward an empty alley so it introduces no second figure; one restrained effect is a soft amber patrol-light reflection along the mirror's edge, no text.",
    "refs": [],
    "ts": "2026-11-01T15:02:54"
+  },
+  "v2/events/outside_ev_bike.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A delivery courier crouching beside an old bicycle in a wet back alley at night, oil-stained gloves on a slipped chain, a single taped delivery box on the rear rack. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:29:05"
   },
   "v2/events/outside_ev_break_schedule.webp": {
    "generations": 1,
@@ -5658,6 +5672,20 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye level, natural proportions: one school-age child with a short pencil tucked behind an ear holds a steel ruler across a closed, unmarked notebook at a packing table beneath the Undercity Market bridge after closing. Use ordinary clothes, a folded school bag and an awning cord caught above the desk lamp; one restrained effect is a warm pool of lamplight on the child's hands, no other people and no text.",
    "refs": [],
    "ts": "2026-11-01T15:03:36"
+  },
+  "v2/events/outside_ev_karaoke.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A dim karaoke corridor at closing time, all booths dark except one glowing booth where a lone customer holds a microphone with eyes closed, a ceiling broadcast speaker in the hallway. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:28:55"
+  },
+  "v2/events/outside_ev_keys.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A tiny key-cutting kiosk in a back alley at night, a grinding wheel throwing a few sparks, a ring of old brass keys on the counter, a family with packed bags waiting under the awning. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:29:12"
   },
   "v2/events/outside_ev_laundry_cart.webp": {
    "generations": 1,

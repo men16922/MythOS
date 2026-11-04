@@ -752,4 +752,145 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
       },
     ],
   },
+  // 2026-11-04 (2): four more, toward the base Act 2's variety.
+  {
+    id: 'outside_ev_keys',
+    acts: [2],
+    route: 'outside',
+    title: t('복사한 열쇠', 'Copied Keys'),
+    image: 'v2/events/outside_ev_keys.webp',
+    gmHints: ['열쇠 복사집의 마지막 손님', '쇠 냄새 나는 연마기', '이사 가는 가족의 열쇠 꾸러미'],
+    text: t(
+      '열쇠 복사집 연마기가 아직 돈다. 이사 가는 가족이 열쇠 꾸러미를 맡겼다. 새집 열쇠가 아니라 옛집 열쇠를 복사해 달란다.\n“돌아올 수도 있잖아요.” 주인이 쇳가루를 턴다.',
+      'The key cutter’s grinder is still turning. A family moving out left a ring of keys: copies of the old home’s keys, not the new one.\n“We might come back.” The owner brushes off the iron filings.',
+    ),
+    options: [
+      {
+        label: t('복사를 돕는다', 'Help cut the copies'),
+        hint: t('민첩 5 · 성공 +20 ₵ · 실패 −3 HP', 'AGI 5 · success: +20 ₵ · fail: −3 HP'),
+        check: { stat: 'agi', dc: 5 },
+        success: {
+          text: t('열쇠 열두 개. 주인이 공임을 반 나눈다. 가족은 옛집 열쇠를 목걸이에 꿴다.', 'Twelve keys. The owner splits the fee. The family threads the old keys on a cord.'),
+          effects: [{ kind: 'credits', amount: 20 }],
+        },
+        failure: {
+          text: t('연마기에 손끝이 스친다. 주인이 반창고를 붙여 준다.', 'The grinder nicks a fingertip. The owner puts a plaster on it.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+      {
+        label: t('옛집 주소를 기록에 남기지 말라고 부탁한다', 'Ask them to keep the old address off the record'),
+        hint: t('추적 −6 · ◈ +2', '−6 Trace · +2 ◈'),
+        success: {
+          text: t('주인이 장부의 주소 칸을 비워 둔다. “열쇠만 기억하면 되죠.”', 'The owner leaves the address blank in the ledger. “The keys remember enough.”'),
+          effects: [{ kind: 'trace', amount: -6 }, { kind: 'echoes', amount: 2 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_bakery',
+    acts: [2],
+    route: 'outside',
+    title: t('마지막 반죽', 'The Last Dough'),
+    image: 'v2/events/outside_ev_bakery.webp',
+    gmHints: ['밤 빵집의 남은 반죽', '꺼져 가는 오븐', '반죽을 나누는 제빵사'],
+    text: t(
+      '빵집 오븐이 식어 간다. 반죽 한 덩이가 남았다. 제빵사가 밀대를 든다. “지금 구우면 정리반 오기 전에 나와요. 오븐 문 좀 잡아 줄래요?”',
+      'The bakery oven is cooling. One lump of dough is left. The baker picks up a rolling pin. “Bake it now and it’s out before the Crew comes. Hold the oven door?”',
+    ),
+    options: [
+      {
+        label: t('오븐 문을 잡는다', 'Hold the oven door'),
+        hint: t('근력 5 · 성공 파티 회복 8 · 실패 −3 HP', 'STR 5 · success: heal party 8 · fail: −3 HP'),
+        check: { stat: 'str', dc: 5 },
+        success: {
+          text: t('빵이 부푼다. 제빵사가 반을 갈라 당신 몫을 싸 준다.', 'The bread rises. The baker splits it and wraps your half.'),
+          effects: [{ kind: 'heal_party', amount: 8 }],
+        },
+        failure: {
+          text: t('열기에 팔뚝을 덴다. 빵은 조금 탔지만 먹을 만하다.', 'The heat catches your forearm. The bread is a little burnt but edible.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+      {
+        label: t('반죽을 이웃들에게 나눠 준다', 'Hand the dough out to the neighbours'),
+        hint: t('◈ +4 · 추적 −3', '+4 ◈ · −3 Trace'),
+        success: {
+          text: t('집집마다 작은 반죽이 들어간다. 골목 오븐 몇 개가 다시 켜진다.', 'A small piece goes into every home. A few ovens along the alley light up again.'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_bike',
+    acts: [2],
+    route: 'outside',
+    title: t('빠진 체인', 'The Slipped Chain'),
+    image: 'v2/events/outside_ev_bike.webp',
+    gmHints: ['배달 자전거의 빠진 체인', '기름 묻은 장갑', '마지막 배달 상자'],
+    text: t(
+      '배달원이 자전거 옆에 쪼그려 앉아 있다. 체인이 빠졌다. 짐받이에 마지막 배달 상자.\n“이거 하나 남았어요. 명단 밖 할머니 약이에요.”',
+      'A courier crouches by a bicycle. The chain has slipped. On the rack, the last delivery box.\n“Just this one left. Medicine for an old lady off the list.”',
+    ),
+    options: [
+      {
+        label: t('체인을 다시 건다', 'Put the chain back on'),
+        hint: t('지능 5 · 성공 ◈ +5 · 실패 추적 +4', 'INT 5 · success: +5 ◈ · fail: +4 Trace'),
+        check: { stat: 'int', dc: 5 },
+        success: {
+          text: t('체인이 맞물린다. 배달원이 페달을 밟으며 손을 흔든다. 약은 제시간에 간다.', 'The chain catches. The courier waves and pedals off. The medicine arrives on time.'),
+          effects: [{ kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('체인이 다시 빠진다. 배달원이 결국 상자를 들고 뛴다. 정리반이 뛰는 사람을 본다.', 'The chain slips again. The courier ends up running with the box. The Crew notice a runner.'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('상자를 대신 배달한다', 'Deliver the box yourself'),
+        hint: t('추적 −5 · 소모품', '−5 Trace · consumable'),
+        success: {
+          text: t('할머니가 문틈으로 약을 받고 사탕 한 봉지를 내민다. 봉지 안에 보급품이 섞여 있다.', 'The old lady takes the medicine through the door gap and hands over a bag of sweets with a supply pack inside.'),
+          effects: [{ kind: 'trace', amount: -5 }, { kind: 'consumable' }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_karaoke',
+    acts: [2],
+    route: 'outside',
+    title: t('마지막 곡', 'The Last Song'),
+    image: 'v2/events/outside_ev_karaoke.webp',
+    gmHints: ['폐점 직전 노래방 부스', '점수가 안 나오는 마이크', '혼자 남은 손님'],
+    text: t(
+      '노래방 부스 하나에만 불이 켜져 있다. 혼자 남은 손님이 마지막 곡을 고른다. 폐점 방송이 노래를 끊기 전에 끝내고 싶어 한다.\n“점수는 안 나와도 돼요. 끝까지만.”',
+      'Only one karaoke booth is still lit. The last customer picks a final song and wants to finish it before the closing broadcast cuts it off.\n“I don’t care about the score. Just to the end.”',
+    ),
+    options: [
+      {
+        label: t('같이 부른다', 'Sing along'),
+        hint: t('매력 5 · 성공 ◈ +5 · 실패 추적 +4', 'CHA 5 · success: +5 ◈ · fail: +4 Trace'),
+        check: { stat: 'cha', dc: 5 },
+        success: {
+          text: t('마지막 소절에서 방송이 시작된다. 둘의 목소리가 방송보다 조금 더 크다.', 'The broadcast starts on the last line. Your two voices are a little louder.'),
+          effects: [{ kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('음이 엇나간다. 웃음소리가 복도까지 새어 정리반이 문을 두드린다.', 'You miss the note. Laughter leaks down the hall and the Crew knock on the door.'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('방송 스피커 앞을 막아 준다', 'Stand in front of the broadcast speaker'),
+        hint: t('추적 −4 · +4 HP', '−4 Trace · +4 HP'),
+        success: {
+          text: t('스피커가 당신 등에 막혀 웅얼거린다. 노래가 끝까지 간다. 손님이 고개를 숙인다.', 'Muffled by your back, the speaker mumbles. The song goes to the end. The customer bows.'),
+          effects: [{ kind: 'trace', amount: -4 }, { kind: 'hp', amount: 4 }],
+        },
+      },
+    ],
+  },
 ]

@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Second districts for Acts 5 and 6 (Claude Opus 5.5, same goal)
+
+- Every act places two districts; Acts 5–6 had one each. `d5_cold_storage` (machines frozen mid-dream; get the thaw code from Seol or buy it from Jang, wake the oldest slowly as Gu shows → boss fight **cover**) and `d6_first_draft` (streets struck from the city's first draft are still lived in; ask Mo the name, rewrite it with San's dark ink or Yeon's own pen → boss **marked**). 6 personas, 2 scenes + 6 portraits by Codex (unreviewed). 20 districts / 60 NPCs. Sea Acts 4–6 place no district (checked; unchanged).
+- **Verified**: content + chronicle tests (each of chapters 5–6 places 2); UI (Act 5 at 1280×720, Act 6 at 390×844) to quest stage 2 via buttons, 0 console errors; local Ollama: 4/6 in voice first try, Seol (archaic register) and Mo (반말) personas tightened, rerun in voice.
+
 ## 2026-11-04 — Districts for Acts 5 and 6 (they had none) (Claude Opus 5.5, same goal)
 
 - `d5_scrap_choir` (discarded machines sing one dream that never ends; tune it with Dal or Kai, let it finish → boss **weaken**) and `d6_margin_notes` (every loop's connector wrote in the first record's margins; find your own hand, leave a line → **intel**); 3 NPCs each with server personas; 2 district scenes + 6 portraits by Codex (unreviewed). 18 districts / 54 NPCs. Chronicle chapters 5–6 now get a district (test).
@@ -98,8 +103,3 @@ Last updated: 2026-11-04
 - **Analysis** (`docs/plans/2026-11-04-reverse-engineering-4-5.md`, public reviews / Mega Crit news): Mewgenics' "traces, not power" was mostly in already (DLC 3 residue for companions who went down, words only); the gap was the good side. Slay the Spire 2's alternate Act 1 is DLC-sized and unmeasured (no real players yet): recorded, not built.
 - **Built**: `profile.veterans` (companions at level 5 when a non-daily run ends) → `run.pride` → one line per companion (`PRIDE`, 14) under the next Act 1 title; residue goes first. Words only: engine test checks stats and max HP are unchanged. My first proposal (a small max-HP trade-off) was dropped: it broke DLC 3's words-only rule.
 - **Verified**: `sea.test.ts`; Act 1 intro line in headless muted Chromium (ko, en), 0 console errors (`outputs/qa/pride_ui/`).
-
-## 2026-11-04 — Two Glass Library districts: The Forbidden Index, The Drawer of Cut Names (W1-4 done) (Claude Opus 5.5, owner goal: keep going)
-
-- **Built** (`content/crpg/d4_forbidden_index.ts`, `d4_cut_names.ts`; personas `src/mythos_v2/npcs/d4_*.py`; 2 district scenes + 6 NPC portraits by Codex image, unreviewed): the last two 1.0 Glass Library side quests as Act 4 districts (14 → 16). The Forbidden Index: get the backwards-reading key (Yun, Old No) → decode one banned book (dim Rim's lamp first, read under the light for Trace, or let Io read the book she wrote) → boss starts **marked**. The Drawer of Cut Names: get the drawer open (Sae, the unnamed clerk) → paste a name back (Mun's seamless paste, a rough patch for Trace, or Io finds the clerk's own name) → boss fight starts with **cover**. One card pick each; ≤ 25 / 20 credits.
-- **Verified**: `crpg.test.ts` (reachability, budgets, personas, quests), content tests; real UI, headless muted: Forbidden Index at 1280×720 and Cut Names at 390×844 played stop by stop to quest stage 2 through the buttons, 0 console errors (`outputs/qa/district_ui/`). Unverified: the AI free-talk with the six new NPCs (GM off in QA), and how a human reads the dialogue.

@@ -188,11 +188,12 @@ test('a finished campaign (chapter 6 cleared) starts over: the next chronicle ru
   assert.equal(one.chronicle?.chapter, 2)
 })
 
-test('chronicle chapters 5 and 6 now place a district (Acts 5 and 6 had none before 2026-11-04)', () => {
+test('chronicle chapters 5 and 6 place two districts each, like Acts 1–4', () => {
   const carried = carryOver(run(), C)
   for (const chapter of [5, 6]) {
     const r = newRun({ ...newProfile('T'), chronicle: { chapter, chaptersDone: [], carried } }, { archetype: 'ghost', paradox: 0, seed: 31, mode: 'chronicle' }, C)
     const placed = Object.values(r.map.nodes).filter((n) => n.kind === 'district').map((n) => n.districtId)
-    assert.ok(placed.length > 0 && placed.every((id) => C.crpg?.districts[id ?? '']?.act === chapter), `chapter ${chapter}: ${placed.join(',')}`)
+    assert.equal(placed.length, 2, `chapter ${chapter} places two districts like Acts 1–4`)
+    assert.ok(placed.every((id) => C.crpg?.districts[id ?? '']?.act === chapter), `chapter ${chapter}: ${placed.join(',')}`)
   }
 })

@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 719,
+ "codex_image_calls": 727,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4425,12 +4425,26 @@
    ],
    "ts": "2026-10-26T04:01:58"
   },
+  "v2/districts/d5_cold_storage.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Cold Storage: rows of frosted shelves each holding one dormant android lying still, faint slow-blinking lights behind closed eyelids, a temperature log desk with gauges, a coolant cart with drums, a half-thawed mechanic android sitting on a bench. Setting: an underground cold-storage vault beneath a machine graveyard, frosted metal shelves, pale blue frost light, warm amber work lamps. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T09:56:00"
+  },
   "v2/districts/d5_scrap_choir.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Scrap Choir: discarded androids and old machines sitting in a wide circle in the graveyard, speaker grilles glowing softly as if singing together; a tuning post with a rusted tuning fork; a small wobbly drone hovering; an old woman's parts stall with trays of screws. Setting: a vast graveyard of discarded androids and machines under a dusky sky, rusted cranes, warm amber work lights, cold teal haze. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
    "refs": [],
    "ts": "2026-11-04T09:43:28"
+  },
+  "v2/districts/d6_first_draft.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The First Draft: an enormous open page showing a hand-drawn city street plan, some streets struck through with bold red double lines yet small warm window lights still glowing in them, a correction desk with a red pen, an ink peddler's tray of dark bottles. Illegible abstract marks only. Setting: the origin of all loops, a vast hall where a city map is drawn on enormous glowing pages, golden light, drifting ink motes, deep teal shadows. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T09:55:59"
   },
   "v2/districts/d6_margin_notes.webp": {
    "generations": 1,
@@ -6842,11 +6856,29 @@
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Mr. Do, an elderly Korean collector who only buys childhood memories; immaculate grey suit, white gloves, a small glass vial of glowing memory in his fingers, unsettlingly gentle smile. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:06:38"
   },
+  "v2/npcs/coolant_trader_jang.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Jang, a sharp-eyed coolant trader in a padded jacket with frost on the collar, a receipt book tucked under the arm, leaning on a coolant drum, wry dealer smile. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: an underground cold-storage vault with frosted shelves, pale blue frost light and warm amber lamps. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T09:57:26"
+  },
   "v2/npcs/curator_baek.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Curator Baek, an 'optimized citizen' curator of a glass atrium; flawless Korean woman in a pristine white high-collar outfit, too-perfect calm face, sterile white light instead of neon. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:07:48"
+  },
+  "v2/npcs/draft_editor_yeon.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Yeon, an exacting editor in a neat dark high-collared coat, holding a red pen poised, cool evaluating eyes, hair tied back. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a hall of giant glowing pages with a hand-drawn city map, golden light, drifting ink motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T09:57:23"
   },
   "v2/npcs/dream_binder_ol.webp": {
    "generations": 1,
@@ -6884,6 +6916,15 @@
    ],
    "ts": "2026-11-04T09:45:13"
   },
+  "v2/npcs/half_thawed_gu.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Gu, a grinning old mechanic android, upper body thawed with warm worn metal and a work vest, lower body still crusted in frost, tapping his frozen knee with one hand. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: an underground cold-storage vault with frosted shelves, pale blue frost light and warm amber lamps. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T09:57:00"
+  },
   "v2/npcs/index_cipher_yun.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -6892,6 +6933,15 @@
     "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
    ],
    "ts": "2026-11-04T04:01:33"
+  },
+  "v2/npcs/ink_peddler_san.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). San, a wiry cheerful ink peddler with ink-stained fingers, holding up a small dark ink bottle that seems to swallow the light, a tray strap over the shoulder. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a hall of giant glowing pages with a hand-drawn city map, golden light, drifting ink motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T09:58:21"
   },
   "v2/npcs/iseul.webp": {
    "generations": 1,
@@ -7072,6 +7122,24 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Stationmaster Yeom, an old Korean stationmaster guarding the timetable of a stopped train; faded railway uniform and cap, a pocket watch on a chain, flooded subway platform behind him. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:08:33"
+  },
+  "v2/npcs/storage_keeper_seol.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Seol, a composed storage keeper in a frost-dusted grey insulated uniform and thin gloves, holding a clipboard-like tablet and a thermometer probe, precise calm gaze, breath faintly visible. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: an underground cold-storage vault with frosted shelves, pale blue frost light and warm amber lamps. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T09:55:42"
+  },
+  "v2/npcs/struck_resident_mo.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Mo, a weary but warm middle-aged resident in a faded cardigan sitting in a doorway whose edges look partly erased, a faint red line crossing the frame behind, quiet patient expression. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a hall of giant glowing pages with a hand-drawn city map, golden light, drifting ink motes. no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T09:58:18"
   },
   "v2/npcs/toll_king.webp": {
    "generations": 1,

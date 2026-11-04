@@ -978,6 +978,90 @@ export const BANTER: BanterDef[] = [
       { who: 'se_rin', text: t('그거 장부에 적지 마.', 'Don’t put that in your ledger.') },
     ],
   },
+  // 2026-11-05: every run starts with Se-rin, so her pairs are the ones heard; a later-act second exchange each.
+  {
+    id: 'b_serin_io_onloan',
+    pair: ['se_rin', 'io'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'se_rin', text: t('도서관 사람이 왜 계속 따라와.', 'Why does the library keep following me?') },
+      { who: 'io', text: t('반납 확인 중입니다. 당신은 아직 대출 중입니다.', 'Confirming a return. You are still on loan.') },
+      { who: 'se_rin', text: t('…누가 날 빌려 갔는데.', '…Who borrowed me?') },
+      { who: 'io', text: t('제가 기록했습니다. 반납 기한은 없습니다.', 'I logged it. There is no due date.') },
+    ],
+  },
+  {
+    id: 'b_serin_miro_hand',
+    pair: ['se_rin', 'miro'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'se_rin', text: t('오늘은 안 물어봤다. 미로.', 'Didn’t ask today. Miro.') },
+      { who: 'miro', text: t('…기억했네.', '…You remembered.') },
+      { who: 'se_rin', text: t('손등에 써 놨어. 안 지울 거야.', 'Wrote it on my hand. Not washing it off.') },
+    ],
+  },
+  {
+    id: 'b_serin_doyun_behind',
+    pair: ['se_rin', 'doyun'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'se_rin', text: t('몇 명 셌어?', 'How many did you count?') },
+      { who: 'doyun', text: t('우리 넷이요. 그리고 뒤에 오는 사람 둘.', 'The four of us. And two more coming behind.') },
+      { who: 'se_rin', text: t('뒤에 오는 사람은 내가 볼게. 넌 앞을 세.', 'I’ll watch the ones behind. You count ahead.') },
+    ],
+  },
+  {
+    id: 'b_serin_bel_write',
+    pair: ['se_rin', 'bel'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'se_rin', text: t('요즘 펜 안 드네.', 'You don’t pick up the pen these days.') },
+      { who: 'bel', text: t('자를 문장이 안 보여서.', 'I can’t see anything to cut.') },
+      { who: 'se_rin', text: t('그럼 써. 내 얘기라도.', 'Then write. My story, if you like.') },
+      { who: 'bel', text: t('…길어질 텐데.', '…It’ll run long.') },
+    ],
+  },
+  {
+    id: 'b_serin_rem_breath',
+    pair: ['se_rin', 'rem'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'se_rin', text: t('밤새 뭐 했어.', 'What did you do all night?') },
+      { who: 'rem', text: t('당신 숨소리를 셌어요. 고르게 잤어요.', 'Counted your breathing. You slept evenly.') },
+      { who: 'se_rin', text: t('…다음엔 세지 마. 그냥 있어.', '…Don’t count next time. Just stay.') },
+    ],
+  },
+  {
+    id: 'b_serin_mujin_cab',
+    pair: ['se_rin', 'mujin'],
+    acts: [5, 6],
+    lines: [
+      { who: 'se_rin', text: t('크레인 운전석에서 보면 뭐가 보여?', 'What do you see from the crane cab?') },
+      { who: 'mujin', text: t('마른 바닥. 그리고 아직 오는 물.', 'Dry floor. And the water still coming.') },
+      { who: 'se_rin', text: t('무섭진 않아?', 'Doesn’t that scare you?') },
+      { who: 'mujin', text: t('일이다.', 'It’s the job.') },
+    ],
+  },
+  {
+    id: 'b_serin_seoha_routes',
+    pair: ['se_rin', 'seo_ha'],
+    acts: [5, 6],
+    lines: [
+      { who: 'se_rin', text: t('물길 외운다며. 나도 배달 길은 다 외워.', 'You know the channels by heart. I know every delivery route.') },
+      { who: 'seo_ha', text: t('그럼 우리 둘이면 어디든 가겠네요.', 'Then the two of us can get anywhere.') },
+      { who: 'se_rin', text: t('…물만 빼고.', '…Anywhere but the water.') },
+    ],
+  },
+  {
+    id: 'b_serin_parang_sister',
+    pair: ['se_rin', 'parang'],
+    acts: [5, 6],
+    lines: [
+      { who: 'se_rin', text: t('오늘은 몇 살이야.', 'How old are you today?') },
+      { who: 'parang', text: t('열한 살. 이 애한텐 너 같은 언니가 있었대.', 'Eleven. This kid had an older sister like you.') },
+      { who: 'se_rin', text: t('…그럼 오늘은 내가 언니 해 줄게.', '…Then today I’ll be the sister.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

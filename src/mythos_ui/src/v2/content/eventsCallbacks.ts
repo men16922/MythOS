@@ -1315,4 +1315,41 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['child voice', 'song in the fog', 'recovered memory'],
   },
+  {
+    id: 'a3_cb_bus',
+    acts: [3],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_outside_bus', stage: 2 } },
+    title: t('첨탑 셔틀의 운전석', 'At the Wheel of the Spire Shuttle'),
+    image: 'v2/events/a3_cb_bus.webp',
+    text: t(
+      '첨탑 직원 셔틀이 당신 앞에 선다. 운전석에 광 기사가 앉아 있다. 막차를 내보낸 그 밤 뒤로 여기 일자리를 얻었다고 한다.\n그가 대시보드 위의 낡은 카드를 톡톡 친다. 폐지된 노선 카드다. “아직 버리진 않았어요.”',
+      'A Spire staff shuttle stops in front of you. Driver Gwang is at the wheel. After the night he got the last bus out, he found work here, he says.\nHe taps an old card on the dashboard: the cancelled-route card. “Haven’t thrown it out yet.”',
+    ),
+    options: [
+      {
+        label: t('셔틀을 얻어 탄다', 'Ride the shuttle'),
+        hint: t('추적 −12 · +6 HP', '−12 Trace · +6 HP'),
+        success: {
+          text: t('직원 셔틀은 검문을 받지 않는다. 광 기사가 라디오 볼륨을 올린다.', 'Staff shuttles aren’t stopped at checkpoints. Gwang turns up the radio.'),
+          effects: [
+            { kind: 'trace', amount: -12 },
+            { kind: 'hp', amount: 6 },
+          ],
+        },
+      },
+      {
+        label: t('막차 승객들 소식을 묻는다', 'Ask about the last-bus passengers'),
+        hint: t('◈ +4 · 소모품', '+4 ◈ · consumable'),
+        success: {
+          text: t('“마흔한 명 다 집에 갔어요.” 광 기사가 승객들이 모아 준 꾸러미를 건넨다.', '“All forty-one got home.” Gwang hands over a bundle the passengers put together.'),
+          effects: [
+            { kind: 'echoes', amount: 4 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+    ],
+    gmHints: ['driver gwang', 'spire staff shuttle', 'cancelled route card'],
+  },
 ]

@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 797,
+ "codex_image_calls": 798,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4758,6 +4758,15 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a3_sleeping_frames.webp"
    ],
    "ts": "2026-10-25T17:39:19"
+  },
+  "v2/events/a3_cb_bus.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A sleek white staff shuttle bus pulled up at a clean bay inside a corporate spire, door open; at the wheel a stocky good-humoured driver in his fifties grinning at the viewer, an old worn plastic card (blank) tucked on the dashboard. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/bus_driver_gwang.webp"
+   ],
+   "ts": "2026-11-04T14:12:23"
   },
   "v2/events/a3_cb_capsule.webp": {
    "generations": 1,

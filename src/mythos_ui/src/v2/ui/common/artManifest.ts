@@ -167,6 +167,7 @@ export const ART: {
     a2_toll_bridge_kids: 'v2/events/a2_toll_bridge_kids.webp',
     a3_bio_disposal: 'v2/events/a3_bio_disposal.webp',
     a3_blank_in_list: 'v2/events/a3_blank_in_list.webp',
+    a3_cb_bus: 'v2/events/a3_cb_bus.webp',
     a3_cb_capsule: 'v2/events/a3_cb_capsule.webp',
     a3_cb_core: 'v2/events/a3_cb_core.webp',
     a3_cb_hunt: 'v2/events/a3_cb_hunt.webp',

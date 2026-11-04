@@ -721,6 +721,147 @@ export const A2_MORE: EventDef[] = [
     ],
     gmHints: ['stalled maglev', 'standby passengers', 'commute loop', 'uncanny calm'],
   },
+  // 2026-11-04: four more night-market scenes (Act 2 rolled from 37 against Act 3's 51).
+  {
+    id: 'a2_debt_tattoo',
+    acts: [2],
+    title: t('빚 문신', 'Debt Ink'),
+    image: 'v2/events/a2_debt_tattoo.webp',
+    text: t(
+      '하층 골목의 문신 가게. 빚을 팔뚝에 새겨 준다. 갚으면 한 줄씩 지운다. 의자에 앉은 아이의 팔에 줄이 일곱 개다. 아이 엄마의 빚이다.',
+      'A tattoo parlour in a lower-level alley that inks debts onto forearms and removes a line for every payment. The child in the chair has seven lines: the mother’s debt.',
+    ),
+    options: [
+      {
+        label: t('한 줄을 대신 갚아 준다', 'Pay off one line for the child'),
+        hint: t('−20 ₵ · ◈ +5 · 추적 −3', '−20 ₵ · +5 ◈ · −3 Trace'),
+        requires: { minCredits: 20 },
+        success: {
+          text: t('문신사가 레이저로 한 줄을 지운다. 아이가 남은 여섯 줄을 세어 본다. 하나가 줄었다.', 'The tattooist lasers off one line. The child counts the six left. One fewer.'),
+          effects: [{ kind: 'credits', amount: -20 }, { kind: 'echoes', amount: 5 }, { kind: 'trace', amount: -3 }],
+        },
+      },
+      {
+        label: t('장부의 계산 착오를 찾아낸다', 'Find the error in the ledger'),
+        hint: t('지능 5 · 성공 ◈ +4 · 실패 추적 +5', 'INT 5 · success: +4 ◈ · fail: +5 Trace'),
+        check: { stat: 'int', dc: 5 },
+        success: {
+          text: t('이자가 두 번 붙어 있다. 문신사가 투덜대며 두 줄을 지운다.', 'Interest was charged twice. Grumbling, the tattooist removes two lines.'),
+          effects: [{ kind: 'echoes', amount: 4 }],
+        },
+        failure: {
+          text: t('문신사가 장부를 덮고 수금원을 부른다.', 'The tattooist shuts the ledger and calls for a collector.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('모르는 척 지나간다', 'Walk past'),
+        hint: t('추적 −3', '−3 Trace'),
+        success: {
+          text: t('레이저 소리가 등 뒤에서 이어진다.', 'The laser hums on behind you.'),
+          effects: [{ kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+    gmHints: ['debt tattoo', 'child in the chair', 'lower market alley'],
+  },
+  {
+    id: 'a2_fortune_machine',
+    acts: [2],
+    title: t('점괘 기계', 'The Fortune Machine'),
+    image: 'v2/events/a2_fortune_machine.webp',
+    text: t(
+      '야시장 구석의 낡은 점괘 기계. 동전을 넣으면 종이 한 장이 나온다. 당신이 다가가자 동전도 넣기 전에 종이가 나온다. “지난번에도 이 앞에 섰다.”',
+      'An old fortune machine in a corner of the night market. Coin in, slip out. As you approach, a slip comes out before any coin. “You stood here last time too.”',
+    ),
+    options: [
+      {
+        label: t('종이를 끝까지 읽는다', 'Read the slip to the end'),
+        hint: t('◈ +5 · 추적 +3', '+5 ◈ · +3 Trace'),
+        success: {
+          text: t('“이번엔 왼쪽 계단.” 그 아래 작은 글씨로 당신 필체를 닮은 서명.', '“Left stairs this time.” Under it, in small letters, a signature that looks like your handwriting.'),
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'trace', amount: 3 }],
+        },
+      },
+      {
+        label: t('기계 뒤판을 연다', 'Open the back panel'),
+        hint: t('관찰 5 · 성공 소모품 · 실패 −3 HP', 'OBS 5 · success: consumable · fail: −3 HP'),
+        check: { stat: 'obs', dc: 5 },
+        success: {
+          text: t('기계 안에 누군가 숨겨 둔 보급품. 종이 뭉치에는 같은 문장만 적혀 있다.', 'Someone hid supplies inside. The paper roll says the same sentence over and over.'),
+          effects: [{ kind: 'consumable' }],
+        },
+        failure: {
+          text: t('뒤판 모서리에 손을 벤다.', 'You cut your hand on the panel edge.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+    ],
+    gmHints: ['uncanny', 'fortune machine', 'a slip before the coin'],
+  },
+  {
+    id: 'a2_silence_tea',
+    acts: [2],
+    title: t('침묵을 파는 찻집', 'The Tea House That Sells Silence'),
+    image: 'v2/events/a2_silence_tea.webp',
+    text: t(
+      '시끄러운 시장 한가운데 찻집 하나만 조용하다. 차값은 크레딧이 아니라 침묵이다. 한 시간 말없이 앉아 있으면 된다. 손님들이 각자 찻잔만 본다.',
+      'In the middle of the loud market, one tea house is quiet. The price is not credits but silence: sit an hour without speaking. The customers each look only at their cups.',
+    ),
+    options: [
+      {
+        label: t('한 시간을 낸다', 'Pay an hour'),
+        hint: t('+10 HP · 추적 −4', '+10 HP · −4 Trace'),
+        success: {
+          text: t('차가 식는 소리까지 들린다. 일어설 때 몸이 가볍다.', 'You can hear the tea cooling. When you stand, your body feels light.'),
+          effects: [{ kind: 'hp', amount: 10 }, { kind: 'trace', amount: -4 }],
+        },
+      },
+      {
+        label: t('주인에게 침묵이 어디에 쓰이는지 묻는다', 'Ask the owner what the silence is for'),
+        hint: t('매력 5 · 성공 ◈ +5 · 실패 추적 +3', 'CHA 5 · success: +5 ◈ · fail: +3 Trace'),
+        check: { stat: 'cha', dc: 5 },
+        success: {
+          text: t('주인이 귓속말을 한다. “IX 귀가 여기만 못 들어요. 다들 여기서 계획을 세우죠.”', 'The owner whispers. “IX’s ears can’t hear in here. Everyone plans here.”'),
+          effects: [{ kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('말을 거는 순간 손님들이 일제히 당신을 본다. 주인이 문을 가리킨다.', 'The moment you speak, every customer looks at you. The owner points at the door.'),
+          effects: [{ kind: 'trace', amount: 3 }],
+        },
+      },
+    ],
+    gmHints: ['quiet wonder', 'tea house', 'silence as payment'],
+  },
+  {
+    id: 'a2_rat_post',
+    acts: [2],
+    title: t('쥐 우편', 'Rat Post'),
+    image: 'v2/events/a2_rat_post.webp',
+    text: t(
+      '시장 배관 사이로 쥐들이 작은 통을 등에 지고 달린다. 명단 밖 사람들의 우편이다. 우체국장 노파가 쥐 한 마리를 당신에게 내민다. “급한 편지 있으면.”',
+      'Between the market pipes, rats run with tiny canisters on their backs: mail for people off the list. The old postmistress holds a rat out to you. “If you’ve anything urgent.”',
+    ),
+    options: [
+      {
+        label: t('쥐에게 먹이를 주고 길을 묻는다', 'Feed the rat and ask the way'),
+        hint: t('추적 −7', '−7 Trace'),
+        success: {
+          text: t('쥐가 배관 틈으로 앞장선다. 감시 렌즈가 없는 길만 고른다.', 'The rat leads through a gap in the pipes, picking only routes without watch lenses.'),
+          effects: [{ kind: 'trace', amount: -7 }],
+        },
+      },
+      {
+        label: t('우편 분류를 돕는다', 'Help sort the mail'),
+        hint: t('+15 ₵ · ◈ +2', '+15 ₵ · +2 ◈'),
+        success: {
+          text: t('작은 통 마흔 개. 노파가 우표 대신 동전으로 품삯을 준다.', 'Forty tiny canisters. The postmistress pays you in coins instead of stamps.'),
+          effects: [{ kind: 'credits', amount: 15 }, { kind: 'echoes', amount: 2 }],
+        },
+      },
+    ],
+    gmHints: ['rat post', 'mail for the unlisted', 'market pipes'],
+  },
 ]
 
 // ================================================================== ACT 3 — ARK Spire

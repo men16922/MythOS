@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 783,
+ "codex_image_calls": 786,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4452,6 +4452,15 @@
    ],
    "ts": "2026-11-04T11:50:44"
   },
+  "v2/districts/d4_sea_dormitory.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Crew Dormitory: a long low concrete workers' dormitory beside a dry cracked wharf at night, every window lit, inside rows of bunk beds with hanging hi-vis work clothes, a mess hall with a steaming soup pot and a yellowed tide chart pinned on the wall (illegible), a paper notice taped to the front door (blank), a customs inspector with a folder waiting outside. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, muted harbor palette of rust, salt white, slate gray and sodium amber with cold teal. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/sea4.webp"
+   ],
+   "ts": "2026-11-04T13:25:47"
+  },
   "v2/districts/d4_sea_seizure_shed.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7335,6 +7344,15 @@
    ],
    "ts": "2026-11-04T09:44:19"
   },
+  "v2/npcs/mess_cook_yeong.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Cook Yeong, a sturdy middle-aged Korean cook in a stained apron and head towel stirring a huge soup pot with a ladle, gruff warm eyes, steam. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a cramped workers' dormitory by a dry harbor, bunk beds and work clothes, sodium amber light, salt haze. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T13:25:32"
+  },
   "v2/npcs/meter_reader_misuk.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7379,6 +7397,15 @@
     "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
    ],
    "ts": "2026-11-04T04:02:39"
+  },
+  "v2/npcs/night_shift_chul.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Chul, a sleepy young longshoreman sitting up in a top bunk with tousled hair and a hi-vis vest half on, bleary worried eyes. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: a cramped workers' dormitory by a dry harbor, bunk beds and work clothes, sodium amber light, salt haze. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T13:25:31"
   },
   "v2/npcs/oh_gisa.webp": {
    "generations": 1,

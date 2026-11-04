@@ -22,6 +22,7 @@ from mythos_v2.npcs import (
     d4_forbidden_index,
     d4_return_desk,
     d4_sea_container_alley,
+    d4_sea_dormitory,
     d4_sea_seizure_shed,
     d5_cold_storage,
     d5_crane_chapel,
@@ -68,6 +69,7 @@ for _module in (
     d2_outside_meters,
     d5_crane_chapel,
     d6_errata_office,
+    d4_sea_dormitory,
 ):
     for _id, _persona in _module.PERSONAS.items():
         if _id in PERSONAS:

@@ -185,7 +185,7 @@ const DOOR: DialogueDef = {
           requires: { quest: { id: 'q_sea_rows', stage: 1 } },
           success: {
             text: t('형체가 그 성을 따라 말한다. 두드리던 손이 내려간다. 404호 문이 안에서 조금 열린다.', 'The figure repeats the surname. Its knocking hand drops. Door 404 opens a little from inside.'),
-            effects: [{ kind: 'quest', id: 'q_sea_rows', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sea_rows', stage: 2 }, { kind: 'codex', id: 'lore_d_seventeen' }],
           },
         },
         {
@@ -195,7 +195,7 @@ const DOOR: DialogueDef = {
           approval: { parang: 1 },
           success: {
             text: t('파랑이 조용히 이름 하나를 말한다. 형체가 그 이름으로 처음 웃는다. “이제 들어가도 돼?”', 'Parang quietly says a name. The figure smiles for the first time under it. “Can I go in now?”'),
-            effects: [{ kind: 'quest', id: 'q_sea_rows', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_sea_rows', stage: 2 }, { kind: 'codex', id: 'lore_d_seventeen' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -206,7 +206,7 @@ const DOOR: DialogueDef = {
           check: { stat: 'cha', dc: 13 },
           success: {
             text: t('형체가 잠깐 굳는다. 그리고 고개를 끄덕인다. “번호라도. 불러 줬으니까.”', 'The figure freezes for a moment, then nods. “A number, even. Someone called it.”'),
-            effects: [{ kind: 'quest', id: 'q_sea_rows', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sea_rows', stage: 2 }, { kind: 'codex', id: 'lore_d_seventeen' }],
           },
           failure: {
             text: t('형체가 뒷걸음질 친다. 복도 물이 갑자기 차오른다.', 'The figure backs away. The corridor water suddenly rises.'),

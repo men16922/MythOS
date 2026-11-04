@@ -182,7 +182,7 @@ const DOOR: DialogueDef = {
           requires: { flag: 'sea_ca_form', quest: { id: 'q_sea_container', stage: 1 } },
           success: {
             text: t('봉인반이 문 앞에서 멈춘다. 서식을 읽는다. 한참 읽는다. 그리고 다음 줄로 간다. 골목 사람들이 같은 서식을 베끼기 시작한다.', 'The sealing team stops at the door and reads the form. Reads it for a long time. Then moves to the next row. The alley starts copying the form.'),
-            effects: [{ kind: 'quest', id: 'q_sea_container', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_sea_container', stage: 2 }, { kind: 'codex', id: 'lore_d_seal_tape' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -192,7 +192,7 @@ const DOOR: DialogueDef = {
           requires: { flag: 'sea_ca_roof', quest: { id: 'q_sea_container', stage: 1 } },
           success: {
             text: t('나래가 앞장서고, 엄마가 화분을 안고 따른다. 봉인반은 빈 문에 테이프를 붙인다. 지붕 위의 골목 사람들이 서로 눈짓한다.', 'Narae leads; her mother follows with the tomato in her arms. The sealing team tapes an empty door. On the roofs, the alley’s people exchange looks.'),
-            effects: [{ kind: 'quest', id: 'q_sea_container', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sea_container', stage: 2 }, { kind: 'codex', id: 'lore_d_seal_tape' }],
           },
         },
         {
@@ -202,7 +202,7 @@ const DOOR: DialogueDef = {
           check: { stat: 'cha', dc: 13 },
           success: {
             text: t('라디오가 꺼진다. 문이 열린다. 세 식구가 짐 하나씩 들고 나온다. 봉인반이 모퉁이를 돈다.', 'The radio goes off. The door opens. Three of them come out, a bag each. The sealing team rounds the corner.'),
-            effects: [{ kind: 'quest', id: 'q_sea_container', stage: 2 }, { kind: 'trace', amount: 6 }],
+            effects: [{ kind: 'quest', id: 'q_sea_container', stage: 2 }, { kind: 'codex', id: 'lore_d_seal_tape' }, { kind: 'trace', amount: 6 }],
           },
           failure: {
             text: t('안에서 대답이 없다. 라디오 소리만 커진다.', 'No answer from inside. Only the radio gets louder.'),

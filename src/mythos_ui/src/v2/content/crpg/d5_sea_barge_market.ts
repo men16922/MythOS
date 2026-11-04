@@ -189,7 +189,7 @@ const STERN: DialogueDef = {
           requires: { quest: { id: 'q_sea_barge', stage: 1 } },
           success: {
             text: t('드론이 창문에 몸을 댄다. 할머니가 냄비에 불을 켠다. 이름 하나를 부른다. 바지선 사람들이 하나둘 맨 끝 배에 밧줄을 건다.', 'The drone presses against the window. The old woman lights the stove under the pot and calls a name. One by one the barge folk throw ropes to the last barge.'),
-            effects: [{ kind: 'quest', id: 'q_sea_barge', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sea_barge', stage: 2 }, { kind: 'codex', id: 'lore_d_jelly_drone' }],
           },
         },
         {
@@ -199,7 +199,7 @@ const STERN: DialogueDef = {
           approval: { parang: 1 },
           success: {
             text: t('파랑이 모르는 사람의 이름을 정확히 부른다. 할머니가 파랑의 손을 잡는다. “밥은 먹었니.”', 'Parang says a stranger’s name exactly right. The old woman takes Parang’s hand. “Have you eaten?”'),
-            effects: [{ kind: 'quest', id: 'q_sea_barge', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_sea_barge', stage: 2 }, { kind: 'codex', id: 'lore_d_jelly_drone' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {

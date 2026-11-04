@@ -175,7 +175,7 @@ const DOOR: DialogueDef = {
           requires: { flag: 'sea_sd_law', quest: { id: 'q_sea_dorm', stage: 1 } },
           success: {
             text: t('검사관이 조항을 두 번 읽는다. 조석표를 한 번 본다. 확인서에 “해당 없음”이라고 적는다. 공고문이 떼어진다.', 'The inspector reads the clause twice and the tide table once, then writes “not applicable” on the certificate. The notice comes down.'),
-            effects: [{ kind: 'quest', id: 'q_sea_dorm', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_sea_dorm', stage: 2 }, { kind: 'codex', id: 'lore_d_tide_table' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -184,7 +184,7 @@ const DOOR: DialogueDef = {
           requires: { flag: 'sea_sd_crew', quest: { id: 'q_sea_dorm', stage: 1 } },
           success: {
             text: t('상자가 하나씩 검사관 앞에 쌓인다. 검사관이 서류철을 닫는다. “…검토에 시간이 걸리겠군요. 몇 년.”', 'Box after box piles up in front of the inspector. The inspector closes the folder. “…Review will take some time. Years.”'),
-            effects: [{ kind: 'quest', id: 'q_sea_dorm', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sea_dorm', stage: 2 }, { kind: 'codex', id: 'lore_d_tide_table' }],
           },
         },
         {
@@ -194,7 +194,7 @@ const DOOR: DialogueDef = {
           check: { stat: 'cha', dc: 13 },
           success: {
             text: t('검사관이 한숨을 쉬고 서명란을 비워 둔다. “상부에 문의하겠습니다.” 오늘 밤은 넘어간다.', 'The inspector sighs and leaves the signature box blank. “I’ll refer it upward.” Tonight passes.'),
-            effects: [{ kind: 'quest', id: 'q_sea_dorm', stage: 2 }, { kind: 'trace', amount: 5 }],
+            effects: [{ kind: 'quest', id: 'q_sea_dorm', stage: 2 }, { kind: 'codex', id: 'lore_d_tide_table' }, { kind: 'trace', amount: 5 }],
           },
           failure: {
             text: t('“증빙 없는 주장은 기록하지 않습니다.” 검사관이 당신 이름을 묻는다.', '“Unsupported claims are not recorded.” The inspector asks your name.'),

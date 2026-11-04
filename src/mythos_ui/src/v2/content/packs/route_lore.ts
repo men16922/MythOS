@@ -55,6 +55,38 @@ export const ROUTE_LORE: LoreEntry[] = [
     },
   },
   {
+    id: 'lore_d_seal_tape',
+    title: { ko: '엑스 자 테이프', en: 'The X of Tape' },
+    text: {
+      ko: '마른 항구의 빈 컨테이너에는 가족들이 산다. 세관 봉인반이 문에 테이프를 엑스 자로 붙이면 그 컨테이너는 서류에서 사라진다. 안에 있던 사람도 함께 사라진다. 봉인반은 문 앞에 붙은 서식은 끝까지 읽는다. 그래서 골목 사람들은 이의 신청서를 베껴 둔다.',
+      en: 'Families live in the empty containers on the dry harbor floor. When the Customs sealing team tapes an X across a door, that container vanishes from the files, and whoever is inside vanishes with it. The sealers always read a form taped to a door to the end, so the alley keeps copies of the objection form.',
+    },
+  },
+  {
+    id: 'lore_d_tide_table',
+    title: { ko: '삼십 년치 조석표', en: 'Thirty Years of Tide Tables' },
+    text: {
+      ko: '배가 끊긴 뒤에도 하역조 기숙사 식당 벽에는 매일 새 조석표가 붙었다. 지난 것은 한 사물함에 모였다. 삼십 년치다. 세관은 기숙사를 “비운영 항만 부속 숙소”로 폐쇄하려 했다. 검사관은 그 사물함 앞에서 확인서에 “해당 없음”이라고 적었다.',
+      en: 'After the ships stopped, a new tide table still went up on the crew dormitory’s mess wall every day, and the old ones went into one locker: thirty years’ worth. Customs tried to close the dormitory as “housing attached to a non-operating port”. In front of that locker the inspector wrote “not applicable”.',
+    },
+  },
+  {
+    id: 'lore_d_jelly_drone',
+    title: { ko: '해파리 드론', en: 'The Jellyfish Drones' },
+    text: {
+      ko: '바지선 시장 사이를 반투명한 해파리 드론들이 떠다닌다. 회색 조수가 지나가면 그 몸통에 남의 기억이 하나씩 걸린다. 부엌, 냄비, 창문 같은 것들이다. 드론은 그 기억을 버리지 않는다. 주인을 찾을 때까지 시장을 돈다.',
+      en: 'Translucent jellyfish drones drift between the barges of the market. When the gray tide passes, one of them comes away with a stranger’s memory caught in its body: a kitchen, a pot, a window. The drone does not drop it. It circles the market until it finds whose it is.',
+    },
+  },
+  {
+    id: 'lore_d_seventeen',
+    title: { ko: '404호를 두드리는 아이', en: 'The Knock at 404' },
+    text: {
+      ko: '간척 단지에는 썰물 때마다 젖은 교복을 입은 형체가 나타나 404호 문을 두드린다. 그 아이의 이름은 어디에도 남지 않았다. 출석부에는 번호뿐이었고, 그 번호는 십칠 번이었다. 형체는 문을 열어 달라고 하지 않는다. 불러 줄 이름을 달라고 한다.',
+      en: 'At every low tide a figure in a soaked school uniform knocks at door 404 of the reclamation estate. The child’s name survived nowhere; the class register had only a number, and the number was seventeen. The figure does not ask for the door to open. It asks for a name to be called by.',
+    },
+  },
+  {
     id: 'lore_d_errata',
     title: { ko: '정오표', en: 'The Errata' },
     text: {

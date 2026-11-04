@@ -358,8 +358,8 @@ export const BANTER: BanterDef[] = [
     lines: [
       { who: 'su_ah', text: t('손 떨리는 거, 언제부터야?', 'Your hands shake. Since when?') },
       { who: 'seo_ha', text: t('마지막 배를 들여보낸 날부터요. 키를 놓은 손이라.', 'Since the day I brought in the last ship. They let go of the wheel.') },
-      { who: 'su_ah', text: t('약은 없어. 대신 뭘 쥐고 있어 봐.', 'There’s no pill for that. Hold on to something instead.') },
-      { who: 'seo_ha', text: t('그럼 당신 소매 좀 빌릴게요.', 'Then I’ll borrow your sleeve.') },
+      { who: 'su_ah', text: t('그건 못 고쳐. 대신 쥐고 있을 걸 하나 벼려 줄게.', 'I can’t fix that. I’ll forge you something to hold instead.') },
+      { who: 'seo_ha', text: t('그럼 키 손잡이 모양으로 부탁해요.', 'Then make it the shape of a ship’s wheel handle.') },
     ],
   },
   {
@@ -389,8 +389,8 @@ export const BANTER: BanterDef[] = [
     pair: ['miro', 'su_ah'],
     lines: [
       { who: 'miro', text: t('…너 이름 뭐였지.', '…What was your name again.') },
-      { who: 'su_ah', text: t('수아. 붕대 감아 준 사람.', 'Su-ah. The one who bandaged you.') },
-      { who: 'miro', text: t('이름은 까먹었는데 붕대는 기억나.', 'I forgot the name. I remember the bandage.') },
+      { who: 'su_ah', text: t('수아. 네 방어막 벼려 준 사람.', 'Su-ah. The one who forged your plating.') },
+      { who: 'miro', text: t('이름은 까먹었는데 방어막은 기억나.', 'I forgot the name. I remember the plating.') },
       { who: 'su_ah', text: t('그럼 그걸로 됐어.', 'Then that’s enough.') },
     ],
   },
@@ -430,6 +430,66 @@ export const BANTER: BanterDef[] = [
       { who: 'bel', text: t('네 꿈 말이야. 초고치고는 잘 썼어.', 'That dream of yours. Not bad for a first draft.') },
       { who: 'kai', text: t('고칠 데가 있어요?', 'Anything to fix?') },
       { who: 'bel', text: t('없어. 손대면 네 꿈이 아니게 돼.', 'No. Touch it and it stops being yours.') },
+    ],
+  },
+  {
+    id: 'b_taeo_miro_tracks',
+    pair: ['tae_o', 'miro'],
+    lines: [
+      { who: 'tae_o', text: t('발자국을 안 남기는군.', 'You leave no tracks.') },
+      { who: 'miro', text: t('…남기면 누가 따라와.', '…Leave them and someone follows.') },
+      { who: 'tae_o', text: t('내가 따라가던 쪽이었다.', 'I used to be the one following.') },
+      { who: 'miro', text: t('알아. 그래서 너 뒤로는 안 숨어.', 'I know. That’s why I never hide behind you.') },
+    ],
+  },
+  {
+    id: 'b_bel_taeo_report',
+    pair: ['bel', 'tae_o'],
+    lines: [
+      { who: 'bel', text: t('네 사건 보고서 봤어. 한 줄 잘린 자리가 보이더라.', 'I read your incident report. I can see where a line was cut.') },
+      { who: 'tae_o', text: t('되살릴 수 있나.', 'Can it be put back.') },
+      { who: 'bel', text: t('내 펜으로는 안 돼. 네 입으로 다시 말해야 해.', 'Not with my pen. You have to say it again yourself.') },
+      { who: 'tae_o', text: t('…알았다.', '…Understood.') },
+    ],
+  },
+  {
+    id: 'b_rem_suah_forge',
+    pair: ['rem', 'su_ah'],
+    lines: [
+      { who: 'rem', text: t('수아 씨, 꿈도 벼릴 수 있어요?', 'Su-ah, can you forge a dream?') },
+      { who: 'su_ah', text: t('꿈은 너무 물러. 두드리면 흩어져.', 'Dreams are too soft. Hammer one and it scatters.') },
+      { who: 'rem', text: t('그럼 그냥 들고 다닐게요. 깨지지 않게.', 'Then I’ll just carry it. Gently.') },
+    ],
+  },
+  {
+    id: 'b_mujin_kai_lift',
+    pair: ['mujin', 'kai'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'mujin', text: t('너 무게 얼마냐.', 'How much do you weigh.') },
+      { who: 'kai', text: t('꽤 나가요. 왜요?', 'A fair bit. Why?') },
+      { who: 'mujin', text: t('쓰러지면 내가 든다. 크레인 없이도 그 정도는 돼.', 'If you go down, I’ll lift you. I can manage that without a crane.') },
+      { who: 'kai', text: t('…고마워요. 저도 그쪽 들 수 있어요.', '…Thank you. I can lift you too.') },
+    ],
+  },
+  {
+    id: 'b_seoha_han_unmapped',
+    pair: ['seo_ha', 'han'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'seo_ha', text: t('한 씨는 지도 없이 다니죠?', 'You go about without a map, don’t you, Han?') },
+      { who: 'han', text: t('지도에 꽂히면 나도 지도에 찍혀.', 'Plug into a map and you end up on it.') },
+      { who: 'seo_ha', text: t('나도 물길은 머리로만 외웠어요. 배들이 그래서 날 믿었고요.', 'I only ever kept the channels in my head. That’s why the ships trusted me.') },
+    ],
+  },
+  {
+    id: 'b_io_linyue_loan',
+    pair: ['io', 'lin_yue'],
+    lines: [
+      { who: 'io', text: t('린위에 님의 장부와 도서관 대출 대장은 형식이 같습니다.', 'Lin Yue, your ledger and the library’s loan register share a format.') },
+      { who: 'lin_yue', text: t('다른 건 이자뿐이지.', 'Only difference is interest.') },
+      { who: 'io', text: t('저희는 연체료를 받지 않습니다.', 'We charge no late fees.') },
+      { who: 'lin_yue', text: t('그러니까 책이 안 돌아오지.', 'That’s why your books never come back.') },
     ],
   },
 ]

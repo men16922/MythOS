@@ -143,6 +143,38 @@ export const ROUTE_LORE: LoreEntry[] = [
     },
   },
   {
+    id: 'lore_d_substation',
+    title: { ko: '변전소 17', en: 'Substation 17' },
+    text: {
+      ko: '정전 구역 한가운데에서 변전소 17에만 불이 켜져 있다. 오 기사가 배전반에서 전기를 따서 철문을 따라 사는 사람들에게 나눠 준다. 단속반이 전력 감사를 오면 굵은 선은 땅에 묻는다. 신호는 가로등 회로인 척 꾸민다. 철문 위의 꼬마가 그 불빛을 지키며 통행료를 받는다.',
+      en: 'In the middle of the blackout zone only Substation 17 is lit. Old Oh taps the switchboard and shares the power with the people living along its gate. When Enforcement comes for a power audit, the main line goes underground and the signal passes for the streetlight circuit. The kid on the gate guards the light and takes the toll.',
+    },
+  },
+  {
+    id: 'lore_d_crank_lamps',
+    title: { ko: '손전등 시장', en: 'The Hand-Crank Market' },
+    text: {
+      ko: '통금 사이렌이 멎어야 열리는 시장이 있다. 천막마다 손으로 돌리는 등이 끽끽 돈다. 손잡이가 멈추면 그 가게는 문을 닫은 것이다. 구 여사의 천막에서는 이번 주 순찰표를 판다. 단속 소대 셋의 교대 시간과 해태 전차가 기다리는 골목이 적혀 있다. 값은 40크레딧이고, 깎자는 말이 나오면 거래는 끝난다.',
+      en: 'A market opens only after the curfew siren stops. In every tent a hand-crank lamp squeaks round; when the crank stops, that stall has closed. Madam Ku’s tent sells this week’s patrol sheet: three squads’ shift changes and the alley where the HAETAE tank waits. Forty credits. Haggle and the deal is over.',
+    },
+  },
+  {
+    id: 'lore_d_2358',
+    title: { ko: '23시 58분', en: '23:58' },
+    text: {
+      ko: '환승역 지하 3층의 벽시계는 23시 58분에 멈춰 있다. 멈춘 전동차 여섯 량에서 피난민들이 밥을 짓고 빨래를 넌다. 염 역장은 4호 열차의 폐선 통보를 받았지만 서명하지 않았다. 그는 매일 시간표의 날짜를 빨간 펜으로 고쳐 쓴다. 다음 열차는 언제나 23시 58분에 출발할 예정이다.',
+      en: 'The wall clock at Transfer Station B3 stopped at 23:58. Refugees cook rice and hang laundry in the six stopped train cars. Stationmaster Yeom received the decommission notice for Car No. 4 and did not sign it. Every day he corrects the date on the timetable in red pen. The next train is always scheduled for 23:58.',
+    },
+  },
+  {
+    id: 'lore_d_lot_41',
+    title: { ko: '41번 출품', en: 'Lot Forty-One' },
+    text: {
+      ko: '바지선 세 척을 묶은 기억 경매장에서는 기억이 3초씩 미리보기로 상영된다. 41번 출품은 열두 살의 여름 하나였다. 원본 하나에 사본은 없다. 경매장은 문을 연 뒤로 환불을 한 번도 해 준 적이 없다. 팔리지 않은 출품은 이름 없는 구매자 한 사람이 전부 사 간다. 배송지는 7번 배수 터널이다.',
+      en: 'At the memory auction, three barges chained together, each lot plays as a three-second preview. Lot forty-one was a summer, age twelve: one original, no copies. The house has never once given a refund. Every unsold lot goes to a single nameless buyer, delivered to Drain Tunnel 7.',
+    },
+  },
+  {
     id: 'lore_d_errata',
     title: { ko: '정오표', en: 'The Errata' },
     text: {

@@ -158,7 +158,7 @@ const PALLE: DialogueDef = {
               '“정보는 반품이 안 됩니다.” 팔레가 장부에서 몇 장을 뜯어 접는다. 맨 끝 장에 이름 없는 구매자 한 줄. ‘미낙찰분 전량. 납품처: 7번 배수 터널.’ 그 아래 연필 메모. ‘먹이 줄 때 목 아래 판이 열림. 3초.’',
               '“Information is non-returnable.” Palle tears a few pages from the ledger and folds them. On the last page, one nameless buyer: ‘All unsold lots. Deliver to: Drain Tunnel 7.’ Beneath it, in pencil: ‘When it feeds, the plate under its throat opens. Three seconds.’',
             ),
-            effects: [{ kind: 'credits', amount: -30 }, { kind: 'quest', id: 'q_sold_summer', stage: 2 }],
+            effects: [{ kind: 'credits', amount: -30 }, { kind: 'quest', id: 'q_sold_summer', stage: 2 }, { kind: 'codex', id: 'lore_d_lot_41' }],
           },
         },
         {
@@ -172,7 +172,7 @@ const PALLE: DialogueDef = {
               '팔레가 한참 당신을 본다. 그러다 웃는다. 무대에서와 똑같은 웃음이다. “거래는 언제나 환영입니다.” 장부에서 뜯은 몇 장이 건너온다. 맨 끝 장, 이름 없는 구매자. ‘미낙찰분 전량. 납품처: 7번 배수 터널.’ 연필 메모. ‘먹이 줄 때 목 아래 판이 열림. 3초.’',
               'Palle studies you for a long moment. Then he smiles, the same smile he wears on stage. “A deal is always welcome.” A few pages torn from the ledger come across. On the last, a nameless buyer: ‘All unsold lots. Deliver to: Drain Tunnel 7.’ In pencil: ‘When it feeds, the plate under its throat opens. Three seconds.’',
             ),
-            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }, { kind: 'codex', id: 'lore_d_lot_41' }],
           },
           failure: {
             text: t(
@@ -261,7 +261,7 @@ const ISEUL: DialogueDef = {
               '이슬이 칩을 받아 든다. 꽂지는 않는다. 한참 손바닥에 올려만 둔다. “…빚 다 갚고 나서요.” 그러고는 주머니에서 접힌 종이를 꺼낸다. “출품자는 장부 사본을 받아요. 제 몫이에요. 저한텐 필요 없어요.” 맨 끝 줄에 연필 메모. ‘먹이 줄 때 목 아래 판이 열림. 3초.’',
               'Iseul takes the chip. She doesn’t plug it in; she just holds it on her palm for a long time. “…After the debt’s paid.” Then she pulls a folded paper from her pocket. “Sellers get a copy of the ledger. This is mine. I don’t need it.” On the last line, in pencil: ‘When it feeds, the plate under its throat opens. Three seconds.’',
             ),
-            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }, { kind: 'codex', id: 'lore_d_lot_41' }],
           },
         },
         {
@@ -335,7 +335,7 @@ const DO: DialogueDef = {
               '“미성년자 기억 매입. 몇 건입니까.” 노신사의 장갑 낀 손이 떨린다. 반납한 배지라는 걸 그는 묻지 않는다. 서류철 하나가 테이블을 건너온다. 구매자 사본 장부. 맨 끝 장에 이름 없는 구매자. ‘미낙찰분 전량. 납품처: 7번 배수 터널.’ 연필 메모. ‘먹이 줄 때 목 아래 판이 열림. 3초.’',
               '“Purchases of minors’ memories. How many?” The old man’s gloved hand trembles. He doesn’t ask whether the badge was handed back. A folder slides across the table: the buyers’ copy of the ledger. On the last page, a nameless buyer: ‘All unsold lots. Deliver to: Drain Tunnel 7.’ In pencil: ‘When it feeds, the plate under its throat opens. Three seconds.’',
             ),
-            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }, { kind: 'codex', id: 'lore_d_lot_41' }],
           },
         },
         {
@@ -362,7 +362,7 @@ const DO: DialogueDef = {
               '노신사가 오래 출품자석 쪽을 본다. “…여름은 못 돌려드려요. 그건 이미 제 거예요.” 대신 서류철 하나를 민다. “이건 가져가요. 구매자 사본. 누가 누구 어린 시절을 샀는지 다 있어요.” 맨 끝 장, 이름 없는 구매자. ‘납품처: 7번 배수 터널.’ 연필 메모. ‘먹이 줄 때 목 아래 판이 열림. 3초.’',
               'The old man looks toward the sellers’ bench for a long time. “…I can’t give the summer back. It’s already mine.” Instead he slides a folder over. “Take this. The buyers’ copy. Whose childhood went to whom, all of it.” On the last page, a nameless buyer: ‘Deliver to: Drain Tunnel 7.’ In pencil: ‘When it feeds, the plate under its throat opens. Three seconds.’',
             ),
-            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }, { kind: 'codex', id: 'lore_d_lot_41' }],
           },
           failure: {
             text: t('“그 애는 돈이 필요하고, 저는 여름이 필요해요. 누가 손해예요?” 그가 장갑 낀 손으로 칸막이 문을 가리킨다.', '“She needs money and I need a summer. Who loses?” He points to the door with a gloved hand.'),
@@ -412,7 +412,7 @@ const COLD_ROOM: DialogueDef = {
               '딸깍. 세 번째 숫자에서 함이 열린다. 경매 장부. 누가 무엇을 얼마에 샀는지. 맨 끝 장에 이름 없는 구매자 한 줄. ‘미낙찰분 전량. 납품처: 7번 배수 터널.’ 그 아래 연필 메모. ‘먹이 줄 때 목 아래 판이 열림. 3초.’',
               'Click. The box opens on the third number. The auction ledger: who bought what, for how much. On the last page, one nameless buyer: ‘All unsold lots. Deliver to: Drain Tunnel 7.’ Beneath it, in pencil: ‘When it feeds, the plate under its throat opens. Three seconds.’',
             ),
-            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }, { kind: 'codex', id: 'lore_d_lot_41' }],
           },
           failure: {
             text: t('얼어붙은 다이얼이 끽 소리를 낸다. 담배 불빛 두 개가 동시에 이쪽으로 돈다. “누구야!”', 'The frozen dial squeals. Two cigarette tips turn your way at once. “Who’s there!”'),
@@ -429,7 +429,7 @@ const COLD_ROOM: DialogueDef = {
               '구 여사의 순찰표에 이 바지선 경비도 적혀 있다. 단속국이 부업으로 빌려준 사람들. 교대는 02시 10분. 담배 불빛이 계단 위로 사라진 사이, 함의 경첩을 통째로 뽑는다. 장부 맨 끝 장. ‘미낙찰분 전량. 납품처: 7번 배수 터널.’ 연필 메모. ‘먹이 줄 때 목 아래 판이 열림. 3초.’',
               'Madam Ku’s patrol sheet lists this barge’s guards too: Enforcement men moonlighting. Shift change at 02:10. While the cigarette tips disappear up the stairs, you pull the box’s hinges clean out. The ledger’s last page: ‘All unsold lots. Deliver to: Drain Tunnel 7.’ In pencil: ‘When it feeds, the plate under its throat opens. Three seconds.’',
             ),
-            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_sold_summer', stage: 2 }, { kind: 'codex', id: 'lore_d_lot_41' }],
           },
         },
         {

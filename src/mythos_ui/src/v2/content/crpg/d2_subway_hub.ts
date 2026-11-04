@@ -62,7 +62,7 @@ const YEOM: DialogueDef = {
           approval: { kai: 1, su_ah: 1 },
           success: {
             text: t('노인이 흰 장갑을 낀다. 셀을 두 손으로 든다. 아무 말 없이 역무실을 나간다. 잠시 후, 차량기지 쪽에서 전조등 불빛이 승강장 끝까지 밀려온다.', 'He pulls on white gloves. Lifts the cell in both hands. Leaves the office without a word. A moment later, headlight glare from the depot floods the platform to its far end.'),
-            effects: [{ kind: 'quest', id: 'q_last_train', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_last_train', stage: 2 }, { kind: 'codex', id: 'lore_d_2358' }],
             goto: 'awake',
           },
         },
@@ -88,7 +88,7 @@ const YEOM: DialogueDef = {
           approval: { han: 2 },
           success: {
             text: t('역무실 바닥 점검구를 연다. 굵은 선 두 가닥, 낡은 차단기 하나. 불꽃이 튀고, 차량기지 쪽에서 쇠가 길게 기지개를 켜는 소리가 난다. 노인이 모자를 벗는다.', 'You open the inspection hatch in the office floor. Two thick cables, one old breaker. Sparks, and from the depot comes the long groan of steel stretching awake. The old man takes off his cap.'),
-            effects: [{ kind: 'quest', id: 'q_last_train', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_last_train', stage: 2 }, { kind: 'codex', id: 'lore_d_2358' }],
             goto: 'awake',
           },
           failure: {
@@ -433,7 +433,7 @@ const DEPOT: DialogueDef = {
           approval: { kai: 1, tae_o: 1 },
           success: {
             text: t('딸깍. 계기판에 녹색 불이 차례로 들어온다. 전조등이 승강장을 가른다. 멀리서 호루라기 소리, 그리고 뛰어오는 구두 소리. 제복 입은 노인이 숨을 몰아쉬며 운전석 문을 잡는다.', 'Click. Green lights come on along the dash one by one. The headlights split the platform. Far off, a whistle, then running shoes. An old man in uniform grabs the cab door, out of breath.'),
-            effects: [{ kind: 'quest', id: 'q_last_train', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_last_train', stage: 2 }, { kind: 'codex', id: 'lore_d_2358' }],
           },
         },
         {

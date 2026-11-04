@@ -83,7 +83,7 @@ const KU: DialogueDef = {
           approval: { se_rin: -1 },
           success: {
             text: t('칩을 하나씩 세어 받는다. 종이가 당신 쪽으로 미끄러져 온다. “제값 내는 손님은 오랜만이네요.” 칭찬인지 아닌지 모르겠다.', 'She counts the chips one at a time. The sheet slides across to you. “Haven’t had a full-price customer in a while.” You can’t tell if that was a compliment.'),
-            effects: [{ kind: 'credits', amount: -40 }, { kind: 'quest', id: 'q_schedule', stage: 2 }],
+            effects: [{ kind: 'credits', amount: -40 }, { kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'codex', id: 'lore_d_crank_lamps' }],
           },
         },
         {
@@ -93,7 +93,7 @@ const KU: DialogueDef = {
           approval: { se_rin: 1, lin_yue: 2 },
           success: {
             text: t('그녀의 손가락이 계산기 위에서 멈춘다. 머릿속으로 셈을 끝낸 얼굴. “셋. 이번 주 안에.” 종이가 넘어온다. 빚이 하나 생겼다.', 'Her finger stops over the calculator. The face of someone who has already done the sum. “Three. This week.” The sheet comes over. You now owe her.'),
-            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'flag', key: 'lm_owes_ku' }],
+            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'codex', id: 'lore_d_crank_lamps' }, { kind: 'flag', key: 'lm_owes_ku' }],
           },
         },
         {
@@ -104,7 +104,7 @@ const KU: DialogueDef = {
           approval: { se_rin: 2 },
           success: {
             text: t('옆 천막에서 물건값을 두고 고성이 터진다. 구 여사가 고개를 돌린 한 박자. 종이는 이미 당신 소매 안에 있다.', 'Someone starts shouting over prices at the next tent. Madam Ku turns her head for one beat. The sheet is already up your sleeve.'),
-            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'codex', id: 'lore_d_crank_lamps' }],
           },
           failure: {
             text: t('크랭크 손잡이가 당신 손등을 내리찍는다. “손버릇 값은 비싸요.” 그녀가 호루라기를 문다. 시장 반대편에서 누군가 당신 얼굴을 기억한다.', 'The crank handle comes down on the back of your hand. “Sticky fingers cost extra.” She puts a whistle to her lips. Across the market, someone memorises your face.'),
@@ -118,7 +118,7 @@ const KU: DialogueDef = {
           approval: { tae_o: -3, se_rin: -2, lin_yue: 1 },
           success: {
             text: t('“그 애 빚이 딱 이 종이값이네요.” 그녀가 무전기에 짧게 말한다. 종이가 넘어온다. 생선 상자 쪽에서 무언가 넘어지는 소리가 난다. 아무도 돌아보지 않는다.', '“That boy’s debt is exactly the price of this sheet.” She says a few words into a radio. The sheet comes over. From the fish crates comes the sound of something falling. Nobody turns to look.'),
-            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'flag', key: 'sold_min' }],
+            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'codex', id: 'lore_d_crank_lamps' }, { kind: 'flag', key: 'sold_min' }],
           },
         },
         {
@@ -240,7 +240,7 @@ const DAL: DialogueDef = {
           approval: { han: 2 },
           success: {
             text: t('프린터가 끼익 운다. 잉크가 흐린 종이 한 장이 밀려 나온다. 흐려도 시간표는 읽힌다. 구 여사는 오늘 밤 단골 하나를 잃었다.', 'The printer squeals. One sheet with faded ink pushes out. Faded, but the times are readable. Madam Ku just lost a customer.'),
-            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'codex', id: 'lore_d_crank_lamps' }],
           },
           failure: {
             text: t('프린터가 종이를 씹는다. 작은 화면에 붉은 글씨: ‘무단 접근 — 관리 서버에 보고됨.’ 달이가 웃는다. “신고해 주셔서 감사해요!”', 'The printer chews the paper. Red text on the little screen: “Unauthorised access — reported to the management server.” Dal smiles. “Thank you for your report!”'),
@@ -294,7 +294,7 @@ const MIN: DialogueDef = {
           approval: { se_rin: 1, tae_o: 1 },
           success: {
             text: t('안감 속 추적기를 뜯어 지나가는 배달 오토바이 짐칸에 붙인다. 형광 조끼 셋이 그 오토바이를 쫓아 뛰어간다. 소년이 금 간 휴대폰을 내민다. “형 누구야? …이거 가져. 순찰표 사진.”', 'You tear the tracker out of the lining and stick it on the cargo box of a passing delivery bike. Three hi-vis vests run off after the bike. The boy holds out a cracked phone. “Who are you? …Take this. Photo of the patrol sheet.”'),
-            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'codex', id: 'lore_d_crank_lamps' }],
           },
         },
         {
@@ -328,7 +328,7 @@ const MIN: DialogueDef = {
           approval: { se_rin: 2, tae_o: 1 },
           success: {
             text: t('당신이 턱으로 고가도로를 가리킨다. 수금원들이 그쪽으로 뛰어간다. 소년이 숨을 몰아쉬며 휴대폰을 내민다. 금 간 화면 속에 순찰표가 또렷하다.', 'You nod toward the overpass. The collectors run that way. Gasping, the boy hands you his phone. The patrol sheet is sharp on the cracked screen.'),
-            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'codex', id: 'lore_d_crank_lamps' }],
           },
           failure: {
             text: t('“고가도로는 막혔는데?” 수금원이 생선 상자를 걷어찬다. 소년이 비명을 지른다. 조끼 안에서 전기봉이 나온다.', '“The overpass is blocked off.” A collector kicks the fish crates. The boy screams. Shock batons come out from under the vests.'),
@@ -343,7 +343,7 @@ const MIN: DialogueDef = {
           approval: { tae_o: 2 },
           success: {
             text: t('수금원 하나가 당신 어깨 너머를 본다. 당신 눈을 본다. 다시 어깨 너머를 본다. “…여긴 없네.” 셋이 돌아선다. 소년이 떨리는 손으로 휴대폰을 내민다.', 'A collector looks past your shoulder. Then at your eyes. Then past your shoulder again. “…Not here.” The three turn away. With shaking hands the boy gives you his phone.'),
-            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'codex', id: 'lore_d_crank_lamps' }],
           },
           failure: {
             text: t('“비켜.” 당신이 안 비키자 셋이 동시에 움직인다.', '“Move.” When you don’t, all three move at once.'),
@@ -357,7 +357,7 @@ const MIN: DialogueDef = {
           approval: { tae_o: 2, lin_yue: 1 },
           success: {
             text: t('수금원이 칩을 받고 장부에 줄 하나를 긋는다. “일주일.” 그들이 가고 나서야 소년이 상자 밖으로 나온다. “…갚을게. 진짜로.” 휴대폰 속 순찰표를 당신에게 보낸다.', 'The collector takes the chip and strikes a line in his ledger. “One week.” Only after they leave does the boy crawl out. “…I’ll pay you back. For real.” He sends you the photo of the patrol sheet.'),
-            effects: [{ kind: 'credits', amount: -30 }, { kind: 'quest', id: 'q_schedule', stage: 2 }],
+            effects: [{ kind: 'credits', amount: -30 }, { kind: 'quest', id: 'q_schedule', stage: 2 }, { kind: 'codex', id: 'lore_d_crank_lamps' }],
           },
         },
         {

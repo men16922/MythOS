@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-04
 
-## 2026-11-04 — District codex lore, 21 districts (Claude Opus 5.5, same goal)
+## 2026-11-04 — District codex lore, 25 districts (Claude Opus 5.5, same goal)
 
 - Only one district (Glass Atrium) awarded a codex entry. Four districts whose quests reveal setting facts now award one on their final stage: `lore_d_errata` (Errata Office: the "stet" mark), `lore_d_crane_chapel`, `lore_d_old_beat` (Foghorn Post: the old beat meant "clear to enter"), `lore_d_letters` (Cable Station: "we only wanted to see the sea"; the Lightkeeper's promise stays for the ending). The lore-award test now counts district choices like the flag guards do. 45 lore.
 - **Verified**: content + achievements tests; UI: all four to stage 2 (Errata Office and Cable Station at 1280×720, Foghorn Post and Crane Chapel at 390 px), each run's codex gained its entry, 0 console errors.
@@ -11,6 +11,7 @@ Last updated: 2026-11-04
 - The other four Sea districts: `lore_d_seal_tape` (Container Alley), `lore_d_tide_table` (Dormitory: thirty years of tide tables), `lore_d_jelly_drone` (Barge Market), `lore_d_seventeen` (Drowned Rows: the knock at 404). Every Sea district now awards lore. 55 lore; 14 districts. **Verified**: content tests; UI: all four to stage 2 (two at 390 px, two at 1280×720), codex gained each entry, 0 console errors. Archive codex at 390 px (KO and EN) with all 14 district entries expanded: reads cleanly, no overflow, 0 console errors.
 - Four late Deep districts: `lore_d_off_pitch` (Scrap Choir), `lore_d_minus_forty` (Cold Storage), `lore_d_struck_streets` (First Draft), `lore_d_margins` (Margin Notes), kept distinct from the existing "same kitchen" and "Loop Engine's margins" entries. 59 lore; 18 districts. **Verified**: content tests; UI: all four to stage 2 (two at 390 px, two at 1280×720), codex gained each entry, 0 console errors.
 - Name Archive (`lore_d_paper_roll`), Cut Names (`lore_d_name_drawer`), Forbidden Index (`lore_d_reversed_marks`). Skipped on purpose: Dream Stacks (Kai's dream is "not proof of an origin"), Return Desk (Miro and vault access) and Old Wound (Tae-o's own account); a codex line there would state canon the districts leave open. 62 lore; 21 districts. **Verified**: content tests; UI: all three to stage 2, codex gained each entry, 0 console errors.
+- Act 1–2: Substation 17 (`lore_d_substation`), Hand-Crank Market (`lore_d_crank_lamps`), Transfer Station B3 (`lore_d_2358`), Memory Auction (`lore_d_lot_41`); distinct from the C-17 Blackout, Night Market and Echo Eater entries. Selling the substation line (stage 3) awards nothing. 66 lore; 25 districts. **Verified**: content tests; UI: all four to stage 2 (substation and B3 at 390 px), codex gained each entry, 0 console errors.
 
 ## 2026-11-04 — Curly quotes everywhere; English Sea run (Claude Opus 5.5, same goal)
 
@@ -81,9 +82,3 @@ Last updated: 2026-11-04
 
 - Signal+ map banter had 24 exchanges; the eight later companions appeared only once each (all with Se-rin), and no two Sea companions had any, though a Sea party is often two of them. Added eight: Mujin + Seo-ha (tide time with no water), Parang + Mujin (can Parang be "four"), Seo-ha + Parang (the old channel), Io + Miro (return cards), Bel + Io ("stet"), Rem + Kai (dreaming to the end), Doyun + Tae-o (counting who is left), Miro + Doyun (names). Voices per the companion files.
 - **Verified**: `banterPick.test.ts` (speakers, 2–4 lines, ≤ 60 chars); UI on the map (Sea Act 4 Mujin + Seo-ha KO, Deep Act 5 Rem + Kai EN 390 px) showed the exchange, 0 console errors.
-
-## 2026-11-04 — Signed-out act intros name the place in Acts 4–6 (Claude Opus 5.5, same goal)
-
-- With no AI (signed out, AI off, failure) Acts 4–6 of both the Deep Signal and the Sea shared three generic lines ("the signal goes one layer deeper"), against the register rule. `localGm.ts` now has three concrete lines per place (Glass Library shelves, the scrap graveyard, the sentence-tiled first record; the dry harbor, the tide line, the foghorn causeway), keyed by route then act; generic lines stay for later Endless laps. `ActIntro` passes `run.route` (the server GM sees it as one more context line).
-- Follow-up: Outside the List's signed-out intro used Act 2's Data Spire lines (cameras, glass railings); it now has back-alley lines (the serving line, the Crew's beacon, a laundry cart).
-- **Verified**: `localGm.test.ts` cases (six places distinct, none says "signal"; the DLC 2 route never says Spire); UI with the server GM off: Sea Act 5 (KO), Deep Act 6 (EN), and the DLC 2 route reached through Closing Time (KO/EN) showed their place lines, 0 console errors.

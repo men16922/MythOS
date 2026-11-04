@@ -245,7 +245,7 @@ const OH: DialogueDef = {
           approval: { tae_o: 1 },
           success: {
             text: t('콘크리트를 깨고, 케이블을 끌고, 다시 덮는다. 손바닥이 다 까졌다. 노인이 처음으로 웃는다. 이가 세 개 없다.', 'You break the concrete, drag the cable, cover it again. Your palms are raw. For the first time the old man laughs. He’s missing three teeth.'),
-            effects: [{ kind: 'quest', id: 'q_grid', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_grid', stage: 2 }, { kind: 'codex', id: 'lore_d_substation' }],
           },
           failure: {
             text: t('케이블이 미끄러지며 손바닥을 태운다. 반쯤 묻은 선이 그대로 드러나 있다. “됐어. 나머진 내가 해.”', 'The cable slips and burns your palm. The half-buried line lies exposed. “Enough. I’ll do the rest.”'),
@@ -260,7 +260,7 @@ const OH: DialogueDef = {
           approval: { han: 2 },
           success: {
             text: t('주파수를 하나 틀고, 이름표를 하나 바꾼다. 단속국 스캐너에는 이제 고장 난 가로등 열두 개가 보일 것이다.', 'One frequency shifted, one label swapped. Enforcement’s scanners will now see twelve broken streetlights.'),
-            effects: [{ kind: 'quest', id: 'q_grid', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_grid', stage: 2 }, { kind: 'codex', id: 'lore_d_substation' }],
           },
           failure: {
             text: t('배전반에서 경보음이 짧게 울린다. 어딘가의 감시망이 이 주파수를 기억했다.', 'The board chirps a short alarm. Somewhere, a watch-net has remembered this frequency.'),
@@ -345,7 +345,7 @@ const YUN: DialogueDef = {
           approval: { se_rin: 2, han: 1 },
           success: {
             text: t('윤 경사가 빨간 동그라미 위로 새 동그라미를 그린다. 북쪽으로. “협조 감사합니다.” 순찰대가 몸을 돌린다.', 'Yun draws a new circle over the red one. North. “Thank you for your cooperation.” The patrol turns.'),
-            effects: [{ kind: 'quest', id: 'q_grid', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_grid', stage: 2 }, { kind: 'codex', id: 'lore_d_substation' }],
           },
           failure: {
             text: t('“북쪽 블록은 어제 감사가 끝났습니다.” 그가 지도를 접는다. 이제 당신 이름도 그의 수첩에 있다.', '“The north block was audited yesterday.” He folds the map. Now your name is in his notebook too.'),

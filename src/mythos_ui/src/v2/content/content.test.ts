@@ -459,7 +459,7 @@ test('Paradox 6–10 texts state the tuned numbers', () => {
   }
 })
 
-test('bilingual text does not leak languages: no Hangul in English fields, Korean fields have Hangul', async () => {
+test('bilingual text does not leak languages (no Hangul in English, Hangul in Korean) and uses curly quotes', async () => {
   const { CONTENT } = await import('./index.ts')
   const HANGUL = /[가-힣]/
   const NAMES = new Set(['MythOS']) // proper nouns kept as-is in Korean text
@@ -470,6 +470,7 @@ test('bilingual text does not leak languages: no Hangul in English fields, Korea
     if (typeof r.ko === 'string' && typeof r.en === 'string' && Object.keys(r).length <= 3) {
       if (HANGUL.test(r.en)) bad.push(`${path}: English has Hangul`)
       if (!HANGUL.test(r.ko) && /[a-z]{4,}/i.test(r.ko) && !NAMES.has(r.ko)) bad.push(`${path}: Korean has no Hangul`)
+      if (r.ko.includes('"') || r.en.includes('"')) bad.push(`${path}: straight double quote (use “ ”)`)
       return
     }
     for (const [k, v] of Object.entries(r)) walk(v, `${path}.${k}`)

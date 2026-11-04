@@ -260,7 +260,7 @@ export const MACHINE_ENEMIES: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.5,
-        text: t('보드가 꿈과 현실 사이에서 깜빡인다. "깨어 있는 쪽이 어느 쪽인지, 당신은 확신합니까?"', 'The board flickers between dream and waking. "Are you sure which side is awake?"'),
+        text: t('보드가 꿈과 현실 사이에서 깜빡인다. “깨어 있는 쪽이 어느 쪽인지, 당신은 확신합니까?”', 'The board flickers between dream and waking. “Are you sure which side is awake?”'),
         effects: [
           { kind: 'status', status: 'evade', amount: 3, to: 'owner' },
           { kind: 'block', amount: 10, to: 'owner' },

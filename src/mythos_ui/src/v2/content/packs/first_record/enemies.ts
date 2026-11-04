@@ -352,7 +352,7 @@ export const ORIGIN_ENEMIES: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.5,
-        text: t('그림자가 당신의 목소리로 말한다. "나도 끝까지 왔었어. 그래서 처음으로 돌아갔지."', 'The shadow speaks in your voice. "I made it to the end too. So I went back to the start."'),
+        text: t('그림자가 당신의 목소리로 말한다. “나도 끝까지 왔었어. 그래서 처음으로 돌아갔지.”', 'The shadow speaks in your voice. “I made it to the end too. So I went back to the start.”'),
         effects: [
           { kind: 'status', status: 'evade', amount: 2, to: 'owner' },
           { kind: 'block', amount: 14, to: 'owner' },

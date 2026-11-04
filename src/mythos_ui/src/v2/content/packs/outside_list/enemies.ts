@@ -208,7 +208,7 @@ export const OUTSIDE_ENEMIES: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.66,
-        text: t('마감관이 시계를 본다. "연장합니다. 수당은 없습니다."', 'The Closer checks the clock. "Extending. There is no overtime pay."'),
+        text: t('마감관이 시계를 본다. “연장합니다. 수당은 없습니다.”', 'The Closer checks the clock. “Extending. There is no overtime pay.”'),
         effects: [{ kind: 'block', amount: 10, to: 'owner' }],
       },
     ],

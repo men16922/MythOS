@@ -171,7 +171,7 @@ export const GLASS_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'library',
     enemies: [foe('io_librarian', 5, 2)],
     terrain: [...tiles('cover', [3, 1], [3, 3]), ...tiles('hazard', [4, 0], [4, 4])],
-    intro: t('유리 돔 아래, 사서 AI가 기다린다. "열람하시겠습니까? 대가가 있습니다."', 'Under the glass dome the librarian AI waits. "Would you like to read it? There is a cost."'),
+    intro: t('유리 돔 아래, 사서 AI가 기다린다. “열람하시겠습니까? 대가가 있습니다.”', 'Under the glass dome the librarian AI waits. “Would you like to read it? There is a cost.”'),
   },
   {
     id: 'a4_boss_blank',

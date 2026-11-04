@@ -8,7 +8,7 @@ export const SEA_ACTS: Record<string, ActDef> = {
     name: { ko: '마른 항구', en: 'The Dry Harbor' },
     subtitle: { ko: '지도 남쪽 끝의 빈칸', en: 'The blank at the south edge of the map' },
     intro: {
-      ko: '탑이 무너진 밤, 낡은 노선도 맨 아래에 번호 없는 칸이 하나 보였다. 화물선로는 그 칸까지 이어져 있었다.\n열차가 멈춘 곳은 항구였다. 크레인이 서 있고, 부두가 있고, 배를 묶는 쇠기둥이 줄지어 있다. 물만 없다.\n항구 바닥은 말라서 갈라졌고, 그 위로 작업복을 입은 사람들이 교대 시간을 지켜 걸어간다.\n"배가 언제 오냐고요?" 노인이 웃는다. "그런데 배가 뭡니까?"',
+      ko: '탑이 무너진 밤, 낡은 노선도 맨 아래에 번호 없는 칸이 하나 보였다. 화물선로는 그 칸까지 이어져 있었다.\n열차가 멈춘 곳은 항구였다. 크레인이 서 있고, 부두가 있고, 배를 묶는 쇠기둥이 줄지어 있다. 물만 없다.\n항구 바닥은 말라서 갈라졌고, 그 위로 작업복을 입은 사람들이 교대 시간을 지켜 걸어간다.\n“배가 언제 오냐고요?” 노인이 웃는다. “그런데 배가 뭡니까?”',
       en: 'The night the Spire fell, an unnumbered square showed at the bottom of an old route map. A freight line ran all the way to it.\nThe train stopped at a harbor. Cranes, wharves, iron bollards in a row. No water.\nThe harbor floor has dried and split, and people in work clothes cross it, keeping their shift times.\n“When’s the ship due?” An old man laughs. “What’s a ship?”',
     },
     backdrop: 'industrial',

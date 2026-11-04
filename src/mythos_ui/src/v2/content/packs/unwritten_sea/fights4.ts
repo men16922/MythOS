@@ -555,16 +555,16 @@ export const SEA4_ENEMIES: EnemyDef[] = [
       {
         hpBelow: 0.66,
         text: t(
-          '크레인이 지지대를 편다. "교대 인원이 없습니다. 작업을 계속합니다."',
-          'The crane extends its outriggers. "No relief crew is available. Work will continue."',
+          '크레인이 지지대를 편다. “교대 인원이 없습니다. 작업을 계속합니다.”',
+          'The crane extends its outriggers. “No relief crew is available. Work will continue.”',
         ),
         effects: [{ kind: 'block', amount: 6, to: 'owner' }],
       },
       {
         hpBelow: 0.33,
         text: t(
-          '운전석의 빈 의자가 돌아간다. "마지막 화물은 직접 확인하겠습니다."',
-          'The empty seat turns inside the cab. "I will inspect the final load personally."',
+          '운전석의 빈 의자가 돌아간다. “마지막 화물은 직접 확인하겠습니다.”',
+          'The empty seat turns inside the cab. “I will inspect the final load personally.”',
         ),
         effects: [{ kind: 'block', amount: 4, to: 'owner' }],
       },
@@ -639,16 +639,16 @@ export const SEA4_ENEMIES: EnemyDef[] = [
       {
         hpBelow: 0.66,
         text: t(
-          '공유신이 서류 봉인을 엄지로 누른다. "물품이 아니라 성함에 문제가 있습니다."',
-          'Gong presses a thumb against the sealed papers. "The difficulty concerns your name, not your goods."',
+          '공유신이 서류 봉인을 엄지로 누른다. “물품이 아니라 성함에 문제가 있습니다.”',
+          'Gong presses a thumb against the sealed papers. “The difficulty concerns your name, not your goods.”',
         ),
         effects: [{ kind: 'block', amount: 8, to: 'owner' }],
       },
       {
         hpBelow: 0.33,
         text: t(
-          '마지막 봉투가 열린다. "접수된 분이 없으니, 돌려보낼 분도 없습니다."',
-          'The last envelope opens. "No one was admitted. Therefore no one remains to be released."',
+          '마지막 봉투가 열린다. “접수된 분이 없으니, 돌려보낼 분도 없습니다.”',
+          'The last envelope opens. “No one was admitted. Therefore no one remains to be released.”',
         ),
         effects: [{ kind: 'status', status: 'evade', amount: 1, to: 'owner' }],
       },
@@ -717,16 +717,16 @@ export const SEA4_ENEMIES: EnemyDef[] = [
       {
         hpBelow: 0.66,
         text: t(
-          '왕의 옆구리에서 용접봉이 나온다. "이 항구의 모든 물품은 보관 중입니다."',
-          'Welding rods extend from the king’s flank. "Every item in this harbor remains in custody."',
+          '왕의 옆구리에서 용접봉이 나온다. “이 항구의 모든 물품은 보관 중입니다.”',
+          'Welding rods extend from the king’s flank. “Every item in this harbor remains in custody.”',
         ),
         effects: [{ kind: 'block', amount: 8, to: 'owner' }],
       },
       {
         hpBelow: 0.33,
         text: t(
-          '문짝들이 안쪽으로 접히며 날을 세운다. "보관 기한은 무기한입니다."',
-          'Its doors fold inward into jagged edges. "The custody period is indefinite."',
+          '문짝들이 안쪽으로 접히며 날을 세운다. “보관 기한은 무기한입니다.”',
+          'Its doors fold inward into jagged edges. “The custody period is indefinite.”',
         ),
         effects: [
           { kind: 'block', amount: 4, to: 'owner' },

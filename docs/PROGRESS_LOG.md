@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Curly quotes everywhere; English Sea run (Claude Opus 5.5, same goal)
+
+- A scan found 67 pairs of straight `"` quotes in older prose (Deep/Sea boss phase lines, act intros, endings, records) where the rest of the game uses “ ”; converted mechanically inside single-quoted literals (prose only, checked in the diff). The bilingual content test now also rejects straight double quotes.
+- Full **English** Sea + Signal+ UI playthrough: victory in 27 min, 36 district and 80 dialogue polls, no errors.
+
 ## 2026-11-04 — Four more night-market scenes for Act 2 (Claude Opus 5.5, same goal)
 
 - Act 2 rolled from 37 against Act 3's 51. `a2_debt_tattoo` (debts tattooed on a child's arm, one line per payment), `a2_fortune_machine` (it prints before you pay: "you stood here last time too"), `a2_silence_tea` (tea paid for with an hour of silence, where IX can't hear), `a2_rat_post` (rats carrying mail for the unlisted); Codex art (unreviewed).

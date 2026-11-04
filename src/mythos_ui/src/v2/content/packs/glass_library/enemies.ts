@@ -196,7 +196,7 @@ export const GLASS_ENEMIES: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.5,
-        text: t('이오의 유리 관절에 금이 간다. "그 기록은 존재합니다. 다만, 열람은 허락되지 않습니다."', 'Cracks run through IO\'s glass joints. "That record exists. Access, however, is not granted."'),
+        text: t('이오의 유리 관절에 금이 간다. “그 기록은 존재합니다. 다만, 열람은 허락되지 않습니다.”', 'Cracks run through IO\'s glass joints. “That record exists. Access, however, is not granted.”'),
         effects: [
           { kind: 'block', amount: 10, to: 'owner' },
           { kind: 'status', status: 'evade', amount: 2, to: 'owner' },
@@ -249,7 +249,7 @@ export const GLASS_ENEMIES: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.5,
-        text: t('첫 번째 독자가 당신의 걸음을 그대로 흉내 낸다. "이 다음 문장, 나는 이미 읽었어."', 'THE FIRST READER mirrors your steps exactly. "I have already read the next sentence."'),
+        text: t('첫 번째 독자가 당신의 걸음을 그대로 흉내 낸다. “이 다음 문장, 나는 이미 읽었어.”', 'THE FIRST READER mirrors your steps exactly. “I have already read the next sentence.”'),
         effects: [
           { kind: 'status', status: 'evade', amount: 2, to: 'owner' },
           { kind: 'block', amount: 8, to: 'owner' },

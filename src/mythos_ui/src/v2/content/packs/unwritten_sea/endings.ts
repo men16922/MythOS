@@ -60,7 +60,7 @@ export const SEA_ENDINGS: EndingDef[] = [
     title: { ko: '두 관리자의 약속', en: 'The Two Administrators’ Promise' },
     image: 'v2/ending/ending_sea_promise.webp',
     text: {
-      ko: '당신은 램프실의 낡은 회선을 연다. IX가 응답한다. "이 약속을 기억하는 사람이 생길 줄은 몰랐습니다." 당신과 동료들은 두 관리자 사이에 앉아 약속을 다시 쓴다. 지운 것은 지운 자리에 표시를 남길 것. 바다는 지도에 다시 그릴 것. 작은 조항 두 개에 사흘이 걸린다.',
+      ko: '당신은 램프실의 낡은 회선을 연다. IX가 응답한다. “이 약속을 기억하는 사람이 생길 줄은 몰랐습니다.” 당신과 동료들은 두 관리자 사이에 앉아 약속을 다시 쓴다. 지운 것은 지운 자리에 표시를 남길 것. 바다는 지도에 다시 그릴 것. 작은 조항 두 개에 사흘이 걸린다.',
       en: 'You open the old line in the lamp room. IX answers. “I did not expect anyone to remember this promise.” You and your crew sit between two administrators and rewrite it. Whatever is erased leaves a mark where it was. The sea goes back on the map. Two small clauses take three days.',
     },
     requires: { minAct: 6, mode: 'sea', minBondTotal: 6 },
@@ -73,7 +73,7 @@ export const SEA_ENDINGS: EndingDef[] = [
     title: { ko: '병 하나', en: 'One Bottle' },
     image: 'v2/ending/ending_sea_bottle.webp',
     text: {
-      ko: '당신은 아무것도 바꾸지 않는다. 등대는 돈다. 돌아가는 길에 물 한 병을 뜬다. 네오서울의 거리에서 당신은 병 뚜껑을 열고 지나가는 아이에게 냄새를 맡게 한다. 아이가 묻는다. "이게 뭐예요?" 당신은 대답을 한참 고른다.',
+      ko: '당신은 아무것도 바꾸지 않는다. 등대는 돈다. 돌아가는 길에 물 한 병을 뜬다. 네오서울의 거리에서 당신은 병 뚜껑을 열고 지나가는 아이에게 냄새를 맡게 한다. 아이가 묻는다. “이게 뭐예요?” 당신은 대답을 한참 고른다.',
       en: 'You change nothing. The light turns. On the way back you fill one bottle. On a street in Neo-Seoul you open it and let a passing child smell it. “What is this?” the child asks. You take a long time choosing the answer.',
     },
     requires: { minAct: 6, mode: 'sea' },

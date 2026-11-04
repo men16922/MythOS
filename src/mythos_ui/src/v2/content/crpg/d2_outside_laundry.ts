@@ -201,7 +201,7 @@ const LINE: DialogueDef = {
           },
         },
         {
-          label: t('도에게 이름표 바구니를 맡긴다', 'Hand Do a basket of tags to "lose"'),
+          label: t('도에게 이름표 바구니를 맡긴다', 'Hand Do a basket of tags to “lose”'),
           intent: 'offer',
           requires: { flag: 'outside_ld_do', quest: { id: 'q_outside_laundry', stage: 1 } },
           approval: { tae_o: 1 },

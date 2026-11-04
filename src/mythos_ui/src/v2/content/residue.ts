@@ -7,7 +7,7 @@ const t = (ko: string, en: string): Text => ({ ko, en })
 export const RESIDUE: Record<string, Text> = {
   se_rin: t('세린이 왼쪽 어깨를 돌린다. 어디서 다쳤는지는 본인도 모른다.', 'Se-rin rolls her left shoulder. She cannot say where she hurt it.'),
   tae_o: t('태오가 방패 끈을 두 번 조인다. 예전에는 한 번이었다.', 'Tae-o tightens his shield strap twice. It used to be once.'),
-  han: t('한이 문을 나서기 전에 뒤를 한 번 더 본다. 왜 그러냐고 물으면 "그냥"이라고 한다.', 'Han glances back once more before every door. Ask why and he says, “No reason.”'),
+  han: t('한이 문을 나서기 전에 뒤를 한 번 더 본다. 왜 그러냐고 물으면 “그냥”이라고 한다.', 'Han glances back once more before every door. Ask why and he says, “No reason.”'),
   su_ah: t('수아가 쉬는 동안에도 망치 손잡이를 놓지 않는다.', 'Su-ah keeps a hand on her hammer even at rest.'),
   kai: t('카이가 꿈 기록에 없는 장면 하나를 적는다. 바닥에 누워 천장을 보는 장면이다.', 'Kai logs a dream that is not on file: lying on a floor, looking at a ceiling.'),
   lin_yue: t('린위에가 장부에 빚 하나를 적었다가 지운다. 누구한테 진 빚인지 기억나지 않는다.', 'Lin Yue writes down a debt and strikes it out. She cannot recall who she owes.'),

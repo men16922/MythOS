@@ -34,8 +34,8 @@ export const ORIGIN_ENDINGS: EndingDef[] = [
     title: { ko: '끝나지 않는 저항', en: 'The Resistance Goes On' },
     image: 'v2/ending/ending_endless_resistance.webp',
     text: {
-      ko: '루프 엔진을 끄지 않는다. 대신 엔진실 벽에 낙서를 남긴다. "다음 접속자에게. 여기까지 올 수 있다." 다음 루프의 누군가가 그 글씨를 읽고 웃을 것이다.',
-      en: 'You do not shut the loop engine down. You leave graffiti on the engine-room wall instead: "To the next connector. You can make it this far." Someone in the next loop will read it and smile.',
+      ko: '루프 엔진을 끄지 않는다. 대신 엔진실 벽에 낙서를 남긴다. “다음 접속자에게. 여기까지 올 수 있다.” 다음 루프의 누군가가 그 글씨를 읽고 웃을 것이다.',
+      en: 'You do not shut the loop engine down. You leave graffiti on the engine-room wall instead: “To the next connector. You can make it this far.” Someone in the next loop will read it and smile.',
     },
     requires: { minAct: 6, axis: { axis: 'resilience', min: 10 } }, // every elite and boss win adds 1
     choice: { ko: '다음 접속자에게 길을 남긴다', en: 'Leave the way open for the next connector' },
@@ -73,8 +73,8 @@ export const ORIGIN_ENDINGS: EndingDef[] = [
     title: { ko: '첫 번째 접속 기록', en: 'The First Record' },
     image: 'v2/ending/ending_first_record.webp',
     text: {
-      ko: '그림자가 무너지며 마지막 기록을 건넨다. 첫 루프의 첫 줄. "누군가 이 도시를 기억해 주기를." 그 문장을 쓴 것은 IX도, 오메가도 아니었다. 처음부터 당신이었다. 이제 반복할 이유가 없다. 당신은 문장 끝에 마침표를 찍는다.',
-      en: 'The shadow collapses and hands you the last record: the first line of the first loop. "Let someone remember this city." Neither IX nor Omega wrote it. It was you, from the start. There is no reason left to repeat. You put a full stop at the end of the sentence.',
+      ko: '그림자가 무너지며 마지막 기록을 건넨다. 첫 루프의 첫 줄. “누군가 이 도시를 기억해 주기를.” 그 문장을 쓴 것은 IX도, 오메가도 아니었다. 처음부터 당신이었다. 이제 반복할 이유가 없다. 당신은 문장 끝에 마침표를 찍는다.',
+      en: 'The shadow collapses and hands you the last record: the first line of the first loop. “Let someone remember this city.” Neither IX nor Omega wrote it. It was you, from the start. There is no reason left to repeat. You put a full stop at the end of the sentence.',
     },
     requires: { minAct: 6, flag: 'first_connector_won' },
     secret: true,

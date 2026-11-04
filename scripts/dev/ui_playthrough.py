@@ -506,11 +506,13 @@ def play_one(
             return True, f"ended ({result_of(page)})", seen
         if god and st["kind"] not in ("none", "ended"):
             # QA stress mode: the bot is dumb, so keep it alive to reach the later screens (HP is the only thing changed).
+            # The top-up happens between polls, so it must leave room for one whole enemy phase (a Sea Act 6 elite
+            # once dealt more than the old 30-HP threshold in one turn and ended an assisted run).
             res = page.evaluate(
                 """() => { const r = window.__m2.run; if (!r) return 'norun';
                   const c = r.screen.kind === 'combat' ? r.screen.combat : null;
                   const me = c && c.units.find((u) => u.defId === 'connector');
-                  if (me && me.hp < 30) { me.hp = me.maxHp = 120; window.__m2.setRun({ ...r }) }
+                  if (me && me.hp < Math.max(60, me.maxHp * 0.6)) { me.hp = me.maxHp = Math.max(120, me.maxHp); window.__m2.setRun({ ...r }) }
                   else if (!c && r.hp < 60) { window.__m2.setRun({ ...r, hp: 150, maxHp: 150 }); return 'topped' } return 'noop' }"""
             )
             if os.environ.get("PLAYTHROUGH_DEBUG"):

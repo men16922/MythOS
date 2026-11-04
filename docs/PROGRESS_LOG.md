@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Companion-only options for the DLC and Sea companions (Claude Opus 5.5, same goal)
+
+- Io, Miro, Doyun, Bel and Rem had one personal event each and no companion-only option anywhere; Mujin, Seo-ha and Parang had none either. Sixteen options added to fitting existing events (two each; Rem in the two Act 5 quiet scenes, the Sea trio in Sea scenes), each a small reward plus a bond for that companion (the content rule: a gated bond only bonds the gating companion). Insert indentation fixed before commit.
+- **Verified**: content + event-balance tests; UI with the companion deployed (Io reading lamp KO, Rem tin garden EN 390 px, Mujin salt stars KO, Doyun dumplings EN) showed and resolved the option, bond +1, 0 console errors. Deep and Sea canonical identical before/after (32.0 %, 26.7 %).
+
 ## 2026-11-04 — Four more Outside the List scenes (26), full English run (Claude Opus 5.5, same goal)
 
 - `outside_ev_cat` (the cat the Crew don't count), `outside_ev_bathhouse` (the boiler kept on for workers off the list), `outside_ev_seal` (name seals stamped where the registration number should go), `outside_ev_vending` (a machine that serves anyone who knows the knock); Codex art (unreviewed). One hint ran over the length limit and was shortened. 26 route events.
@@ -98,8 +103,3 @@ Last updated: 2026-11-04
 
 - `a3_cb_bus` (got the last bus out → Driver Gwang now drives a Spire staff shuttle, the cancelled card still on the dashboard: ride it, −12 Trace/+6 HP, or hear all forty-one got home, +4◈/consumable); Codex art. 31 callbacks.
 - **Verified**: content + event-balance tests; UI KO 1280×720 / EN 390×844 resolved, 0 console errors. Full UI playthroughs with all 34 districts in: Deep + Signal+ victory (21 min, 36 district polls), Sea + Signal+ victory (26 min, 40), no errors.
-
-## 2026-11-04 — Third Outside the List district, The Last-Bus Depot (Claude Opus 5.5, same goal)
-
-- `d2_outside_bus_depot` (route `outside`): the night bus that takes off-list workers home is scrapped tonight once the Crew recalls its route card. Find a card the system still accepts (Driver Gwang's cancelled-but-never-expired card, Tae-o checking the bus, or arguing the dispatch machine into "undetermined means allowed"), then get the bus out → boss **weaken**. 2 personas, scene + 2 portraits by Codex (unreviewed). The route now draws 2 of 3 (route test updated to "two route districts").
-- **Verified**: content + route tests; UI two quest paths to stage 2 (1280×720, 390×844), 0 console errors; local Ollama: Gwang drifted into 반말 and then denied tonight was the last run, both fixed by stating them in the persona (LESSONS line added for the pattern).

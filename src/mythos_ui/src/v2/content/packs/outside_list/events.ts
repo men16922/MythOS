@@ -614,6 +614,15 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
           effects: [{ kind: 'trace', amount: -3 }],
         },
       },
+      {
+        label: t('도윤이 쉼터 줄을 센다', 'Doyun counts the shelter line'),
+        hint: t('파티 회복 6 · 도윤 유대 +1', 'heal party 6 · Doyun bond +1'),
+        requires: { companion: 'doyun' },
+        success: {
+          text: t('도윤이 줄을 세 번 센다. 만두 개수와 맞는다. 맨 끝 사람까지 하나씩 돌아간다.', 'Doyun counts the line three times. It matches the dumplings. Everyone, to the last person, gets one.'),
+          effects: [{ kind: 'heal_party', amount: 6 }, { kind: 'bond', id: 'doyun', amount: 1 }],
+        },
+      },
     ],
   },
   {

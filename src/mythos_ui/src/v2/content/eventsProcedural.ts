@@ -450,6 +450,15 @@ export const PROCEDURAL_EVENTS: EventDef[] = [
           effects: [{ kind: 'trace', amount: -4 }],
         },
       },
+      {
+        label: t('무진이 딱지를 하역조 방식으로 떼 준다', 'Mujin peels the tag the crew’s way'),
+        hint: t('◈ +4 · 무진 유대 +1', '+4 ◈ · Mujin bond +1'),
+        requires: { companion: 'mujin' },
+        success: {
+          text: t('무진이 손톱으로 딱지 귀퉁이를 들고 단번에 뗀다. “이건 기술이야.” 경보 칩은 울리지 않는다.', 'Mujin lifts a corner with a thumbnail and peels it in one go. “There’s a knack.” The alarm chip stays silent.'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'bond', id: 'mujin', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['seizure tag', 'dry harbor', 'stranger hiding'],
   },
@@ -493,6 +502,15 @@ export const PROCEDURAL_EVENTS: EventDef[] = [
         success: {
           text: t('뒤에서 그가 촛불 개수를 다시 센다.', 'Behind you they count the candles again.'),
           effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+      {
+        label: t('파랑이 그 기억의 주인을 알아본다', 'Parang knows whose memory it is'),
+        hint: t('추적 −5 · ◈ +3 · 파랑 유대 +1', '−5 Trace · +3 ◈ · Parang bond +1'),
+        requires: { companion: 'parang' },
+        success: {
+          text: t('파랑이 물에 젖은 사람의 손을 잡는다. “그 생일, 바지선 시장 할머니 아들 거야.” 주인이 정해지자 눈빛이 하나로 돌아온다.', 'Parang takes the wet stranger’s hand. “That birthday is the barge-market woman’s son’s.” Once it has an owner, their eyes settle back into one.'),
+          effects: [{ kind: 'trace', amount: -5 }, { kind: 'echoes', amount: 3 }, { kind: 'bond', id: 'parang', amount: 1 }],
         },
       },
     ],
@@ -541,6 +559,15 @@ export const PROCEDURAL_EVENTS: EventDef[] = [
         success: {
           text: t('등불 빛이 안개 속에서 점점 작아진다.', 'The lamplight shrinks in the fog.'),
           effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+      {
+        label: t('서하가 옛 교대 암구호를 댄다', 'Seo-ha gives the old relief password'),
+        hint: t('소모품 · 서하 유대 +1', 'consumable · Seo-ha bond +1'),
+        requires: { companion: 'seo_ha' },
+        success: {
+          text: t('서하가 한 단어를 말한다. 등대단원이 눈을 크게 뜬다. “그건 우리 할머니 때 암구호인데.” 보급 꾸러미를 건넨다.', 'Seo-ha says one word. The Keeper’s eyes widen. “That was the password in my grandmother’s day.” A supply bundle is handed over.'),
+          effects: [{ kind: 'consumable' }, { kind: 'bond', id: 'seo_ha', amount: 1 }],
         },
       },
     ],

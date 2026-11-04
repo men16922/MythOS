@@ -404,6 +404,15 @@ export const MACHINE_EVENTS: EventDef[] = [
           effects: [{ kind: 'trace', amount: -4 }],
         },
       },
+      {
+        label: t('렘이 정원 기계들 곁에서 기다린다', 'Rem waits beside the garden machines'),
+        hint: t('+8 HP · 렘 유대 +1', '+8 HP · Rem bond +1'),
+        requires: { companion: 'rem' },
+        success: {
+          text: t('렘이 잠든 기계들 옆에 앉는다. 종료 명령 대신 다음 소리를 기다린다. 당신도 잠깐 쉰다.', 'Rem sits beside the sleeping machines, waiting for the next sound instead of a shutdown order. You rest a while too.'),
+          effects: [{ kind: 'hp', amount: 8 }, { kind: 'bond', id: 'rem', amount: 1 }],
+        },
+      },
     ],
   },
   {
@@ -431,6 +440,15 @@ export const MACHINE_EVENTS: EventDef[] = [
         success: {
           text: t('발밑은 어둡고 머리 위에서만 빛이 움직인다. 순찰 렌즈가 크레인을 좇는 동안 묘역을 지난다.', 'The ground stays dark while light moves overhead. You cross the graveyard as the patrol lenses follow the cranes.'),
           effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+      {
+        label: t('렘이 크레인 불빛을 끄지 않고 둔다', 'Rem leaves the crane lights on'),
+        hint: t('◈ +4 · 렘 유대 +1', '+4 ◈ · Rem bond +1'),
+        requires: { companion: 'rem' },
+        success: {
+          text: t('렘의 손이 스위치 앞에서 멈춘다. “예전엔 끄는 게 일이었어요.” 불빛은 그대로 둔다.', 'Rem’s hand stops at the switch. “Switching off used to be my job.” The lights stay on.'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'bond', id: 'rem', amount: 1 }],
         },
       },
     ],

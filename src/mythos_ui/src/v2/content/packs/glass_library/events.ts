@@ -711,6 +711,15 @@ export const GLASS_EVENTS: EventDef[] = [
           effects: [{ kind: 'echoes', amount: 3 }, { kind: 'hp', amount: 4 }],
         },
       },
+      {
+        label: t('이오에게 대기 순서를 정리하게 한다', 'Let Io organise the queue'),
+        hint: t('◈ +3 · 이오 유대 +1', '+3 ◈ · Io bond +1'),
+        requires: { companion: 'io' },
+        success: {
+          text: t('이오가 대기자마다 번호 대신 읽던 쪽수를 적어 준다. “다음 분은 백십이 쪽부터입니다.”', 'Io notes each reader’s page instead of a number. “Next, from page one hundred and twelve.”'),
+          effects: [{ kind: 'echoes', amount: 3 }, { kind: 'bond', id: 'io', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['reading lamp', 'queue of readers', 'one lamp for everyone'],
   },
@@ -745,6 +754,15 @@ export const GLASS_EVENTS: EventDef[] = [
           effects: [{ kind: 'trace', amount: -5 }],
         },
       },
+      {
+        label: t('이오에게 각주를 대신 읽게 한다', 'Let Io read the footnotes for you'),
+        hint: t('추적 −6 · 이오 유대 +1', '−6 Trace · Io bond +1'),
+        requires: { companion: 'io' },
+        success: {
+          text: t('이오가 각주를 빠르게 읽어 넘긴다. 당신에 관한 줄에서만 잠깐 멈춘다. 아무 말도 하지 않는다.', 'Io reads the footnotes off quickly, pausing only at the lines about you. Says nothing.'),
+          effects: [{ kind: 'trace', amount: -6 }, { kind: 'bond', id: 'io', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['footnote stairs', 'small print', 'notes about you'],
   },
@@ -777,6 +795,24 @@ export const GLASS_EVENTS: EventDef[] = [
         failure: {
           text: t('기계가 경보를 울린다. “반송 처리 오류.”', 'The machine alarms: “Return processing error.”'),
           effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('미로가 편지 하나를 소리 내어 읽는다', 'Miro reads one letter aloud'),
+        hint: t('◈ +4 · 미로 유대 +1', '+4 ◈ · Miro bond +1'),
+        requires: { companion: 'miro' },
+        success: {
+          text: t('미로가 속삭이듯 읽는다. 받는 사람 이름 자리에서 멈추고 자기 이름을 넣어 읽는다. “…이렇게라도 받으면 좋잖아.”', 'Miro whispers it out. At the addressee’s name Miro pauses and reads their own instead. “…At least someone gets it.”'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'bond', id: 'miro', amount: 1 }],
+        },
+      },
+      {
+        label: t('벨이 반송 도장을 읽는다', 'Bel reads the return stamps'),
+        hint: t('추적 −5 · 벨 유대 +1', '−5 Trace · Bel bond +1'),
+        requires: { companion: 'bel' },
+        success: {
+          text: t('“이 도장, 검열단 거야. 수취인을 지운 게 아니라 주소를 지운 거지.” 벨이 편지 묶음을 수레에서 빼낸다.', '“That stamp’s the Censorate’s. They didn’t erase the people, they erased the addresses.” Bel lifts a bundle off the cart.'),
+          effects: [{ kind: 'trace', amount: -5 }, { kind: 'bond', id: 'bel', amount: 1 }],
         },
       },
     ],

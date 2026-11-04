@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Third Outside the List district, The Last-Bus Depot (Claude Opus 5.5, same goal)
+
+- `d2_outside_bus_depot` (route `outside`): the night bus that takes off-list workers home is scrapped tonight once the Crew recalls its route card. Find a card the system still accepts (Driver Gwang's cancelled-but-never-expired card, Tae-o checking the bus, or arguing the dispatch machine into "undetermined means allowed"), then get the bus out → boss **weaken**. 2 personas, scene + 2 portraits by Codex (unreviewed). The route now draws 2 of 3 (route test updated to "two route districts").
+- **Verified**: content + route tests; UI two quest paths to stage 2 (1280×720, 390×844), 0 console errors; local Ollama: Gwang drifted into 반말 and then denied tonight was the last run, both fixed by stating them in the persona (LESSONS line added for the pattern).
+
 ## 2026-11-04 — The Crew Dormitory and the Gray Shallows come back (Claude Opus 5.5, same goal)
 
 - `sea5_cb_dorm` (kept the dormitory → Cook Yeong's tide table on the breakwater post marks you passing: +12 HP, or move by the flood times, −12 Trace/+2◈) and `sea6_cb_shallows` (brought back the child's voice → it sings in the causeway fog and thins it: −12 Trace/+3◈ or +12 HP); Codex art (unreviewed). 30 callbacks.

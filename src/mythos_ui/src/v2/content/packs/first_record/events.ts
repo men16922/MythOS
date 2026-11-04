@@ -697,6 +697,15 @@ export const ORIGIN_EVENTS: EventDef[] = [
           effects: [{ kind: 'trace', amount: -6 }, { kind: 'hp', amount: 4 }],
         },
       },
+      {
+        label: t('미로가 자기 이름 활자를 빌려준다', 'Miro lends the type from their own name'),
+        hint: t('+8 HP · 미로 유대 +1', '+8 HP · Miro bond +1'),
+        requires: { companion: 'miro' },
+        success: {
+          text: t('미로가 주머니에서 작은 활자 하나를 꺼낸다. “내 이름엔 하나 남아. 써.” 빈칸이 채워진다.', 'Miro takes a small piece of type from a pocket. “My name has one to spare. Use it.” The gap is filled.'),
+          effects: [{ kind: 'hp', amount: 8 }, { kind: 'bond', id: 'miro', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['missing type', 'typesetter machine', 'your initial'],
   },
@@ -731,6 +740,15 @@ export const ORIGIN_EVENTS: EventDef[] = [
           effects: [{ kind: 'credits', amount: 15 }, { kind: 'trace', amount: -3 }],
         },
       },
+      {
+        label: t('도윤이 자기 자리를 한 칸 내준다', 'Doyun gives up one place'),
+        hint: t('◈ +4 · 도윤 유대 +1', '+4 ◈ · Doyun bond +1'),
+        requires: { companion: 'doyun' },
+        success: {
+          text: t('도윤이 자기 이름을 한 칸 뒤로 민다. “맨 끝은 익숙해요.” 당신 이름이 그 자리에 들어간다.', 'Doyun shifts their own name back one place. “I’m used to the end of the line.” Your name goes in that space.'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'bond', id: 'doyun', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['name index', 'alphabetical city', 'no room for you'],
   },
@@ -758,6 +776,15 @@ export const ORIGIN_EVENTS: EventDef[] = [
         success: {
           text: t('서랍이 하나씩 닫힌다. 쓰이지 않은 도시들이 조용해진다.', 'The drawers close one by one. The unused cities fall quiet.'),
           effects: [{ kind: 'trace', amount: -5 }, { kind: 'hp', amount: 3 }],
+        },
+      },
+      {
+        label: t('벨이 잘린 초안을 알아본다', 'Bel recognises the cut drafts'),
+        hint: t('추적 −6 · ◈ +2 · 벨 유대 +1', '−6 Trace · +2 ◈ · Bel bond +1'),
+        requires: { companion: 'bel' },
+        success: {
+          text: t('벨의 손가락이 서랍 하나에서 멈춘다. “이거 내가 잘랐어. 이유도 안 적었고.” 서랍을 닫지 않는다.', 'Bel’s finger stops at one drawer. “I cut this one. Didn’t even write why.” Bel leaves the drawer open.'),
+          effects: [{ kind: 'trace', amount: -6 }, { kind: 'echoes', amount: 2 }, { kind: 'bond', id: 'bel', amount: 1 }],
         },
       },
     ],

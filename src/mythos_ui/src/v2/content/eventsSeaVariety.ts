@@ -232,6 +232,15 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
           effects: [{ kind: 'echoes', amount: 4 }],
         },
       },
+      {
+        label: t('무진이 아이들을 어깨에 태운다', 'Mujin lifts the kids onto his shoulders'),
+        hint: t('+8 HP · 무진 유대 +1', '+8 HP · Mujin bond +1'),
+        requires: { companion: 'mujin' },
+        success: {
+          text: t('무진이 말없이 아이 하나를 어깨에 올린다. “더 높이서 봐.” 소금 별이 한꺼번에 보인다.', 'Mujin wordlessly lifts a kid onto his shoulders. “Look from higher.” All the salt stars show at once.'),
+          effects: [{ kind: 'hp', amount: 8 }, { kind: 'bond', id: 'mujin', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['quiet wonder', 'salt crystals', 'kids on the harbor floor'],
   },
@@ -262,6 +271,15 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
           effects: [{ kind: 'hp', amount: 8 }, { kind: 'trace', amount: -3 }],
         },
       },
+      {
+        label: t('서하가 등이 갈 물길을 알려 준다', 'Seo-ha shows the lanterns their channel'),
+        hint: t('◈ +4 · 서하 유대 +1', '+4 ◈ · Seo-ha bond +1'),
+        requires: { companion: 'seo_ha' },
+        success: {
+          text: t('서하가 물빛을 보고 한 지점을 가리킨다. 그쪽으로 띄운 등은 조금 더 멀리 간다.', 'Seo-ha reads the water and points. The lanterns floated there go a little farther.'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'bond', id: 'seo_ha', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['quiet wonder', 'paper lanterns', 'names of the erased'],
   },
@@ -290,6 +308,15 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
         success: {
           text: t('등대단원들이 모두 위를 보는 사이, 초소 하나를 소리 없이 지난다.', 'While every Keeper is looking up, you slip past a post without a sound.'),
           effects: [{ kind: 'trace', amount: -8 }, { kind: 'echoes', amount: 2 }],
+        },
+      },
+      {
+        label: t('파랑이 무지개 속 얼굴들을 센다', 'Parang counts the faces in the fog-bow'),
+        hint: t('◈ +5 · 파랑 유대 +1', '+5 ◈ · Parang bond +1'),
+        requires: { companion: 'parang' },
+        success: {
+          text: t('파랑이 안개 무지개를 오래 본다. “다들 웃고 있어.” 그게 누구인지는 말하지 않는다.', 'Parang looks at the fog-bow a long time. “They’re all smiling.” Parang doesn’t say who.'),
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'bond', id: 'parang', amount: 1 }],
         },
       },
     ],

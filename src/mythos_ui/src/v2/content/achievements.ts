@@ -63,6 +63,8 @@ const FIXED: AchievementDef[] = [
   { id: 'ach_sea_unwritten', group: 'ending', name: t('아무도 대신 쓰지 않는다', 'Nobody Writes It for You'), text: t('수평선 너머로 간다.', 'Sail past the horizon.'), when: { kind: 'ending', id: 'ending_sea_unwritten' }, secret: true },
   { id: 'ach_endless_lap', group: 'challenge', name: t('한 바퀴 더', 'One More Lap'), text: t('무한 신호에서 한 바퀴를 돈다.', 'Complete a lap of the Endless Signal.'), when: { kind: 'endlessLap', n: 1 } },
   { id: 'ach_endless_3', group: 'challenge', name: t('잔향 3층', 'Third Layer of Echo'), text: t('무한 신호에서 세 바퀴를 돈다.', 'Complete 3 laps of the Endless Signal.'), when: { kind: 'endlessLap', n: 3 } },
+  // 2026-11-04: with enemy HP doubling per lap, the expert bot falls at laps 0–6 (mean ~3), so lap 5 is the top of it.
+  { id: 'ach_endless_5', group: 'challenge', name: t('잔향 5층', 'Fifth Layer of Echo'), text: t('무한 신호에서 다섯 바퀴를 돈다.', 'Complete 5 laps of the Endless Signal.'), when: { kind: 'endlessLap', n: 5 } },
   { id: 'ach_daily_win', group: 'challenge', name: t('오늘은 이겼다', 'Today, a Win'), text: t('오늘의 시드에서 탈출한다.', 'Escape on the Daily Signal.'), when: { kind: 'dailyWin' } },
   { id: 'ach_terrain_20', group: 'challenge', name: t('도시가 대신 싸웠다', 'The City Fought for You'), text: t('한 루프에서 환경으로 적 20명을 처치한다.', 'Kill 20 enemies with the terrain in one loop.'), when: { kind: 'runTally', stat: 'environmentKills', min: 20 } },
   { id: 'ach_elites_5', group: 'challenge', name: t('정예 사냥', 'Elite Hunt'), text: t('한 루프에서 정예 5명을 쓰러뜨린다.', 'Defeat 5 elites in one loop.'), when: { kind: 'runTally', stat: 'elites', min: 5 } },

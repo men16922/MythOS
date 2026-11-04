@@ -50,7 +50,7 @@ const ids = (p: MetaProfile) => p.achievements ?? []
 
 test('content: every achievement is well formed and points at real content', () => {
   const all = Object.values(C.achievements ?? {})
-  assert.equal(all.length, 80, 'DLC plan §11: 60 achievements + 4 codex completion, +4 for the 2026-11-04 content')
+  assert.equal(all.length, 81, 'DLC plan §11: 60 achievements + 4 codex completion, +5 for the 2026-11-04 content')
   for (const a of all) {
     assert.ok(a.id.startsWith('ach_'), a.id)
     assert.ok(a.name.ko && a.name.en && a.text.ko && a.text.en, `${a.id} text`)

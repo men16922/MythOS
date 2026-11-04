@@ -6,6 +6,7 @@ Last updated: 2026-11-04
 
 - **Found** (Endless sim smoke after the day's changes): `runSim: step limit` was not a stuck loop but a run still alive after 5000 steps. Mixed bot, 12 canonical-style seeds: 9 die in lap 0, the other 3 survive 21–22 laps, bosses dying in 2–5 turns at lap 20. Same on yesterday's `3331ceb` (17 laps), so it predates today: +60 % HP added per lap is linear, the deck/implants/stats compound.
 - **Fixed**: `tuning.endless` `{ hpPct: 100, dmg: 3, compound: true }`: enemy HP doubles per lap (lap 0 unchanged). The three survivors now fall at lap 5 for both the mixed and the greedy bot (60 % compounding: laps 7–8). Setup text and `GAMEPLAY.md` say "doubles"; test that each lap adds more HP than the last.
+- **Breadth**: greedy, 8 fresh seeds: laps 0, 0, 2, 3, 4, 5, 5, 6 (mean ~3). New achievement "Fifth Layer of Echo" (lap 5; 81 in all). English quick playthrough (8 nodes + screen tour) OK.
 
 ## 2026-11-04 — Sea UI run green; chronicle agendas get one AI line per chapter end (Claude Opus 5.5, same goal)
 

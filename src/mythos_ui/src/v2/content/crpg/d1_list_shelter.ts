@@ -305,7 +305,7 @@ const LINEN: DialogueDef = {
           approval: { tae_o: 2 },
           success: {
             text: t('센서가 초록으로 바뀐다. 은솔이 손잡이를 두 번 당겨 노란 문을 연다. 수거원이 길을 비켜 준다.', 'The sensor turns green. Eun-sol pulls twice and opens the yellow door. A collection worker makes room.'),
-            effects: [{ kind: 'quest', id: 'q_shelter', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_shelter', stage: 2 }, { kind: 'codex', id: 'lore_d_capsule_shelter' }],
           },
         },
         {
@@ -315,7 +315,7 @@ const LINEN: DialogueDef = {
           approval: { tae_o: 2 },
           success: {
             text: t('문고리를 당기는 소리가 멎어 있다. 은솔이 바닥에 닿고, 당신 손을 잡아 마지막 경사를 내려 준다.', 'The door-handle checks have stopped. Eun-sol reaches the floor, then takes your hand for the final slope.'),
-            effects: [{ kind: 'quest', id: 'q_shelter', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_shelter', stage: 2 }, { kind: 'codex', id: 'lore_d_capsule_shelter' }],
           },
         },
         {
@@ -326,11 +326,11 @@ const LINEN: DialogueDef = {
           approval: { tae_o: 2, se_rin: 1 },
           success: {
             text: t('센서가 빈 바구니를 세는 동안 두 사람이 노란 문을 지난다. 은솔이 약속대로 문을 다시 닫는다.', 'While the sensor counts an empty basket, you both pass through the yellow door. Eun-sol closes it as promised.'),
-            effects: [{ kind: 'quest', id: 'q_shelter', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_shelter', stage: 2 }, { kind: 'codex', id: 'lore_d_capsule_shelter' }],
           },
           failure: {
             text: t('붉은 점이 당신 등에 앉는다. 당신이 시선을 끄는 사이 은솔이 문을 열고 기다린다. 둘 다 통과하지만 얼굴이 기록된다.', 'A red dot settles on your back. While you draw its attention, Eun-sol opens the door and waits. You both get through, but your face is logged.'),
-            effects: [{ kind: 'trace', amount: 8 }, { kind: 'quest', id: 'q_shelter', stage: 2 }],
+            effects: [{ kind: 'trace', amount: 8 }, { kind: 'quest', id: 'q_shelter', stage: 2 }, { kind: 'codex', id: 'lore_d_capsule_shelter' }],
           },
         },
         {
@@ -339,7 +339,7 @@ const LINEN: DialogueDef = {
           approval: { tae_o: 3, kai: 1 },
           success: {
             text: t('센서가 당신을 기록한다. 은솔이 노란 문을 열어 둔다. 당신까지 들어서자 수거원이 철제 바구니로 문을 받친다.', 'The sensor records you. Eun-sol holds the yellow door. Once you are through, a worker braces it with a steel basket.'),
-            effects: [{ kind: 'trace', amount: 6 }, { kind: 'quest', id: 'q_shelter', stage: 2 }],
+            effects: [{ kind: 'trace', amount: 6 }, { kind: 'quest', id: 'q_shelter', stage: 2 }, { kind: 'codex', id: 'lore_d_capsule_shelter' }],
           },
         },
         {

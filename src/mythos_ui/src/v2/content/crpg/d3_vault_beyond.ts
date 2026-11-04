@@ -263,7 +263,7 @@ const VAULT: DialogueDef = {
               '보조팔이 당신의 움직임을 맞춘다. 공개된 보존 서약에 손을 대자 문이 열린다. 냉각 지도를 복사하고 원본 조각들은 제자리에 놓는다.',
               'The arm matches your movement. You touch the posted preservation pledge and the door opens. You copy the cooling map, leaving the original shards in place.',
             ),
-            effects: [{ kind: 'quest', id: 'q_vault_beyond', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_vault_beyond', stage: 2 }, { kind: 'codex', id: 'lore_d_two_handles' }],
           },
         },
         {
@@ -275,7 +275,7 @@ const VAULT: DialogueDef = {
               '열람 기록이 길게 쌓이는 동안 손잡이를 놓지 않는다. 문이 열리자 냉각 지도만 복사한다. 기억들은 안에서 계속 작은 망치를 두드린다.',
               'You hold the handle as the access log grows. When the door opens, you copy only the cooling map. The memories keep tapping their little hammers inside.',
             ),
-            effects: [{ kind: 'quest', id: 'q_vault_beyond', stage: 2 }, { kind: 'trace', amount: 5 }],
+            effects: [{ kind: 'quest', id: 'q_vault_beyond', stage: 2 }, { kind: 'codex', id: 'lore_d_two_handles' }, { kind: 'trace', amount: 5 }],
           },
         },
         {
@@ -301,7 +301,7 @@ const VAULT: DialogueDef = {
               '“거기서 기다려. 좋아, 이제 됐어.” 기억이 받침에 안착한다. 냉각 지도의 경비 전원선까지 복사된다. 수아가 빈 집게로 당신 손등을 가볍게 두드린다.',
               '“Hold there. Good. That’s it.” The memory settles on its cradle. The map copies, guard power lines included. Su-ah taps your hand lightly with the empty tongs.',
             ),
-            effects: [{ kind: 'quest', id: 'q_vault_beyond', stage: 2 }, { kind: 'inspiration', amount: 1 }],
+            effects: [{ kind: 'quest', id: 'q_vault_beyond', stage: 2 }, { kind: 'codex', id: 'lore_d_two_handles' }, { kind: 'inspiration', amount: 1 }],
           },
         },
         {
@@ -309,7 +309,7 @@ const VAULT: DialogueDef = {
           intent: 'leave',
           success: {
             text: t('수아가 혼자 조각을 내려놓고 나온다. “닫아도 돼.” 지도의 경비 전원선이 손안에서 희미하게 빛난다.', 'Su-ah sets the shard down and steps out. “You can close it.” The guard power lines on the copied map glow faintly in your hand.'),
-            effects: [{ kind: 'quest', id: 'q_vault_beyond', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_vault_beyond', stage: 2 }, { kind: 'codex', id: 'lore_d_two_handles' }],
           },
         },
       ],

@@ -175,6 +175,30 @@ export const ROUTE_LORE: LoreEntry[] = [
     },
   },
   {
+    id: 'lore_d_capsule_shelter',
+    title: { ko: '복지 캡슐 숙소', en: 'The Welfare-Capsule Shelter' },
+    text: {
+      ko: '복지 캡슐 숙소 입구에는 새 최적화 명단이 붙는다. 천장의 스캔 등은 빈 침대를 센다. 명단에 오른 사람은 대개 자기가 왜 올랐는지 모른다. 숙직 관리대 화면에는 모두 잠들어 있다고 뜬다. 세탁물 투입구 센서는 지나가는 것마다 빨간 점을 찍는다. 수거 작업으로 표시된 것은 세지 않는다.',
+      en: 'A fresh optimization list goes up at the welfare-capsule shelter’s entrance, and a scanning light on the ceiling counts empty beds. Most people on the list don’t know why they are on it. The night desk display says everyone is asleep. The linen-chute sensor marks everything that passes with a red dot, except what is tagged as a collection run.',
+    },
+  },
+  {
+    id: 'lore_d_blind_interval',
+    title: { ko: '센서의 빈틈', en: 'The Blind Interval' },
+    text: {
+      ko: '야시장 아래 천장에는 그리드 센서가 빼곡하다. 그런데 두 센서의 기록이 합쳐지는 순간마다 한쪽을 잠깐 보지 않는다. 그 틈에는 기둥 하나만 들어간다. 한이 그 틈을 찾았다. 율이 그 아래에 분필로 웃는 얼굴을 그려 두었다. 기둥 뒤 샛문에는 손바닥 자국이 겹겹이 남아 있다.',
+      en: 'Grid sensors crowd the ceiling beneath the night market, but each time two sensor logs merge, the grid stops watching one side for a moment. The gap is one pillar wide. Han found it; Yul drew a chalk smile beneath it. On the hatch behind that pillar, palm marks overlap.',
+    },
+  },
+  {
+    id: 'lore_d_two_handles',
+    title: { ko: '두 손잡이 금고', en: 'The Two-Handled Vault' },
+    text: {
+      ko: 'ARK는 거부된 기억을 두 사람이 함께 열어야 하는 금고에 보관한다. 접수 서식에는 두 번째 작업자 칸이 있다. 안에서 한 사람이 잠들면 다른 사람이 깨워야 하기 때문이다. 손잡이 하나는 닳아 반질반질하다. 다른 하나는 천에 덮여 있다. 금고 안의 기억들은 버려진 것이 아니다. 걸려서 못 나오고 있을 뿐이다.',
+      en: 'ARK keeps rejected memories in a vault that takes two people to open. The intake form has a box for a second operator: if one falls asleep inside, the other must wake them. One handle is worn smooth; the other is covered with cloth. The memories inside were not thrown away. They are only stuck.',
+    },
+  },
+  {
     id: 'lore_d_errata',
     title: { ko: '정오표', en: 'The Errata' },
     text: {

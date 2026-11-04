@@ -312,7 +312,7 @@ const HATCH: DialogueDef = {
           approval: { han: 1 },
           success: {
             text: t('운반 작업 표시가 켜진다. 당신은 계단까지 건너가 화살표와 돌아올 때의 점을 그린다.', 'The cargo indicator lights up. You cross to the stairs and draw an arrow, plus a waiting dot for the return.'),
-            effects: [{ kind: 'quest', id: 'q_shortcut', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_shortcut', stage: 2 }, { kind: 'codex', id: 'lore_d_blind_interval' }],
           },
         },
         {
@@ -322,7 +322,7 @@ const HATCH: DialogueDef = {
           approval: { han: 2 },
           success: {
             text: t('클릭 두 번 사이로 발을 옮긴다. 돌아보면 센서는 빈 기둥을 본다. 마른 벽에 분필이 선명하게 남는다.', 'You move between the two clicks. Behind you, the sensor watches an empty pillar. Chalk stands out on the dry wall.'),
-            effects: [{ kind: 'quest', id: 'q_shortcut', stage: 2 }, { kind: 'trace', amount: -4 }],
+            effects: [{ kind: 'quest', id: 'q_shortcut', stage: 2 }, { kind: 'codex', id: 'lore_d_blind_interval' }, { kind: 'trace', amount: -4 }],
           },
         },
         {
@@ -334,11 +334,11 @@ const HATCH: DialogueDef = {
           approval: { han: 1 },
           success: {
             text: t('붉은 점이 물러날 때 벽을 탄다. 발자국 하나 없이 계단까지 와서 길을 표시한다.', 'You hug the wall as the red dot retreats. At the stairs, you mark the route without leaving a recorded step.'),
-            effects: [{ kind: 'quest', id: 'q_shortcut', stage: 2 }],
+            effects: [{ kind: 'quest', id: 'q_shortcut', stage: 2 }, { kind: 'codex', id: 'lore_d_blind_interval' }],
           },
           failure: {
             text: t('센서가 어깨를 잡아낸다. 당신은 계단으로 빠져나와 표시 아래 경고도 남긴다. ‘여기서 찍힘.’', 'The sensor catches your shoulder. You reach the stairs and add a warning beneath your mark: “Spotted here.”'),
-            effects: [{ kind: 'trace', amount: 7 }, { kind: 'quest', id: 'q_shortcut', stage: 2 }],
+            effects: [{ kind: 'trace', amount: 7 }, { kind: 'quest', id: 'q_shortcut', stage: 2 }, { kind: 'codex', id: 'lore_d_blind_interval' }],
           },
         },
         {
@@ -346,7 +346,7 @@ const HATCH: DialogueDef = {
           intent: 'insight',
           success: {
             text: t('센서가 얼굴을 기록하지만 막힌 문은 없다. 계단에 닿아 안전한 발판과 노출 지점을 함께 그린다.', 'The sensor records your face, but no door blocks you. At the stairs you mark both safe footing and exposed ground.'),
-            effects: [{ kind: 'trace', amount: 6 }, { kind: 'quest', id: 'q_shortcut', stage: 2 }],
+            effects: [{ kind: 'trace', amount: 6 }, { kind: 'quest', id: 'q_shortcut', stage: 2 }, { kind: 'codex', id: 'lore_d_blind_interval' }],
           },
         },
         {

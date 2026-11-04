@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-04
 
-## 2026-11-04 — District codex lore, 25 districts (Claude Opus 5.5, same goal)
+## 2026-11-04 — District codex lore, 28 districts (Claude Opus 5.5, same goal)
 
 - Only one district (Glass Atrium) awarded a codex entry. Four districts whose quests reveal setting facts now award one on their final stage: `lore_d_errata` (Errata Office: the "stet" mark), `lore_d_crane_chapel`, `lore_d_old_beat` (Foghorn Post: the old beat meant "clear to enter"), `lore_d_letters` (Cable Station: "we only wanted to see the sea"; the Lightkeeper's promise stays for the ending). The lore-award test now counts district choices like the flag guards do. 45 lore.
 - **Verified**: content + achievements tests; UI: all four to stage 2 (Errata Office and Cable Station at 1280×720, Foghorn Post and Crane Chapel at 390 px), each run's codex gained its entry, 0 console errors.
@@ -12,6 +12,7 @@ Last updated: 2026-11-04
 - Four late Deep districts: `lore_d_off_pitch` (Scrap Choir), `lore_d_minus_forty` (Cold Storage), `lore_d_struck_streets` (First Draft), `lore_d_margins` (Margin Notes), kept distinct from the existing "same kitchen" and "Loop Engine's margins" entries. 59 lore; 18 districts. **Verified**: content tests; UI: all four to stage 2 (two at 390 px, two at 1280×720), codex gained each entry, 0 console errors.
 - Name Archive (`lore_d_paper_roll`), Cut Names (`lore_d_name_drawer`), Forbidden Index (`lore_d_reversed_marks`). Skipped on purpose: Dream Stacks (Kai's dream is "not proof of an origin"), Return Desk (Miro and vault access) and Old Wound (Tae-o's own account); a codex line there would state canon the districts leave open. 62 lore; 21 districts. **Verified**: content tests; UI: all three to stage 2, codex gained each entry, 0 console errors.
 - Act 1–2: Substation 17 (`lore_d_substation`), Hand-Crank Market (`lore_d_crank_lamps`), Transfer Station B3 (`lore_d_2358`), Memory Auction (`lore_d_lot_41`); distinct from the C-17 Blackout, Night Market and Echo Eater entries. Selling the substation line (stage 3) awards nothing. 66 lore; 25 districts. **Verified**: content tests; UI: all four to stage 2 (substation and B3 at 390 px), codex gained each entry, 0 console errors.
+- Shelter (`lore_d_capsule_shelter`), Runner's Shortcut (`lore_d_blind_interval`), Vault Beyond (`lore_d_two_handles`). 69 lore; 28 of 33 districts. Left without lore on purpose: Spider's Debt (already has `The Water Spider's Debt`), Broker's Request (Lin Yue's commission), Dream Stacks, Return Desk, Old Wound. **Verified**: content tests; UI: all three to stage 2 (two at 390 px), codex gained each entry, 0 console errors.
 
 ## 2026-11-04 — Curly quotes everywhere; English Sea run (Claude Opus 5.5, same goal)
 

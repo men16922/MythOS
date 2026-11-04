@@ -179,6 +179,7 @@ const LIST: DialogueDef = {
         {
           label: t('‘그대로 둘 것’ 부호를 그린다', 'Draw the ‘stet’ mark'),
           intent: 'offer',
+          approval: { miro: 1, bel: 1 },
           requires: { flag: 'eo_stet', quest: { id: 'q_errata', stage: 1 } },
           success: {
             text: t('점 세 개와 짧은 선. 정오표의 그 줄이 고칠 목록에서 빠진다. 오자의 윤곽이 처음으로 또렷해진다.', 'Three dots and a short line. That line leaves the list to fix. For the first time, Oja’s outline is sharp.'),

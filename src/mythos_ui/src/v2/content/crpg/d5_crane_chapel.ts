@@ -179,6 +179,7 @@ const LINE: DialogueDef = {
         {
           label: t('필의 장부대로 크레인에 넘긴다', 'Hand it to the crane, as Pil logged it'),
           intent: 'offer',
+          approval: { doyun: 1 },
           requires: { flag: 'cc_ledger', quest: { id: 'q_crane_chapel', stage: 1 } },
           success: {
             text: t('들보의 갈고리가 간호 로봇을 조심스럽게 들어 올린다. 새 흙더미가 하나 생긴다. 묘역의 기계들이 감은 눈 아래로 불빛을 한 번 깜빡인다.', 'Deulbo’s hook lifts the nursing robot gently. A new mound appears. Across the graveyard, machines blink their lights once behind closed eyes.'),
@@ -189,7 +190,7 @@ const LINE: DialogueDef = {
           label: t('카이와 함께 로봇을 크레인 아래로 옮긴다', 'Carry it under the crane with Kai'),
           intent: 'offer',
           requires: { flag: 'cc_kai', quest: { id: 'q_crane_chapel', stage: 1 } },
-          approval: { kai: 1 },
+          approval: { kai: 1, rem: 1 },
           success: {
             text: t('카이가 로봇의 체온계를 쥔 손을 감싼다. 들보가 흙을 덮는다. 카이가 낮게 말한다. “꿈 끝까지 꿔.”', 'Kai folds the robot’s hand around its thermometer. Deulbo covers it with earth. Kai says quietly, “Dream it to the end.”'),
             effects: [{ kind: 'quest', id: 'q_crane_chapel', stage: 2 }, { kind: 'inspiration', amount: 1 }],

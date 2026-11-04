@@ -183,6 +183,7 @@ const DRAFT: DialogueDef = {
         {
           label: t('진한 잉크로 거리 이름을 다시 쓴다', 'Rewrite the street name in the dark ink'),
           intent: 'offer',
+          approval: { bel: 1 },
           requires: { flag: 'fd_ink', quest: { id: 'q_first_draft', stage: 1 } },
           success: {
             text: t('이름이 줄 위로 떠오른다. 편집자 펜으로는 다시 지워지지 않는다. 장 끝에서 보스의 그림자가 표시된다.', 'The name rises above the line. The editor’s pen cannot strike it again. At the page’s end, the boss’s shadow is marked.'),
@@ -192,6 +193,7 @@ const DRAFT: DialogueDef = {
         {
           label: t('빼앗은 빨간 펜으로 줄을 지운다', 'Erase the strike with the red pen you took'),
           intent: 'offer',
+          approval: { bel: 1 },
           requires: { flag: 'fd_pen', quest: { id: 'q_first_draft', stage: 1 } },
           success: {
             text: t('편집자의 펜으로 편집자의 줄을 지운다. 거리가 돌아오고, 펜이 손에서 바스러진다.', 'You erase the editor’s line with the editor’s pen. The street comes back; the pen crumbles in your hand.'),

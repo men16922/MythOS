@@ -181,6 +181,7 @@ const MARGIN: DialogueDef = {
         {
           label: t('다음 접속자에게 보스가 먼저 보는 곳을 적는다', 'Write where the boss looks first, for the next connector'),
           intent: 'offer',
+          approval: { miro: 1 },
           requires: { quest: { id: 'q_margin', stage: 1 } },
           success: {
             text: t('적는 동안 알게 된다. 당신도 이 줄을 읽고 여기까지 왔다.', 'As you write, you realise: you read this line too, and that is how you got here.'),
@@ -190,6 +191,7 @@ const MARGIN: DialogueDef = {
         {
           label: t('남겨 둔 쪽에 길게 적는다', 'Write at length on the page Tol skipped'),
           intent: 'offer',
+          approval: { bel: 1 },
           requires: { flag: 'mn_page', quest: { id: 'q_margin', stage: 1 } },
           success: {
             text: t('지워지지 않을 쪽에 한 문단을 남긴다. 다음 루프는 조금 더 빨리 여기에 닿을 것이다.', 'You leave a whole paragraph on the page that will not be erased. Next loop will get here a little sooner.'),

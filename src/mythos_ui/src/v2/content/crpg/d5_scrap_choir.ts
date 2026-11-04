@@ -178,6 +178,7 @@ const CHOIR: DialogueDef = {
         {
           label: t('기준음을 원 한가운데에 울린다', 'Sound the reference note in the middle'),
           intent: 'offer',
+          approval: { rem: 1 },
           requires: { quest: { id: 'q_scrap_choir', stage: 1 } },
           success: {
             text: t('기계들이 한 음으로 모인다. 마지막 마디가 처음으로 끝난다. 묘역 저편 보스 구역의 기계들까지 잠깐 멈춰 듣는다.', 'The machines gather on one note. The last bar ends for the first time. Even the machines in the boss’s sector stop for a moment to listen.'),

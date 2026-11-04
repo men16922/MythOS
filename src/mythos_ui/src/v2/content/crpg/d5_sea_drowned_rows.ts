@@ -181,6 +181,7 @@ const DOOR: DialogueDef = {
         {
           label: t('명부에 남은 성으로 불러 준다', 'Call it by the surname left in the roster'),
           intent: 'offer',
+          approval: { miro: 1 },
           requires: { quest: { id: 'q_sea_rows', stage: 1 } },
           success: {
             text: t('형체가 그 성을 따라 말한다. 두드리던 손이 내려간다. 404호 문이 안에서 조금 열린다.', 'The figure repeats the surname. Its knocking hand drops. Door 404 opens a little from inside.'),
@@ -200,6 +201,7 @@ const DOOR: DialogueDef = {
         {
           label: t('“십칠 번”이라고 부른다', 'Call it “Seventeen”'),
           intent: 'offer',
+          approval: { doyun: -1 },
           requires: { quest: { id: 'q_sea_rows', stage: 1 } },
           check: { stat: 'cha', dc: 13 },
           success: {

@@ -178,6 +178,7 @@ const STOP: DialogueDef = {
         {
           label: t('폐지 노선 카드로 버스를 출발시킨다', 'Start the bus on the cancelled-route card'),
           intent: 'offer',
+          approval: { doyun: 1 },
           requires: { flag: 'outside_bd_card', quest: { id: 'q_outside_bus', stage: 1 } },
           success: {
             text: t('카드가 들어간다. 단말이 잠깐 망설이다 문을 연다. 마흔한 명이 탄다. 정리반이 회수할 카드는 오늘 운행표에 없다.', 'The card goes in. The terminal hesitates, then opens the doors. Forty-one people board. The card the Crew came for isn’t on tonight’s schedule.'),

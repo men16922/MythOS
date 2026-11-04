@@ -197,6 +197,7 @@ const DRAWER: DialogueDef = {
         {
           label: t('티 나지 않는 풀로 이름 하나를 제자리에 붙인다', 'Paste one name back with the seamless paste'),
           intent: 'offer',
+          approval: { miro: 1 },
           requires: { flag: 'cn_paste', quest: { id: 'q_cut_names', stage: 1 } },
           success: {
             text: t(

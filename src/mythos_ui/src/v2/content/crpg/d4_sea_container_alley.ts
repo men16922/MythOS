@@ -188,6 +188,7 @@ const DOOR: DialogueDef = {
         {
           label: t('지붕 길로 가족을 옮긴다', 'Move the family out along the roofs'),
           intent: 'offer',
+          approval: { doyun: 1 },
           requires: { flag: 'sea_ca_roof', quest: { id: 'q_sea_container', stage: 1 } },
           success: {
             text: t('나래가 앞장서고, 엄마가 화분을 안고 따른다. 봉인반은 빈 문에 테이프를 붙인다. 지붕 위의 골목 사람들이 서로 눈짓한다.', 'Narae leads; her mother follows with the tomato in her arms. The sealing team tapes an empty door. On the roofs, the alley’s people exchange looks.'),

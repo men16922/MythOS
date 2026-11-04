@@ -179,6 +179,7 @@ const LINE: DialogueDef = {
         {
           label: t('이름표를 전부 안쪽으로 뒤집어 꿰맨다', 'Turn every tag inward and pin it'),
           intent: 'offer',
+          approval: { doyun: 1 },
           requires: { quest: { id: 'q_outside_laundry', stage: 1 } },
           check: { stat: 'agi', dc: 12 },
           success: {

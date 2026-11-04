@@ -35,6 +35,7 @@ from mythos_v2.npcs import (
     d6_margin_notes,
     d6_sea_cable_station,
     d6_sea_foghorn_post,
+    d6_sea_lens_workshop,
 )
 from mythos_v2.npcs._persona import Persona
 
@@ -72,6 +73,7 @@ for _module in (
     d6_errata_office,
     d4_sea_dormitory,
     d5_sea_shallows,
+    d6_sea_lens_workshop,
 ):
     for _id, _persona in _module.PERSONAS.items():
         if _id in PERSONAS:

@@ -69,3 +69,16 @@ test('local event opening: a procedural event names its cast person, in both lan
   assert.ok(/Mr\. Kang/.test(en), en)
   assert.ok(!/(^|\. |” )old /.test(en), `sentence-initial capital: ${en}`)
 })
+
+test('local act intro: Deep and Sea acts 4–6 get their own place lines (no "signal"), keyed by route', () => {
+  for (const lang of ['ko', 'en'] as const) {
+    const seen = new Set<string>()
+    for (const [act, route] of [[4, ''], [5, ''], [6, ''], [4, 'sea_4'], [5, 'sea_5'], [6, 'sea_6']] as const) {
+      const line = localNarrate('act_intro', lang, { act, route, actName: 'X', loop: 2, party: [] }) ?? ''
+      assert.ok(line.startsWith('X. '), `${act}/${route} ${lang}: ${line}`)
+      assert.ok(!/신호|signal/i.test(line), `${act}/${route} ${lang}: ${line}`)
+      seen.add(line)
+    }
+    assert.equal(seen.size, 6, `${lang}: six different places`)
+  }
+})

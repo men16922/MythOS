@@ -42,10 +42,96 @@ function pickLine(pool: readonly Line[], n: Names | null, seedKey: string): stri
 
 const ordinalKo = (loop: number): string => (loop <= 1 ? '첫' : `${loop}번째`)
 
-function actIntro(ko: boolean, act: number, loop: number, actName: string): Line[] {
+/**
+ * Acts 4–6 of the Deep Signal and of the Unwritten Sea: concrete lines for the place itself (one prop each, no
+ * abstract SF words), keyed by route then act. Unknown routes / later acts fall back to the generic pool below.
+ */
+function deepIntro(ko: boolean, act: number, route: string, at: string): Line[] | null {
+  const key = route.startsWith('sea_') ? route : `deep_${act}`
+  const POOLS: Record<string, [Line[], Line[]]> = {
+    deep_4: [
+      [
+        () => `${at}유리 서가 사이로 발소리가 울린다. 책등의 번호가 하나씩 불을 켠다.`,
+        () => `${at}색인 카드 한 장이 발밑에 떨어져 있다. 이름 칸이 비어 있다.`,
+        (n) => (n ? `${at}${n.ga} 서가에 손을 대려다 멈춘다. “여긴 조용히 걷자.”` : null),
+      ],
+      [
+        () => `${at}Footsteps echo between the glass shelves. The numbers on the spines light up one by one.`,
+        () => `${at}An index card lies at your feet. The name field is blank.`,
+        (n) => (n ? `${at}${n.name} reaches for a shelf, then stops. “Let’s walk quietly here.”` : null),
+      ],
+    ],
+    deep_5: [
+      [
+        () => `${at}바람에 쇳가루가 섞여 온다. 녹슨 크레인들이 고개를 숙이고 있다.`,
+        () => `${at}버려진 기계들이 눈을 감은 채 같은 꿈을 꾼다. 어디선가 빗소리가 난다.`,
+        (n) => (n ? `${at}${n.ga} 고철 더미 사이로 길을 고른다. “밟지 마. 자고 있어.”` : null),
+      ],
+      [
+        () => `${at}The wind carries iron dust. Rusted cranes bow their heads.`,
+        () => `${at}Discarded machines dream the same dream with their eyes shut. Somewhere, the sound of rain.`,
+        (n) => (n ? `${at}${n.name} picks a way between the scrap heaps. “Don’t step on them. They’re asleep.”` : null),
+      ],
+    ],
+    deep_6: [
+      [
+        () => `${at}발밑 타일 하나하나가 문장이다. 밟을 때마다 글자가 조금씩 번진다.`,
+        () => `${at}본문 옆 여백이 넓다. 누군가 먼저 적어 둔 손글씨가 보인다.`,
+        (n) => (n ? `${at}${n.ga} 바닥 글자를 읽다 고개를 든다. “우리 얘기도 여기 있을까.”` : null),
+      ],
+      [
+        () => `${at}Every tile underfoot is a sentence. The letters smear a little with each step.`,
+        () => `${at}The margin beside the text is wide. Someone’s handwriting is already there.`,
+        (n) => (n ? `${at}${n.name} looks up from the words on the floor. “Are we in here too?”` : null),
+      ],
+    ],
+    sea_4: [
+      [
+        () => `${at}물 없는 항구. 배를 묶는 쇠기둥만 줄지어 서 있다.`,
+        () => `${at}갈라진 항구 바닥 위로 작업복 차림의 사람들이 교대 시간을 지켜 걷는다.`,
+        (n) => (n ? `${at}${n.ga} 마른 부두 끝을 내려다본다. “물이 있던 자리야.”` : null),
+      ],
+      [
+        () => `${at}A harbor without water. Only the iron mooring posts stand in a row.`,
+        () => `${at}Across the cracked harbor floor, people in work clothes walk to the shift change on time.`,
+        (n) => (n ? `${at}${n.name} looks down from the end of the dry wharf. “This is where the water was.”` : null),
+      ],
+    ],
+    sea_5: [
+      [
+        () => `${at}항구 바닥 저쪽에서 회색 줄이 다가온다. 파도 소리는 없다. 웅성거림뿐이다.`,
+        () => `${at}발목에 물이 닿자 모르는 사람의 부엌이 떠오른다. 끓는 냄비, 비 오는 창문.`,
+        (n) => (n ? `${at}${n.ga} 밀물을 피해 한 걸음 물러선다. “저 물, 닿지 마.”` : null),
+      ],
+      [
+        () => `${at}Far across the harbor floor, a gray line approaches. No sound of waves. Only murmuring.`,
+        () => `${at}When the water touches your ankle, a stranger’s kitchen comes back to you. A pot boiling, a rainy window.`,
+        (n) => (n ? `${at}${n.name} steps back from the flood. “Don’t let that water touch you.”` : null),
+      ],
+    ],
+    sea_6: [
+      [
+        () => `${at}안개 속 철탑 길. 멀리서 무적이 길게 두 번, 짧게 한 번 운다.`,
+        () => `${at}등대 빛이 안개를 한 바퀴 쓸고 지나간다. 빛이 지나간 자리에서 조수가 물러난다.`,
+        (n) => (n ? `${at}${n.ga} 등대 쪽을 오래 본다. “저기까지 가야 해.”` : null),
+      ],
+      [
+        () => `${at}A steel causeway in the fog. Far off, a foghorn sounds: two long, one short.`,
+        () => `${at}The lighthouse beam sweeps the fog once. Where it passes, the tide falls back.`,
+        (n) => (n ? `${at}${n.name} looks toward the lighthouse a long time. “That’s where we have to go.”` : null),
+      ],
+    ],
+  }
+  const pool = POOLS[key]
+  return pool ? (ko ? pool[0] : pool[1]) : null
+}
+
+function actIntro(ko: boolean, act: number, loop: number, actName: string, route = ''): Line[] {
   // Deep Signal / the Sea (Act 4+): the ARK Spire lines below belong to Act 3 only, so these name the act itself.
   if (act >= 4) {
     const at = actName ? `${actName}. ` : ''
+    const place = deepIntro(ko, act, route, at)
+    if (place) return place
     return ko
       ? [
           () => `${at}신호가 한 층 더 깊어진다. 지난 막의 소음이 발밑에서 멀어진다.`,
@@ -202,7 +288,8 @@ export function localNarrate(kind: LocalNarrateKind, lang: Lang, context: Ctx): 
   if (kind === 'act_intro') {
     const act = Number(context.act ?? 1)
     const loop = Number(context.loop ?? 1)
-    return pickLine(actIntro(ko, act, loop, String(context.actName ?? '')), n, `act|${act}|${loop}|${n?.name ?? ''}`)
+    const route = String(context.route ?? '')
+    return pickLine(actIntro(ko, act, loop, String(context.actName ?? ''), route), n, `act|${act}|${route}|${loop}|${n?.name ?? ''}`)
   }
   if (kind === 'event') {
     const key = `event|${String(context.title ?? '')}|${String(context.choice ?? '')}|${String(context.success ?? '')}|${String(context.loop ?? '')}`

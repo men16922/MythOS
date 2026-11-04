@@ -37,6 +37,8 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
     let alive = true
     void narrateLine('act_intro', lang, {
       act: run.act,
+      // The Sea and the DLC 2 route replace an act's map; the local fallback picks its lines by route.
+      route: run.route ?? '',
       actName: tr(actDef?.name, lang),
       subtitle: tr(actDef?.subtitle, lang),
       loop: run.loop,

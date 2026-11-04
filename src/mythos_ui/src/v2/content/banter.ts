@@ -307,6 +307,72 @@ export const BANTER: BanterDef[] = [
       { who: 'miro', text: t('응. 오늘은 맞아.', 'Yeah. Today I am.') },
     ],
   },
+  // 2026-11-05: six pairs that can share a party but had no exchange (Deep acts 4–6 and the Sea route).
+  {
+    id: 'b_io_kai_index',
+    pair: ['io', 'kai'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'io', text: t('카이 님의 꿈은 서가 어디에도 청구 기호가 없습니다.', 'Your dream, Kai, has no shelf mark anywhere in the stacks.') },
+      { who: 'kai', text: t('그럼 빌려 갈 수도 없겠네요.', 'Then nobody can borrow it.') },
+      { who: 'io', text: t('예. 반납 기한도 없습니다.', 'Correct. Nor is it ever due back.') },
+    ],
+  },
+  {
+    id: 'b_han_io_plug',
+    pair: ['io', 'han'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'io', text: t('한 님은 열람 단말에 한 번도 접속하지 않으셨습니다.', 'Han, you have not once connected to a reading terminal.') },
+      { who: 'han', text: t('꽂으면 내 이름이 장부에 남거든.', 'Plug in and my name stays in the book.') },
+      { who: 'io', text: t('기록하지 않겠습니다. 이번 한 번은.', 'I will not record it. This once.') },
+      { who: 'han', text: t('그 말도 기록 안 할 거지?', 'And you won’t record that either, right?') },
+    ],
+  },
+  {
+    id: 'b_kai_parang_umbrella',
+    pair: ['parang', 'kai'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'parang', text: t('노란 우산. 그거 나도 기억나.', 'A yellow umbrella. I remember it too.') },
+      { who: 'kai', text: t('…정말요? 누구 기억으로요?', '…Really? Whose memory?') },
+      { who: 'parang', text: t('몰라. 우산 아래 있던 사람 거.', 'Don’t know. Whoever was under it.') },
+      { who: 'kai', text: t('그럼 우리 둘 다 빌려 쓰는 거네요.', 'Then we’re both borrowing it.') },
+    ],
+  },
+  {
+    id: 'b_taeo_mujin_shift',
+    pair: ['mujin', 'tae_o'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'mujin', text: t('몇 시 교대냐.', 'What time’s your shift.') },
+      { who: 'tae_o', text: t('없다. 부대가 해산됐다.', 'None. The unit was dissolved.') },
+      { who: 'mujin', text: t('우리도 배가 끊겼지. 그래도 교대는 한다.', 'Our ships stopped too. We still change shifts.') },
+      { who: 'tae_o', text: t('…자정에 서겠다.', '…I’ll take midnight.') },
+    ],
+  },
+  {
+    id: 'b_suah_seoha_hands',
+    pair: ['su_ah', 'seo_ha'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'su_ah', text: t('손 떨리는 거, 언제부터야?', 'Your hands shake. Since when?') },
+      { who: 'seo_ha', text: t('마지막 배를 들여보낸 날부터요. 키를 놓은 손이라.', 'Since the day I brought in the last ship. They let go of the wheel.') },
+      { who: 'su_ah', text: t('약은 없어. 대신 뭘 쥐고 있어 봐.', 'There’s no pill for that. Hold on to something instead.') },
+      { who: 'seo_ha', text: t('그럼 당신 소매 좀 빌릴게요.', 'Then I’ll borrow your sleeve.') },
+    ],
+  },
+  {
+    id: 'b_linyue_parang_ledger',
+    pair: ['lin_yue', 'parang'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'lin_yue', text: t('너, 나한테 빚진 거 있어?', 'Do you owe me anything?') },
+      { who: 'parang', text: t('나는 없어. 이 기억 주인은 있을지도.', 'I don’t. Whoever this memory belongs to might.') },
+      { who: 'lin_yue', text: t('남의 빚은 안 받아. 장부에 네 이름 칸만 비워 둘게.', 'I don’t collect other people’s debts. I’ll just leave a line for your name.') },
+      { who: 'parang', text: t('빈칸 좋아. 거기 아무거나 써도 돼.', 'Good. Write anything there.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

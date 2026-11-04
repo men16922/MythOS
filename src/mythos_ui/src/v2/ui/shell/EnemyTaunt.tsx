@@ -125,6 +125,9 @@ export function EnemyTaunt({ combat, C, lang, settings }: Props) {
     () => () => {
       for (const t of timers.current) window.clearTimeout(t)
       abort.current?.abort()
+      // The cleared timers would have released `busy`; reset it with the fight so a remount can talk again.
+      fight.current = null
+      busy.current = false
     },
     [],
   )

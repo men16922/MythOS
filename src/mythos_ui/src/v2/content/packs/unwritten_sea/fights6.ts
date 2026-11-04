@@ -1245,8 +1245,8 @@ export const SEA6_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'origin',
     name: t('무적', 'The Foghorn'),
     intro: t(
-      '두 번째 적 페이즈에 아래 두 줄이 잠긴다. 나팔의 밀치기가 향할 곳을 확인하라.',
-      'The bottom two rows flood after the second enemy phase; check where the horn will push you.',
+      '철탑 길 끝의 무적이 운다. 길게 둘, 짧게 하나. 안개가 그 박자에 밀린다. 두 번째 적 페이즈에 아래 두 줄이 잠긴다. 나팔의 밀치기가 향할 곳을 확인하라.',
+      'The foghorn at the end of the causeway sounds: two long, one short. The fog is pushed by the beat. The bottom two rows flood after the second enemy phase; check where the horn will push you.',
     ),
     enemies: [
       foe('sea6_foghorn', 6, 2),
@@ -1264,8 +1264,8 @@ export const SEA6_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'origin',
     name: t('렌즈의 성인', 'Saint of the Lens'),
     intro: t(
-      '엄폐물은 광선을 막지 못한다. 추적광은 방어하고 불붙을 십자 칸은 비워라.',
-      'Cover cannot stop beams; block the tracking shot and leave the cross before it burns.',
+      '렌즈 앞에 등대단의 성인이 무릎 꿇고 있다. 성인이 일어서자 빛도 함께 일어선다. 엄폐물은 광선을 막지 못한다. 추적광은 방어하고 불붙을 십자 칸은 비워라.',
+      'The Keepers’ saint kneels before the lens. When it rises, the light rises with it. Cover cannot stop beams; block the tracking shot and leave the cross before it burns.',
     ),
     enemies: [
       foe('sea6_lens_saint', 5, 2),
@@ -1286,8 +1286,8 @@ export const SEA6_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'origin',
     name: t('마지막 등대', 'The Last Lighthouse'),
     intro: t(
-      '세 번째 적 페이즈에 아래 세 줄이 잠긴다. 빙결과 밀치기에 윗길을 잃지 마라.',
-      'The bottom three rows flood after the third enemy phase; keep Freeze and pushes from costing you the upper lanes.',
+      '등대 꼭대기에서 렌즈가 천천히 돈다. 친절한 목소리가 사과부터 한다. 세 번째 적 페이즈에 아래 세 줄이 잠긴다. 빙결과 밀치기에 윗길을 잃지 마라.',
+      'At the top of the lighthouse the lens turns slowly. A courteous voice begins with an apology. The bottom three rows flood after the third enemy phase; keep Freeze and pushes from costing you the upper lanes.',
     ),
     enemies: [foe('sea6_lightkeeper', 5, 1)],
     terrain: [...tiles('cover', [2, 2]), ...tiles('hazard', [6, 4])],
@@ -1304,8 +1304,8 @@ export const SEA6_ENCOUNTERS: EncounterDef[] = [
     backdrop: 'origin',
     name: t('쓰이지 않은 것', 'The Unwritten'),
     intro: t(
-      '두 번째 적 페이즈에 아래 세 줄이 잠긴다. 지워질 기슭과 물이 빠질 길을 함께 보라.',
-      'The bottom three rows flood after the second enemy phase; watch the vanishing shore and your route to dry ground.',
+      '지워진 것들이 고인 물이 일어선다. 여러 목소리가 한꺼번에 우리라고 말한다. 두 번째 적 페이즈에 아래 세 줄이 잠긴다. 지워질 기슭과 물이 빠질 길을 함께 보라.',
+      'The water where erased things pool stands up. Many voices at once say “we”. The bottom three rows flood after the second enemy phase; watch the vanishing shore and your route to dry ground.',
     ),
     enemies: [foe('sea6_unwritten', 5, 1)],
     terrain: [...tiles('cover', [2, 2]), ...tiles('hazard', [6, 4])],

@@ -1154,8 +1154,8 @@ export const SEA4_ENCOUNTERS: EncounterDef[] = [
     ],
     tide: { pattern: [0, 1, 2, 3, 1, 0] },
     intro: t(
-      '세 번째 적 페이즈엔 아래 세 줄이 잠기니 크레인의 갈고리 방향을 보라.',
-      'By the third enemy phase the bottom three rows flood; watch the crane’s hook direction.',
+      '마른 항구 한가운데, 반장 크레인이 갈고리를 내린다. 운전석은 비어 있다. 세 번째 적 페이즈엔 아래 세 줄이 잠기니 크레인의 갈고리 방향을 보라.',
+      'In the middle of the dry harbor the Foreman Crane lowers its hook. The cab is empty. By the third enemy phase the bottom three rows flood; watch the crane’s hook direction.',
     ),
   },
   {
@@ -1175,8 +1175,8 @@ export const SEA4_ENCOUNTERS: EncounterDef[] = [
       ...tiles('hazard', [4, 0], [4, 4]),
     ],
     intro: t(
-      '봉함 명령서는 이동해도 따라오니 검열로 늘어날 카드 비용과 방어를 함께 계산하라.',
-      'Sealed orders follow movement; budget for both block and the card costs raised by Redact.',
+      '세관장 공유신이 서류 묶음을 가슴에 안고 기다린다. 첫 장에 당신 이름이 있다. 봉함 명령서는 이동해도 따라오니 검열로 늘어날 카드 비용과 방어를 함께 계산하라.',
+      'Commissioner Gong waits with a bundle of sealed papers held close. Your name is on the first page. Sealed orders follow movement; budget for both block and the card costs raised by Redact.',
     ),
   },
   {
@@ -1196,8 +1196,8 @@ export const SEA4_ENCOUNTERS: EncounterDef[] = [
     ],
     tide: { pattern: [1, 2, 3, 2, 0] },
     intro: t(
-      '이미 맨 아래 줄이 잠겼고 두 번째 적 페이즈엔 세 줄이 잠기니 위쪽에 붕괴를 피할 자리를 남겨라.',
-      'The bottom row is already flooded and three rows flood after the second enemy phase; leave room above to escape the collapse.',
+      '빈 컨테이너가 층층이 쌓여 하나의 몸이 된다. 문마다 엑스 자 테이프가 붙어 있다. 이미 맨 아래 줄이 잠겼고 두 번째 적 페이즈엔 세 줄이 잠기니 위쪽에 붕괴를 피할 자리를 남겨라.',
+      'Empty containers stack into a single body. Every door wears an X of tape. The bottom row is already flooded and three rows flood after the second enemy phase; leave room above to escape the collapse.',
     ),
   },
 

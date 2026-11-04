@@ -1075,7 +1075,7 @@ export const SEA5_ENCOUNTERS: EncounterDef[] = [
     kind: 'boss',
     backdrop: 'scrapyard',
     name: t('녹슨 고래', 'The Rust Whale'),
-    intro: t('세 번째 적 페이즈에 가운데 줄까지 잠긴다. 선체 선회가 밀어낼 곳을 미리 확인하라.', 'After the third enemy phase, water reaches the middle row; check where the hull turn will shove you.'),
+    intro: t('잠긴 거리 위로 녹슨 고래가 떠오른다. 옆구리에 남의 이름들이 긁혀 있다. 세 번째 적 페이즈에 가운데 줄까지 잠긴다. 선체 선회가 밀어낼 곳을 미리 확인하라.', 'A rust-eaten whale surfaces over the drowned street, strangers’ names scratched into its side. After the third enemy phase, water reaches the middle row; check where the hull turn will shove you.'),
     enemies: [
       foe('sea5_rust_whale', 5, 2),
       foe('sea5_brine_mite', 6, 0),
@@ -1091,7 +1091,7 @@ export const SEA5_ENCOUNTERS: EncounterDef[] = [
     kind: 'boss',
     backdrop: 'scrapyard',
     name: t('부표 여왕', 'The Buoy Queen'),
-    intro: t('세 번째 적 페이즈에 아래 세 줄이 잠긴다. 추적 교환이 켜지면 여왕이 선 칸도 살펴라.', 'After the third enemy phase, the bottom three rows flood; once homing swaps unlock, watch the Queen’s tile too.'),
+    intro: t('부표들이 원을 그리며 모인다. 가운데 하나만 표지등을 왕관처럼 쓰고 있다. 세 번째 적 페이즈에 아래 세 줄이 잠긴다. 추적 교환이 켜지면 여왕이 선 칸도 살펴라.', 'The buoys gather in a ring. Only the one at the centre wears its marker lamp like a crown. After the third enemy phase, the bottom three rows flood; once homing swaps unlock, watch the Queen’s tile too.'),
     enemies: [
       foe('sea5_buoy_queen', 5, 2),
       foe('sea5_name_scrap', 6, 0),
@@ -1106,7 +1106,7 @@ export const SEA5_ENCOUNTERS: EncounterDef[] = [
     kind: 'boss',
     backdrop: 'scrapyard',
     name: t('해일을 삼키는 자', 'The Surge Eater'),
-    intro: t('첫 적 페이즈에 아래 두 줄이 잠긴다. 끌어당기기와 삼키기를 피할 마른 자리를 남겨라.', 'After the first enemy phase, the bottom two rows flood; keep dry space to escape its pull and swallowing strike.'),
+    intro: t('방파제 너머 물이 한쪽으로 빨려 든다. 무언가 해일을 삼키고 있다. 첫 적 페이즈에 아래 두 줄이 잠긴다. 끌어당기기와 삼키기를 피할 마른 자리를 남겨라.', 'Beyond the breakwater the water drains to one side. Something is swallowing the surge. After the first enemy phase, the bottom two rows flood; keep dry space to escape its pull and swallowing strike.'),
     enemies: [foe('sea5_surge_eater', 5, 2)],
     terrain: [...tiles('cover', [3, 1]), ...tiles('hazard', [6, 0], [6, 4])],
     tide: { pattern: [0, 2, 3, 1, 0] },

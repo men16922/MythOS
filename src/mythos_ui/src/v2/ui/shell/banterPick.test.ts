@@ -78,3 +78,8 @@ test('banter: every pair of companions who can share a party has at least one ex
   }
   assert.deepEqual(silent, [])
 })
+
+test('solo banter: every companion has a line for when they are the only one left', () => {
+  const missing = Object.keys(C.companions).filter((id) => !SOLO_BANTER.some((b) => b.pair[0] === id))
+  assert.deepEqual(missing, [])
+})

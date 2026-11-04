@@ -1049,6 +1049,78 @@ export const SOLO_BANTER: BanterDef[] = [
       { who: 'connector', text: t('수수료 계산은 이 구역을 뚫고 나서 해.', 'Save the commission math until after we breach this sector.') },
     ],
   },
+  // 2026-11-05: the eight later companions had no solo line when they were the only one left.
+  {
+    id: 'b_solo_io_reader',
+    pair: ['io', 'connector'],
+    lines: [
+      { who: 'io', text: t('접속자 님, 이 구역 열람 기록에는 당신 한 명뿐입니다.', 'Connector, you are the only reader logged in this sector.') },
+      { who: 'connector', text: t('그럼 조용히 지나가자.', 'Then let’s pass quietly.') },
+      { who: 'io', text: t('조용히 기록하겠습니다.', 'I will record it quietly.') },
+    ],
+  },
+  {
+    id: 'b_solo_miro_here',
+    pair: ['miro', 'connector'],
+    lines: [
+      { who: 'miro', text: t('…나 아직 여기 있어.', '…I’m still here.') },
+      { who: 'connector', text: t('알아. 미로.', 'I know. Miro.') },
+      { who: 'miro', text: t('…그거면 돼.', '…That’s enough.') },
+    ],
+  },
+  {
+    id: 'b_solo_doyun_count',
+    pair: ['doyun', 'connector'],
+    lines: [
+      { who: 'doyun', text: t('뒤에 아무도 없어요. 확인했어요.', 'Nobody behind us. I checked.') },
+      { who: 'connector', text: t('둘뿐이니까.', 'There are only two of us.') },
+      { who: 'doyun', text: t('그래서 더 자주 세요.', 'That’s why I count more often.') },
+    ],
+  },
+  {
+    id: 'b_solo_bel_padding',
+    pair: ['bel', 'connector'],
+    lines: [
+      { who: 'bel', text: t('네 신호, 군더더기가 없네.', 'Your signal has no padding.') },
+      { who: 'connector', text: t('칭찬이야?', 'Is that a compliment?') },
+      { who: 'bel', text: t('편집자가 할 수 있는 최고의 칭찬.', 'The best an editor can give.') },
+    ],
+  },
+  {
+    id: 'b_solo_rem_sleep',
+    pair: ['rem', 'connector'],
+    lines: [
+      { who: 'rem', text: t('접속자 씨는 접속 끊으면 자요?', 'Connector, when you disconnect, do you sleep?') },
+      { who: 'connector', text: t('가끔.', 'Sometimes.') },
+      { who: 'rem', text: t('그때 어떤 느낌인지 나중에 알려 줘요.', 'Tell me what it feels like, sometime.') },
+    ],
+  },
+  {
+    id: 'b_solo_mujin_shift',
+    pair: ['mujin', 'connector'],
+    lines: [
+      { who: 'mujin', text: t('앞은 내가 본다.', 'I’ll watch the front.') },
+      { who: 'connector', text: t('뒤는?', 'And the back?') },
+      { who: 'mujin', text: t('너. 그게 교대다.', 'You. That’s the shift.') },
+    ],
+  },
+  {
+    id: 'b_solo_seoha_read',
+    pair: ['seo_ha', 'connector'],
+    lines: [
+      { who: 'seo_ha', text: t('물길은 내가 읽을게요. 당신은 사람을 읽어요.', 'I’ll read the water. You read the people.') },
+      { who: 'connector', text: t('공평하네.', 'Fair split.') },
+    ],
+  },
+  {
+    id: 'b_solo_parang_end',
+    pair: ['parang', 'connector'],
+    lines: [
+      { who: 'parang', text: t('이 길, 누가 걸었던 기억이 있어.', 'Someone walked this way. I remember it.') },
+      { who: 'connector', text: t('누가?', 'Who?') },
+      { who: 'parang', text: t('몰라. 근데 끝까지 갔어.', 'Don’t know. But they made it to the end.') },
+    ],
+  },
 ]
 
 export function soloBanterFor(companionId: string, act: ActId): BanterDef[] {

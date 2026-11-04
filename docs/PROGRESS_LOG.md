@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Second Sea districts for Acts 5 and 6 (Claude Opus 5.5, same goal)
+
+- Every Sea act now places two, like the base acts. `d5_sea_drowned_rows` (a Residue figure in a soaked school uniform knocks on 404 every tide waiting to be called; find what the roster and a tide-touched man remember, then call it by the surname, "Seventeen", or a name Parang gives → **weaken**) and `d6_sea_cable_station` (one letter to the Lightkeeper keeps resending on relay 7; send it up the lens-room line Knot kept joined, or carry it yourself → **marked**). 5 personas, 2 scenes + 5 portraits by Codex (unreviewed). 27 districts / 80 NPCs.
+- **Verified**: content + route + chronicle tests; UI to quest stage 2 (1280×720, 390×844), 0 console errors; local Ollama 5/5 in character (Ryu deflects a stranger, plausible). Full Sea UI playthrough with these two: not run (engine unchanged since the last one).
+
 ## 2026-11-04 — Container Alley (second Sea Act 4 district) + Signal+ measured (Claude Opus 5.5, same goal)
 
 - `d4_sea_container_alley` (route `sea_4`): families live in the dry harbor's empty containers; Customs deregisters one by taping its doors. Learn tonight's door (Clerk Oh's register, Narae on the roof, or Mujin), then void the seal with a thirty-year-old objection form, move the family across the roofs, or knock (CHA) → boss **weaken**. 3 personas, scene + 3 portraits by Codex (unreviewed). 25 districts / 75 NPCs.
@@ -97,10 +102,3 @@ Last updated: 2026-11-04
 - **Showcase** (`ui/showcase.ts`, `net/api.ts showcaseKey / showcaseBlocks`): save keys move to `mythos2.showcase.*` and save routes never leave the device; first boot builds a prepared profile (three loops dying in Act 2 with attack-leaning decks, Paradox 10 open) and a Deep Paradox 10 run at the Act 3 intro (shove deck → IX read; first nodes: `pc_watcher` and the Act 3 road recruit); opens on the Archive. Tests: namespace, blocked routes, prepared state.
 - **Fix found by it**: the Archive replaced its authored IX line with whatever `narrate` returned, including the local line on a server fallback, so the habit (and loop/killer details) vanished with AI off. Only a model line replaces it now.
 - **Verified**: headless muted (en 1280×720, ko 390×844): real-save markers in `mythos2.profile` / `mythos2.run` untouched, showcase run stored in its namespace, Archive IX line names the habit, Act 3 intro shows the read, recruit badge on the map, 0 console errors (`outputs/qa/showcase_ui/`). Devpost draft has the link.
-
-## 2026-11-04 — Full Deep + CRPG UI run green; four achievements for today's content (Claude Opus 5.5, same goal)
-
-- **Integration**: `ui_playthrough.py --deep --signal-plus` after every change of the day: OK in 1383 s, 6 acts → victory, 20 district and 54 dialogue polls, 0 console errors.
-- **Achievements 76 → 80**: Choices Come Back (two callback scenes in a run), Strangers With Names (two procedural events), Reader of the Glass Library (any of the four Act 4 district quests finished), Seasoned (a companion at level 5). New conditions `runEvents` / `questDone` / `companionLevel`; tests. Paradox 7 and 10 win achievements became reachable with the clamp fix.
-- **AI off**: the local GM opening of a procedural event now brings in the cast person too (`localGm.ts`). The first version printed the Korean name twice (`josa` already returns the word): caught in the UI check, fixed, test now counts the name.
-- **Two Deep procedural skeletons** (`pc_deep_keeper`, `pc_deep_echo`, Acts 4–6, Codex art): eight in all. Deep mixed 33.3 % (34.4 before). UI: both render with the cast person in the GM card (AI off), 0 console errors.

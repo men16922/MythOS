@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 755,
+ "codex_image_calls": 762,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4475,6 +4475,15 @@
    ],
    "ts": "2026-11-04T10:33:10"
   },
+  "v2/districts/d5_sea_drowned_rows.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Drowned Rows: a low-rise reclamation apartment estate half-flooded with gray tide water, at low tide residents carry furniture out onto open walkways to dry, a wet tenants' roster hanging on a line, at the far end of an outdoor corridor a pale figure in a soaked school uniform knocking on a door. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, muted harbor palette of rust, salt white, slate gray and sodium amber with cold teal. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/sea5.webp"
+   ],
+   "ts": "2026-11-04T12:02:08"
+  },
   "v2/districts/d6_first_draft.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -4488,6 +4497,15 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Margin Notes: the wide margin of a colossal glowing page crowded with small handwritten scribbles in many hands (illegible, abstract marks only), a copying desk with a quill, a small child with a big eraser rubbing lines away, a blank strip of margin glowing at the end. Setting: the origin of all loops, a cathedral-like hall where the floor and walls are made of enormous pages and glowing written lines, golden light, drifting ink motes, deep teal shadows. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
    "refs": [],
    "ts": "2026-11-04T09:43:07"
+  },
+  "v2/districts/d6_sea_cable_station.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Cable Station: inside a concrete relay station where thick seabed cables come up out of the floor, banks of old consoles with one warning lamp flashing, a squat old splicing machine with knotted arms on a pile of cable, a wide window looking straight at a lighthouse in sea fog with its beam sweeping. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, muted harbor palette of rust, salt white, slate gray and sodium amber with cold teal. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/sea6.webp"
+   ],
+   "ts": "2026-11-04T12:01:55"
   },
   "v2/districts/d6_sea_foghorn_post.webp": {
    "generations": 1,
@@ -7252,6 +7270,15 @@
    ],
    "ts": "2026-11-04T04:02:19"
   },
+  "v2/npcs/relay_tech_ryu.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Ryu, a tired young relay technician in a gray Keepers' work coat with a headset around the neck, hand hovering over a console button, troubled eyes. Setting: a cramped relay station full of seabed cables, consoles, a window onto a lighthouse in fog, cold blue-gray light. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T12:03:05"
+  },
   "v2/npcs/returns_apprentice_ves.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7339,6 +7366,15 @@
    ],
    "ts": "2026-11-04T09:44:20"
   },
+  "v2/npcs/splicer_knot.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Knot, an old squat splicing machine with a round worn body and arms ending in knotted cable loops, one small warm sensor light, crouched on coiled cable. Setting: a cramped relay station full of seabed cables, consoles, a window onto a lighthouse in fog, cold blue-gray light. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T12:03:03"
+  },
   "v2/npcs/stationmaster_yeom.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7363,11 +7399,29 @@
    ],
    "ts": "2026-11-04T09:58:18"
   },
+  "v2/npcs/tide_touched_seok.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Seok, a gaunt man in his forties with a distant absent gaze, holding a wet photograph that is not his, gray water stains to his ankles. Setting: a flooded apartment estate corridor at low tide, wet walls, gray water, overcast light. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T12:03:25"
+  },
   "v2/npcs/toll_king.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Boss Ma, the Korean man who owns the transfer-corridor tollgate; heavyset, gold chain, a cheap fur-collared coat, cigarette smoke, a toll scanner on his wrist, confident grin. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, rain-wet night street of a 2070s Korean cyberpunk megacity (Neo-Seoul) behind them, neon cyan and magenta rim light, film grain. Korean faces and Korean signage only, no readable text, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference portrait, but a completely different person.",
    "ts": "2026-10-18T23:07:17"
+  },
+  "v2/npcs/uniform_residue.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). The Figure in Uniform, a pale translucent youth in a soaked school uniform, face softly rippling as if seen underwater, water dripping, gentle and lost, not frightening. Setting: a flooded apartment estate corridor at low tide, wet walls, gray water, overcast light. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T12:02:54"
   },
   "v2/npcs/unnamed_clerk.webp": {
    "generations": 1,
@@ -7395,6 +7449,15 @@
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, square (1024x1024), and do nothing else (no files, no code). Technician Dam, a Korean ARK maintenance technician in his fifties; grey coveralls, thick heat gloves patched in three layers on the same spot, long tongs in hand, safety goggles pushed up on his forehead, steam from coolant pipes behind him. Photorealistic cinematic head-and-shoulders portrait, square 1:1, subject centered and facing the camera three-quarters, shallow depth of field, film grain, Korean faces only, a sterile white-and-steel ARK facility interior behind them (frosted panels, pipes, cold white light with ice-cyan accents), clinical and quiet, no readable text, no letters, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
    "ts": "2026-10-26T04:00:15"
+  },
+  "v2/npcs/warden_ha.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Warden Ha, a practical middle-aged woman in rubber boots and a rain jacket holding a damp clipboard roster, sleeves rolled, steady eyes. Setting: a flooded apartment estate corridor at low tide, wet walls, gray water, overcast light. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T12:01:50"
   },
   "v2/npcs/washer_yun.webp": {
    "generations": 1,

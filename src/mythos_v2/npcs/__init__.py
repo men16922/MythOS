@@ -25,8 +25,10 @@ from mythos_v2.npcs import (
     d5_cold_storage,
     d5_scrap_choir,
     d5_sea_barge_market,
+    d5_sea_drowned_rows,
     d6_first_draft,
     d6_margin_notes,
+    d6_sea_cable_station,
     d6_sea_foghorn_post,
 )
 from mythos_v2.npcs._persona import Persona
@@ -58,6 +60,8 @@ for _module in (
     d6_sea_foghorn_post,
     d2_outside_laundry,
     d4_sea_container_alley,
+    d5_sea_drowned_rows,
+    d6_sea_cable_station,
 ):
     for _id, _persona in _module.PERSONAS.items():
         if _id in PERSONAS:

@@ -547,6 +547,66 @@ export const BANTER: BanterDef[] = [
       { who: 'bel', text: t('안 읽어. 남의 글 허락 없이 안 본 지 좀 됐어.', 'I won’t. I haven’t read anyone’s words without asking for a while now.') },
     ],
   },
+  {
+    id: 'b_rem_taeo_watch',
+    pair: ['rem', 'tae_o'],
+    lines: [
+      { who: 'rem', text: t('태오 씨는 앉아서 자네요.', 'Tae-o, you sleep sitting up.') },
+      { who: 'tae_o', text: t('습관이다. 경계 근무.', 'Habit. Watch duty.') },
+      { who: 'rem', text: t('오늘은 제가 볼게요. 눕는 것도 배워 봐요.', 'I’ll watch tonight. Try learning to lie down.') },
+      { who: 'tae_o', text: t('…한 시간만이다.', '…One hour.') },
+    ],
+  },
+  {
+    id: 'b_seoha_taeo_fog',
+    pair: ['seo_ha', 'tae_o'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'seo_ha', text: t('안개 속에선 내 한 걸음 뒤에 있어요. 어깨에 얹은 내 손이 물길이에요.', 'In the fog, stay one step behind me. My hand on your shoulder is the channel.') },
+      { who: 'tae_o', text: t('알겠다.', 'Understood.') },
+      { who: 'seo_ha', text: t('토를 안 다네요.', 'You don’t argue.') },
+      { who: 'tae_o', text: t('도선사에게는 안 한다.', 'Not with a pilot.') },
+    ],
+  },
+  {
+    id: 'b_suah_bel_rhythm',
+    pair: ['su_ah', 'bel'],
+    lines: [
+      { who: 'su_ah', text: t('나는 처음엔 세게 치고, 끝에 갈수록 살살 쳐.', 'I hit hard at first and softer toward the end.') },
+      { who: 'bel', text: t('나는 먼저 잘랐어. 읽는 건 그다음이었고.', 'I used to cut first. Reading came after.') },
+      { who: 'su_ah', text: t('거꾸로네.', 'Backwards.') },
+      { who: 'bel', text: t('알아. 네 순서로 배우는 중이야.', 'I know. I’m learning your order.') },
+    ],
+  },
+  {
+    id: 'b_doyun_han_queue',
+    pair: ['doyun', 'han'],
+    lines: [
+      { who: 'doyun', text: t('한 씨는 검문소 줄에 한 번도 안 서네요.', 'Han, you never stand in a checkpoint queue.') },
+      { who: 'han', text: t('줄은 세는 곳이야. 세면 남아.', 'Queues are where they count you. Get counted and it sticks.') },
+      { who: 'doyun', text: t('저도 사람 세는데요.', 'I count people too.') },
+      { who: 'han', text: t('넌 아무도 안 빠졌나 보려고 세잖아. 그건 달라.', 'You count to make sure nobody’s missing. That’s different.') },
+    ],
+  },
+  {
+    id: 'b_seoha_kai_grip',
+    pair: ['seo_ha', 'kai'],
+    acts: [4, 5, 6],
+    lines: [
+      { who: 'seo_ha', text: t('총 잡는 손이 내가 키 잡던 손이랑 같네요. 꽉 안 쥐어요.', 'You hold that rifle the way I held a wheel. Never tight.') },
+      { who: 'kai', text: t('꽉 쥐면 떨려요.', 'Grip it tight and it shakes.') },
+      { who: 'seo_ha', text: t('맞아요. 그건 아무도 안 가르쳐 줬죠.', 'That’s right. Nobody taught me that either.') },
+    ],
+  },
+  {
+    id: 'b_linyue_miro_ledger',
+    pair: ['lin_yue', 'miro'],
+    lines: [
+      { who: 'lin_yue', text: t('꼬마, 네 이름 내 장부에 적어 뒀어. 빚 칸 말고.', 'Kid, I wrote your name in my ledger. Not in the debts column.') },
+      { who: 'miro', text: t('…그럼 기억해?', '…So you’ll remember?') },
+      { who: 'lin_yue', text: t('장부가 기억해. 나는 밤마다 장부를 펴고.', 'The ledger will. And I open it every night.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

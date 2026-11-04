@@ -5,7 +5,8 @@ Last updated: 2026-11-04
 ## 2026-11-04 — Third districts for Acts 5 and 6 (variety) (Claude Opus 5.5, same goal)
 
 - Acts 1–4 draw 2 of 4 districts; Acts 5–6 had exactly 2, so they never changed between runs. `d5_crane_chapel` (a crane AI buries machines instead of crushing them; get tonight's next-in-line, a dreaming nursing robot, buried → **weaken**) and `d6_errata_office` (Oja exists only because of a typo listed for deletion; mark the line "stet" → **marked**). 6 personas, 2 scenes + 6 portraits by Codex (unreviewed; Oja re-rendered so the misprint outline shows). 30 districts / 89 NPCs. Over 40 seeds each pair of three now appears (Act 5 12/13/14, Act 6 16/16/8).
-- **Verified**: content + route + chronicle tests; UI to quest stage 2 (1280×720, 390×844), 0 console errors; local Ollama 6/6 in character.
+- `a6_cb_crane`: the nursing robot buried under the crane finished its dream and wakes in the first record (+14 HP, or +4◈/−6 Trace); Codex art. 28 callbacks.
+- **Verified**: content + route + chronicle + event-balance tests; UI to quest stage 2 (1280×720, 390×844) and the callback resolved (KO/EN), 0 console errors; local Ollama 6/6 in character.
 
 ## 2026-11-04 — The Glass Library districts come back among the Dreaming Machines (Claude Opus 5.5, same goal)
 

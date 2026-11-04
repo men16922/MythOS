@@ -261,6 +261,7 @@ export const ART: {
     a6_cb_choir: 'v2/events/a6_cb_choir.webp',
     a6_cb_citizen: 'v2/events/a6_cb_citizen.webp',
     a6_cb_cold: 'v2/events/a6_cb_cold.webp',
+    a6_cb_crane: 'v2/events/a6_cb_crane.webp',
     a6_engine_brake: 'v2/events/a6_engine_brake.webp',
     a6_engine_margin: 'v2/events/a6_engine_margin.webp',
     a6_guard_receipt: 'v2/events/a6_guard_receipt.webp',

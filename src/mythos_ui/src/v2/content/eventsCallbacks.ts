@@ -1211,4 +1211,38 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['miro', 'reading reservation', 'delivery machine'],
   },
+  {
+    id: 'a6_cb_crane',
+    acts: [6],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_crane_chapel', stage: 2 } },
+    title: t('꿈을 끝낸 간호 로봇', 'The Nurse Who Finished Dreaming'),
+    image: 'v2/events/a6_cb_crane.webp',
+    text: t(
+      '최초 기록의 복도 끝에 작은 간호 로봇이 서 있다. 크레인 아래 묻어 준 그 로봇이다. 꿈을 끝까지 꾸고, 여기서 깨어났다고 한다.\n체온계를 내민다. “열 좀 재 볼게요. 오래 걸어오셨네요.”',
+      'At the end of a corridor in the first record stands the small nursing robot you had buried under the crane. It dreamed its dream to the end, it says, and woke here.\nIt holds out the thermometer. “Let me take your temperature. You’ve walked a long way.”',
+    ),
+    options: [
+      {
+        label: t('체온을 재게 둔다', 'Let it take your temperature'),
+        hint: t('+14 HP', '+14 HP'),
+        success: {
+          text: t('로봇이 고개를 끄덕인다. “조금 지쳤어요. 이걸 드세요.” 작은 알약 하나가 손에 놓인다.', 'The robot nods. “A little worn out. Take this.” A small pill lands in your palm.'),
+          effects: [{ kind: 'hp', amount: 14 }],
+        },
+      },
+      {
+        label: t('꿈의 끝이 어땠는지 묻는다', 'Ask how the dream ended'),
+        hint: t('◈ +4 · 추적 −6', '+4 ◈ · −6 Trace'),
+        success: {
+          text: t('“비가 그쳤어요.” 로봇이 그것만 말한다. 그걸로 충분해 보인다.', '“The rain stopped.” That is all the robot says. It seems to be enough.'),
+          effects: [
+            { kind: 'echoes', amount: 4 },
+            { kind: 'trace', amount: -6 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['nursing robot', 'finished dream', 'thermometer', 'buried under the crane'],
+  },
 ]

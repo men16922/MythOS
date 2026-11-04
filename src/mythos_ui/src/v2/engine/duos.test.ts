@@ -70,9 +70,9 @@ test('a fired duo stays found: run, then profile, through a save', () => {
   assert.deepEqual(migrateProfile(JSON.parse(JSON.stringify(profile))).duos, ['collection'])
 })
 
-test('content: fifteen duos of real companions, no pair twice, bilingual, every companion in at least one', () => {
+test('content: eighteen duos of real companions, no pair twice, bilingual, every companion in at least one', () => {
   const duos = Object.values(CONTENT.duos ?? {})
-  assert.equal(duos.length, 15)
+  assert.equal(duos.length, 18, '15 + three between two Sea companions (2026-11-04)')
   const pairs = new Set<string>()
   const used = new Set<string>()
   for (const d of duos) {
@@ -89,4 +89,18 @@ test('content: fifteen duos of real companions, no pair twice, bilingual, every 
     for (const line of d.lines) assert.ok(line.ko.length <= 30, `${d.id}: line too long for the cut-in`)
   }
   assert.equal(used.size, Object.keys(CONTENT.companions).length)
+})
+
+test('the three Sea-pair duos are on offer with their two companions and fire on the real content', async () => {
+  const { newRun } = await import('./run.ts')
+  for (const [id, pair] of [['sea_tide_shift', ['seo_ha', 'mujin']], ['sea_no_fifth', ['mujin', 'parang']], ['sea_returned_voices', ['parang', 'seo_ha']]] as const) {
+    const run = newRun({ ...newProfile('T'), wins: 1, unlocks: Object.keys(CONTENT.unlocks) }, { archetype: 'ghost', paradox: 0, seed: 3, mode: 'sea' }, CONTENT)
+    run.party = pair.map((c) => ({ id: c, hp: 24, maxHp: 24, bond: 0 }))
+    const c = startCombat(run, Object.keys(CONTENT.encounters)[0]!, CONTENT)
+    c.momentum = MOMENTUM_MAX
+    const key = `${DUO_PREFIX}${id}`
+    assert.ok(ultimatesReady(c, CONTENT).some((o) => o.uid === key), `${id} on offer`)
+    const after = fireBurst(c, CONTENT, key)
+    assert.ok(after !== c && (after.momentum ?? 0) < MOMENTUM_MAX, `${id} fired and spent the gauge`)
+  }
 })

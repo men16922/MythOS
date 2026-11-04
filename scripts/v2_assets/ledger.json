@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 810,
+ "codex_image_calls": 816,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -8130,6 +8130,26 @@
    ],
    "ts": "2026-11-01T15:27:09"
   },
+  "v2/ult/duo_sea_no_fifth.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (close-up portraits of the two characters, one each; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: Two people who trust each other. Scene: Mujin and Parang side by side on a dry wharf: the broad crane foreman in an orange work jacket holds up exactly four fingers while the slight child in a gray hooded raincoat stands close beside him, both braced, faint glowing target marks on shapes in the dark ahead. Both faces sit in the centre third. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Background: an empty harbor with idle rusted cranes only; absolutely no ships, boats or vessels anywhere. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/mujin.png",
+    "resources/neo-seoul/characters/parang.png"
+   ],
+   "ts": "2026-11-04T16:59:16"
+  },
+  "v2/ult/duo_sea_returned_voices.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (close-up portraits of the two characters, one each; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: Two people who trust each other. Scene: Parang and Seo-ha side by side at a gray tide line on a flat shore: the slight child in a gray hooded raincoat releases small glowing lumps of light from open hands while the silver-haired retired harbor pilot gently guides the child's wrist, the lights drifting away like returning voices. Both faces sit in the centre third. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Background: an empty harbor with idle rusted cranes only; absolutely no ships, boats or vessels anywhere. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/parang.png",
+    "resources/neo-seoul/characters/seo-ha.png"
+   ],
+   "ts": "2026-11-04T16:59:44"
+  },
   "v2/ult/duo_sea_sleep_until_morning.webp": {
    "generations": 2,
    "model": "codex-image",
@@ -8139,6 +8159,16 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/characters/rem-ally.png"
    ],
    "ts": "2026-11-01T15:27:53"
+  },
+  "v2/ult/duo_sea_tide_shift.webp": {
+   "generations": 2,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Signature-move illustration for a cyberpunk tactics game, shown as a wide cut-in when the character uses their ultimate. Wide cinematic 16:9 shot, eye-level or slightly low camera, medium-full shot (head to knees) with natural, anatomically correct proportions: no fisheye, no wide-angle distortion, no oversized hands or feet reaching at the camera. Painterly digital concept art matching the reference images (close-up portraits of the two characters, one each; keep the character identical, but redraw them in this scene). The pose and expression show who this character is: Two people who trust each other. Scene: Seo-ha and Mujin side by side on a dry cracked harbor floor: the silver-haired retired harbor pilot points the way with one raised hand while the broad crane foreman in an orange work jacket hauls a chain on her call, a faint glowing line of an old water channel at their feet. Both faces sit in the centre third. Composition: the character's face and upper body sit in the centre third of the frame (the image is also shown cropped to a narrow central strip); one clear signature effect in soft cyan and violet light, restrained and readable, only a few sparks, no debris storm, calm dark space around the figure. Background: an empty harbor with idle rusted cranes only; absolutely no ships, boats or vessels anywhere. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy shadows, soft volumetric haze, rim light, subtle film grain, high detail. Absolutely no text, no letters, no numbers, no readable writing, no logos, no watermark, no UI, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/seo-ha.png",
+    "resources/neo-seoul/characters/mujin.png"
+   ],
+   "ts": "2026-11-04T16:59:22"
   },
   "v2/ult/duo_sea_unlisted_channel.webp": {
    "generations": 2,

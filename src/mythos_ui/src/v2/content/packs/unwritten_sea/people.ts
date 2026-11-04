@@ -1023,6 +1023,61 @@ export const SEA_DUOS: DuoDef[] = [
       t('그럼 아직 닫아 둘게요. 조금 더 자도 돼요.', 'Then I’ll keep it closed a little longer. There’s time to sleep.'),
     ],
   },
+  // 2026-11-04: duos between two Sea companions (a Sea party is often two of them). Same power band as the others.
+  {
+    id: 'sea_tide_shift',
+    pair: ['seo_ha', 'mujin'],
+    name: t('물때 교대', 'Tide Shift'),
+    text: t(
+      '모든 적을 1칸 밀어낸다. 충돌 피해 +2. 모든 아군 방어막 6. 모두 다시 이동할 수 있다.',
+      'Push every enemy 1 tile away. Bumps deal +2. Every ally gains 6 block and may move again.',
+    ),
+    effects: [
+      { kind: 'push', dir: 'away', distance: 1, slam: 2, to: 'all_enemies' },
+      { kind: 'block', amount: 6, to: 'all_allies' },
+      { kind: 'refund_move', to: 'all_allies' },
+    ],
+    lines: [
+      t('지금이에요. 왼쪽으로.', 'Now. To port.'),
+      t('들어. 하나, 둘, 셋.', 'Lift. One, two, three.'),
+    ],
+  },
+  {
+    id: 'sea_no_fifth',
+    pair: ['mujin', 'parang'],
+    name: t('다섯은 없다', 'There Is No Five'),
+    text: t(
+      '모든 적에게 피해 4, 표식 2. 모든 아군 방어막 5.',
+      'Deal 4 to every enemy and Mark 2. Every ally gains 5 block.',
+    ),
+    effects: [
+      { kind: 'damage', amount: 4, to: 'all_enemies' },
+      { kind: 'status', status: 'mark', amount: 2, to: 'all_enemies' },
+      { kind: 'block', amount: 5, to: 'all_allies' },
+    ],
+    lines: [
+      t('넷에서 멈춰.', 'Stop on four.'),
+      t('파랑이 넷이야.', 'Parang is four.'),
+    ],
+  },
+  {
+    id: 'sea_returned_voices',
+    pair: ['parang', 'seo_ha'],
+    name: t('돌려준 목소리', 'Returned Voices'),
+    text: t(
+      '버린 카드 2장을 손으로 되돌린다. 카드 2장을 뽑는다. 모든 아군 회피 1.',
+      'Return 2 discarded cards to your hand. Draw 2. Every ally gains Evade 1.',
+    ),
+    effects: [
+      { kind: 'recall', count: 2 },
+      { kind: 'draw', amount: 2 },
+      { kind: 'status', status: 'evade', amount: 1, to: 'all_allies' },
+    ],
+    lines: [
+      t('이건 주인한테 돌려줄게.', 'Parang will give this one back.'),
+      t('그래요. 길은 내가 알려 줄게요.', 'All right. I’ll show the way.'),
+    ],
+  },
 ]
 
 export const SEA_UNLOCKS: MetaUnlockDef[] = [

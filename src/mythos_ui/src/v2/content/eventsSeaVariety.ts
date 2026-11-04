@@ -608,4 +608,149 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
     ],
     gmHints: ['causeway ticket booth', 'one-way tickets to the lighthouse', 'handmade return tickets'],
   },
+  // 2026-11-05: Sea Act 5 was the thinnest pool left (21). Three everyday tide-line scenes, one prop each.
+  {
+    id: 'sea5_ev_flood_line',
+    acts: [5],
+    route: 'sea_5',
+    title: t('오늘의 물 높이', 'Today’s Water Line'),
+    image: 'v2/events/sea5_ev_flood_line.webp',
+    text: t(
+      '매립지 주택 계단 벽에 분필 선이 층층이 그어져 있다. 밀물마다 물이 닿은 자리에 그날 날짜를 적는다. 오늘 선은 어제보다 한 뼘 높다. 2층 할머니가 침대를 3층으로 올려야 한다며 계단에 앉아 있다.',
+      'Chalk lines climb the stairwell wall of the reclamation estate. At every flood, residents mark where the water reached and write the date. Today’s line is a hand higher than yesterday’s. The old woman from the second floor sits on the stairs; her bed has to go up to the third.',
+    ),
+    options: [
+      {
+        label: t('침대를 3층까지 같이 들어 올린다', 'Carry the bed up to the third floor with her'),
+        hint: t('근력 9 · 성공 인간성 +1 · 파티 +5 HP', 'STR 9 · success: +1 Humanity · party +5 HP'),
+        check: { stat: 'str', dc: 9 },
+        success: {
+          text: t('침대가 3층 복도에 놓인다. 할머니가 분필을 꺼내 당신 이름 대신 “도와준 사람”이라고 벽에 적는다. 그리고 보리차를 끓여 일행에게 돌린다.', 'The bed reaches the third-floor hall. She takes out her chalk and writes “the one who helped” on the wall instead of your name, then brews barley tea for your party.'),
+          effects: [{ kind: 'axis', axis: 'humanity' }, { kind: 'heal_party', amount: 5 }],
+        },
+        failure: {
+          text: t('계단참에서 침대 다리가 미끄러진다. 정강이가 난간에 부딪힌다. 할머니가 다음 썰물까지 기다리자고 한다.', 'A bed leg slips on the landing and your shin hits the rail. She says to wait for the next ebb.'),
+          effects: [{ kind: 'hp', amount: -5 }],
+        },
+      },
+      {
+        label: t('분필 선들로 다음 밀물 시각을 읽는다', 'Read the next flood time from the chalk lines'),
+        hint: t('지능 9 · 성공 추적 −4 · 통찰 +1', 'INT 9 · success: −4 Trace · +1 Insight'),
+        check: { stat: 'int', dc: 9 },
+        success: {
+          text: t('날짜와 높이를 이어 보면 물이 오는 간격이 보인다. 다음 밀물 전에 큰길을 피해 갈 수 있다.', 'Line up the dates and heights and the interval shows. You can be off the main road before the next flood.'),
+          effects: [{ kind: 'trace', amount: -4 }, { kind: 'axis', axis: 'insight' }],
+        },
+        failure: {
+          text: t('선이 너무 많다. 계산이 끝나기 전에 계단 아래로 회색 물이 스민다. 서둘러 올라간다.', 'There are too many lines. Before you finish, gray water seeps up the bottom step and you climb fast.'),
+          effects: [{ kind: 'trace', amount: 3 }],
+        },
+      },
+      {
+        label: t('위층 빈집에서 쉬어 간다', 'Rest in an empty flat upstairs'),
+        hint: t('HP +5', '+5 HP'),
+        success: {
+          text: t('젖지 않은 방바닥에 등을 댄다. 아래층에서 물 빠지는 소리가 난다.', 'You lie back on a dry floor. Downstairs, the water drains away.'),
+          effects: [{ kind: 'hp', amount: 5 }],
+        },
+      },
+    ],
+    gmHints: ['chalk flood marks on a stairwell', 'old woman moving her bed upstairs', 'gray water at the bottom step'],
+  },
+  {
+    id: 'sea5_ev_stray_sweater',
+    acts: [5],
+    route: 'sea_5',
+    title: t('주인 없는 스웨터', 'The Sweater Nobody Owns'),
+    image: 'v2/events/sea5_ev_stray_sweater.webp',
+    text: t(
+      '썰물 사이 매립지 옥상마다 빨래가 걸린다. 한 줄 끝에 아무도 걸지 않은 스웨터가 매번 걸려 있다. 밀물이 지나가면 다시 나타난다. 동네 사람들은 그 스웨터를 걷지 않는다. 손에 닿으면 남의 겨울이 기억난다고 한다.',
+      'Between tides, washing goes up on every rooftop of the reclamation estate. At the end of one line hangs a sweater nobody hung, every time; after each flood it is back. The neighbors never take it in. Touch it, they say, and you remember someone else’s winter.',
+    ),
+    options: [
+      {
+        label: t('소매 안쪽에 남은 이름표를 찾는다', 'Look inside the cuff for a name tag'),
+        hint: t('관찰 9 · 성공 ◈ +6 · 인간성 +1', 'OBS 9 · success: +6 ◈ · +1 Humanity'),
+        check: { stat: 'obs', dc: 9 },
+        success: {
+          text: t('소매 안쪽에 실로 수놓은 성 한 글자. 옆 줄 빨래를 걷던 남자가 그 글자를 보고 한참 서 있다. “우리 형이 이렇게 꿰맸어요.” 남자가 스웨터를 걷어 간다.', 'One surname character stitched inside the cuff. A man taking in the next line stops and stares at it. “My brother sewed his like that.” He takes the sweater in.'),
+          effects: [{ kind: 'echoes', amount: 6 }, { kind: 'axis', axis: 'humanity' }],
+        },
+        failure: {
+          text: t('손끝이 소매에 닿는다. 모르는 사람의 손 시린 아침이 잠깐 당신 것이 된다. 그러고는 빠져나간다.', 'Your fingertips touch the cuff. A stranger’s cold-handed morning is yours for a moment, then gone.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+      {
+        label: t('빨래집게를 하나 더 물려 둔다', 'Add a second peg so it won’t blow away'),
+        hint: t('추적 −3', '−3 Trace'),
+        success: {
+          text: t('스웨터가 바람에 덜 흔들린다. 옥상 아래 순찰 드론이 움직이는 빨래만 세고 지나간다.', 'The sweater sways less. The patrol drone below counts only the moving washing and passes on.'),
+          effects: [{ kind: 'trace', amount: -3 }],
+        },
+      },
+      {
+        label: t('옆 줄 빨래를 걷는 걸 돕는다', 'Help take in the next line'),
+        hint: t('크레딧 +12', '+12 ₵'),
+        success: {
+          text: t('빨래 주인이 고맙다며 동전을 쥐여 준다. 스웨터 쪽은 쳐다보지 않는다.', 'The owner of the washing presses some coins on you, and doesn’t look at the sweater.'),
+          effects: [{ kind: 'credits', amount: 12 }],
+        },
+      },
+    ],
+    gmHints: ['rooftop washing lines between tides', 'a sweater that returns after each flood', 'neighbors who won’t touch it'],
+  },
+  {
+    id: 'sea5_ev_plank_toll',
+    acts: [5],
+    route: 'sea_5',
+    title: t('널빤지 통행료', 'The Plank Toll'),
+    image: 'v2/events/sea5_ev_plank_toll.webp',
+    text: t(
+      '바지선과 바지선 사이에 널빤지가 걸려 있다. 아이 하나가 널빤지 끝에 앉아 통행료를 받는다. 한 장에 1크레딧이다. 아이가 널빤지 수를 손가락으로 센다. “여기서 시장 끝까지 열한 장. 물에 빠지면 환불 없어요.”',
+      'Planks bridge the gaps between the barges. A kid sits at the end of one, taking tolls: one credit a plank. The kid counts on their fingers. “Eleven planks from here to the end of the market. Fall in, no refund.”',
+    ),
+    options: [
+      {
+        label: t('열한 장 값을 한꺼번에 낸다', 'Pay for all eleven at once'),
+        hint: t('크레딧 −11 · 카드 강화 1', '−11 ₵ · upgrade 1 card'),
+        requires: { minCredits: 11 },
+        success: {
+          text: t('아이가 동전을 세고 나서 귓속말을 한다. 일곱 번째 널빤지는 밟지 말라고. 그 옆 밧줄을 잡는 법도 보여 준다. 균형 잡는 요령이 몸에 남는다.', 'The kid counts the coins, then whispers: don’t step on the seventh plank. The kid shows you how to grip the rope beside it, and the balance stays in your body.'),
+          effects: [{ kind: 'credits', amount: -11 }, { kind: 'upgrade_card', count: 1, random: true }],
+        },
+      },
+      {
+        label: t('널빤지 대신 밧줄을 타고 건넌다', 'Cross on the ropes instead of the planks'),
+        hint: t('민첩 9 · 성공 민첩 +1 · 실패 HP −6', 'AGI 9 · success: +1 AGI · fail: −6 HP'),
+        check: { stat: 'agi', dc: 9 },
+        success: {
+          text: t('밧줄이 출렁인다. 바지선 끝까지 버틴다. 아이가 박수를 친다. “통행료 면제.”', 'The ropes sway. You hold on to the last barge. The kid claps. “Toll waived.”'),
+          effects: [{ kind: 'stat', stat: 'agi', amount: 1 }],
+        },
+        failure: {
+          text: t('손이 미끄러져 회색 물에 무릎까지 빠진다. 아이가 장대를 내밀어 끌어 올린다. 물이 닿은 다리가 한동안 남의 걸음으로 저리다.', 'Your grip slips and you drop knee-deep into the gray water. The kid hauls you out with a pole. For a while your leg aches with someone else’s stride.'),
+          effects: [{ kind: 'hp', amount: -6 }],
+        },
+      },
+      {
+        label: t('파랑이 아이와 널빤지를 센다', 'Parang counts the planks with the kid'),
+        hint: t('◈ +5 · 파랑 유대 +1', '+5 ◈ · Parang bond +1'),
+        requires: { companion: 'parang' },
+        success: {
+          text: t('파랑이 아이 옆에 앉아 손가락을 같이 접는다. 열 장째에서 파랑이 멈춘다. “전엔 열두 장이었어.” 아이가 고개를 끄덕인다. “하나는 지난 밀물에 떠내려갔어요.” 아이가 통행료를 받지 않는다.', 'Parang sits beside the kid and folds fingers along. At ten, Parang stops. “There used to be twelve.” The kid nods. “One washed away last flood.” The kid waves off the toll.'),
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'bond', id: 'parang', amount: 1 }],
+        },
+      },
+      {
+        label: t('방파제를 돌아 먼 길로 간다', 'Take the long way round by the breakwater'),
+        hint: t('추적 −3', '−3 Trace'),
+        success: {
+          text: t('방파제 길은 젖어 있고 아무도 없다. 시장의 소란이 등 뒤로 멀어진다. 아이가 다음 손님을 부른다.', 'The breakwater path is wet and empty. The market noise falls away behind you. The kid calls the next customer.'),
+          effects: [{ kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+    gmHints: ['planks between barges', 'kid taking a toll per plank', 'gray water between the hulls'],
+  },
 ]

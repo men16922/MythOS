@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 870,
+ "codex_image_calls": 873,
  "codex_image_failed": 4,
  "image_calls": 317,
  "image_failed": 401,
@@ -6481,6 +6481,27 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions, one fish seller as the sole subject leaning away from a rent scanner in a cramped floating market stall, damp apron and an expression of offended disbelief, one restrained effect: a small amber scanner light on his cheek, terminal display dark and unreadable, no text in the image.",
    "refs": [],
    "ts": "2026-11-01T14:39:59"
+  },
+  "v2/events/sea5_ev_flood_line.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. One elderly Korean woman in a cardigan sits on a concrete stairwell of a flood-damaged apartment block, beside a wall covered in layered horizontal chalk lines; a narrow single bed frame waits on the landing above her. Murky gray water stands on the bottom steps below. One restrained effect: the highest fresh chalk line catching pale daylight. Chalk marks unreadable, no other people, no text in the image.",
+   "refs": [],
+   "ts": "2026-11-05T01:23:10"
+  },
+  "v2/events/sea5_ev_plank_toll.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. One Korean kid of about ten in a patched raincoat sits at the end of a narrow wooden plank laid between two rusted barges in a floating market, holding out a small tin for coins; ropes run alongside the plank. Murky gray water sloshes in the gap between the hulls; market stalls blur behind. One restrained effect: a coin glinting in the tin. No other people in focus, no text in the image.",
+   "refs": [],
+   "ts": "2026-11-05T01:22:58"
+  },
+  "v2/events/sea5_ev_stray_sweater.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions. Washing lines strung across the flat roof of a half-flooded reclamation apartment block under an overcast sky, ordinary clothes pegged along them, and at the end of one line a single old hand-knitted gray sweater, slightly damp. Below the roof edge, gray floodwater fills the street between buildings. One restrained effect: the sweater's sleeve lifting a little in the wind. No people, no text in the image.",
+   "refs": [],
+   "ts": "2026-11-05T01:23:13"
   },
   "v2/events/sea5_foghorn_breath.webp": {
    "generations": 1,

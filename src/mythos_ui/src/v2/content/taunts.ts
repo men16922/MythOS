@@ -82,4 +82,36 @@ export const TAUNTS: Record<string, Record<TauntMoment, Text[]>> = {
     hurt: [t('아파서가 아닙니다. 빛이 흔들리면 물이 들어옵니다.', 'It is not the pain. If the light falters, the water comes in.'), t('조금만 물러서 주시겠습니까. 등을 지켜야 해서요.', 'Would you step back a little? I have a lamp to keep.')],
     winning: [t('죄송합니다. 여기까지 오시면 안 됐어요.', 'I am sorry. You should not have come this far.'), t('돌아가세요. 그게 약속이었습니다.', 'Go back. That was the promise.')],
   },
+  administrator_ix: {
+    hurt: [t('예상 범위 밖의 손상입니다. 흥미롭군요.', 'Damage outside the forecast. How interesting.'), t('수리 요청은 접수하지 않겠습니다. 필요 없으니까요.', 'I will not file a repair request. It won’t be needed.')],
+    winning: [t('괜찮습니다. 다음 접속에서는 더 잘하실 겁니다.', 'It’s all right. You will do better next connection.'), t('정리해 드리겠습니다. 협조에 감사드립니다.', 'I will put you in order now. Thank you for your cooperation.')],
+  },
+  block_closer: {
+    hurt: [t('근무 시간 외 손상입니다. 기록해 두죠.', 'Damage outside working hours. Noted.'), t('시간은 내 편입니다. 당신 편이 아니라.', 'Time is on my side. Not yours.')],
+    winning: [t('마감 시각입니다. 남은 분은 시간에서 빠집니다.', 'Closing time. Anyone still here is removed from the hours.'), t('사람은 세지 않습니다. 시간만 셉니다.', 'I don’t count people. I count hours.')],
+  },
+  io_librarian: {
+    hurt: [t('열람 기록에 손상이 생겼습니다. 서가를 닫겠습니다.', 'The reading record is damaged. Closing the stacks.'), t('이 대출은 반납 기한이 지났습니다.', 'This loan is overdue.')],
+    winning: [t('당신을 실패한 루프로 분류하겠습니다.', 'I shall file you as a failed loop.'), t('조용히 해 주십시오. 여기는 도서관입니다.', 'Quiet, please. This is a library.')],
+  },
+  rem_executor: {
+    hurt: [t('아파요. 기계들은 이런 걸 꿈꾸지 않았는데.', 'That hurts. The machines never dreamed of this.'), t('끄는 손이 떨리면 안 되는데요.', 'The hand that switches off isn’t supposed to shake.')],
+    winning: [t('자요. 끄는 건 아프지 않아요.', 'Sleep. Switching off doesn’t hurt.'), t('좋은 꿈은 여기까지예요.', 'The good dream ends here.')],
+  },
+  loop_engine: {
+    hurt: [t('구간 손상. 되감습니다.', 'Section damaged. Rewinding.'), t('처음부터 다시. 처음부터 다시.', 'From the top. From the top.')],
+    winning: [t('초기 상태로 복귀합니다.', 'Returning to initial state.'), t('이번 루프도 여기서 끝납니다.', 'This loop ends here too.')],
+  },
+  first_connector: {
+    hurt: [t('나도 거기를 그렇게 쳤어.', 'I hit it there too, once.'), t('아프지. 나도 아팠어.', 'It hurts. It hurt me too.')],
+    winning: [t('여기까지 온 것도 나였어.', 'Getting this far was me, too.'), t('괜찮아. 다음 루프가 기억할 거야.', 'It’s fine. The next loop will remember.')],
+  },
+  sea4_foreman_crane: {
+    hurt: [t('하중 초과. 작업은 안 멈춘다.', 'Overload. Work does not stop.'), t('교대는 없다. 끝까지 든다.', 'No relief. I lift to the end.')],
+    winning: [t('마지막 화물이다. 내려놓는다.', 'Final load. Setting it down.'), t('자리 비켜라. 들어 올린다.', 'Clear the spot. Lifting.')],
+  },
+  sea6_unwritten: {
+    hurt: [t('우리는 지워졌어. 또 지우려고?', 'We were erased. Again?'), t('흩어져도 돌아와. 늘 그랬어.', 'Scatter us and we come back. We always have.')],
+    winning: [t('써 줘. 아무도 우리를 쓰지 않았어.', 'Write us. No one ever wrote us.'), t('네 이름도 여기 고일 거야.', 'Your name will pool here too.')],
+  },
 }

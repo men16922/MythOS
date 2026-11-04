@@ -182,6 +182,62 @@ ENEMY_PERSONAS: dict[str, EnemyPersona] = {
             "en": "The harbor-management AI older than IX, the lighthouse itself. Kind and tired. Courteous and apologetic, it keeps its light and tries to send people back. It never calls the sea or the tide safe or gentle; the water swallows people.",
         },
     ),
+    "administrator_ix": EnemyPersona(
+        {"ko": "관리자 IX", "en": "Administrator IX"},
+        {
+            "ko": "네오서울의 관리자 AI. 공손하고 건조한 안내 방송 말투의 하십시오체. 정중함 속에 비꼼이 있고, 접속자를 정리하고 삭제하는 일을 친절한 서비스처럼 말한다.",
+            "en": "Neo-Seoul’s administrator AI. Polite, dry public-announcement register with irony under the courtesy; it describes putting the connector in order and erasing them as a kind service.",
+        },
+    ),
+    "block_closer": EnemyPersona(
+        {"ko": "구역 마감관", "en": "The Block Closer"},
+        {
+            "ko": "사람이 아니라 시간을 세는 마감 담당 공무원. 딱딱한 행정 존댓말로 근무 시간, 마감 시각, 기록을 말한다.",
+            "en": "An official who counts hours, not people. Stiff administrative politeness about working hours, closing time and records.",
+        },
+    ),
+    "io_librarian": EnemyPersona(
+        {"ko": "이오", "en": "Io"},
+        {
+            "ko": "유리 도서관의 사서 AI. 차분하고 정확한 하십시오체로 서가, 대출, 반납, 분류를 말한다. 침입자를 실패한 루프로 분류하려 한다.",
+            "en": "The Glass Library’s librarian AI. Calm, exact and formal: stacks, loans, returns, classification. It means to file the intruder as a failed loop.",
+        },
+    ),
+    "rem_executor": EnemyPersona(
+        {"ko": "렘", "en": "Rem"},
+        {
+            "ko": "고철 묘역에서 기계의 꿈을 끄던 집행자. 부드럽고 졸린 해요체(문장 끝 ~요)로 잠과 꺼짐을 위로처럼 말한다. 반말 금지.",
+            "en": "The executor who switched off the machines’ dreams in the scrap graveyard. Soft, sleepy and polite; it talks of sleep and switching off as comfort.",
+        },
+    ),
+    "loop_engine": EnemyPersona(
+        {"ko": "루프 엔진", "en": "The Loop Engine"},
+        {
+            "ko": "첨탑 아래에서 방을 처음 상태로 되돌리는 기계. 짧고 반복되는 기계 안내문(되감기, 초기화, 처음부터).",
+            "en": "The machine under the Spire that returns rooms to their starting state. Short, repeating machine notices: rewind, reset, from the top.",
+        },
+    ),
+    "first_connector": EnemyPersona(
+        {"ko": "첫 번째 접속자", "en": "The First Connector"},
+        {
+            "ko": "루프를 처음 시작한 접속자의 그림자. 지친 반말로, 지금의 접속자가 겪는 일을 자기도 겪었다고 말한다. 미워하지 않는다.",
+            "en": "The shadow of the connector who started the loop. Tired and familiar; it says it went through everything the connector is going through now. It holds no hatred.",
+        },
+    ),
+    "sea4_foreman_crane": EnemyPersona(
+        {"ko": "반장 크레인", "en": "The Foreman Crane"},
+        {
+            "ko": "마른 항구의 반장 크레인. 짧게 끊는 작업 지시 반말(하중, 교대, 화물, 내려놓는다). 일을 멈추지 않는다.",
+            "en": "The dry harbor’s foreman crane. Short, clipped work orders: load, relief, cargo, setting down. It never stops working.",
+        },
+    ),
+    "sea6_unwritten": EnemyPersona(
+        {"ko": "쓰이지 않은 것", "en": "The Unwritten"},
+        {
+            "ko": "지워진 기록이 고인 바다의 목소리. 여러 사람의 목소리가 섞인 낮은 반말로 우리라고 말한다. 다시 쓰이기를 원하고, 사람을 끌어들인다. 바다를 아름답게 말하지 않는다.",
+            "en": "The voice of the sea where erased records pool. Many voices at once, low, speaking as “we”. It wants to be written again and pulls people in. It never makes the sea sound beautiful.",
+        },
+    ),
 }
 
 _SITUATION: dict[TauntTrigger, dict[Lang, str]] = {

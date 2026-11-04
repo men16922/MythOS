@@ -51,3 +51,8 @@ test('pickSoloBanter: Companion <-> Connector banter fires on node 1 in Act 1 wh
   assert.equal(solo.pair[1], 'connector')
 })
 
+
+test('banter: every pair of Sea companions has an exchange in each Sea act (a Sea party is often two of them)', () => {
+  const sea = ['mujin', 'seo_ha', 'parang']
+  for (const a of sea) for (const b of sea) if (a < b) for (const act of [4, 5, 6] as const) assert.ok(banterFor([a, b], act).length > 0, `${a}+${b} act ${act}`)
+})

@@ -893,4 +893,154 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
       },
     ],
   },
+  // 2026-11-04 (3): four more (26 route events).
+  {
+    id: 'outside_ev_cat',
+    acts: [2],
+    route: 'outside',
+    title: t('명단에 없는 고양이', 'The Cat Off the List'),
+    image: 'v2/events/outside_ev_cat.webp',
+    gmHints: ['골목 고양이', '이름표 없는 목걸이', '밥그릇을 놓는 사람들'],
+    text: t(
+      '골목 고양이 한 마리가 셔터 밑을 들락거린다. 목걸이에 이름표가 없다. 가게마다 밥그릇이 하나씩 나와 있다. 정리반은 고양이를 세지 않는다.\n“쟤가 제일 자유로워.” 배식 담당이 웃는다.',
+      'An alley cat slips in and out under the shutters. Its collar has no tag. Every shop has put out a bowl. The Crew don’t count cats.\n“That one’s the freest of us,” the Server laughs.',
+    ),
+    options: [
+      {
+        label: t('고양이를 따라간다', 'Follow the cat'),
+        hint: t('관찰 5 · 성공 추적 −8 · 실패 추적 +3', 'OBS 5 · success: −8 Trace · fail: +3 Trace'),
+        check: { stat: 'obs', dc: 5 },
+        success: {
+          text: t('고양이는 정리반이 안 다니는 길만 안다. 담 틈을 지나 다음 골목으로.', 'The cat knows only the routes the Crew never take. Through a gap in a wall, into the next alley.'),
+          effects: [{ kind: 'trace', amount: -8 }],
+        },
+        failure: {
+          text: t('고양이가 지붕으로 사라진다. 당신은 막다른 골목에 남는다.', 'The cat vanishes onto a roof. You’re left in a dead end.'),
+          effects: [{ kind: 'trace', amount: 3 }],
+        },
+      },
+      {
+        label: t('밥그릇에 먹을 것을 보탠다', 'Add something to a bowl'),
+        hint: t('◈ +4 · +3 HP', '+4 ◈ · +3 HP'),
+        success: {
+          text: t('고양이가 당신 발목에 몸을 한 번 비빈다. 가게 주인이 차 한 잔을 내준다.', 'The cat rubs once against your ankle. The shopkeeper hands you a cup of tea.'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'hp', amount: 3 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_bathhouse',
+    acts: [2],
+    route: 'outside',
+    title: t('마지막 탕', 'The Last Bath'),
+    image: 'v2/events/outside_ev_bathhouse.webp',
+    gmHints: ['문 닫는 동네 목욕탕', '꺼지지 않은 보일러', '명단 밖 손님을 기다리는 세신사'],
+    text: t(
+      '동네 목욕탕 간판이 꺼졌다. 그런데 보일러는 아직 돈다. 세신사가 문 앞에 수건을 쌓아 두었다.\n“일 끝난 사람들은 이 시간에 와요. 명단에 없어도 때는 밀어야지.”',
+      'The neighbourhood bathhouse sign is off, but the boiler is still running. The bath attendant has stacked towels by the door.\n“People who finish work come at this hour. List or no list, you still need a scrub.”',
+    ),
+    options: [
+      {
+        label: t('뜨거운 탕에 들어간다', 'Get into the hot bath'),
+        hint: t('+12 HP', '+12 HP'),
+        success: {
+          text: t('물이 어깨까지 올라온다. 하루치 피로가 수증기로 빠져나간다.', 'The water comes up to your shoulders. A day’s ache steams out of you.'),
+          effects: [{ kind: 'hp', amount: 12 }],
+        },
+      },
+      {
+        label: t('보일러 땔감을 날라 준다', 'Carry fuel for the boiler'),
+        hint: t('근력 5 · ◈ +4, +10 ₵ · 실패 −3 HP', 'STR 5 · +4 ◈, +10 ₵ · fail −3 HP'),
+        check: { stat: 'str', dc: 5 },
+        success: {
+          text: t('보일러가 한 시간 더 돈다. 세신사가 수고비와 우유 한 병을 준다.', 'The boiler runs another hour. The attendant pays you and adds a bottle of milk.'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'credits', amount: 10 }],
+        },
+        failure: {
+          text: t('땔감 더미가 무너진다. 정강이에 멍이 든다.', 'The fuel stack topples. Your shin bruises.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_seal',
+    acts: [2],
+    route: 'outside',
+    title: t('이름 도장', 'Name Seals'),
+    image: 'v2/events/outside_ev_seal.webp',
+    gmHints: ['골목 끝 도장집', '번호 대신 새기는 이름', '돋보기 쓴 각인사'],
+    text: t(
+      '도장집 각인사가 돋보기를 끼고 나무 도장에 이름을 새긴다. 손님들은 모두 등록번호가 없는 사람들이다.\n“서류에 번호 칸은 비워 두고, 여기다 이걸 찍으라고 해요. 이름은 있으니까.”',
+      'The seal carver, loupe on, carves a name into a wooden stamp. Every customer is someone without a registration number.\n“Leave the number box empty and stamp this there instead. They still have a name.”',
+    ),
+    options: [
+      {
+        label: t('당신 이름도 새겨 달라고 한다', 'Ask for a seal with your name'),
+        hint: t('◈ +5 · −10 ₵', '+5 ◈ · −10 ₵'),
+        requires: { minCredits: 10 },
+        success: {
+          text: t('각인사가 당신 이름을 천천히 새긴다. 찍어 보니 획 하나가 조금 삐뚤다. 그게 더 당신 같다.', 'The carver cuts your name slowly. The test print has one stroke slightly crooked, which suits you better.'),
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'credits', amount: -10 }],
+        },
+      },
+      {
+        label: t('밀린 주문을 같이 새긴다', 'Help carve the backlog'),
+        hint: t('민첩 5 · 성공 +20 ₵ · 실패 −3 HP', 'AGI 5 · success: +20 ₵ · fail: −3 HP'),
+        check: { stat: 'agi', dc: 5 },
+        success: {
+          text: t('도장 다섯 개. 각인사가 공임을 반 나눈다. 다섯 이름이 내일 서류에 찍힐 것이다.', 'Five seals. The carver splits the fee. Five names will be stamped on forms tomorrow.'),
+          effects: [{ kind: 'credits', amount: 20 }],
+        },
+        failure: {
+          text: t('조각칼이 미끄러진다. 엄지에 피가 맺힌다.', 'The chisel slips. Blood beads on your thumb.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+      {
+        label: t('도장 찍는 법을 구경한다', 'Watch how the seals are used'),
+        hint: t('추적 −4', '−4 Trace'),
+        success: {
+          text: t('번호 칸에 이름 도장이 찍힌 서류는 정리반 단말이 읽지 못한다. 쓸모 있는 요령이다.', 'A form with a name seal in the number box can’t be read by the Crew’s terminals. A useful trick.'),
+          effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_vending',
+    acts: [2],
+    route: 'outside',
+    title: t('두드리면 나오는 자판기', 'The Knock-Knock Machine'),
+    image: 'v2/events/outside_ev_vending.webp',
+    gmHints: ['고장 난 척하는 자판기', '정해진 박자로 두드리기', '골목 사람들만 아는 요령'],
+    text: t(
+      '골목 끝 낡은 자판기. 화면은 꺼져 있다. 그런데 지나가던 아이가 옆구리를 세 번, 한 번 두드리자 캔 하나가 굴러 나온다.\n“명단 밖 사람만 아는 거예요. 기계도 우리 편이에요.”',
+      'An old vending machine at the end of the alley, screen dark. A passing kid knocks its side three times, then once, and a can rolls out.\n“Only people off the list know. Even machines are on our side.”',
+    ),
+    options: [
+      {
+        label: t('박자대로 두드려 본다', 'Knock the rhythm'),
+        hint: t('관찰 5 · 성공 소모품 · 실패 추적 +4', 'OBS 5 · success: consumable · fail: +4 Trace'),
+        check: { stat: 'obs', dc: 5 },
+        success: {
+          text: t('세 번, 한 번. 캔 대신 보급 팩이 떨어진다. 아이가 박수를 친다.', 'Three, then one. A supply pack drops instead of a can. The kid claps.'),
+          effects: [{ kind: 'consumable' }],
+        },
+        failure: {
+          text: t('박자가 틀렸다. 자판기가 경보음을 낸다. 아이가 먼저 달아난다.', 'Wrong rhythm. The machine sounds an alarm. The kid runs first.'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('아이에게 박자를 배워 둔다', 'Have the kid teach you the rhythm'),
+        hint: t('◈ +3 · 추적 −3', '+3 ◈ · −3 Trace'),
+        success: {
+          text: t('아이가 당신 손등에 박자를 두드려 준다. 다른 골목의 기계들도 같은 박자를 안다고 한다.', 'The kid taps the rhythm on the back of your hand. Machines in other alleys know it too, apparently.'),
+          effects: [{ kind: 'echoes', amount: 3 }, { kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+  },
 ]

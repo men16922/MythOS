@@ -942,4 +942,120 @@ export const CALLBACK_EVENTS: EventDef[] = [
     ],
     gmHints: ['do the former crew rookie', 'kept name tag', 'spire staff laundry'],
   },
+  // 2026-11-04: the newest districts come back one act later (Signal+ only).
+  {
+    id: 'sea5_cb_container',
+    acts: [5],
+    route: 'sea_5',
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_sea_container', stage: 2 } },
+    title: t('바지선 지붕의 토마토', 'Tomatoes on a Barge Roof'),
+    image: 'v2/events/sea5_cb_container.webp',
+    text: t(
+      '바지선 지붕 위에 토마토 화분이 놓여 있다. 컨테이너 골목 C-7의 그 화분이다. 나래가 지붕에서 손을 흔든다.\n“이사 왔어요. 여긴 테이프가 안 붙어요. 물에 뜨니까.”',
+      'A tomato plant sits on a barge roof: the one from Container Alley, C-7. Narae waves from the roof.\n“We moved. They can’t tape this one. It floats.”',
+    ),
+    options: [
+      {
+        label: t('토마토를 얻어먹는다', 'Accept a tomato'),
+        hint: t('+8 HP · 소모품', '+8 HP · consumable'),
+        success: {
+          text: t('작고 시다. 나래 엄마가 보온병까지 쥐여 준다.', 'Small and sour. Narae’s mother adds a flask as well.'),
+          effects: [
+            { kind: 'hp', amount: 8 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+      {
+        label: t('지붕 길을 다시 묻는다', 'Ask about roof routes again'),
+        hint: t('추적 −10 · ◈ +2', '−10 Trace · +2 ◈'),
+        success: {
+          text: t('나래가 바지선 지붕을 건너는 길을 알려 준다. 세관 드론은 물 위를 잘 안 본다.', 'Narae shows you a way across the barge roofs. Customs drones rarely look at the water.'),
+          effects: [
+            { kind: 'trace', amount: -10 },
+            { kind: 'echoes', amount: 2 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['narae', 'tomato plant', 'barge roof', 'cannot be sealed'],
+  },
+  {
+    id: 'sea6_cb_rows',
+    acts: [6],
+    route: 'sea_6',
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_sea_rows', stage: 2 } },
+    title: t('이름으로 불린 형체', 'The One Who Was Called'),
+    image: 'v2/events/sea6_cb_rows.webp',
+    text: t(
+      '철탑 길 안개 속에 젖은 교복의 형체가 서 있다. 이름을 얻은 그 형체다. 이번엔 문을 두드리지 않는다.\n“불러 줘서 고마워. 이 길, 등대단이 안 보는 쪽 알아.”',
+      'In the causeway fog stands the figure in the wet uniform, the one that was given a name. It is not knocking this time.\n“Thanks for calling me. I know the side of this road the Keepers don’t watch.”',
+    ),
+    options: [
+      {
+        label: t('형체를 따라간다', 'Follow it'),
+        hint: t('추적 −12 · ◈ +2', '−12 Trace · +2 ◈'),
+        success: {
+          text: t('형체가 안개 사이로 길을 낸다. 무적 소리가 등 뒤로 멀어진다.', 'The figure opens a way through the fog. The foghorn falls away behind you.'),
+          effects: [
+            { kind: 'trace', amount: -12 },
+            { kind: 'echoes', amount: 2 },
+          ],
+        },
+      },
+      {
+        label: t('이름을 한 번 더 불러 준다', 'Say its name once more'),
+        hint: t('+10 HP · ◈ +3', '+10 HP · +3 ◈'),
+        success: {
+          text: t('형체가 웃는다. 젖은 교복이 조금 마른 것처럼 보인다.', 'The figure smiles. The wet uniform looks a little drier.'),
+          effects: [
+            { kind: 'hp', amount: 10 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['named residue', 'wet school uniform', 'causeway fog'],
+  },
+  {
+    id: 'a3_cb_meters',
+    acts: [3],
+    weight: CALLBACK_WEIGHT,
+    requires: { quest: { id: 'q_outside_meters', stage: 2 } },
+    title: t('첨탑의 우회선', 'A Bypass in the Spire'),
+    image: 'v2/events/a3_cb_meters.webp',
+    text: t(
+      '첨탑 정비 통로의 배전함이 열려 있다. 맨손으로 전선을 만지는 노인. 계량기 벽의 강 씨다.\n“여기 계량기도 똑같이 돌아. 바늘 하나 세워 줄까? 감시 카메라 쪽으로.”',
+      'A fuse box in a Spire maintenance corridor stands open. An old man handles the wires bare-handed: Gang, from the meter wall.\n“Meters here turn the same way. Want me to stop a dial? The camera circuit, say.”',
+    ),
+    options: [
+      {
+        label: t('카메라 회로를 세워 달라고 한다', 'Ask him to stop the camera circuit'),
+        hint: t('추적 −12 · 실패 시 추적 +5', '−12 Trace · fail +5 Trace'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t('통로 카메라 불이 하나씩 꺼진다. 강 씨가 휘파람을 분다.', 'The corridor cameras go dark one by one. Gang whistles.'),
+          effects: [{ kind: 'trace', amount: -12 }],
+        },
+        failure: {
+          text: t('엉뚱한 선이다. 경보등이 켜진다. 강 씨가 먼저 달아난다.', 'Wrong wire. The alarm light comes on. Gang runs first.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('남는 전지를 얻는다', 'Take a spare battery'),
+        hint: t('소모품 · ◈ +2', 'consumable · +2 ◈'),
+        success: {
+          text: t('강 씨가 공구 벨트에서 전지 하나를 빼 준다. “첨탑 전기는 맛이 좋아.”', 'Gang pulls a battery off his tool belt. “Spire power tastes good.”'),
+          effects: [
+            { kind: 'consumable' },
+            { kind: 'echoes', amount: 2 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['mr gang the electrician', 'spire fuse box', 'bypass'],
+  },
 ]

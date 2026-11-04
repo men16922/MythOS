@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — The newest districts come back an act later (Claude Opus 5.5, same goal)
+
+- `sea5_cb_container` (kept C-7 → Narae's family moved onto a barge "they can't tape"), `sea6_cb_rows` (named the figure in uniform → it guides you along the causeway's unwatched side), `a3_cb_meters` (stopped the meter → Gang offers to stop the Spire's camera circuit, INT DC 6); quest-stage gates, Codex art (unreviewed). 23 callbacks.
+- **Verified**: content + event-balance tests; UI (Sea runs for the two Sea scenes, base run for Act 3; KO desktop, EN/KO 390 px) resolved through the buttons, 0 console errors.
+
 ## 2026-11-04 — The Meter Wall (second DLC 2 route district) (Claude Opus 5.5, same goal)
 
 - `d2_outside_meters` (route `outside`): a turning power meter behind an off-list door flags the home for the Closing Crew. Learn tonight's meter (Misuk the slow-writing reader, Gang the electrician, or Se-rin), then stop it with Gang's bypass, a lifted "faulty" seal from Yeom's pawn window, or a knock (CHA) → boss **intel**. 3 personas, scene + 3 portraits by Codex (unreviewed). The route now places two like every act. 28 districts / 83 NPCs.
@@ -101,9 +106,3 @@ Last updated: 2026-11-04
 ## 2026-11-04 — Chronicle (W4) step 1: save compatibility proven (Claude Opus 5.5, same goal)
 
 - `engine/chronicle.ts` + `MetaProfile.chronicle` (`ChronicleState`): what a chapter hands the next (archetype, stats, background, axes, approval, quests, faction standing, three core cards), `finishChapter`, and a validating `migrateChronicle` in `migrateProfile`. Lives in the profile: no new save slot, no server change (blobs are stored as JSON). Tests: old profiles load unchanged, a chapter round-trips through JSON and migration, malformed data is dropped or clamped, under 4 KB. Nothing playable; steps 2–5 and the owner gate: `docs/plans/2026-11-04-chronicle-ch1-slice.md`.
-
-## 2026-11-04 — Judge showcase `?showcase=1` (W2-4); the Archive keeps its authored IX line on a fallback (Claude Opus 5.5, same goal)
-
-- **Showcase** (`ui/showcase.ts`, `net/api.ts showcaseKey / showcaseBlocks`): save keys move to `mythos2.showcase.*` and save routes never leave the device; first boot builds a prepared profile (three loops dying in Act 2 with attack-leaning decks, Paradox 10 open) and a Deep Paradox 10 run at the Act 3 intro (shove deck → IX read; first nodes: `pc_watcher` and the Act 3 road recruit); opens on the Archive. Tests: namespace, blocked routes, prepared state.
-- **Fix found by it**: the Archive replaced its authored IX line with whatever `narrate` returned, including the local line on a server fallback, so the habit (and loop/killer details) vanished with AI off. Only a model line replaces it now.
-- **Verified**: headless muted (en 1280×720, ko 390×844): real-save markers in `mythos2.profile` / `mythos2.run` untouched, showcase run stored in its namespace, Archive IX line names the habit, Act 3 intro shows the read, recruit badge on the map, 0 console errors (`outputs/qa/showcase_ui/`). Devpost draft has the link.

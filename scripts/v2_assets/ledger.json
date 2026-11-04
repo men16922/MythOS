@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 766,
+ "codex_image_calls": 769,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4749,6 +4749,15 @@
    "refs": [],
    "ts": "2026-11-04T09:29:32"
   },
+  "v2/events/a3_cb_meters.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A clean white maintenance corridor inside a corporate spire, a fuse box panel hanging open; a wiry old electrician with a tool belt holding stripped wires bare-handed with small sparks, grinning over his shoulder; security cameras along the ceiling. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/electrician_gang.webp"
+   ],
+   "ts": "2026-11-04T12:45:10"
+  },
   "v2/events/a3_cb_min.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5937,6 +5946,15 @@
    "refs": [],
    "ts": "2026-11-04T11:01:08"
   },
+  "v2/events/sea5_cb_container.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Old barges roped together on gray flood water under an overcast sky; on one barge roof a small potted tomato plant with red fruit, a girl of about ten in an oversized hoodie waving from the roof, laundry lines. No ships. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/container_kid_narae.webp"
+   ],
+   "ts": "2026-11-04T12:45:02"
+  },
   "v2/events/sea5_cb_debt.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -6062,6 +6080,15 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye-level, natural proportions, the stone stair landing inside an old lighthouse, one tired middle-aged man in a worn janitor's uniform sitting with a duty logbook and pen, small window showing gray sea, warm lamp light from above, one restrained effect: a faint gray water line on the wall, no text in the image.",
    "refs": [],
    "ts": "2026-11-04T05:19:40"
+  },
+  "v2/events/sea6_cb_rows.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A long steel causeway over the sea in dense fog; a pale translucent youth in a soaked school uniform stands calmly on the walkway, gesturing to follow, gentle not frightening, a distant lighthouse glow. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/uniform_residue.webp"
+   ],
+   "ts": "2026-11-04T12:45:05"
   },
   "v2/events/sea6_coat_hem.webp": {
    "generations": 1,

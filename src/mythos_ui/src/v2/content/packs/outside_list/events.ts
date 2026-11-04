@@ -568,4 +568,188 @@ export const OUTSIDE_ROUTE_EVENTS: EventDef[] = [
       },
     ],
   },
+  // 2026-11-04: four more back-alley scenes (the route rolled from 14 events, against 37 in the base Act 2).
+  {
+    id: 'outside_ev_dumplings',
+    acts: [2],
+    route: 'outside',
+    title: t('마지막 한 판', 'The Last Tray'),
+    image: 'v2/events/outside_ev_dumplings.webp',
+    gmHints: ['만두 가게의 마지막 찜기', '김이 오르는 대나무 뚜껑', '남은 만두를 세는 주인'],
+    text: t(
+      '셔터를 반쯤 내린 만두 가게에서 마지막 찜기가 김을 뿜는다. 주인이 대나무 뚜껑을 들고 남은 개수를 센다.\n“버리긴 아깝고, 들고 갈 손이 없네.” 골목 끝 쉼터 쪽으로 턱짓한다.',
+      'In a dumpling shop with its shutter half down, the last steamer breathes out. The owner lifts the bamboo lid and counts what’s left.\n“Too good to throw out, and no hands to carry it.” A nod toward the shelter at the end of the alley.',
+    ),
+    options: [
+      {
+        label: t('찜기를 통째로 쉼터까지 나른다', 'Carry the whole steamer to the shelter'),
+        hint: t('근력 5 · 성공 파티 회복 8 · 실패 −3 HP', 'STR 5 · success: heal party 8 · fail: −3 HP'),
+        check: { stat: 'str', dc: 5 },
+        success: {
+          text: t('쉼터 사람들이 줄을 선다. 마지막 몇 개가 당신 몫으로 남는다. 아직 뜨겁다.', 'The shelter lines up. The last few are left for you. Still hot.'),
+          effects: [{ kind: 'heal_party', amount: 8 }],
+        },
+        failure: {
+          text: t('찜기 손잡이가 손바닥을 데운다. 주인이 행주를 감아 다시 쥐여 준다.', 'The steamer handle scalds your palm. The owner wraps it in a cloth and hands it back.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+      {
+        label: t('남은 만두를 산다', 'Buy what’s left'),
+        hint: t('−10 ₵ · +10 HP', '−10 ₵ · +10 HP'),
+        requires: { minCredits: 10 },
+        success: {
+          text: t('주인이 종이봉투에 담아 준다. 하나 더 넣는다. “덤.”', 'The owner bags them in paper and adds one more. “On the house.”'),
+          effects: [
+            { kind: 'credits', amount: -10 },
+            { kind: 'hp', amount: 10 },
+          ],
+        },
+      },
+      {
+        label: t('김을 지나 골목을 건넌다', 'Walk on through the steam'),
+        hint: t('비용 없음 · 추적 −3', 'No cost · −3 Trace'),
+        success: {
+          text: t('김이 골목을 덮는다. 정리반 경광등이 그 속에서 흐려진다.', 'Steam fills the alley. The Crew’s beacon blurs inside it.'),
+          effects: [{ kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_umbrellas',
+    acts: [2],
+    route: 'outside',
+    title: t('주인 없는 우산', 'Umbrellas No One Claimed'),
+    image: 'v2/events/outside_ev_umbrellas.webp',
+    gmHints: ['역 앞 우산 보관대', '시간이 적힌 꼬리표', '찾아가지 않은 우산을 나눠 주는 관리인'],
+    text: t(
+      '역 앞 우산 보관대. 우산마다 맡긴 시간이 적힌 꼬리표가 달려 있다. 오늘 밤 안 찾아가면 정리반이 수거한다.\n관리인이 꼬리표를 넘겨 본다. “다들 내일 찾으러 온다고 했는데.”',
+      'An umbrella stand in front of the station, each umbrella tagged with the time it was left. Anything unclaimed tonight, the Crew collects.\nThe attendant leafs through the tags. “They all said they’d be back tomorrow.”',
+    ),
+    options: [
+      {
+        label: t('꼬리표 주소로 우산을 돌려준다', 'Return the umbrellas to the addresses on the tags'),
+        hint: t('관찰 6 · 성공 ◈ +5 · 실패 추적 +5', 'OBS 6 · success: +5 ◈ · fail: +5 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('주소 셋은 같은 골목이다. 문 앞에 우산을 세워 둔다. 창 하나에 불이 켜진다.', 'Three addresses share one alley. You lean the umbrellas by the doors. One window lights up.'),
+          effects: [{ kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('꼬리표 글씨가 번져 읽히지 않는다. 우산을 든 채 헤매다 정리반 눈에 띈다.', 'The ink on the tags has run. Wandering with an armful of umbrellas, you catch the Crew’s eye.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('하나를 빌려 쓰고 간다', 'Borrow one for the road'),
+        hint: t('소모품 · 추적 +2', 'Consumable · +2 Trace'),
+        success: {
+          text: t('관리인이 가장 낡은 우산을 고른다. 손잡이 안쪽에 누군가 넣어 둔 보급품이 있다.', 'The attendant picks the oldest umbrella. Inside the handle, someone had tucked a supply pack.'),
+          effects: [
+            { kind: 'consumable' },
+            { kind: 'trace', amount: 2 },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_payphone',
+    acts: [2],
+    route: 'outside',
+    title: t('폐점 전 한 통화', 'One Call Before Closing'),
+    image: 'v2/events/outside_ev_payphone.webp',
+    gmHints: ['골목 끝 공중전화', '동전 하나가 모자란 노인', '끊기기 직전의 신호음'],
+    text: t(
+      '골목 끝 공중전화 앞에 노인이 동전을 세고 있다. 하나가 모자란다. 폐점 방송이 끝나면 이 전화도 끊긴다.\n“딸한테 한 마디만 하면 되는데.”',
+      'At the payphone at the end of the alley an old man is counting coins. One short. When the closing broadcast ends, this phone goes dead too.\n“I only need to say one thing to my daughter.”',
+    ),
+    options: [
+      {
+        label: t('동전을 보태 준다', 'Add a coin'),
+        hint: t('−5 ₵ · ◈ +4 · 추적 −3', '−5 ₵ · +4 ◈ · −3 Trace'),
+        requires: { minCredits: 5 },
+        success: {
+          text: t('노인이 짧게 말한다. “잘 지내라.” 수화기를 내려놓고 고개를 숙인다. 골목이 조용해진다.', 'The old man says it short: “Take care.” He hangs up and bows his head. The alley goes quiet.'),
+          effects: [
+            { kind: 'credits', amount: -5 },
+            { kind: 'echoes', amount: 4 },
+            { kind: 'trace', amount: -3 },
+          ],
+        },
+      },
+      {
+        label: t('전화기 동전 투입구를 손본다', 'Fix the phone’s coin slot'),
+        hint: t('지능 6 · 성공 +15 ₵ · 실패 추적 +5', 'INT 6 · success: +15 ₵ · fail: +5 Trace'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t('걸린 동전들이 쏟아진다. 노인의 몫을 빼고 나머지를 나눈다. 통화는 공짜가 된다.', 'Jammed coins pour out. You set aside the old man’s share and split the rest. The call is free.'),
+          effects: [{ kind: 'credits', amount: 15 }],
+        },
+        failure: {
+          text: t('투입구가 경보음을 낸다. 노인이 수화기를 꽉 쥔다.', 'The coin slot sounds an alarm. The old man grips the receiver.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('통화하는 동안 골목을 지켜 준다', 'Keep watch on the alley while he calls'),
+        hint: t('추적 −6 · ◈ +2', '−6 Trace · +2 ◈'),
+        success: {
+          text: t('정리반 경광등이 골목 입구에서 멈췄다가 지나간다. 노인이 수화기를 내려놓고 당신에게 고개를 숙인다.', 'The Crew’s beacon pauses at the alley mouth, then moves on. The old man hangs up and bows to you.'),
+          effects: [
+            { kind: 'trace', amount: -6 },
+            { kind: 'echoes', amount: 2 },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    id: 'outside_ev_shoeshine',
+    acts: [2],
+    route: 'outside',
+    title: t('정리반의 구두', 'The Crew’s Boots'),
+    image: 'v2/events/outside_ev_shoeshine.webp',
+    gmHints: ['지하도 구두닦이 의자', '구두약 냄새', '발소리로 정리반을 아는 구두닦이'],
+    text: t(
+      '지하도 계단 밑에서 구두닦이가 마지막 손님의 구두를 닦는다. 손을 멈추지 않고 말한다.\n“정리반 구두는 밑창에 쇠를 박아요. 계단에서 소리가 달라. 열 걸음 밖에서도 알지.”',
+      'Under the underpass stairs, a shoeshiner works on the last customer’s shoes and talks without stopping.\n“The Crew put iron in their soles. They sound different on stairs. I know them from ten steps off.”',
+    ),
+    options: [
+      {
+        label: t('정리반 순찰 소리를 배운다', 'Learn the sound of the Crew’s patrol'),
+        hint: t('추적 −8', '−8 Trace'),
+        success: {
+          text: t('구두닦이가 솔로 계단을 두드려 박자를 들려준다. 다음 계단에서 당신은 먼저 숨는다.', 'The shoeshiner taps the stairs with a brush to show the rhythm. On the next stairway, you hide first.'),
+          effects: [{ kind: 'trace', amount: -8 }],
+        },
+      },
+      {
+        label: t('구두를 맡긴다', 'Have your boots shined'),
+        hint: t('−8 ₵ · 파티 회복 5', '−8 ₵ · heal party 5'),
+        requires: { minCredits: 8 },
+        success: {
+          text: t('닦는 동안 발을 쉰다. 다 닦은 구두는 소리가 안 난다. 구두닦이가 웃는다. “이건 서비스.”', 'Your feet rest while he works. The finished boots make no sound. He grins. “That part’s free.”'),
+          effects: [
+            { kind: 'credits', amount: -8 },
+            { kind: 'heal_party', amount: 5 },
+          ],
+        },
+      },
+      {
+        label: t('계단에 앉아 쇠 밑창 소리를 기다린다', 'Sit on the stairs and wait for the iron soles'),
+        hint: t('관찰 6 · 성공 ◈ +4 · 실패 추적 +4', 'OBS 6 · success: +4 ◈ · fail: +4 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('딸깍, 딸깍. 정리반이 위층 통로를 지나간다. 몇 명인지까지 들린다.', 'Clack, clack. The Crew pass along the walkway above. You can hear how many.'),
+          effects: [{ kind: 'echoes', amount: 4 }],
+        },
+        failure: {
+          text: t('졸다가 고개를 든다. 쇠 밑창이 바로 위에서 멈춰 있다.', 'You nod off and look up. Iron soles have stopped right above you.'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+    ],
+  },
 ]

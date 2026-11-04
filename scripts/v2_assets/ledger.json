@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 816,
+ "codex_image_calls": 820,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -5631,6 +5631,13 @@
    "refs": [],
    "ts": "2026-11-01T15:03:49"
   },
+  "v2/events/outside_ev_dumplings.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A small dumpling shop at night with its shutter half down, a tall stack of bamboo steamers breathing thick steam into a back alley, the owner lifting a lid and counting, a rotating amber beacon far down the alley. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:19:41"
+  },
   "v2/events/outside_ev_early_amp.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5666,6 +5673,13 @@
    "refs": [],
    "ts": "2026-11-01T15:03:04"
   },
+  "v2/events/outside_ev_payphone.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. An old public payphone at the end of a narrow back alley at night, an elderly man in a worn coat counting coins in his palm with the receiver tucked under his chin, a rotating amber beacon at the alley mouth. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:19:35"
+  },
   "v2/events/outside_ev_shared_charger.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -5673,12 +5687,26 @@
    "refs": [],
    "ts": "2026-11-01T15:04:09"
   },
+  "v2/events/outside_ev_shoeshine.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Under concrete underpass stairs at night, a shoeshiner on a low stool polishing a customer's shoes with a brush, tins of polish, footsteps of heavy boots implied by shadows on the stairs above. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:19:39"
+  },
   "v2/events/outside_ev_shutter.webp": {
    "generations": 1,
    "model": "codex-image",
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Painterly cyberpunk realism, eye level, natural proportions: one ordinary shutter repairer in a faded blue work jacket crouches beside a kiosk shutter caught a handspan above the floor, studying its bent track with a socket wrench. The shutter and a wooden brace frame the worker against a softly unfocused Neo-Seoul market platform after closing; one restrained effect is a narrow amber inspection-light sweep across the metal, no text.",
    "refs": [],
    "ts": "2026-11-01T15:02:46"
+  },
+  "v2/events/outside_ev_umbrellas.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A metal umbrella stand outside a station entrance at night, dozens of folded umbrellas each with a small paper tag (blank), an attendant in a vest leafing through the tags, rain on the pavement. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:19:39"
   },
   "v2/events/outside_last_meal_kept.webp": {
    "generations": 1,

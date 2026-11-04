@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — A quiet moment per Sea act (Claude Opus 5.5, same goal)
+
+- Each Deep act has one or two "quiet wonder" scenes; the Sea had none among ~30 heavy ones. `sea4_salt_stars` (crew kids call the salt crystals on the dry floor stars), `sea5_paper_lanterns` (lanterns with erased names turning just short of the gray water), `sea6_fog_bow` (a colourless fog-bow; for a moment nobody blows the foghorn). Small, on land, the water kept at a distance per the bible; Codex art (unreviewed).
+- **Verified**: content + event-balance tests; UI on Sea runs (KO/EN, desktop/390 px), 0 console errors. Sea canonical (150 seeds) HEAD → this: 27.3 → 26.7 %, within noise.
+
 ## 2026-11-04 — Four more base consumables (Claude Opus 5.5, same goal)
 
 - 12 consumables (4 Sea-only) for every event, district and camp that hands one out. Added `grapple_line` (pull the first target in a line 2 tiles, +2 bumps), `marker_flare` (cross Mark 2), `guard_foam` (an ally gains 10 block), `static_net` (cross Stun 1, rare); existing effect kinds and targets only; Codex icons (unreviewed). 16 consumables.
@@ -98,8 +103,3 @@ Last updated: 2026-11-04
 
 - `sea5_cb_dorm` (kept the dormitory → Cook Yeong's tide table on the breakwater post marks you passing: +12 HP, or move by the flood times, −12 Trace/+2◈) and `sea6_cb_shallows` (brought back the child's voice → it sings in the causeway fog and thins it: −12 Trace/+3◈ or +12 HP); Codex art (unreviewed). 30 callbacks.
 - **Verified**: content + event-balance tests; UI on Sea runs (KO 1280×720, EN 390×844) resolved through the buttons, 0 console errors.
-
-## 2026-11-04 — Third Sea Act 6 district, The Lens Workshop (Claude Opus 5.5, same goal)
-
-- `d6_sea_lens_workshop` (route `sea_6`): old grinder Mok hid a hairline flaw in the Lightkeeper's new lens so the sea shows once a night; the apprentice machine Guseul found it and hasn't reported it. Find it (OBS, or Guseul persuaded / Seo-ha) and see it installed (logged as a "window", or hidden under polish, AGI) → boss **weaken**. 2 personas, scene + 2 portraits by Codex (unreviewed). Every Sea act now draws 2 of 3.
-- **Verified**: content + route tests; UI two quest paths to stage 2 (1280×720; 390×844, rerun with high stats after the first run's OBS roll failed, which correctly left the stage-1 option locked), 0 console errors; local Ollama 2/2 in character.

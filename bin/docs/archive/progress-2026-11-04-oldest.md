@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Third Sea Act 6 district, The Lens Workshop (Claude Opus 5.5, same goal)
+
+- `d6_sea_lens_workshop` (route `sea_6`): old grinder Mok hid a hairline flaw in the Lightkeeper's new lens so the sea shows once a night; the apprentice machine Guseul found it and hasn't reported it. Find it (OBS, or Guseul persuaded / Seo-ha) and see it installed (logged as a "window", or hidden under polish, AGI) → boss **weaken**. 2 personas, scene + 2 portraits by Codex (unreviewed). Every Sea act now draws 2 of 3.
+- **Verified**: content + route tests; UI two quest paths to stage 2 (1280×720; 390×844, rerun with high stats after the first run's OBS roll failed, which correctly left the stage-1 option locked), 0 console errors; local Ollama 2/2 in character.
+
 ## 2026-11-04 — Third Sea Act 5 district, The Gray Shallows (Claude Opus 5.5, same goal)
 
 - `d5_sea_shallows` (route `sea_5`): at low tide memory-fishers wade into the gray shallows on ropes; a mother lost her child's voice to the last flood. Learn where it sank (Bong at the rope post, Ae-ri the fisher, the mother's photo, or Parang), then bring it back on Bong's rope, by Parang calling it, or by force (STR, costs HP) → boss **marked**. 2 personas, scene + 2 portraits by Codex (unreviewed). Sea Act 5 draws 2 of 3.

@@ -203,4 +203,96 @@ export const SEA_VARIETY_EVENTS: EventDef[] = [
     ],
     gmHints: ['IX contact', 'drowned loudspeaker', 'erased sea promise'],
   },
+  // 2026-11-04: a quiet-wonder moment per Sea act (the Deep acts each have one or two; the Sea had none). Small, on land,
+  // the water kept at a distance (bible: never only romantic).
+  {
+    id: 'sea4_salt_stars',
+    acts: [4],
+    route: 'sea_4',
+    title: t('소금 별', 'Salt Stars'),
+    image: 'v2/events/sea4_salt_stars.webp',
+    text: t(
+      '마른 항구 바닥에 소금 결정이 흩어져 있다. 작업등이 꺼지자 결정마다 남은 빛이 맺힌다. 하역조 아이들이 바닥에 누워 그걸 별이라고 부른다.\n“진짜 별은 본 적 없어요. 이게 더 가까워요.”',
+      'Salt crystals lie scattered across the dry harbor floor. When the work lamps go out, each one holds a little leftover light. The crew’s kids lie on the floor and call them stars.\n“Never seen real stars. These are closer.”',
+    ),
+    options: [
+      {
+        label: t('아이들 곁에 누워 본다', 'Lie down beside the kids'),
+        hint: t('+10 HP · 추적 −4', '+10 HP · −4 Trace'),
+        success: {
+          text: t('차가운 바닥. 머리 위로 크레인 그림자, 등 밑으로 소금 별. 숨이 느려진다.', 'A cold floor. Crane shadows overhead, salt stars beneath your back. Your breathing slows.'),
+          effects: [{ kind: 'hp', amount: 10 }, { kind: 'trace', amount: -4 }],
+        },
+      },
+      {
+        label: t('별 하나에 이름을 붙여 준다', 'Name one of the stars'),
+        hint: t('◈ +4', '+4 ◈'),
+        success: {
+          text: t('아이들이 그 이름을 따라 부른다. 내일은 다른 별에 다른 이름이 붙을 것이다.', 'The kids repeat the name. Tomorrow a different star will get a different name.'),
+          effects: [{ kind: 'echoes', amount: 4 }],
+        },
+      },
+    ],
+    gmHints: ['quiet wonder', 'salt crystals', 'kids on the harbor floor'],
+  },
+  {
+    id: 'sea5_paper_lanterns',
+    acts: [5],
+    route: 'sea_5',
+    title: t('썰물의 등', 'Lanterns at Low Tide'),
+    image: 'v2/events/sea5_paper_lanterns.webp',
+    text: t(
+      '썰물 때 바지선 사람들이 종이 등을 물가에 띄운다. 등마다 지워진 사람의 이름이 적혀 있다. 등은 멀리 가지 않는다. 회색 물 바로 앞에서 천천히 돈다.',
+      'At low tide the barge folk float paper lanterns at the water’s edge, each with an erased person’s name on it. The lanterns don’t go far. They turn slowly just short of the gray water.',
+    ),
+    options: [
+      {
+        label: t('등 하나에 불을 붙인다', 'Light a lantern'),
+        hint: t('◈ +5', '+5 ◈'),
+        success: {
+          text: t('등이 물가에서 한 바퀴 돈다. 누군가 그 이름을 작게 부른다.', 'The lantern turns once at the edge. Someone says the name quietly.'),
+          effects: [{ kind: 'echoes', amount: 5 }],
+        },
+      },
+      {
+        label: t('등이 다 꺼질 때까지 지켜본다', 'Watch until the last one goes out'),
+        hint: t('+8 HP · 추적 −3', '+8 HP · −3 Trace'),
+        success: {
+          text: t('마지막 등이 꺼진다. 바지선 사람들이 하나씩 고개를 숙이고 돌아간다.', 'The last lantern goes out. One by one the barge folk bow and turn back.'),
+          effects: [{ kind: 'hp', amount: 8 }, { kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+    gmHints: ['quiet wonder', 'paper lanterns', 'names of the erased'],
+  },
+  {
+    id: 'sea6_fog_bow',
+    acts: [6],
+    route: 'sea_6',
+    title: t('안개 무지개', 'The Fog-Bow'),
+    image: 'v2/events/sea6_fog_bow.webp',
+    text: t(
+      '등대 빛이 지나간 직후, 철탑 길 위 안개에 흰 무지개가 선다. 색이 없는 무지개다. 무적을 불던 등대단원이 입을 떼고 그걸 본다. 잠깐, 아무도 불지 않는다.',
+      'Just after the lighthouse beam passes, a white rainbow stands in the fog over the causeway: a rainbow without colour. The Keeper on the foghorn lowers it to look. For a moment, nobody blows.',
+    ),
+    options: [
+      {
+        label: t('가만히 서서 본다', 'Stand still and look'),
+        hint: t('+10 HP', '+10 HP'),
+        success: {
+          text: t('무지개가 다음 빛에 지워진다. 무적이 다시 운다. 그 사이가 생각보다 길었다.', 'The next sweep wipes the bow away and the foghorn sounds again. The pause was longer than it seemed.'),
+          effects: [{ kind: 'hp', amount: 10 }],
+        },
+      },
+      {
+        label: t('무적이 쉬는 사이에 지나간다', 'Pass while the horn is quiet'),
+        hint: t('추적 −8 · ◈ +2', '−8 Trace · +2 ◈'),
+        success: {
+          text: t('등대단원들이 모두 위를 보는 사이, 초소 하나를 소리 없이 지난다.', 'While every Keeper is looking up, you slip past a post without a sound.'),
+          effects: [{ kind: 'trace', amount: -8 }, { kind: 'echoes', amount: 2 }],
+        },
+      },
+    ],
+    gmHints: ['quiet wonder', 'white fog-bow', 'the foghorn pauses'],
+  },
 ]

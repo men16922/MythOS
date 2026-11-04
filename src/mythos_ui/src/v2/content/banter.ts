@@ -373,6 +373,65 @@ export const BANTER: BanterDef[] = [
       { who: 'parang', text: t('빈칸 좋아. 거기 아무거나 써도 돼.', 'Good. Write anything there.') },
     ],
   },
+  // 2026-11-05: Archive companions (Act 2 recruit pool) with the first six.
+  {
+    id: 'b_io_taeo_report',
+    pair: ['io', 'tae_o'],
+    lines: [
+      { who: 'io', text: t('태오 님의 보고서에는 문장 하나가 빠져 있습니다.', 'Tae-o, your report is missing one sentence.') },
+      { who: 'tae_o', text: t('안다.', 'I know.') },
+      { who: 'io', text: t('빠진 자리는 색인에 빈칸으로 남겨 두겠습니다.', 'I will index the gap as a blank.') },
+      { who: 'tae_o', text: t('그거면 된다.', 'That will do.') },
+    ],
+  },
+  {
+    id: 'b_miro_suah_name',
+    pair: ['miro', 'su_ah'],
+    lines: [
+      { who: 'miro', text: t('…너 이름 뭐였지.', '…What was your name again.') },
+      { who: 'su_ah', text: t('수아. 붕대 감아 준 사람.', 'Su-ah. The one who bandaged you.') },
+      { who: 'miro', text: t('이름은 까먹었는데 붕대는 기억나.', 'I forgot the name. I remember the bandage.') },
+      { who: 'su_ah', text: t('그럼 그걸로 됐어.', 'Then that’s enough.') },
+    ],
+  },
+  {
+    id: 'b_doyun_kai_count',
+    pair: ['doyun', 'kai'],
+    lines: [
+      { who: 'doyun', text: t('카이 씨, 방금 몇 명 셌어요?', 'Kai, how many did you just count?') },
+      { who: 'kai', text: t('다섯이요. 기계까지 치면 일곱.', 'Five. Seven if you count the machines.') },
+      { who: 'doyun', text: t('저는 기계는 안 셌어요. 다음부턴 셀게요.', 'I didn’t count the machines. I will from now on.') },
+    ],
+  },
+  {
+    id: 'b_bel_linyue_ledger',
+    pair: ['bel', 'lin_yue'],
+    lines: [
+      { who: 'bel', text: t('네 장부, 빨간 줄 그은 쪽이 제일 길더라.', 'Your ledger. The page struck in red is the longest.') },
+      { who: 'lin_yue', text: t('지운 게 아니야. 못 받은 거야.', 'It isn’t erased. It’s unpaid.') },
+      { who: 'bel', text: t('편집자 눈엔 같은 줄이야.', 'To an editor it’s the same line.') },
+      { who: 'lin_yue', text: t('그래서 네가 편집자 그만둔 거잖아.', 'Which is why you quit being one.') },
+    ],
+  },
+  {
+    id: 'b_han_rem_sleep',
+    pair: ['rem', 'han'],
+    lines: [
+      { who: 'rem', text: t('한 씨는 꽂지 않고도 자요?', 'Han, can you sleep without plugging in?') },
+      { who: 'han', text: t('그게 원래 자는 거야.', 'That’s what sleeping is.') },
+      { who: 'rem', text: t('그럼 오늘 밤엔 옆에서 보고 배울게요.', 'Then tonight I’ll watch and learn.') },
+      { who: 'han', text: t('보고 있으면 못 자.', 'Nobody sleeps while they’re being watched.') },
+    ],
+  },
+  {
+    id: 'b_bel_kai_draft',
+    pair: ['bel', 'kai'],
+    lines: [
+      { who: 'bel', text: t('네 꿈 말이야. 초고치고는 잘 썼어.', 'That dream of yours. Not bad for a first draft.') },
+      { who: 'kai', text: t('고칠 데가 있어요?', 'Anything to fix?') },
+      { who: 'bel', text: t('없어. 손대면 네 꿈이 아니게 돼.', 'No. Touch it and it stops being yours.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

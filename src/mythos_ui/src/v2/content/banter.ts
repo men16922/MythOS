@@ -492,6 +492,61 @@ export const BANTER: BanterDef[] = [
       { who: 'lin_yue', text: t('그러니까 책이 안 돌아오지.', 'That’s why your books never come back.') },
     ],
   },
+  {
+    id: 'b_han_miro_unrecorded',
+    pair: ['han', 'miro'],
+    lines: [
+      { who: 'han', text: t('사람들이 너를 금방 잊는다며. 나는 일부러 그렇게 사는데.', 'They say people forget you fast. I live like that on purpose.') },
+      { who: 'miro', text: t('…너는 고른 거잖아.', '…You chose it.') },
+      { who: 'han', text: t('그래. 그러니까 네 이름은 내가 외워 둘게.', 'Yeah. So I’ll be the one who keeps your name.') },
+    ],
+  },
+  {
+    id: 'b_suah_doyun_dent',
+    pair: ['su_ah', 'doyun'],
+    lines: [
+      { who: 'su_ah', text: t('네 방어막, 앞보다 뒤가 더 찌그러졌어.', 'Your plating’s more dented on the back than the front.') },
+      { who: 'doyun', text: t('자꾸 돌아봐서요. 누가 뒤처졌나 세느라.', 'I keep turning round. Counting who’s fallen behind.') },
+      { who: 'su_ah', text: t('그럼 뒤를 두껍게 벼려 줄게.', 'Then I’ll forge the back thicker.') },
+    ],
+  },
+  {
+    id: 'b_io_suah_recast',
+    pair: ['io', 'su_ah'],
+    lines: [
+      { who: 'io', text: t('수아 님이 벼리는 잔향 일부는 제 서가에 실패한 루프로 분류되어 있었습니다.', 'Su-ah, some of the Echoes you forge were once shelved with me as failed loops.') },
+      { who: 'su_ah', text: t('그럼 네 책장으로 방어막 만드는 셈이네.', 'So I’m making plating out of your bookshelves.') },
+      { who: 'io', text: t('대출 중으로 표시해 두겠습니다.', 'I will mark them as on loan.') },
+    ],
+  },
+  {
+    id: 'b_miro_kai_morning',
+    pair: ['miro', 'kai'],
+    lines: [
+      { who: 'miro', text: t('…내 이름, 내일도 기억해?', '…Will you remember my name tomorrow?') },
+      { who: 'kai', text: t('그럼 아침마다 한 번씩 불러 줄게요. 미로.', 'Then I’ll say it once every morning. Miro.') },
+      { who: 'miro', text: t('…오늘 거 하나 더.', '…One more for today.') },
+      { who: 'kai', text: t('미로.', 'Miro.') },
+    ],
+  },
+  {
+    id: 'b_linyue_doyun_price',
+    pair: ['lin_yue', 'doyun'],
+    lines: [
+      { who: 'lin_yue', text: t('명단 맨 끝 줄이었다며. 너한테 매겨진 값이 얼마였어?', 'You were the list’s last line. What price did they put on you?') },
+      { who: 'doyun', text: t('점수만 있었어요. 낮은 점수요.', 'Just a score. A low one.') },
+      { who: 'lin_yue', text: t('점수는 값이 아니야. 넌 아무한테도 빚 없어. 계속 그렇게 해.', 'A score isn’t a price. You owe nobody. Keep it that way.') },
+    ],
+  },
+  {
+    id: 'b_bel_miro_cards',
+    pair: ['bel', 'miro'],
+    lines: [
+      { who: 'bel', text: t('네 얼굴, 반납 카드잖아. 도장이 겹겹이야.', 'Your face is return cards. Stamp over stamp.') },
+      { who: 'miro', text: t('…읽지 마.', '…Don’t read them.') },
+      { who: 'bel', text: t('안 읽어. 남의 글 허락 없이 안 본 지 좀 됐어.', 'I won’t. I haven’t read anyone’s words without asking for a while now.') },
+    ],
+  },
 ]
 
 /** Banter the two deployed companions can have in this act. */

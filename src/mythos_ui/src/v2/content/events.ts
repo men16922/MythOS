@@ -1872,6 +1872,15 @@ const A3: EventDef[] = [
           ],
         },
       },
+      {
+        label: t('도윤이 자기가 있던 줄을 찾아본다', 'Doyun looks for the line he used to be on'),
+        hint: t('인간성 +1 · 도윤 유대 +1', '+1 Humanity · Doyun bond +1'),
+        requires: { companion: 'doyun' },
+        success: {
+          text: t('도윤이 스크롤을 끝까지 내린다. 맨 끝 줄에는 이제 다른 사람 이름이 있다. 도윤이 그 사진을 오래 본다. “이 사람도 세 번 셀게요.”', 'Doyun scrolls to the bottom. The last line holds someone else’s name now. He looks at the photo a long time. “I’ll count this one three times too.”'),
+          effects: [{ kind: 'axis', axis: 'humanity' }, { kind: 'bond', id: 'doyun', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['optimization queue', 'administrator terminal', 'who gets erased'],
   },
@@ -2750,6 +2759,15 @@ const A3_EXTRA: EventDef[] = [
             { kind: 'hp', amount: -6 },
             { kind: 'trace', amount: -8 },
           ],
+        },
+      },
+      {
+        label: t('벨이 견적 문장을 첨삭한다', 'Let Bel mark up the quote'),
+        hint: t('추적 −10 · 벨 유대 +1', '−10 Trace · Bel bond +1'),
+        requires: { companion: 'bel' },
+        success: {
+          text: t('벨이 거울에 손가락으로 줄을 긋는다. “‘공평하지 않다’고? 누구한테. 주어가 빠졌어.” 스피커가 잠시 멈춘다. 견적이 철회되고 문이 열린다.', 'Bel draws a line across the mirror with one finger. “‘Hardly fair’? To whom. No subject.” The speaker pauses. The quote is withdrawn, and the doors open.'),
+          effects: [{ kind: 'trace', amount: -10 }, { kind: 'bond', id: 'bel', amount: 1 }],
         },
       },
     ],

@@ -1,5 +1,10 @@
 # Progress log archive (moved 2026-11-04 to keep `docs/PROGRESS_LOG.md` in budget)
 
+## 2026-11-04 — Four more Outside the List scenes (26), full English run (Claude Opus 5.5, same goal)
+
+- `outside_ev_cat` (the cat the Crew don't count), `outside_ev_bathhouse` (the boiler kept on for workers off the list), `outside_ev_seal` (name seals stamped where the registration number should go), `outside_ev_vending` (a machine that serves anyone who knows the knock); Codex art (unreviewed). One hint ran over the length limit and was shortened. 26 route events.
+- **Verified**: content + event-balance + outside tests; UI on the route (KO/EN, desktop/390 px), 0 console errors. Full **English** Deep + Signal+ UI playthrough with everything up to the previous commit: victory in 23 min, 40 district and 97 dialogue polls, no errors.
+
 ## 2026-11-04 — A quiet moment per Sea act (Claude Opus 5.5, same goal)
 
 - Each Deep act has one or two "quiet wonder" scenes; the Sea had none among ~30 heavy ones. `sea4_salt_stars` (crew kids call the salt crystals on the dry floor stars), `sea5_paper_lanterns` (lanterns with erased names turning just short of the gray water), `sea6_fog_bow` (a colourless fog-bow; for a moment nobody blows the foghorn). Small, on land, the water kept at a distance per the bible; Codex art (unreviewed).

@@ -663,6 +663,15 @@ export const ORIGIN_EVENTS: EventDef[] = [
           effects: [{ kind: 'combat', encounterId: 'a6_event_ambush' }],
         },
       },
+      {
+        label: t('이오가 빈 영수증에 반납 기록을 적는다', 'Io fills in the blank receipt'),
+        hint: t('카드 1장 선택 · 이오 유대 +1', 'Pick 1 card · Io bond +1'),
+        requires: { companion: 'io' },
+        success: {
+          text: t('이오가 영수증에 반납 번호와 날짜를 정확히 적는다. 병사가 반납 완료 도장을 찍는다. 사물함 하나가 열린다.', 'Io writes the return number and date on the receipt, exactly. The soldier stamps it RETURNED. One locker opens.'),
+          effects: [{ kind: 'card_choice' }, { kind: 'bond', id: 'io', amount: 1 }],
+        },
+      },
     ],
   },
   // 2026-11-04: three more First Record scenes (Act 6 rolled from one of the smallest late pools).

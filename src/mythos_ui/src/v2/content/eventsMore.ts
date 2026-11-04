@@ -286,6 +286,15 @@ export const A1_MORE: EventDef[] = [
           effects: [{ kind: 'trace', amount: 8 }],
         },
       },
+      {
+        label: t('태오가 단속국 스캔 주기를 읊는다', 'Let Tae-o call the scan cycle he used to run'),
+        hint: t('추적 −6 · 태오 유대 +1', '−6 Trace · Tae-o bond +1'),
+        requires: { companion: 'tae_o' },
+        success: {
+          text: t('“여섯, 일곱. 지금.” 셋이 한꺼번에 가운데로 들어선다. 빔이 아무도 없는 끝자리만 훑고 지나간다.', '“Six, seven. Now.” All three step into the middle together. The beam sweeps an empty end spot.'),
+          effects: [{ kind: 'trace', amount: -6 }, { kind: 'bond', id: 'tae_o', amount: 1 }],
+        },
+      },
     ],
     gmHints: ['scan beam', 'bus stop', 'bystanders', 'citizen score'],
   },
@@ -430,6 +439,15 @@ export const A1_MORE: EventDef[] = [
         success: {
           text: t('둘이 말없이 유리 앞에 선다. 노인이 전쟁 전 동네 이야기를 조금 해 준다.', 'You stand at the glass together. He tells you a little about the block before the war.'),
           effects: [{ kind: 'hp', amount: 4 }],
+        },
+      },
+      {
+        label: t('린위에가 전당포 이자를 다시 계산한다', 'Let Lin Yue redo the pawnbroker’s interest'),
+        hint: t('◈ +5 · 린위에 유대 +1', '+5 ◈ · Lin Yue bond +1'),
+        requires: { companion: 'lin_yue' },
+        success: {
+          text: t('린위에가 장부를 넘기다 한 줄을 짚는다. “이자를 두 번 매겼네.” 주인이 헛기침을 한다. 훈장이 노인 손으로 돌아간다.', 'Lin Yue flips through the ledger and taps one line. “You charged the interest twice.” The pawnbroker coughs. The medal goes back to the old man.'),
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'bond', id: 'lin_yue', amount: 1 }],
         },
       },
     ],
@@ -1071,6 +1089,15 @@ export const A3_MORE: EventDef[] = [
             { kind: 'codex', id: 'lore_spire' },
             { kind: 'trace', amount: 3 },
           ],
+        },
+      },
+      {
+        label: t('렘이 해치 옆에 앉아 안쪽 소리를 듣는다', 'Rem sits by the hatch and listens inside'),
+        hint: t('HP +6 · 렘 유대 +1', '+6 HP · Rem bond +1'),
+        requires: { companion: 'rem' },
+        success: {
+          text: t('렘이 해치에 귀를 댄다. “안쪽 환풍기 하나가 꿈을 꾸고 있어요. 이분은 그게 꺼지지 않게 기도하는 거예요.” 정비공이 처음으로 웃는다. 정비 통로에서 잠깐 쉬어 가라고 한다.', 'Rem puts an ear to the hatch. “One of the fans inside is dreaming. He’s praying it doesn’t get switched off.” The man smiles for the first time and lets you rest in the service corridor.'),
+          effects: [{ kind: 'hp', amount: 6 }, { kind: 'bond', id: 'rem', amount: 1 }],
         },
       },
     ],
@@ -1777,6 +1804,15 @@ export const SUAH_ARC: EventDef[] = [
             { kind: 'card_choice' },
             { kind: 'upgrade_card', count: 1, random: true },
           ],
+        },
+      },
+      {
+        label: t('수아가 코어 열기로 철판을 벼린다', 'Let Su-ah forge a plate in a core’s heat'),
+        hint: t('소모품 1개 · 수아 유대 +1', '1 consumable · Su-ah bond +1'),
+        requires: { companion: 'su_ah' },
+        success: {
+          text: t('수아가 코어 덮개를 열고 열기에 철판을 댄다. 몇 번 두드리자 얇고 단단한 판이 나온다. “오래는 못 가. 한 번은 써.”', 'Su-ah opens a core housing and holds a plate to the heat. A few blows, and it comes out thin and hard. “Won’t last long. Use it once.”'),
+          effects: [{ kind: 'consumable' }, { kind: 'bond', id: 'su_ah', amount: 1 }],
         },
       },
     ],

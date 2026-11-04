@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 794,
+ "codex_image_calls": 797,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4362,6 +4362,15 @@
    ],
    "ts": "2026-10-26T03:59:20"
   },
+  "v2/districts/d2_outside_bus_depot.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). The Last-Bus Depot: a cramped old bus depot at the end of a back alley at night, a battered night bus with dim interior lights parked inside, a boxy dispatch terminal blinking green, a shelf of lost-and-found items, the depot shutter half raised, outside a line of tired workers in aprons waiting at a bus stop while two Closing Crew members in orange vests wait by the door under a rotating amber beacon. Wide cinematic environment concept art for a cyberpunk tactics game location screen, 16:9 landscape, painterly-realistic, Neo-Seoul undercity noir palette. Keep the lower third uncluttered. Absolutely no readable text, letters, numbers, logos, watermark, UI, frame or border.",
+   "refs": [
+    "resources/neo-seoul/v2/art/outside.webp"
+   ],
+   "ts": "2026-11-04T14:03:36"
+  },
   "v2/districts/d2_outside_laundry.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7126,6 +7135,15 @@
    ],
    "ts": "2026-11-04T10:36:34"
   },
+  "v2/npcs/bus_driver_gwang.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Driver Gwang, a stocky good-humoured bus driver in his fifties in a worn driver's jacket, arms resting over a large steering wheel, holding up an old plastic card (blank), easy grin. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: an old bus depot at the end of a back alley at night, an aging night bus, fluorescent light and a rotating amber beacon outside. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T14:03:19"
+  },
   "v2/npcs/cable_diver_kang.webp": {
    "generations": 1,
    "model": "codex-image",
@@ -7224,6 +7242,15 @@
     "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
    ],
    "ts": "2026-11-04T10:34:21"
+  },
+  "v2/npcs/dispatch_ticket.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, square, and do nothing else (no files, no code). Ticket, a boxy old dispatch terminal machine mounted on a post with a card slot and a single green blinking light like an eye, a little dented, stern but uncertain. Cinematic painterly-photoreal head-and-shoulders portrait, square 1:1, subject centered facing the camera three-quarters, shallow depth of field. Setting: an old bus depot at the end of a back alley at night, an aging night bus, fluorescent light and a rotating amber beacon outside. no readable text, no letters, no numbers, no logos, no watermark, no frame or border. Match the lighting, realism and color grade of the attached reference image, but a completely different subject.",
+   "refs": [
+    "resources/neo-seoul/v2/npcs/dream_binder_ol.webp"
+   ],
+   "ts": "2026-11-04T14:03:31"
   },
   "v2/npcs/draft_editor_yeon.webp": {
    "generations": 1,

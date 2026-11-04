@@ -2,6 +2,11 @@
 
 Last updated: 2026-11-04
 
+## 2026-11-04 — Third Outside the List district, The Last-Bus Depot (Claude Opus 5.5, same goal)
+
+- `d2_outside_bus_depot` (route `outside`): the night bus that takes off-list workers home is scrapped tonight once the Crew recalls its route card. Find a card the system still accepts (Driver Gwang's cancelled-but-never-expired card, Tae-o checking the bus, or arguing the dispatch machine into "undetermined means allowed"), then get the bus out → boss **weaken**. 2 personas, scene + 2 portraits by Codex (unreviewed). The route now draws 2 of 3 (route test updated to "two route districts").
+- **Verified**: content + route tests; UI two quest paths to stage 2 (1280×720, 390×844), 0 console errors; local Ollama: Gwang drifted into 반말 and then denied tonight was the last run, both fixed by stating them in the persona (LESSONS line added for the pattern).
+
 ## 2026-11-04 — The Crew Dormitory and the Gray Shallows come back (Claude Opus 5.5, same goal)
 
 - `sea5_cb_dorm` (kept the dormitory → Cook Yeong's tide table on the breakwater post marks you passing: +12 HP, or move by the flood times, −12 Trace/+2◈) and `sea6_cb_shallows` (brought back the child's voice → it sings in the causeway fog and thins it: −12 Trace/+3◈ or +12 HP); Codex art (unreviewed). 30 callbacks.
@@ -106,8 +111,3 @@ Last updated: 2026-11-04
 - **Found** (Endless sim smoke after the day's changes): `runSim: step limit` was not a stuck loop but a run still alive after 5000 steps. Mixed bot, 12 canonical-style seeds: 9 die in lap 0, the other 3 survive 21–22 laps, bosses dying in 2–5 turns at lap 20. Same on yesterday's `3331ceb` (17 laps), so it predates today: +60 % HP added per lap is linear, the deck/implants/stats compound.
 - **Fixed**: `tuning.endless` `{ hpPct: 100, dmg: 3, compound: true }`: enemy HP doubles per lap (lap 0 unchanged). The three survivors now fall at lap 5 for both the mixed and the greedy bot (60 % compounding: laps 7–8). Setup text and `GAMEPLAY.md` say "doubles"; test that each lap adds more HP than the last.
 - **Breadth**: greedy, 8 fresh seeds: laps 0, 0, 2, 3, 4, 5, 5, 6 (mean ~3). New achievement "Fifth Layer of Echo" (lap 5; 81 in all). English quick playthrough (8 nodes + screen tour) OK.
-
-## 2026-11-04 — Sea UI run green; chronicle agendas get one AI line per chapter end (Claude Opus 5.5, same goal)
-
-- **Integration**: `ui_playthrough.py --sea` after the day's changes: OK in 1670 s, Acts 1–6 → victory, 0 console errors; `--daily`: OK in 690 s, victory. Chapter-end screen checked at 390 px; its kicker now says "Chronicle chapter N complete" instead of "Loop complete".
-- **Agenda line**: narrate kind `agenda` (`gm.py`: one person's one step, 1–2 sentences, never the next step; fallback = the authored stage line; client local line = the same). The chapter-end screen asks once for the last moved agenda and swaps in the model line with ✦ AI only when the model answers. Local `make gm-eval` (`gemma4:8b-64k`): `agenda_ko/en` usable 100 %, p50 0.5–0.7 s, faithful (one KO line swapped a posted note for a hologram). Browser with GM off: authored line stays, 0 console errors. Vertex not run.

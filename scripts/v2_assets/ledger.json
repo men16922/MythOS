@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 798,
+ "codex_image_calls": 802,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -5721,6 +5721,34 @@
    "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. An old public terminal set into a grimy wall, its screen glowing with a single unread message icon blinking; rain streaks down the wall; an empty street behind. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
    "refs": [],
    "ts": "2026-11-04T05:03:34"
+  },
+  "v2/events/pc_outside_shift.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A narrow back alley at night after closing, shops shuttered; an anonymous worker in an apron hurriedly loads boxes onto a half-full wooden handcart, a rotating amber beacon light glowing two alleys away. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T15:14:26"
+  },
+  "v2/events/pc_sea_tag.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. In the shadow of rusted shipping containers on a dry cracked harbor floor, an anonymous figure in a hooded work jacket crouches clutching a small wrapped bundle with a bright yellow seizure tag (blank) stuck on it, glancing over their shoulder. No ships. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T15:14:24"
+  },
+  "v2/events/pc_sea_wader.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Flat gray tide water over a drowned street under an overcast sky; an anonymous person wades slowly toward the viewer, soaked to the ankle, faint ghostly glows of someone else's memory (birthday candles) shimmering around their head. No ships. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T15:14:30"
+  },
+  "v2/events/pc_sea_watch.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A steel causeway over the sea in dense night fog; a lone hooded Keeper in a gray robe stands at the rail holding up an old lantern, weary, a brass foghorn mounted beside them, distant lighthouse glow. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T15:14:26"
   },
   "v2/events/pc_shelter.webp": {
    "generations": 1,

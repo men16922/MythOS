@@ -405,6 +405,193 @@ export const PROCEDURAL_EVENTS: EventDef[] = [
     ],
     gmHints: ['someone from an earlier loop', 'familiar passage', 'déjà vu'],
   },
+  // 2026-11-04: the route maps (Unwritten Sea, Outside the List) roll only their own route's events, so they had none.
+  {
+    id: 'pc_sea_tag',
+    acts: [4],
+    route: 'sea_4',
+    procedural: { brief: t('마른 항구에서 압류 딱지가 붙은 물건을 품에 안은 사람을 만난다.', 'On the dry harbor, you meet someone clutching a thing with a seizure tag on it.') },
+    title: t('딱지 붙은 물건', 'The Tagged Thing'),
+    image: 'v2/events/pc_sea_tag.webp',
+    text: t(
+      '컨테이너 그늘에 누군가 웅크리고 있다. 품에 안은 것에 노란 압류 딱지가 붙어 있다.\n“세관이 가져가기 전에 빼 왔어요. 근데 딱지가 안 떨어져요. 이거 붙어 있으면 어디서든 잡혀요.”',
+      'Someone crouches in a container’s shadow, hugging something with a yellow seizure tag on it.\n“Got it out before Customs took it. But the tag won’t come off. With it on, they catch you anywhere.”',
+    ),
+    options: [
+      {
+        label: t('딱지를 떼어 준다', 'Peel the tag off for them'),
+        hint: t('◈ +5 · 실패 시 추적 +6', '+5 ◈ · fail +6 Trace'),
+        check: { stat: 'agi', dc: 6 },
+        success: {
+          text: t('딱지가 한 번에 떨어진다. 그가 물건을 더 꼭 안는다.', 'The tag comes off in one go. They hold the thing tighter.'),
+          effects: [{ kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('딱지가 찢어지며 경보 칩이 울린다.', 'The tag tears and its alarm chip goes off.'),
+          effects: [{ kind: 'trace', amount: 6 }],
+        },
+      },
+      {
+        label: t('세관 순찰을 다른 쪽으로 돌린다', 'Draw the customs patrol the other way'),
+        hint: t('추적 +4 · 소모품', '+4 Trace · consumable'),
+        success: {
+          text: t('순찰이 당신을 쫓는 사이 그가 사라진다. 자리에 보급품 하나를 두고.', 'While the patrol chases you, they vanish, leaving a supply pack behind.'),
+          effects: [
+            { kind: 'trace', amount: 4 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+      {
+        label: t('못 본 척 지나간다', 'Walk past as if you saw nothing'),
+        hint: t('추적 −4', '−4 Trace'),
+        success: {
+          text: t('뒤에서 딱지가 바람에 파닥거리는 소리가 난다.', 'Behind you, the tag flutters in the wind.'),
+          effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+    ],
+    gmHints: ['seizure tag', 'dry harbor', 'stranger hiding'],
+  },
+  {
+    id: 'pc_sea_wader',
+    acts: [5],
+    route: 'sea_5',
+    procedural: { brief: t('밀물선에서 남의 기억을 떠안은 채 물속을 걷는 사람을 만난다.', 'On the tide line, you meet someone wading with a stranger’s memory on them.') },
+    title: t('젖은 발목', 'Wet to the Ankle'),
+    image: 'v2/events/pc_sea_wader.webp',
+    text: t(
+      '회색 물속을 누군가 천천히 걸어온다. 발목까지 젖었다. 눈빛이 두 사람 것처럼 흔들린다.\n“방금 남의 생일이 생각났어요. 케이크 촛불이 몇 개였는지까지. 이거, 누구한테 돌려줘야 하죠?”',
+      'Someone wades slowly through the gray water, soaked to the ankle, eyes wavering as if they belonged to two people.\n“I just remembered a stranger’s birthday. Down to how many candles. Who do I give this back to?”',
+    ),
+    options: [
+      {
+        label: t('물 밖으로 끌어낸다', 'Pull them out of the water'),
+        hint: t('파티 회복 6 · ◈ +3', 'heal party 6 · +3 ◈'),
+        success: {
+          text: t('뭍에 앉자 그의 눈빛이 하나로 돌아온다. “고마워요. 내 생일은 겨울이에요.”', 'On dry ground their eyes settle back into one. “Thank you. My birthday’s in winter.”'),
+          effects: [
+            { kind: 'heal_party', amount: 6 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+      {
+        label: t('그 기억을 대신 받아 준다', 'Take the memory from them'),
+        hint: t('◈ +8 · −5 HP', '+8 ◈ · −5 HP'),
+        success: {
+          text: t('촛불 여섯 개가 당신 머릿속에 켜진다. 남의 기억이 이렇게 무겁다.', 'Six candles light in your head. Someone else’s memory weighs this much.'),
+          effects: [
+            { kind: 'echoes', amount: 8 },
+            { kind: 'hp', amount: -5 },
+          ],
+        },
+      },
+      {
+        label: t('물을 피해 돌아간다', 'Go around the water'),
+        hint: t('추적 −4', '−4 Trace'),
+        success: {
+          text: t('뒤에서 그가 촛불 개수를 다시 센다.', 'Behind you they count the candles again.'),
+          effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+    ],
+    gmHints: ['gray tide', 'borrowed memory', 'wading stranger'],
+  },
+  {
+    id: 'pc_sea_watch',
+    acts: [6],
+    route: 'sea_6',
+    procedural: { brief: t('등대로 가는 철탑 길에서 혼자 불침번을 서는 등대단원을 만난다.', 'On the causeway to the lighthouse, you meet a Keeper standing a lonely night watch.') },
+    title: t('혼자 서는 불침번', 'The Lone Watch'),
+    image: 'v2/events/pc_sea_watch.webp',
+    text: t(
+      '안개 속 철탑 길에 등대단원 하나가 등불을 들고 서 있다. 교대자가 오지 않았다고 한다.\n“여기서 졸면 조수가 넘어와요. 그런데 사흘째 혼자예요.” 그가 당신을 본다. 교대자인지 침입자인지 가늠하는 눈이다.',
+      'A Keeper stands on the fogbound causeway holding a lamp. Their relief never came, they say.\n“Doze off here and the tide comes over. But I’ve been alone three days.” They study you, deciding: relief or intruder.',
+    ),
+    options: [
+      {
+        label: t('한 시간 대신 서 준다', 'Stand an hour for them'),
+        hint: t('추적 −10 · ◈ +3', '−10 Trace · +3 ◈'),
+        success: {
+          text: t('등대단원이 난간에 기대 잠든다. 깨어나서 초소 순찰표를 건넨다.', 'The Keeper sleeps against the rail. Waking, they hand you the posts’ patrol table.'),
+          effects: [
+            { kind: 'trace', amount: -10 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+      {
+        label: t('교대자인 척한다', 'Pretend to be the relief'),
+        hint: t('소모품 · 실패 시 추적 +8', 'consumable · fail +8 Trace'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t('그가 등불과 보급 꾸러미를 넘기고 떠난다. 등불은 놓고 간다.', 'They hand over the lamp and a supply bundle and leave. You set the lamp down.'),
+          effects: [{ kind: 'consumable' }],
+        },
+        failure: {
+          text: t('“교대 암구호는요?” 대답이 없자 그가 무적을 분다.', '“The relief password?” When you have none, they blow the foghorn.'),
+          effects: [{ kind: 'trace', amount: 8 }],
+        },
+      },
+      {
+        label: t('안개를 따라 비켜 간다', 'Slip past in the fog'),
+        hint: t('추적 −4', '−4 Trace'),
+        success: {
+          text: t('등불 빛이 안개 속에서 점점 작아진다.', 'The lamplight shrinks in the fog.'),
+          effects: [{ kind: 'trace', amount: -4 }],
+        },
+      },
+    ],
+    gmHints: ['lonely keeper', 'night watch', 'causeway fog'],
+  },
+  {
+    id: 'pc_outside_shift',
+    acts: [2],
+    route: 'outside',
+    procedural: { brief: t('폐점 뒤 뒷골목에서 명단에 없는 사람이 마지막 일을 끝내려 하고 있다.', 'In a back alley after closing, someone off the list is trying to finish one last job.') },
+    title: t('마지막 한 건', 'One Last Job'),
+    image: 'v2/events/pc_outside_shift.webp',
+    text: t(
+      '골목 끝에서 누군가 일을 서두른다. 손수레에 짐이 반쯤 실렸다. 정리반 경광등이 두 골목 건너에서 돈다.\n“이것만 갖다주면 오늘 끝이에요. 근데 손이 모자라요.”',
+      'At the end of the alley someone is rushing a job, a handcart half loaded. The Closing Crew’s beacon turns two alleys over.\n“Deliver this and I’m done for today. But I’m short of hands.”',
+    ),
+    options: [
+      {
+        label: t('짐 싣는 걸 돕는다', 'Help load the cart'),
+        hint: t('+20 ₵ · 실패 시 추적 +6', '+20 ₵ · fail +6 Trace'),
+        check: { stat: 'str', dc: 6 },
+        success: {
+          text: t('마지막 상자가 올라간다. 그가 품삯을 반 나눈다.', 'The last box goes on. They split the pay with you.'),
+          effects: [{ kind: 'credits', amount: 20 }],
+        },
+        failure: {
+          text: t('상자가 떨어져 요란한 소리가 난다. 경광등이 이쪽으로 돈다.', 'A box crashes down. The beacon swings this way.'),
+          effects: [{ kind: 'trace', amount: 6 }],
+        },
+      },
+      {
+        label: t('정리반 쪽을 망봐 준다', 'Keep watch toward the Crew'),
+        hint: t('추적 −8 · ◈ +3', '−8 Trace · +3 ◈'),
+        success: {
+          text: t('경광등이 다가올 때마다 신호를 준다. 둘 다 무사히 골목을 빠져나간다.', 'Each time the beacon nears you signal. You both get out of the alley clean.'),
+          effects: [
+            { kind: 'trace', amount: -8 },
+            { kind: 'echoes', amount: 3 },
+          ],
+        },
+      },
+      {
+        label: t('갈 길을 간다', 'Go on your way'),
+        hint: t('추적 −3', '−3 Trace'),
+        success: {
+          text: t('뒤에서 손수레 바퀴가 덜컹거린다.', 'Behind you a handcart wheel rattles.'),
+          effects: [{ kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+    gmHints: ['off-list worker', 'last delivery', 'closing crew beacon'],
+  },
 ]
 
 /**

@@ -264,6 +264,33 @@ def cases() -> list[Case]:
                 "person": "Chil-seong, a broker with a ring on every knuckle",
             },
         ),
+        # 2026-11-04: procedural events on the route maps (Unwritten Sea, Outside the List).
+        _narrate(
+            "event_open_procedural_sea_ko",
+            "event",
+            "ko",
+            {
+                "title": "혼자 서는 불침번",
+                "text": "안개 속 철탑 길에 등대단원 하나가 등불을 들고 서 있다. 교대자가 오지 않았다고 한다.",
+                "act": 6,
+                "party": ["서하"],
+                "procedural": "등대로 가는 철탑 길에서 혼자 불침번을 서는 등대단원을 만난다.",
+                "person": "붉은 목도리를 두른 순옥",
+            },
+        ),
+        _narrate(
+            "event_open_procedural_outside_en",
+            "event",
+            "en",
+            {
+                "title": "One Last Job",
+                "text": "At the end of the alley someone is rushing a job, a handcart half loaded.",
+                "act": 2,
+                "party": ["Tae-o"],
+                "procedural": "In a back alley after closing, someone off the list is trying to finish one last job.",
+                "person": "Mina with a barcode tattoo on her hand",
+            },
+        ),
         # Chronicle agendas: one person's step between chapters (authored stage line as the fallback).
         _narrate(
             "agenda_ko",
@@ -585,6 +612,7 @@ def main() -> int:
         choices=["ko", "en"],
         help="only the cases in this language (e.g. the English slice)",
     )
+    ap.add_argument("--only", help="only the cases whose id contains this text (e.g. procedural)")
     args = ap.parse_args()
     from mythos_v2.llm import build_text_llm
 
@@ -592,7 +620,11 @@ def main() -> int:
     if llm is None:
         print("MYTHOS_V2_GM=off: no model to evaluate", file=sys.stderr)
         return 2
-    case_list = [c for c in cases() if args.lang is None or c.lang == args.lang]
+    case_list = [
+        c
+        for c in cases()
+        if (args.lang is None or c.lang == args.lang) and (args.only is None or args.only in c.id)
+    ]
     print(f"gm-eval: {llm.name}, {len(case_list)} cases × {args.reps} reps")
     results = run(llm, case_list, args.reps)
     summary = summarize(results)

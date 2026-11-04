@@ -679,4 +679,107 @@ export const GLASS_EVENTS: EventDef[] = [
       },
     ],
   },
+  // 2026-11-04: three more Glass Library scenes (Act 4 rolled from one of the smallest late pools).
+  {
+    id: 'a4_reading_lamp',
+    acts: [4],
+    title: t('하나뿐인 독서등', 'The Only Reading Lamp'),
+    image: 'v2/events/a4_reading_lamp.webp',
+    text: t(
+      '열람실에 독서등이 하나뿐이다. 독자들이 책을 품에 안고 줄을 섰다. 맨 앞의 노인은 같은 쪽을 세 번째 읽는다.\n사서 기계가 말한다. “다음 분.” 아무도 움직이지 않는다.',
+      'The reading room has only one lamp. Readers queue with books held to their chests. The old man at the front is reading the same page for the third time.\nA librarian machine says, “Next.” Nobody moves.',
+    ),
+    options: [
+      {
+        label: t('고장 난 두 번째 등을 고친다', 'Fix the broken second lamp'),
+        hint: t('◈ +4 · 실패 시 추적 +5', '+4 ◈ · fail +5 Trace'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t('두 번째 등이 켜진다. 줄이 둘로 나뉜다. 노인이 마침내 다음 쪽을 넘긴다.', 'The second lamp comes on. The line splits in two. The old man finally turns the page.'),
+          effects: [{ kind: 'echoes', amount: 4 }],
+        },
+        failure: {
+          text: t('불꽃이 튀고 검열 렌즈가 이쪽을 돈다.', 'A spark jumps and a censor lens turns this way.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('당신 차례를 맨 뒤 아이에게 준다', 'Give your turn to the child at the back'),
+        hint: t('◈ +3 · +4 HP', '+3 ◈ · +4 HP'),
+        success: {
+          text: t('아이가 등 아래서 그림책을 편다. 당신은 줄 끝에 앉아 잠깐 쉰다.', 'The child opens a picture book under the lamp. You sit at the end of the line and rest a moment.'),
+          effects: [{ kind: 'echoes', amount: 3 }, { kind: 'hp', amount: 4 }],
+        },
+      },
+    ],
+    gmHints: ['reading lamp', 'queue of readers', 'one lamp for everyone'],
+  },
+  {
+    id: 'a4_footnote_stairs',
+    acts: [4],
+    title: t('각주 계단', 'The Footnote Stairs'),
+    image: 'v2/events/a4_footnote_stairs.webp',
+    text: t(
+      '위층 서가로 가는 계단이 각주로 되어 있다. 한 칸 밟을 때마다 작은 글씨가 소리 내어 읽힌다. 어떤 칸은 당신에 관한 각주다.',
+      'The stairs to the upper stacks are made of footnotes. Each step reads its small print aloud. Some steps are footnotes about you.',
+    ),
+    options: [
+      {
+        label: t('각주를 하나씩 읽으며 오른다', 'Climb reading each footnote'),
+        hint: t('관찰 6 · 성공 ◈ +5 · 실패 −4 HP', 'OBS 6 · success: +5 ◈ · fail: −4 HP'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t('당신에 관한 각주 하나가 이번 루프의 일과 다르다. 그 차이를 기억해 둔다.', 'One footnote about you differs from what happened this loop. You remember the difference.'),
+          effects: [{ kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('글씨에 정신이 팔려 발을 헛디딘다.', 'Distracted by the print, you miss a step.'),
+          effects: [{ kind: 'hp', amount: -4 }],
+        },
+      },
+      {
+        label: t('귀를 막고 두 칸씩 뛰어오른다', 'Cover your ears and take them two at a time'),
+        hint: t('추적 −5', '−5 Trace'),
+        success: {
+          text: t('각주들이 웅얼거리며 뒤로 처진다. 위층 서가는 조용하다.', 'The footnotes mumble and fall behind. The upper stacks are quiet.'),
+          effects: [{ kind: 'trace', amount: -5 }],
+        },
+      },
+    ],
+    gmHints: ['footnote stairs', 'small print', 'notes about you'],
+  },
+  {
+    id: 'a4_return_letters',
+    acts: [4],
+    title: t('수취인 불명', 'Return to Sender'),
+    image: 'v2/events/a4_return_letters.webp',
+    text: t(
+      '반송 편지 수레가 서가 사이에 멈춰 있다. 봉투마다 ‘수취인 불명’ 도장. 받는 사람이 지워진 편지들이다. 수레를 미는 기계가 멈춘 채 깜빡인다.',
+      'A cart of returned letters has stopped between the shelves, each envelope stamped “addressee unknown”: letters whose recipients were erased. The machine pushing it blinks, stalled.',
+    ),
+    options: [
+      {
+        label: t('봉투 하나를 열어 본다', 'Open one envelope'),
+        hint: t('◈ +5 · 추적 +3', '+5 ◈ · +3 Trace'),
+        success: {
+          text: t('“잘 지내니. 비가 오면 네 생각이 나.” 서명은 지워져 있다. 당신은 그 편지를 접어 품에 넣는다.', '“Are you well? I think of you when it rains.” The signature is erased. You fold the letter into your coat.'),
+          effects: [{ kind: 'echoes', amount: 5 }, { kind: 'trace', amount: 3 }],
+        },
+      },
+      {
+        label: t('수레 기계를 다시 움직이게 한다', 'Get the cart machine moving again'),
+        hint: t('지능 6 · 성공 소모품 · 실패 추적 +4', 'INT 6 · success: consumable · fail: +4 Trace'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t('기계가 다시 굴러간다. 지나가며 짐칸에서 보급품 하나를 떨어뜨린다.', 'The machine rolls on, dropping a supply pack from its tray as it goes.'),
+          effects: [{ kind: 'consumable' }],
+        },
+        failure: {
+          text: t('기계가 경보를 울린다. “반송 처리 오류.”', 'The machine alarms: “Return processing error.”'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+    ],
+    gmHints: ['returned letters', 'addressee unknown', 'stalled cart'],
+  },
 ]

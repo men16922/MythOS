@@ -665,4 +665,102 @@ export const ORIGIN_EVENTS: EventDef[] = [
       },
     ],
   },
+  // 2026-11-04: three more First Record scenes (Act 6 rolled from one of the smallest late pools).
+  {
+    id: 'a6_type_tray',
+    acts: [6],
+    title: t('빠진 활자', 'The Missing Type'),
+    image: 'v2/events/a6_type_tray.webp',
+    text: t(
+      '최초 기록의 조판대. 활자 상자에 칸 하나가 비어 있다. 당신 이름의 첫 글자 자리다. 식자공 기계가 빈칸을 손가락으로 두드린다.',
+      'The first record’s composing stone. One compartment in the type case is empty: the place for the first letter of your name. A typesetter machine taps the gap.',
+    ),
+    options: [
+      {
+        label: t('당신 손으로 그 글자를 새긴다', 'Carve the letter with your own hands'),
+        hint: t('민첩 6 · 성공 ◈ +6 · 실패 −4 HP', 'AGI 6 · success: +6 ◈ · fail: −4 HP'),
+        check: { stat: 'agi', dc: 6 },
+        success: {
+          text: t('삐뚤지만 읽힌다. 식자공이 그 활자를 조판에 끼운다. 한 줄이 완성된다.', 'Crooked, but legible. The typesetter sets it into the forme. One line is complete.'),
+          effects: [{ kind: 'echoes', amount: 6 }],
+        },
+        failure: {
+          text: t('칼끝이 미끄러져 손가락을 벤다.', 'The blade slips and cuts your finger.'),
+          effects: [{ kind: 'hp', amount: -4 }],
+        },
+      },
+      {
+        label: t('빈칸 그대로 찍게 둔다', 'Let them print with the gap'),
+        hint: t('추적 −6 · +4 HP', '−6 Trace · +4 HP'),
+        success: {
+          text: t('당신 이름 자리가 비어 찍힌다. 기록에 없는 사람은 감시에도 덜 걸린다.', 'Your name prints with a gap. Someone missing from the record is harder to watch.'),
+          effects: [{ kind: 'trace', amount: -6 }, { kind: 'hp', amount: 4 }],
+        },
+      },
+    ],
+    gmHints: ['missing type', 'typesetter machine', 'your initial'],
+  },
+  {
+    id: 'a6_name_index',
+    acts: [6],
+    title: t('찾아보기', 'The Index'),
+    image: 'v2/events/a6_name_index.webp',
+    text: t(
+      '최초 기록 맨 뒤의 찾아보기. 도시의 모든 이름이 가나다순으로 있다. 당신 이름이 있어야 할 자리 앞뒤로 이름 둘. 그 사이는 붙어 있다.',
+      'The index at the back of the first record. Every name in the city, in order. Two names sit where yours should be between them. They are pressed together.',
+    ),
+    options: [
+      {
+        label: t('두 이름 사이를 벌려 쓴다', 'Prise the two names apart and write yours in'),
+        hint: t('매력 6 · 성공 ◈ +5 · 실패 추적 +5', 'CHA 6 · success: +5 ◈ · fail: +5 Trace'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t('앞뒤 이름의 주인들이 자리를 조금씩 비켜 준다. 당신 이름이 들어간다. 작게.', 'The owners of the names either side shift over a little. Your name fits. Small.'),
+          effects: [{ kind: 'echoes', amount: 5 }],
+        },
+        failure: {
+          text: t('이름들이 다시 붙는다. 찾아보기가 경고음을 낸다.', 'The names press back together. The index chimes a warning.'),
+          effects: [{ kind: 'trace', amount: 5 }],
+        },
+      },
+      {
+        label: t('찾아보기의 오류를 하나 고쳐 준다', 'Correct one error in the index'),
+        hint: t('+15 ₵ · 추적 −3', '+15 ₵ · −3 Trace'),
+        success: {
+          text: t('다른 사람의 틀린 쪽 번호를 바로잡는다. 관리 기계가 수고비를 건넨다.', 'You fix someone else’s wrong page number. The maintenance machine pays you for the trouble.'),
+          effects: [{ kind: 'credits', amount: 15 }, { kind: 'trace', amount: -3 }],
+        },
+      },
+    ],
+    gmHints: ['name index', 'alphabetical city', 'no room for you'],
+  },
+  {
+    id: 'a6_unused_drafts',
+    acts: [6],
+    title: t('쓰이지 않은 초안들', 'The Unused Drafts'),
+    image: 'v2/events/a6_unused_drafts.webp',
+    text: t(
+      '서랍마다 도시의 다른 초안이 들어 있다. 하나는 강이 남쪽으로 흐르고, 하나는 탑이 없고, 하나는 지도 남쪽 끝에 칸 하나가 더 있다. 쓰이지 않은 도시들이다.',
+      'Every drawer holds a different draft of the city. In one the river runs south, in one there is no tower, in one there is an extra square at the map’s southern edge. Cities that were never used.',
+    ),
+    options: [
+      {
+        label: t('남쪽 끝 칸이 있는 초안을 읽는다', 'Read the draft with the extra southern square'),
+        hint: t('◈ +6 · 추적 +4', '+6 ◈ · +4 Trace'),
+        success: {
+          text: t('그 칸에는 물결 모양이 그려져 있다. 다음 장에서 그 물결이 지워진다. 지운 손은 서둘렀다.', 'That square has a wave pattern drawn in it. On the next page the waves are erased, by a hurried hand.'),
+          effects: [{ kind: 'echoes', amount: 6 }, { kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('서랍을 닫고 지나간다', 'Close the drawers and move on'),
+        hint: t('추적 −5 · +3 HP', '−5 Trace · +3 HP'),
+        success: {
+          text: t('서랍이 하나씩 닫힌다. 쓰이지 않은 도시들이 조용해진다.', 'The drawers close one by one. The unused cities fall quiet.'),
+          effects: [{ kind: 'trace', amount: -5 }, { kind: 'hp', amount: 3 }],
+        },
+      },
+    ],
+    gmHints: ['unused drafts', 'other cities', 'an erased southern square'],
+  },
 ]

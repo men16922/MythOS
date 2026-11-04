@@ -289,6 +289,152 @@ export const A1_MORE: EventDef[] = [
     ],
     gmHints: ['scan beam', 'bus stop', 'bystanders', 'citizen score'],
   },
+  // 2026-11-04: four more Act 1 scenes (Act 1 rolled from the smallest base pool, and every run plays it).
+  {
+    id: 'a1_curfew_siren',
+    acts: [1],
+    title: t('멈추지 않는 사이렌', 'The Siren That Won’t Stop'),
+    image: 'v2/events/a1_curfew_siren.webp',
+    text: t(
+      '통금 사이렌 탑이 고장 나 끝없이 운다. 창문마다 이불을 뒤집어쓴 얼굴들. 탑 아래 경비원은 손을 놓고 있다.\n“꺼 주면 다들 오늘은 좀 자겠지.”',
+      'The curfew siren tower is broken and wails without end. A face under a blanket at every window. The guard below has given up.\n“Shut it off and everyone might sleep tonight.”',
+    ),
+    options: [
+      {
+        label: t('탑에 올라 배선을 끊는다', 'Climb the tower and cut the wiring'),
+        hint: t('◈ +4 · 추적 −4 · 실패 시 −4 HP', '+4 ◈ · −4 Trace · fail −4 HP'),
+        check: { stat: 'agi', dc: 5 },
+        success: {
+          text: t('사이렌이 끊긴다. 골목 전체가 한숨을 쉰다. 창문 몇 개에서 불이 꺼진다.', 'The siren cuts out. The whole block exhales. A few windows go dark.'),
+          effects: [{ kind: 'echoes', amount: 4 }, { kind: 'trace', amount: -4 }],
+        },
+        failure: {
+          text: t('사다리 칸이 미끄럽다. 손바닥이 벗겨진 채로 내려온다.', 'The rungs are slick. You come down with skinned palms.'),
+          effects: [{ kind: 'hp', amount: -4 }],
+        },
+      },
+      {
+        label: t('사이렌 소리에 묻혀 지나간다', 'Slip past under the noise'),
+        hint: t('추적 −6', '−6 Trace'),
+        success: {
+          text: t('사이렌이 발소리를 덮는다. 순찰 드론도 소리 쪽만 본다.', 'The siren covers your footsteps. The patrol drones only look toward the noise.'),
+          effects: [{ kind: 'trace', amount: -6 }],
+        },
+      },
+    ],
+    gmHints: ['curfew siren', 'blackout', 'sleepless block'],
+  },
+  {
+    id: 'a1_rain_buckets',
+    acts: [1],
+    title: t('빗물 받는 아이들', 'Kids Catching Rain'),
+    image: 'v2/events/a1_rain_buckets.webp',
+    text: t(
+      '빗물받이 아래 아이들이 양동이를 줄지어 세웠다. 단수된 동네다. 양동이가 차면 계단 위 집집마다 나른다. 아이들 팔이 떨린다.',
+      'Under a rain gutter, kids have lined up buckets. The block’s water has been cut. Full buckets go up the stairs to every flat. Their arms are shaking.',
+    ),
+    options: [
+      {
+        label: t('양동이를 같이 나른다', 'Help carry the buckets'),
+        hint: t('HP +6 · ◈ +2 · 실패 시 −3 HP', '+6 HP · +2 ◈ · fail −3 HP'),
+        check: { stat: 'str', dc: 5 },
+        success: {
+          text: t('계단 다섯 층. 마지막 집에서 할머니가 따뜻한 보리차를 내준다.', 'Five flights. At the last flat an old woman gives you warm barley tea.'),
+          effects: [{ kind: 'hp', amount: 6 }, { kind: 'echoes', amount: 2 }],
+        },
+        failure: {
+          text: t('양동이가 엎어진다. 아이들이 웃으며 다시 받는다.', 'A bucket tips over. The kids laugh and start catching again.'),
+          effects: [{ kind: 'hp', amount: -3 }],
+        },
+      },
+      {
+        label: t('빗물 거르는 법을 알려 준다', 'Show them how to filter it'),
+        hint: t('◈ +4', '+4 ◈'),
+        success: {
+          text: t('천과 숯과 모래. 아이들이 따라 만든다. 맨 꼬마가 “이거 내 발명”이라고 우긴다.', 'Cloth, charcoal, sand. The kids copy it. The smallest insists, “I invented this.”'),
+          effects: [{ kind: 'echoes', amount: 4 }],
+        },
+      },
+    ],
+    gmHints: ['rain water', 'water cut off', 'kids with buckets'],
+  },
+  {
+    id: 'a1_dead_elevator',
+    acts: [1],
+    title: t('멈춘 엘리베이터', 'The Stopped Elevator'),
+    image: 'v2/events/a1_dead_elevator.webp',
+    text: t(
+      '정전된 아파트 복도. 엘리베이터 문틈에서 목소리가 들린다. 세 사람이 두 층 사이에 갇혔다.\n“문만 조금 벌려 주면 우리가 기어 나갈게요.”',
+      'A blacked-out apartment corridor. Voices come through the elevator doors. Three people are stuck between floors.\n“Just pry the doors a little and we’ll climb out.”',
+    ),
+    options: [
+      {
+        label: t('문을 비틀어 연다', 'Pry the doors open'),
+        hint: t('◈ +3 · +10 ₵ · 실패 시 −4 HP', '+3 ◈ · +10 ₵ · fail −4 HP'),
+        check: { stat: 'str', dc: 5 },
+        success: {
+          text: t('문이 한 뼘 벌어진다. 세 사람이 차례로 기어 나온다. 한 명이 고맙다며 주머니를 턴다.', 'The doors give a handspan. The three crawl out one by one. One empties a pocket for you in thanks.'),
+          effects: [{ kind: 'echoes', amount: 3 }, { kind: 'credits', amount: 10 }],
+        },
+        failure: {
+          text: t('문이 다시 닫히며 손가락을 문다.', 'The doors snap shut on your fingers.'),
+          effects: [{ kind: 'hp', amount: -4 }],
+        },
+      },
+      {
+        label: t('관리실 수동 레버를 찾는다', 'Find the manual lever in the office'),
+        hint: t('추적 −4 · ◈ +2', '−4 Trace · +2 ◈'),
+        success: {
+          text: t('먼지 쌓인 레버를 내리자 엘리베이터가 한 층 내려와 문이 열린다.', 'You pull a dusty lever. The elevator drops one floor and the doors open.'),
+          effects: [{ kind: 'trace', amount: -4 }, { kind: 'echoes', amount: 2 }],
+        },
+      },
+    ],
+    gmHints: ['stuck elevator', 'blackout tower', 'trapped neighbours'],
+  },
+  {
+    id: 'a1_pawned_medal',
+    acts: [1],
+    title: t('전당포의 훈장', 'The Pawned Medal'),
+    image: 'v2/events/a1_pawned_medal.webp',
+    text: t(
+      '불 꺼진 전당포 진열장에 오래된 훈장 하나. 앞에 노인이 서서 유리만 본다.\n“전쟁 끝나고 받은 거요. 먹을 게 없어서 맡겼지. 기한이 오늘까지래.”',
+      'In a dark pawnshop window, an old medal. An old man stands in front of it, looking only at the glass.\n“Got that after the war. Pawned it when there was nothing to eat. Today’s the deadline.”',
+    ),
+    options: [
+      {
+        label: t('훈장을 찾아 준다', 'Redeem the medal for him'),
+        hint: t('−20 ₵ · ◈ +6 · 추적 −3', '−20 ₵ · +6 ◈ · −3 Trace'),
+        requires: { minCredits: 20 },
+        success: {
+          text: t('노인이 훈장을 손바닥에 놓고 한참 본다. “다시 맡길 일은 없겠지.”', 'The old man holds the medal in his palm a long while. “Won’t need to pawn it again.”'),
+          effects: [{ kind: 'credits', amount: -20 }, { kind: 'echoes', amount: 6 }, { kind: 'trace', amount: -3 }],
+        },
+      },
+      {
+        label: t('전당포 주인과 기한을 흥정한다', 'Haggle the deadline with the pawnbroker'),
+        hint: t('◈ +4 · 실패 시 추적 +4', '+4 ◈ · fail +4 Trace'),
+        check: { stat: 'cha', dc: 5 },
+        success: {
+          text: t('“한 달.” 주인이 장부를 고친다. 노인이 당신 손을 잡는다.', '“One month.” The pawnbroker amends the ledger. The old man takes your hand.'),
+          effects: [{ kind: 'echoes', amount: 4 }],
+        },
+        failure: {
+          text: t('주인이 셔터를 내린다. 경비 드론이 소리에 고개를 돌린다.', 'The pawnbroker pulls the shutter down. A patrol drone turns toward the noise.'),
+          effects: [{ kind: 'trace', amount: 4 }],
+        },
+      },
+      {
+        label: t('함께 진열장을 바라본다', 'Stand with him at the window'),
+        hint: t('HP +4', '+4 HP'),
+        success: {
+          text: t('둘이 말없이 유리 앞에 선다. 노인이 전쟁 전 동네 이야기를 조금 해 준다.', 'You stand at the glass together. He tells you a little about the block before the war.'),
+          effects: [{ kind: 'hp', amount: 4 }],
+        },
+      },
+    ],
+    gmHints: ['pawned medal', 'old veteran', 'pawnshop deadline'],
+  },
 ]
 
 // ================================================================== ACT 2 — Night Market (Undercity)

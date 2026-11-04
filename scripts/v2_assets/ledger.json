@@ -1,5 +1,5 @@
 {
- "codex_image_calls": 824,
+ "codex_image_calls": 828,
  "codex_image_failed": 3,
  "image_calls": 317,
  "image_failed": 401,
@@ -4697,6 +4697,34 @@
     "/Users/men1692/Desktop/local/MythOS/resources/neo-seoul/v2/events/a1_welfare_capsule.webp"
    ],
    "ts": "2026-10-25T17:38:17"
+  },
+  "v2/events/a1_curfew_siren.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A rusted curfew siren tower in a blacked-out residential block at night in the rain, red warning lights flashing, faces peeking from dark windows wrapped in blankets, a tired guard sitting at the tower's base. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:39:23"
+  },
+  "v2/events/a1_dead_elevator.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A dark apartment corridor during a blackout, steel elevator doors slightly ajar with hands reaching through the gap from inside, a flashlight beam cutting across. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:39:47"
+  },
+  "v2/events/a1_pawned_medal.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. A dark pawnshop window at night with one old military medal displayed on velvet, an elderly man in a worn coat standing outside looking at it through rain-streaked glass. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:39:28"
+  },
+  "v2/events/a1_rain_buckets.webp": {
+   "generations": 1,
+   "model": "codex-image",
+   "prompt": "Generate exactly one image with your image generation tool, landscape, and do nothing else (no files, no code). Narrative event illustration, wide cinematic shot. Under a broken rain gutter in a dark alley, a row of children lining up plastic buckets to catch pouring rain, one child struggling to lift a full bucket toward a stairwell. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "ts": "2026-11-04T17:39:24"
   },
   "v2/events/a1_red_clinic.webp": {
    "generations": 1,

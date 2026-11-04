@@ -229,8 +229,8 @@ const IMPROV_TEXT: Record<StatKey, { win: { ko: string; en: string }; lose: { ko
       en: 'You slip through the split-second blind spot between sweep lasers, leaving zero trace behind.',
     },
     lose: {
-      ko: '착지 순간 빗물 고인 배관이 울렸다. 센서 드론의 서치라이트가 등 뒤를 훑는다.',
-      en: 'Rain-slick piping rings out on landing. A sensor drone sweeps its searchlight across your back.',
+      ko: '착지 순간 발밑 배관이 울렸다. 센서 드론의 서치라이트가 등 뒤를 훑는다.',
+      en: 'The piping under you rings out on landing. A sensor drone sweeps its searchlight across your back.',
     },
   },
   str: {

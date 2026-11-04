@@ -24,6 +24,13 @@ const REST_PLACE: Record<number, { ko: string; en: string; bg: string }> = {
   6: { ko: '은신처 · 눈 내리는 서버실', en: 'Safehouse · Snow in the server hall', bg: 'v2/events/a6_server_snow.webp' },
 }
 
+/** The Sea route (DLC 3) rests in its own places, not the Deep acts' library, garden and server hall. */
+const SEA_REST_PLACE: Record<number, { ko: string; en: string; bg: string }> = {
+  4: { ko: '은신처 · 하역조 숙소', en: 'Safehouse · The crew dormitory', bg: 'v2/districts/d4_sea_dormitory.webp' },
+  5: { ko: '은신처 · 바지선 선실', en: 'Safehouse · A barge cabin', bg: 'v2/districts/d5_sea_barge_market.webp' },
+  6: { ko: '은신처 · 등대단 창고', en: 'Safehouse · The Keepers’ storeroom', bg: 'v2/events/sea6_ev_spare_bulbs.webp' },
+}
+
 export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsceneSeen, loopsWith }: ScreenProps) {
   const [chosen, setChosen] = useState<Choice | null>(null)
   const [closedScene, setClosedScene] = useState('')
@@ -31,7 +38,7 @@ export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsc
   if (run.screen.kind !== 'rest') return null
   const done = run.screen.done
   const ko = lang === 'ko'
-  const place = REST_PLACE[run.act] ?? REST_PLACE[2]!
+  const place = (run.route?.startsWith('sea') ? SEA_REST_PLACE[run.act] : undefined) ?? REST_PLACE[run.act] ?? REST_PLACE[2]!
   const heal = rx.restHealAmount(run, C)
   const scrub = rx.restScrubAmount()
   const canUpgrade = rx.canUpgradeAny(run, C)

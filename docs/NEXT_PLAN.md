@@ -12,7 +12,7 @@ Route-aware GM runtime `505ccff` is live in `00185-yev`; full gate, route UI che
 
 Canonical plan: `docs/plans/2026-11-05-play-store-release-plan.md`. Recommended free app first, Signal+ later; launch/payment/publication hold is not lifted by planning.
 
-- Next engineering candidate: diagnose/update Android packaging size checks against current compressed-download limits, then audit the Android purchase UI for a free-only release. Source resources are 360,714,254 bytes; no current signed AAB exists. Do not infer compressed size from the source total.
+- Packaging-size guard and unavailable purchase UI fixed and verified locally (latest log). Unsigned QA AAB max base download estimate: 368,387,649 bytes. Next: native emulator/device and 16 KB compatibility checks. No signed release AAB or Play Console acceptance yet.
 - Owner inputs before upload: account type/date and verification, developer identity/contact, target countries, signing setup, testers and real devices. Production policy pages return 200 but have no mailto contact; account deletion and reviewer access still need device/end-to-end evidence.
 - Signal+ remains gated on real purchase/revocation tests and timely entitlement refresh; existing fake API tests are insufficient.
 

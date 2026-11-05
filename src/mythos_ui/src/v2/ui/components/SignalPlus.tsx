@@ -1,5 +1,5 @@
 // Mythos 2.0 — Signal+ (monthly subscription): the plan row in Settings with the AI budget meter, and the offer modal.
-// Signed-in players get AI lines within a monthly allowance; Signal+ raises it and opens the CRPG layer. Purchases run
+// Signed-in players get AI lines within a monthly allowance; Signal+ raises it. Purchases run
 // through the native billing seam (Android only); the web shows how to subscribe in the app.
 import { Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -14,7 +14,7 @@ import './signalplus.css'
 function outcomeNote(o: PurchaseOutcome, ko: boolean): string {
   switch (o) {
     case 'subscribed':
-      return ko ? 'Signal+ 접속 완료. 다음 런부터 구역이 열린다.' : 'Signal+ is on. Districts open from your next run.'
+      return ko ? 'Signal+ 접속 완료. AI 대사 한도가 늘어났다.' : 'Signal+ is on. Your AI allowance has increased.'
     case 'pending':
       return ko ? '결제가 처리 중이다. 끝나면 자동으로 적용된다.' : 'Payment pending. It applies once it clears.'
     case 'canceled':
@@ -32,12 +32,19 @@ export function SignalPlusModal({ lang, onClose, nested }: { lang: Lang; onClose
   const ko = lang === 'ko'
   const plan = usePlan()
   const control = billingControl()
-  const [price, setPrice] = useState<string | null>(null)
+  const [offer, setOffer] = useState<{ control: typeof control; price: string | null } | null>(null)
+  const price = offer?.control === control ? offer.price : null
+  const loadingOffer = !!control && offer?.control !== control
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
   useEffect(() => {
     let alive = true
-    void control?.offer().then((o) => alive && setPrice(o?.price ?? null))
+    if (control) {
+      void control.offer().then(
+        (o) => { if (alive) setOffer({ control, price: o?.price.trim() || null }) },
+        () => { if (alive) setOffer({ control, price: null }) },
+      )
+    }
     return () => {
       alive = false
     }
@@ -50,7 +57,7 @@ export function SignalPlusModal({ lang, onClose, nested }: { lang: Lang; onClose
       title="Signal+"
       actions={
         <>
-          {control && !plus && (
+          {control && !plus && price && (
             <button
               className="m2-btn m2-btn--primary"
               disabled={busy}
@@ -86,8 +93,8 @@ export function SignalPlusModal({ lang, onClose, nested }: { lang: Lang; onClose
       <div className="m2-plus">
         <p className="m2-plus__lead">
           {ko
-            ? '전투만이 전부가 아니다. 네오서울의 사람들과 말하고, 속이고, 설득해라.'
-            : 'There is more to the grid than fights. Talk to Neo-Seoul’s people — persuade them, lie to them, read them.'}
+            ? '구역 탐색과 d20 대화는 무료다. Signal+는 AI 대사를 더 많이 제공한다.'
+            : 'District exploration and d20 dialogue are free. Signal+ provides more AI-written lines.'}
         </p>
         <ul>
           {SIGNAL_PLUS_PERKS.map((p) => (
@@ -101,16 +108,23 @@ export function SignalPlusModal({ lang, onClose, nested }: { lang: Lang; onClose
             ? '오늘의 시드는 모두에게 같다 — 구독해도 리더보드 조건은 바뀌지 않는다. 구독은 Google Play에서 언제든 해지할 수 있다.'
             : 'The Daily Signal is the same for everyone — Signal+ never changes leaderboard runs. Cancel any time in Google Play.'}
         </small>
+        {control && !plus && !price && (
+          <small role="status">
+            {loadingOffer
+              ? ko ? '구독 상품을 확인하고 있다…' : 'Checking subscription availability…'
+              : ko ? '지금은 구독 상품을 이용할 수 없다. 무료 플레이는 계속할 수 있다.' : 'Subscriptions are unavailable right now. You can keep playing for free.'}
+          </small>
+        )}
         {!control && (
           <small className="m2-plus__web">
             {ko
-              ? 'Android 앱에서 구독할 수 있다. 같은 Google 계정으로 로그인하면 웹에서도 적용된다.'
-              : 'Subscribe in the Android app; it applies on the web when you sign in with the same Google account.'}
+              ? '웹에서는 구매할 수 없다. Android에서 구매한 구독이 있다면 같은 Google 계정으로 로그인해 이용할 수 있다.'
+              : 'Purchases are unavailable on the web. If you have an Android subscription, sign in with the same Google account to use it here.'}
           </small>
         )}
         {plus && plan.subscription?.expiresAt && (
           <small>
-            {ko ? '구독 중 · 다음 갱신 ' : 'Subscribed · renews '}
+            {ko ? '구독 이용 기한 ' : 'Subscription access until '}
             {new Date(plan.subscription.expiresAt).toLocaleDateString(ko ? 'ko-KR' : 'en-US')}
           </small>
         )}

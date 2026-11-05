@@ -3,7 +3,7 @@
 #   VERSION_CODE=2 VERSION_NAME=2.0.1 scripts/android/build-aab.sh
 # Needs the owner's upload key, described by android/keystore.properties (gitignored; docs/android.md "Release"),
 # or KEYSTORE_PROPERTIES=<path>. VERSION_CODE is required: Play rejects a code it has already seen.
-# Checks after the build: the bundle is signed by the configured upload key, and it is under Play's 200 MB limit.
+# Checks after the build: the bundle is signed by the configured upload key, and its estimated compressed base download passes the current limit.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 
@@ -33,7 +33,8 @@ grep -q "jar verified" <<<"$VERIFY" || { echo "AAB signature does not verify:" >
 grep -q "jar is unsigned" <<<"$VERIFY" && { echo "AAB is unsigned." >&2; exit 1; }
 
 BYTES="$(stat -f%z "$AAB" 2>/dev/null || stat -c%s "$AAB")"
-LIMIT=$((200 * 1024 * 1024))
-(( BYTES < LIMIT )) || { echo "AAB is $((BYTES / 1048576)) MB — over Play's 200 MB base-module limit (docs/android.md, Size)." >&2; exit 1; }
+[[ -f "${BUNDLETOOL_JAR:-}" ]] || { echo "Set BUNDLETOOL_JAR to Google's bundletool-all.jar; download size remains unverified." >&2; exit 1; }
+"$ROOT/.venv/bin/python" "$ROOT/scripts/android/check_bundle_size.py" "$AAB" \
+  --bundletool "$BUNDLETOOL_JAR" --java "$JAVA_HOME/bin/java"
 
 echo "AAB: $AAB ($((BYTES / 1048576)) MB, versionCode $VERSION_CODE, versionName $VERSION_NAME, signed, alias $ALIAS)"

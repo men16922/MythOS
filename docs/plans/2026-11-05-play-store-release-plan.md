@@ -23,9 +23,9 @@
 | 서버/웹 | `505ccff` → `00185-yev`, 운영 검증 5/5·실클릭 3/3 | Android 배포 증거와 별개 |
 | Android 기본 설정 | `variables.gradle`: minSdk 24, compile/target 36; `app/build.gradle`: Billing 8.0.0; 패키지 `com.projectmythos.signalrun` | 최종 AAB manifest·의존성 검사 및 Play Console 수락 |
 | 서명 | 기본 `android/keystore.properties` 없음. 다른 위치의 키 존재는 조사하지 않음 | 오너 업로드 키·백업·서명 설정; 비밀값은 로그/저장소에 남기지 않음 |
-| 최신 AAB | 현재 bundle 출력 디렉터리에 릴리스 AAB 없음 | 최종 커밋에서 생성한 서명 AAB, SHA-256, versionCode, 빌드 로그 |
+| 최신 AAB | 11-05 unsigned QA AAB 생성·크기 측정 완료; 출시 서명 없음 | 최종 커밋에서 생성한 서명 AAB, SHA-256, versionCode, 빌드 로그 |
 | 리소스 크기 | 원본 1,678개, 360,714,254 bytes. `build-web.sh`는 전체 `resources/neo-seoul`을 복사 | 실제 기기별 압축 다운로드 크기. 원본 합계만으로 한도 초과 판정 금지 |
-| 크기 검사 오류 | `build-aab.sh`가 AAB 파일 크기를 200MiB와 비교하고 이를 Play 한도라고 설명 | 현재 정책에 맞는 bundletool/Console 측정으로 구분; 임의 제한 해제로 대체하지 않음 |
+| 크기 검사 오류 | 수정 완료: `check_bundle_size.py`가 해당 AAB에서 임시 APK set을 만들고 base 압축 다운로드 최대값을 측정 | 로컬 회귀·실제 측정 통과; Play Console에서 최종 수락 확인 |
 | Firebase | 설정 파일 존재만 확인; 내용/키는 출력하지 않음 | Play 서명 인증서로 설치된 앱에서 로그인·로그아웃·동기화 |
 | 정책 URL | 운영 `/privacy`, `/account-deletion` HTTP 200; 두 페이지 모두 mailto 연락처 없음 | 연락 가능한 개발자 정보와 웹 삭제 요청 경로를 실제 확인 |
 | 계정 삭제 | API 구현 있음; 과거 인계에는 Firebase 사용자 삭제 권한 미충족 | 전용 테스트 계정의 게임 데이터와 Firebase Auth 레코드 삭제, 웹 요청 처리 증거 |
@@ -60,7 +60,7 @@ D0는 **오너가 출시 준비 재개를 지시한 날**이다. 아래 기간�
 
 ## 4. Android 출시 후보의 검증 항목
 
-- `make check` → `make test-e2e-v2`로 공통 코드 확인. 이후 `VERSION_CODE=<미사용 증가값> make android-aab`; `VERSION_CODE=1`을 무조건 재사용하지 않는다. 현재 서명 설정이 없어 아직 실행하지 않았다.
+- `make check` → `make test-e2e-v2`로 공통 코드 확인. 이후 `VERSION_CODE=<미사용 증가값> make android-aab`; `VERSION_CODE=1`을 무조건 재사용하지 않는다. 서명 설정은 아직 없다. unsigned QA 번들과 임시 측정 APK만 만들었으며 출시 AAB는 미검증이다.
 - bundletool/Console에서 최종 다운로드 크기·지원 기기·SDK·서명 확인. 16KB 페이지 환경과 네이티브 의존성 점검 포함. 소스가 TS여도 SDK의 네이티브 라이브러리를 빠뜨리지 않는다. [16KB 지원 가이드](https://developer.android.com/guide/practices/page-sizes)
 - **권고 기기 조합**: 실제 중저사양 Android 기기 + 최신 Android 기기, 지원 하한 API 24 에뮬레이터, 16KB 에뮬레이터. 기기/OS/해상도·결과를 기록하며 확보 못한 조합은 미검증으로 남긴다.
 - Play에서 설치한 앱으로 첫 실행, 한/영, 세로/가로, 하드웨어 뒤로가기, 긴 전투, 백그라운드→복귀, 앱 강제 종료→이어하기, 업데이트 후 세이브 유지 확인.
@@ -102,4 +102,4 @@ D0는 **오너가 출시 준비 재개를 지시한 날**이다. 아래 기간�
 4. 비공개 테스트 참여자 확보 상황과 담당 연락 방식. 초대 메시지는 오너 승인 후 보낸다.
 5. 출시 후보 기기 검증을 수행할 실기기와 human fun verdict 담당자.
 
-지금 에이전트가 이어갈 수 있는 첫 엔지니어링 작업은 **Android 크기 검사와 구매 UI의 출시 전 점검**이다. 계정 결제·서명 키 생성·권한 확대·업로드·게시·유료 상품 활성화는 이 문서 작성으로 수행되지 않았다.
+11-05 추가 검증: Android 크기 검사는 bundletool 방식으로 수정했고, 상품 조회 중·없음·실패 시 구매 버튼을 숨기며 구역을 유료 혜택으로 설명하던 문구도 고쳤다. 한/영 8개 UI 사례 통과. 다음 준비는 서명·계정·연락처 입력을 확보한 뒤 Play 설치본의 기기·리뷰어 접근·삭제 검증이다. 계정 결제·서명 키 생성·권한 확대·업로드·게시·유료 상품 활성화는 이 문서 작성으로 수행되지 않았다.

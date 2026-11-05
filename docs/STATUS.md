@@ -43,7 +43,7 @@ Production (2026-11-05, delegated release): **`00185-yev`**, 100% latest, runtim
 
 Authority plan: `docs/NEXT_PLAN.md` · improvement & direction plan: `docs/plans/2026-10-24-improvement-and-direction-plan.md` · global showcase: `docs/plans/2026-10-24-global-showcase-2026.md`.
 
-1. Route-aware GM release is verified in production. Play Store plan clarified (`docs/plans/2026-11-05-play-store-release-plan.md`); next local preparation is Android size-check/purchase-UI audit. Source SDK 36/Billing 8.0.0 verified; signing, release AAB, Console/device/billing acceptance still unverified.
+1. Route-aware GM release is verified in production. Play Store plan clarified (`docs/plans/2026-11-05-play-store-release-plan.md`); size-check/purchase-UI fixes now passed local full gate (Node 584; Python 346 with 12 DB skips), E2E and 8 phone billing-seam cases. Unsigned Android build passed; bundletool base download estimate 368,387,649 bytes. Next native/16 KB checks. Source SDK 36/Billing 8.0.0 verified; signing, release AAB, Console/device/billing acceptance still unverified.
 2. Human Deep/Sea and Chronicle play verdicts; then evidence-driven fixes. Public contest submission and paid Play remain separate owner gates.
 3. Production observation: current GM outcomes, push and Crashlytics are not established by the historical 2026-10-13 traffic check.
 

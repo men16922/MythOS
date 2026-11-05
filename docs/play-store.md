@@ -10,7 +10,7 @@ This is a **draft submission worksheet**, not a set of pre-approved Console answ
 
 1. Resume scope: confirm free-first approach, account type/creation date, initial countries, developer identity and support contact. Follow G0–G7 in the release plan; account-dependent testing rules must be checked in Console.
 2. Supply upload-key/signing setup and support contact. Production `/privacy` and `/account-deletion` already return 200 (11-05); neither currently exposes a mailto contact. Verify the external deletion path and test in-app deletion with a dedicated account before submission.
-3. Build and validate a signed candidate with an unused increasing `VERSION_CODE`, Play signing certificates, device tests and compressed-download measurement. The old 200 MiB file-size check is a known packaging follow-up, not current policy proof.
+3. Build and validate a signed candidate with an unused increasing `VERSION_CODE`, Play signing certificates, device tests and compressed-download measurement. The local checker now uses bundletool compressed-download estimates; final Console acceptance is still required.
 4. Create/configure the app and complete policy, review-access and listing forms below, then Internal → Closed testing → production-access application (if required) → review → owner publication.
 5. Keep Signal+ product activation out of the free release critical path. Merchant/profile, product, Play service-account permissions and license-tester cases belong to phase B in the release plan.
 

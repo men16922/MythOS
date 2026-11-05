@@ -45,7 +45,7 @@ export const NODE_HINT: Record<NodeKind, Text> = {
   rest: L('회복, 카드 강화, 추적도 낮추기, 또는 동료와 유대.', 'Heal, upgrade a card, scrub Trace, or bond with a companion.'),
   treasure: L('잠긴 보급 상자. 임플란트 하나가 들어 있다.', 'A locked cache with an implant inside.'),
   boss: L('이 구역의 지배자.', 'The ruler of this sector.'),
-  district: L('사람과 장소가 있는 지역. 둘러보고, 말을 걸고, 판정을 굴린다. (Signal+)', 'A place with people in it. Explore, talk, roll the dice. (Signal+)'),
+  district: L('사람과 장소가 있는 지역. 둘러보고, 말을 걸고, 판정을 굴린다.', 'A place with people in it. Explore, talk, roll the dice.'),
 }
 
 export function statLabel(stat: StatKey, lang: Lang): string {

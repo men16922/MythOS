@@ -3,6 +3,15 @@
 Last updated: 2026-11-05
 
 
+## 2026-11-05 — Android download-size guard and unavailable purchase UI
+
+- **Diagnosed**: KO/EN mocked native billing showed an enabled purchase button while offer lookup was pending/null/rejected (all 6 unavailable cases); rejected lookups also caused unhandled browser errors. The modal and district tooltip described currently free CRPG as a paid benefit. Actual QA AAB is 369,453,529 bytes, which the old raw-file 200 MiB guard rejects regardless of delivered size.
+- **Changed**: purchase is offered only after a nonempty Play price arrives; pending/unavailable states are explicit and rejected lookups handled. Restore stays available. Copy describes extra AI allowance, free CRPG and access expiry (not guaranteed renewal). `build-aab.sh` now measures a fresh APK set with `check_bundle_size.py`, requiring bundletool and an existing standard debug key; fail closed on missing/invalid measurements, over-limit or unsupported extra modules. No release key created.
+- **Verified**: `make check` passed (Node 584, Python 346 with 12 DB skips), `MYTHOS_V2_GM=off make test-e2e-v2` passed. Eight KO/EN phone UI cases (pending/null/reject/available): only available buys, exactly once; no page errors. Screens inspected. Evidence: `outputs/billing-ui-{before,after}.json`, `outputs/billing-ui/`, reproducer `outputs/billing-ui-qa.py`.
+- **Android evidence**: final `build-web.sh` + unsigned Gradle `bundleRelease` passed. Bundletool 1.18.3 maximum base download 368,387,649 bytes, below conservative 500,000,000-byte local threshold. AAB SHA-256 `7b7ba433f10892d39980256c81a61aaac14d6c3ef4d62004699a28df86b38ada` matches `outputs/android-download-size.json`. Temporary measurement APKs used existing debug key; the AAB is unsigned. Console size and final Play-signed install remain unverified. Logs: `outputs/android-{web-build,unsigned-bundle}.log`, `outputs/release-prep-{check,e2e}.log`.
+- **Next / limits**: native emulator/device and 16 KB compatibility checks; owner signing/contact/Console inputs; real billing and deletion checks. No store upload, subscription activation, deployment or push in this batch. Prior automatic push prohibition remains; do not retry it from the unattended loop.
+
+
 ## 2026-11-05 — Clarify Play Store release sequence
 
 - **Changed**: owner-requested `docs/plans/2026-11-05-play-store-release-plan.md`: free-first / Signal+-later recommendation, G0–G7 owners and acceptance evidence, account-specific testing, Android matrix, policy/reviewer access, costs and billing revocation gate. Actual launch hold unchanged. Linked OWNER_TODO/Android/online/strategy and updated store text; historical policy answer tables are explicitly drafts.

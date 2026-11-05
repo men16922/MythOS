@@ -169,7 +169,7 @@ Release gates and policy references: `docs/plans/2026-11-05-play-store-release-p
    # → android/app/build/outputs/bundle/release/app-release.aab
    ```
    `scripts/android/build-aab.sh` refuses without the signing config or a `VERSION_CODE`, then checks that `jarsigner`
-   verifies the bundle and that it is under 200 MB. `versionCode` must go up with every Play upload. (Verified
+   verifies the bundle and runs the compressed-download checker below. `versionCode` must go up with every Play upload. (Verified
    2026-10-13 end to end with a throwaway key: signed, 128 MB.) Register the upload key's SHA-1 for Google sign-in with
    `KEYSTORE=~/keys/mythos-upload.jks KEY_ALIAS=upload STOREPASS_FILE=<file> make firebase-sha`.
 4. **Play Console** (owner account, one-time US$25 registration): create the app with the package id above, turn on
@@ -177,7 +177,7 @@ Release gates and policy references: `docs/plans/2026-11-05-play-store-release-p
    Internal testing first. The listing text, Data safety and content-rating answers, the privacy-policy and
    account-deletion URLs and the graphics are prepared in `docs/play-store.md`. Register the upload and
    app-signing keys' SHA-1 for Google sign-in first (see [Google sign-in](#google-sign-in)).
-5. **Size (rechecked 2026-11-05).** Google currently lists 500 MB compressed download for the base module; measure with bundletool and finally Play Console, not the AAB file size. Source resources total 360,714,254 bytes (1,678 files), which is not download size. The historical 125–128 MB build is stale. `build-aab.sh` still enforces a conservative 200 MiB AAB-file cap and mislabels it as policy; correcting that check is a pre-release task. Consider an install-time asset pack only after measuring the candidate. [Current Play limits](https://support.google.com/googleplay/android-developer/answer/9859372?hl=en)
+5. **Size (rechecked 2026-11-05).** Google currently lists 500 MB compressed download for the base module; measure with bundletool and finally Play Console, not the AAB file size. Source resources total 360,714,254 bytes (1,678 files), which is not download size. The historical 125–128 MB build is stale. `build-aab.sh` now calls `check_bundle_size.py`: bundletool builds a fresh temporary APK set from that exact AAB and measures the maximum compressed base download. It requires `BUNDLETOOL_JAR` and an existing standard Android debug keystore (`~/.android/debug.keystore`) for measurement APKs only; it never creates keys or changes the release AAB. Missing tools/keys, invalid measurements, additional modules or estimates above 500,000,000 bytes fail the check. Additional modules need dedicated checks before use. Consider an install-time asset pack only after measuring the candidate. [Current Play limits](https://support.google.com/googleplay/android-developer/answer/9859372?hl=en)
 
 ## Prerequisites outside this repo
 
@@ -188,3 +188,14 @@ Release gates and policy references: `docs/plans/2026-11-05-play-store-release-p
   player, and a signed-out client does not even try (it plays offline with authored lines). Invite codes are gone.
 - **Firebase Auth enabled** (owner, see [Google sign-in](#google-sign-in)) and the daily push schedule created
   (`make push-schedule`, owner).
+
+### Local download-size check
+
+Use an official [bundletool release](https://github.com/google/bundletool/releases) (validated locally with 1.18.3), not a committed jar. For the signed build, set `BUNDLETOOL_JAR=/absolute/path/bundletool-all.jar` alongside `VERSION_CODE`. The checker can also inspect an unsigned QA bundle:
+
+```bash
+.venv/bin/python scripts/android/check_bundle_size.py path/to/app.aab \
+  --bundletool /absolute/path/bundletool-all.jar --java /path/to/jdk21/bin/java
+```
+
+The JSON records the AAB SHA-256, container bytes and estimated maximum download bytes. Temporary APKs use the existing debug key and are not release artifacts. Console acceptance, app-signing configuration, device install and billing remain separate checks.

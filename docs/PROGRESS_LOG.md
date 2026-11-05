@@ -5,6 +5,13 @@ Last updated: 2026-11-05
 
 Older entries: [November archive](../bin/docs/archive/progress-2026-11.md).
 
+## 2026-11-05 — Preserve debug upgrades and keep event input visible after rotation
+
+- **Verified upgrade**: same-debug-certificate `fa41a72` v1 → `f3e012a` v2 via install-r, no clear within either case. Run/profile/mute/diagnostics/push stayed byte-identical with consent on and legacy off/pending queue; same combat resumed. Legacy off queue stayed dormant during 30 s reconnect, then explicit re-enable reconciled it and off cleaned registration. Zero attached JS exceptions; no messages/tokens exposed.
+- **Diagnosed / changed**: rotating with native IME open retained focus but left input y=226.74–268.74 below a 151.24 px viewport; manual scrolling proved stale placement. EventScreen now scrolls only its focused input on viewport resize, with header/bottom margins. Real portrait/landscape rotation, both Back paths and reopening IME in both orientations passed; text/save retained. Original QA storage verified after restart, orientation restored, owned emulator/forward stopped.
+- **Verified gates**: full make check Node 594, Python 352/15 DB skips; muted E2E, web/debug/AAB builds passed. Latest unsigned AAB max base download 368,390,479 bytes; 16 KB config, four ELF alignments and debug zipalign passed. Identity, metrics, screenshots and limits: `docs/plans/2026-11-05-android-upgrade-keyboard-qa.md`.
+- **Next / limits**: D7 read-only DB backup/provider-region audit. Korean/vendor/API 24 keyboards, physical/Play-signed migration/auth/delivery, signing/contact/reviewer/deletion and production retention/policy gates remain. No production deployment, upload, publication or push; prior automatic push prohibition remains.
+
 ## 2026-11-05 — Finish pending FCM cleanup before token deletion
 
 - **Diagnosed**: real SDK token deletion/renewal passed, but offline queued topic → off → reconnect in the same process recreated a token (regression failed). The installed topic adapter resolved on queueing; auto-init off alone did not cancel pending SDK work. A separate persisted-off restart did not reproduce the same failure.

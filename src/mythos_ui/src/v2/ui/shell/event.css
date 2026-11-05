@@ -263,6 +263,8 @@
 .m2-improv input {
   flex: 1;
   min-width: 0;
+  scroll-margin-top: calc(var(--m2-bar-h, 64px) + 8px);
+  scroll-margin-bottom: 8px;
   height: 42px;
   padding: 0 12px;
   font: inherit;

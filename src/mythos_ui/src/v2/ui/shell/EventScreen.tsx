@@ -1,7 +1,7 @@
 // Mythos 2.0 — event screen: scene art, speaker, authored text (+ optional GM line), options, Improvise.
 import { art } from '../components/art.ts'
 import { Dices } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { EventDef, EventOption, Improvisation, Lang, RunState, StatKey } from '../../engine/types.ts'
 import { asset, portrait } from '../common/assets.ts'
 import { L, tr } from '../common/lang.ts'
@@ -121,6 +121,7 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
   /** Event id while the GM's opening line is on its way (the card shows a quiet "reading" state). */
   const [gmWait, setGmWait] = useState<string | null>(null)
   const [action, setAction] = useState('')
+  const actionInput = useRef<HTMLInputElement>(null)
   const [pending, setPending] = useState<Improvisation | null>(null)
   /** The model wrote `pending`'s outcome texts (for the comms log). */
   const [pendingAi, setPendingAi] = useState(false)
@@ -132,6 +133,26 @@ export function EventScreen({ run, C, lang, settings, act, eventsSeen }: ScreenP
   // outcome reads the option that was actually clicked, not whatever now sits at that index.
   const [picked, setPicked] = useState<{ eventId: string; index: number; opt: EventOption } | null>(null)
   const eventId = screen?.eventId ?? ''
+
+  useEffect(() => {
+    let frame = 0
+    const keepInputVisible = () => {
+      window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(() => {
+        const input = actionInput.current
+        // Android can retain focus but leave the field below the keyboard after rotation.
+        if (input && document.activeElement === input) input.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+      })
+    }
+    const viewport = window.visualViewport
+    window.addEventListener('resize', keepInputVisible)
+    viewport?.addEventListener('resize', keepInputVisible)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('resize', keepInputVisible)
+      viewport?.removeEventListener('resize', keepInputVisible)
+    }
+  }, [])
 
   useEffect(() => {
     if (!ev) return
@@ -455,6 +476,7 @@ function companionWhisperText(compId: string, ev: EventDef, lang: Lang): string 
                 )}
                 <div className="m2-improv__row">
                   <input
+                    ref={actionInput}
                     id="m2-improv-input"
                     value={action}
                     maxLength={140}

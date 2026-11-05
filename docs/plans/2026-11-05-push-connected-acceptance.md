@@ -44,7 +44,9 @@ Use `adb -s <owned-serial> shell am instrument -w -e connectedPush true -e class
 - Without `sameProcessProbe`, the offline phase returns with cleanup pending. Verify the native flags, force-stop, reconnect, then run `interruptedCleanupFinishesAfterRestart`.
 - Run `cleanupProbeTopic` connected even after a failed probe. It unsubscribes the QA topic and disables/deletes registration. Never dump SDK token preferences or log token values. Do not run the whole class with pending-probe arguments: these are explicitly ordered phases.
 
-## Latest unsigned candidate
+## Unsigned candidate at this checkpoint
+
+Superseded by [upgrade/keyboard acceptance and rebuilt candidate](2026-11-05-android-upgrade-keyboard-qa.md).
 
 This supersedes the `fa41a72` artifact in [earlier candidate verification](2026-11-05-android-candidate-verification.md). Built from base `1043f88` plus this checkpoint's cleanup changes; production-source SHA-256 hashes are recorded in `outputs/push-drain-artifacts.json`.
 
@@ -52,4 +54,4 @@ This supersedes the `fa41a72` artifact in [earlier candidate verification](2026-
 - QA versionCode 1 / versionName 2.0.0. Unsigned; not upload-ready. A fresh unused version code and owner signing are required for upload.
 - Bundle `PAGE_ALIGNMENT_16K`, all four ELF minimum LOAD alignments 16,384, and debug APK zipalign passed. Logs/metadata: `outputs/push-drain-{download-size,artifacts,bundle-config}.json`, `push-drain-signature.txt`, `push-drain-zipalign.txt`.
 
-Still unverified: upgrade from an older installed release with existing consent/token/topic state, physical/vendor and Play-signed acceptance, notification delivery/tap behavior, independent Firebase identifier/network inventory, Google sign-in/account deletion, signing/contact and final Console acceptance. Next independent work: debug upgrade acceptance, then remaining keyboard/device coverage. This does not lift publication/payment holds or the automatic push prohibition.
+Unverified at this checkpoint: older-install upgrade (subsequently checked in the follow-up), physical/vendor and Play-signed acceptance, notification delivery/tap behavior, independent Firebase identifier/network inventory, Google sign-in/account deletion, signing/contact and final Console acceptance. Follow-up debug upgrade and keyboard evidence is in the superseding record; physical/Play-signed coverage remains. This does not lift publication/payment holds or the automatic push prohibition.

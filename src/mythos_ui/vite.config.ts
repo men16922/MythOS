@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import { ANDROID_WEBVIEW_MIN_VERSION } from './android-webview.ts'
 
 /** Production API the Android app talks to when `VITE_API_BASE` is not set (app build only). */
 const DEFAULT_APP_API_BASE = 'https://mythos-api-k62nky5rrq-uc.a.run.app'
@@ -34,6 +35,7 @@ export default defineConfig(({ mode }) => {
       plugins: [react(), appEntry()],
       base: './',
       build: {
+        target: `chrome${ANDROID_WEBVIEW_MIN_VERSION}`,
         outDir: 'dist-app',
         emptyOutDir: true,
         // Keep the game art as files (the APK serves them locally); only tiny icons get inlined.

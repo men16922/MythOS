@@ -26,7 +26,7 @@
 | 최신 AAB | 11-05 unsigned QA AAB 생성·크기 측정 완료; 출시 서명 없음 | 최종 커밋에서 생성한 서명 AAB, SHA-256, versionCode, 빌드 로그 |
 | 리소스 크기 | 원본 1,678개, 360,714,254 bytes. `build-web.sh`는 전체 `resources/neo-seoul`을 복사 | 실제 기기별 압축 다운로드 크기. 원본 합계만으로 한도 초과 판정 금지 |
 | 크기 검사 오류 | 수정 완료: `check_bundle_size.py`가 해당 AAB에서 임시 APK set을 만들고 base 압축 다운로드 최대값을 측정 | 로컬 회귀·실제 측정 통과; Play Console에서 최종 수락 확인 |
-| 16KB·기기 QA | AAB 16KB 설정·64bit ELF 정렬 확인, 생성 APK 87개 zipalign 통과. API 36 ARM64 16KB 에뮬레이터에서 오프라인 시작→전투, 뒤로가기, 백그라운드 복귀·강제 종료 후 이어하기 통과 | 시작 시 safe-area CSS 경고 조사; API 24·실기기·가로·Play 서명 설치/업데이트·인증 검증 |
+| 16KB·기기 QA | AAB 16KB 설정·64bit ELF 정렬 확인, 생성 APK 87개 zipalign 통과. API 36 ARM64 16KB 에뮬레이터에서 오프라인 시작→전투, 뒤로가기, 백그라운드 복귀·강제 종료 후 이어하기 통과 | safe-area 경고 수정·가로 회전 확인. API 24의 WebView 53에서는 업데이트 안내 표시; 업데이트된 WebView의 게임 실행·실기기·Play 설치/인증은 미검증 |
 | Firebase | 설정 파일 존재만 확인; 내용/키는 출력하지 않음 | Play 서명 인증서로 설치된 앱에서 로그인·로그아웃·동기화 |
 | 정책 URL | 운영 `/privacy`, `/account-deletion` HTTP 200; 두 페이지 모두 mailto 연락처 없음 | 연락 가능한 개발자 정보와 웹 삭제 요청 경로를 실제 확인 |
 | 계정 삭제 | API 구현 있음; 과거 인계에는 Firebase 사용자 삭제 권한 미충족 | 전용 테스트 계정의 게임 데이터와 Firebase Auth 레코드 삭제, 웹 요청 처리 증거 |
@@ -70,7 +70,7 @@ D0는 **오너가 출시 준비 재개를 지시한 날**이다. 아래 기간�
 - 알림 기본 off/허용/거부/다국어, Crashlytics 전송 토글, 개발자용 화면 노출 여부, 구매 상품이 없는 무료 버전에서 비활성 업셀 노출 여부 확인.
 - 계정 삭제와 AI 신고는 전용 QA 계정에서 실행한다. 실제 사용자 데이터를 검증용으로 삭제하지 않는다. Android에 로그인 보호 기능이 있으므로 “모든 기능 접근 제한 없음”이라고 신고하지 않는다.
 
-**11-05 로컬 기기 검증:** debug APK를 별도 API 36 16KB 에뮬레이터에 설치했다. 오프라인 새 런→전투, Android 뒤로가기→일시정지, 백그라운드 복귀, 프로세스 종료 후 동일 저장 데이터와 전투 복구를 확인했다. 안정된 세로 화면은 412×863 CSS px이며 `outputs/android-native-qa/settled-combat-device.png`에 보관했다. 연결된 실행 테스트 중 미처리 JS 예외는 없었지만 시작 시 Capacitor SystemBars의 safe-area CSS 오류가 잡혀 로그에 남는다. 이 결과는 Play 설치·실기기·전체 회전/로그인/결제 QA의 완료 증거가 아니다. 자세한 명령·아티팩트는 `docs/PROGRESS_LOG.md` 최신 항목을 따른다.
+**11-05 로컬 기기 검증:** debug APK를 별도 API 36 16KB 에뮬레이터에 설치했다. 오프라인 새 런→전투, Android 뒤로가기→일시정지, 백그라운드 복귀, 프로세스 종료 후 동일 저장 데이터와 전투 복구를 확인했다. 안정된 세로 화면은 412×863 CSS px이며 `outputs/android-native-qa/settled-combat-device.png`에 보관했다. 후속 수정에서 SystemBars를 native 여백 처리로 바꿔 시작 경고를 없앴고, 최종 빌드 재실행 3회·가로/세로 전환에서 해당 경고와 미처리 JS 예외가 없었다. 가로 뒤로가기와 회전 후 저장 유지도 확인했다. API 24의 기본 WebView 53에서는 빈 화면이 재현돼, 현재 빌드 기준인 WebView 111을 실행 조건으로 명시하고 한/영 업데이트 안내와 Google Play 링크를 넣었다. 이 결과는 API 24의 업데이트된 WebView에서 게임 실행, Play 설치·실기기·로그인·결제 QA의 완료 증거가 아니다. 자세한 명령·아티팩트는 `docs/PROGRESS_LOG.md` 최신 항목을 따른다.
 
 **팀 출시 기준(정책 수치 아님)**: 알려진 시작 불가·세이브 손실·결제/삭제 오류 0건, 위 핵심 경로 통과, 미해결 고심각도 pre-launch report 항목 0건. 재미 평가는 사람의 의견으로 별도 기록한다. 웹 E2E만으로 Android 출시 승인을 대체하지 않는다.
 

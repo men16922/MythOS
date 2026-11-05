@@ -31,6 +31,7 @@ fi
 export VITE_NATIVE_GOOGLE_SIGNIN
 echo "native Google sign-in: $([[ "$VITE_NATIVE_GOOGLE_SIGNIN" == 1 ]] && echo on || echo "off (no Google web client in google-services.json yet)")"
 npx vite build --mode app
+cp src/v2/native/app-unavailable.html dist-app/app-unavailable.html
 
 mkdir -p dist-app/resources
 rsync -a --delete --exclude '.DS_Store' "$ROOT/resources/neo-seoul/" dist-app/resources/neo-seoul/

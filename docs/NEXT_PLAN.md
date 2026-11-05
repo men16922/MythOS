@@ -12,7 +12,8 @@ Route-aware GM runtime `505ccff` is live in `00185-yev`; full gate, route UI che
 
 Canonical plan: `docs/plans/2026-11-05-play-store-release-plan.md`. Recommended free app first, Signal+ later; launch/payment/publication hold is not lifted by planning.
 
-- Packaging-size guard and unavailable purchase UI fixed and verified locally (latest log). Unsigned QA AAB max base download estimate: 368,387,649 bytes. 16 KB packaging and API 36 emulator offline/back/resume/restart checks passed. Next: diagnose the startup safe-area warning; API 24/physical-device, landscape and Play-signed install/update/auth checks. No signed release AAB or Play Console acceptance yet.
+- Packaging-size guard and unavailable purchase UI fixed and verified locally (latest log). Unsigned QA AAB max base download estimate: 368,389,189 bytes. 16 KB packaging and API 36 emulator offline/back/resume/restart checks passed. Startup safe-area warning fixed; portrait/landscape rotation passed. API 24 stock WebView 53 now shows update guidance; gameplay with an updated provider, physical-device and Play-signed install/update/auth checks remain open. No signed release AAB or Play Console acceptance yet.
+- Next independent preparation: audit Data safety and reviewer-access drafts against current code before owner submission.
 - Owner inputs before upload: account type/date and verification, developer identity/contact, target countries, signing setup, testers and real devices. Production policy pages return 200 but have no mailto contact; account deletion and reviewer access still need device/end-to-end evidence.
 - Signal+ remains gated on real purchase/revocation tests and timely entitlement refresh; existing fake API tests are insufficient.
 

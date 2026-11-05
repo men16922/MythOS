@@ -28,6 +28,14 @@ The Mythos 2.0 client (`src/mythos_ui/src/v2`) packaged as an Android app with C
 The web build (`make frontend-build` → `src/mythos_api/static`) does not change. It keeps same-origin `/api` and
 `/resources`, and no Capacitor code reaches it.
 
+## WebView compatibility
+
+The app requires Chromium WebView 111 or newer. `android-webview.ts` keeps the app's Vite syntax target and Capacitor `android.minWebViewVersion` together; the OS minimum (API 24) alone does not prove browser compatibility. `build-web.sh` copies the script-free `app-unavailable.html` into the APK, and `server.errorPath` displays it for an outdated WebView or main-page load failure. It offers KO/EN update guidance and Google Play links without touching saved progress.
+
+`SystemBars.insetsHandling` is explicitly `native`: keep inset/keyboard padding while avoiding optional CSS-variable injection before the document exists. The app uses `env(safe-area-inset-*)`, not injected `--safe-area-inset-*` custom properties. See [Capacitor SystemBars](https://capacitorjs.com/docs/apis/system-bars) and [configuration](https://capacitorjs.com/docs/config).
+
+Local QA on 2026-11-05: API 36 / WebView 133 / 16 KB runs the game; API 24's stock WebView 53 displays the recovery page instead of a blank screen. API 24 with an updated WebView, Huawei providers, physical-device/Play-signed installation and authentication remain unverified.
+
 ## Native behaviour
 
 | Feature | Where |

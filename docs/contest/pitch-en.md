@@ -1,6 +1,6 @@
 # MYTHOS 2.0 — Signal Run (세계:접속) · contest write-up
 
-*Judge-facing summary, English. Facts are as of 2026-10-25; numbers come from the repo's own tests, simulator and
+*Judge-facing summary, English. Content counts and local gates checked on 2026-11-05; older model/simulator measurements retain their original dates in
 logs (see "Evidence" at the end). Architecture deep-dive: `docs/contest/architecture-en.md`; Devpost text:
 `docs/contest/devpost-en.md`; strategy plan: `docs/plans/2026-10-18-strategy-and-market-analysis.md` §5.*
 
@@ -18,8 +18,8 @@ allowed to decide the outcome.
   implants (passives with sets), consumables, shops, safehouses, events, a daily seed with a leaderboard.
 - **Hades-style loop.** Each loop leaves echoes; companions build bonds; the Archive unlocks cards, lore, endings.
 - **A Baldur's Gate-style layer.** Districts with d20 conversations, approval, backgrounds, quests and camp nights.
-- Content: 245 cards · 154 enemies · 181 encounters · 76 implants · 253 events · 14 companions ·
-  16 districts with 48 NPCs you can talk to in your own words · 17 endings. Korean and English throughout. Web + Android.
+- Content: 245 cards · 154 enemies · 181 encounters · 76 implants · 337 events · 14 companions ·
+  34 districts with 97 NPCs you can talk to in your own words · 18 endings. Korean and English throughout. Web + Android.
 
 ## Where the AI is — and where it is not
 
@@ -44,9 +44,9 @@ outcomes, latency and budget in-game. Measured cost: ≈ 63 model calls ≈ **$0
   no matter what they did before — the precondition for replay-verified leaderboards.
 - **Bots that play the real thing**: a greedy (1-ply exhaustive) and a mixed bot drive the run simulator used for
   balance A/B on identical seed blocks, and a UI bot plays whole runs through real clicks in a headless browser.
-- **Gates**: 355 engine/content/UI tests, 340+ backend tests (plus 12 Postgres integration tests), a 25-case bilingual
-  GM eval suite (`make gm-eval`, 12 KO + 13 EN), a browser smoke, and a UI playthrough; 100 % generated-art coverage is
-  itself a test.
+- **Local gates (2026-11-05)**: 584 engine/content/UI tests passed; Python ran 343 tests with 12 database tests skipped.
+  Built-SPA browser smoke passed separately; generated-art coverage is itself a test. Live GM evaluations and full
+  UI playthroughs are separate checks, not implied by `make check`.
 - Stack: React 19 + Vite, FastAPI on Cloud Run, Postgres, Firebase Google sign-in, Vertex AI (Gemini), Capacitor
   Android. Art: generated (image models), curated per screen; music: generated loops.
 

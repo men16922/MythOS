@@ -148,7 +148,7 @@ Testers are added later by the owner, in the Firebase console (App Distribution 
 
 ## Release (AAB + signing): owner steps
 
-No signing key exists in the repo or on the build machine. These steps are the owner's call.
+Release gates and policy references: `docs/plans/2026-11-05-play-store-release-plan.md`. On 2026-11-05 the default `android/keystore.properties` is absent and no current release AAB was found; other key locations were not searched. These steps are the owner's call.
 
 1. **Upload key** (keep it and its passwords outside the repo, and back them up):
    ```bash
@@ -177,8 +177,7 @@ No signing key exists in the repo or on the build machine. These steps are the o
    Internal testing first. The listing text, Data safety and content-rating answers, the privacy-policy and
    account-deletion URLs and the graphics are prepared in `docs/play-store.md`. Register the upload and
    app-signing keys' SHA-1 for Google sign-in first (see [Google sign-in](#google-sign-in)).
-5. **Size.** The AAB base module must stay under Play's 200 MB compressed download limit. Today it is about 125 MB
-   (art and music are already webp/m4a). If it grows, move the art into a Play Asset Delivery install-time pack.
+5. **Size (rechecked 2026-11-05).** Google currently lists 500 MB compressed download for the base module; measure with bundletool and finally Play Console, not the AAB file size. Source resources total 360,714,254 bytes (1,678 files), which is not download size. The historical 125–128 MB build is stale. `build-aab.sh` still enforces a conservative 200 MiB AAB-file cap and mislabels it as policy; correcting that check is a pre-release task. Consider an install-time asset pack only after measuring the candidate. [Current Play limits](https://support.google.com/googleplay/android-developer/answer/9859372?hl=en)
 
 ## Prerequisites outside this repo
 

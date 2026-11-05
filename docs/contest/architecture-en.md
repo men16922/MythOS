@@ -103,11 +103,11 @@ each call was billed.
 - **Deploy**: `make deploy-preview` builds a no-traffic tagged revision labelled `git-sha=<HEAD>`;
   `make verify-preview` checks the label equals HEAD, health, Google sign-in, and that the served bundle is
   byte-identical to the committed one — only then is it promoted (`scripts/dev/verify_preview.py`).
-- **Gates** (`make check`, 2026-10-24): 353 engine/content/UI tests (Node), 337 backend tests (Python; 12 Postgres
-  tests run separately), lint + strict typing; a headless browser smoke; a UI bot that plays 5 map nodes plus a
-  shop/safehouse/treasure/ending tour through real clicks (~2 min).
+- **Gates** (2026-11-05): `make check` passed 584 engine/content/UI tests (Node), and Python ran 343 tests
+  with 12 database tests skipped, plus lint, strict typing and the frontend build. `make test-e2e-v2` passed
+  separately. The UI bot can also play 5 map nodes plus a shop/safehouse/treasure/ending tour through real clicks.
 - **Balance**: greedy / mixed / basic bots drive a run simulator; changes are A/B'd on identical seed blocks
-  (mixed-bot noise is ±6 % per block). Current baseline (3 × 360 runs): greedy ≈ 96 %, mixed ≈ 32 %, basic 0 %
+  (mixed-bot noise is ±6 % per block). Historical baseline (2026-10-24/25, 3 × 360 runs; not the expanded-content baseline): greedy ≈ 96 %, mixed ≈ 32 %, basic 0 %
   (`.claude/skills/gameplay-qa/references/qa-routes.md`).
 - **Observability**: structured `v2 gm` logs per call (route, outcome, latency, provider); an opt-in Architect HUD
   (`?hud=1`) shows each call's outcome and latency live in the game (`ui/components/ArchitectHud.tsx`).

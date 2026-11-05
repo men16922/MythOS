@@ -46,7 +46,7 @@ flowchart LR
 1. **AI Off the Critical Path (`src/mythos_ui/src/v2/ui/shell/gm.ts`):** Every screen renders authored prose at **0 ms**. If Vertex AI Gemini responds within budget, the line swaps in with a `✦ AI` badge (`ui/components/AiMark.tsx`). If a call times out or the player is offline, play continues with zero spinners.
 2. **The Model Never Decides Mechanical Outcomes (`src/mythos_v2/gm.py`, `npc.py`):**
    - **Free-Text Improvise:** Players type any action in an event; Gemini classifies it into 1 of 5 stats, a difficulty clamped to **DC 3–9**, 1 reward from 5 fixed tiers, and 1 risk from 3. The pure-TS engine rolls the check.
-   - **Grounded NPC Dialogue:** Players speak to 48 district NPCs in their own words; the NPC replies in character and Gemini maps the utterance onto one of the node's open d20 intents (9 kinds).
+   - **Grounded NPC Dialogue:** Players speak to 97 district NPCs in their own words; the NPC replies in character and Gemini maps the utterance onto one of the node's open d20 intents (9 kinds).
 3. **Tail-Latency Hedging (`src/mythos_v2/llm.py`):** Scene narration fires one hedged retry after `MYTHOS_V2_GM_HEDGE_S = 4.0 s` (first response wins), cutting Vertex tail `504 DEADLINE_EXCEEDED` misses while charging late tokens from the losing leg via `on_late_usage`.
 4. **Four-Layer FinOps Cost Governance (`src/mythos_v2/budget.py`, `scripts/ops/vertex_cap/`):**
    - Per-player monthly allowance ($0.30 free / $1.50 plus; ~**$0.048 per full 3-act run** across ~63 calls).
@@ -75,7 +75,7 @@ make api                   # Start FastAPI + built SPA at http://127.0.0.1:8000 
 ## Verification Gates
 
 ```bash
-make check                 # Full gate: skills sync · doc budget · ruff/eslint · mypy --strict · vite build · 355 TS tests · 340+ Python tests
+make check                 # Full gate: skills sync · doc budget · ruff/eslint · mypy --strict · vite build · 584 TS tests · 343 Python tests (12 DB skips; 2026-11-05)
 make test-v2               # Pure-TS engine, content, art & narrative tests (node --test)
 make test-e2e-v2           # Headless muted browser smoke (title → setup → act intro → event → map → combat → daily replay verify)
 make playthrough-quick     # Headless muted UI bot playing 5 map nodes + shop/safehouse/treasure/ending tour
@@ -87,7 +87,7 @@ make gm-eval               # 25-case bilingual GM evaluation suite (GM_EVAL_ARGS
 | Path | Description |
 |---|---|
 | `src/mythos_ui/src/v2/engine` | Pure-TS game engine (seeded named RNG streams, JSON state, reducers, greedy/mixed/basic bots & simulator) |
-| `src/mythos_ui/src/v2/content` | Typed bilingual (`{ko, en}`) game data (2026-11-04): 245 cards, 154 enemies, 181 encounters, 76 implants, 253 events, 14 companions, 6 archetypes, 6 acts, 16 districts / 48 NPCs, 40 gear, 17 endings |
+| `src/mythos_ui/src/v2/content` | Typed bilingual (`{ko, en}`) game data (2026-11-05): 245 cards, 154 enemies, 181 encounters, 76 implants, 337 events, 14 companions, 6 archetypes, 6 acts, 34 districts / 97 NPCs, 40 gear, 18 endings |
 | `src/mythos_ui/src/v2/ui` | React 19 screens, 7×5 tactical board & animator, `✦ AI` provenance marks, `ArchitectHud`, procedural Web Audio SFX & adaptive music |
 | `src/mythos_ui/android` | Capacitor Android app (`docs/android.md`) |
 | `src/mythos_api` | FastAPI server (SPA static hosting, `/resources`, CORS, `/api/health`) |
@@ -99,10 +99,10 @@ make gm-eval               # 25-case bilingual GM evaluation suite (GM_EVAL_ARGS
 
 ## 한국어 안내 (Korean Summary)
 
-정전과 감시의 도시 네오서울. 관리자 AI **IX**의 첨탑을 향해 세 개의 막을 돌파하는 1인용 **전술 덱빌딩 로그라이트**입니다.
+정전과 감시의 도시 네오서울. 관리자 AI **IX**의 첨탑을 향해 세 개의 기본 막과 6막까지 이어지는 확장 경로를 돌파하는 1인용 **전술 덱빌딩 로그라이트**입니다.
 
 - **전투**: 적이 다음에 칠 칸을 미리 보여 주는 7×5 보드(Into the Breach 방식). 피하고, 막고, 밀어서 적끼리 부딪히게 하거나 불길·전기 바닥·붕괴 구역(낭떠러지)으로 떨어뜨립니다.
-- **빌드 & CRPG**: 프로토콜 카드 104장 + 임플란트 44종 + 동료 6명(3단계 전용 사건 체인) + 구역 6곳(18명의 NPC와 d20 대화).
+- **빌드 & CRPG**: 프로토콜 카드 245장, 임플란트 76종, 동료 14명, 구역 34곳(NPC 97명과 d20 대화).
 - **루프 & 일일 시드**: 쓰러지면 모은 에코로 아카이브에서 해금하고 다시 접속합니다. 명명된 난수 스트림(`streams.ts`)과 서버 리플레이 검증(`replay.py`)으로 모두가 공정하게 경쟁하는 **오늘의 시드** 리더보드를 지원합니다.
 - **AI GM**: 막/사건 내레이션, 직접 타이핑하는 자유 행동(`Improvise`), NPC 자유 대화, 은신처 동료 대화, 전투 중 IX/보스 통신. 미리 작성된 대사가 0ms에 먼저 렌더링되고 실제 모델 생성 대사는 `✦ AI` 마크와 함께 비차단으로 교체됩니다.
 

@@ -1,23 +1,21 @@
 # Agent Context Bridge
 
-The root handoff harness for passing work context between agents. The source of truth for detailed state is `docs/AGENT_BRIEF.md`, `docs/STATUS.md`, `docs/NEXT_PLAN.md`; this file stays a hyper-compressed handoff that lets the next worker orient immediately.
+Read `docs/AGENT_BRIEF.md` → `docs/STATUS.md` → `docs/NEXT_PLAN.md`; the newest `docs/PROGRESS_LOG.md` entry carries verification evidence. This bridge is an orientation aid, not a second history.
 
-## Active Context
+## Current handoff (2026-11-05)
 
-- **Project state**: Mythos 2.0 (세계:접속 — "Signal Run") is the only game on `main`: a browser tactics deck-builder roguelite (pure-TS engine in `src/mythos_ui/src/v2`) with an AI GM off the critical path (`src/mythos_v2`: narrate, improvise, companion chat, IX comms). The 1.x AI-narrated loop runtime is archived on branch `1.0` (2026-10-11).
-- **Play path**: `make api` → `http://127.0.0.1:8000` (SPA + `/api/v2`); dev UI `cd src/mythos_ui && npx vite`. Android: Capacitor app in `src/mythos_ui/android` (`docs/android.md`).
-- **Verification baseline**: `make check` (skills, doc budget, ruff/eslint, mypy, tsc/vite, `node --test src/v2` 363, Python unittest 338) + `make test-e2e-v2` (headless, muted). Balance via `simulateRun` (P0 2026-10-25, maxHp 34/32/36 + `a1_n1_*` hazard/void polish: greedy ≈ 95 % · mixed ≈ 31 % · basic 0 %; `gameplay-qa` `qa-routes.md`).
-- **Doc entry point**: `docs/AGENT_BRIEF.md` → `docs/STATUS.md` → `docs/NEXT_PLAN.md`. Rules in `docs/GAMEPLAY.md`; design contract `docs/plans/2026-10-10-mythos-2.0.md`.
+- **Checkout**: `main`, runtime commit `505ccff`. Local and remote branches are now only `main` and `1.0` (the archived runtime). Twenty local and six remote stale branches were retired at the owner's request. Their commits are backed up in `.git/branch-backups/20261105-191957/retired-branches.bundle`; seven old worktrees remain detached with their files and local edits preserved.
+- **Release**: route-aware event/act-intro/boss GM context, plus the prior Sea shop/safehouse fixes. Preview `00185-yev` matches `505ccff` (6/6, including all 13 JS/CSS chunks); promoted to 100% latest and production verified 5/5 plus real-click smoke 3/3. Rollback is `00183-xaz` (`5db096d`).
+- **Local checks**: full `make check` passed: Node 584, Python 343 run with 12 database tests skipped. Built-SPA E2E passed. KO/EN boss intro and phase UI checks passed on Outside, Sea 4/5/6 and Deep 4 (10 cases, mocked model response, no browser errors).
+- **Content snapshot**: 245 cards, 154 enemies, 181 encounters, 76 implants, 337 events (12 procedural), 14 companions, 34 districts / 97 NPCs, 18 endings; read directly from CONTENT. Website/contest draft counts now match.
+- **Play Store next**: `docs/plans/2026-11-05-play-store-release-plan.md` defines free-first / Signal+-later as a recommendation, with G0–G7 owners and evidence. No launch hold lifted. Next engineering: Android compressed-size check and free-release purchase UI; no current signed AAB/default signing config, policy contacts absent.
+- **Human feedback**: Deep/Sea and hidden Chronicle play verdicts, then fixes driven by those observations. The six-chapter Chronicle prototype already includes meters, agendas, core-card carryover and twists; it remains opt-in at `?chronicle=1`.
+- **Authority**: `DECISIONS.md` (2026-11-05) resolves delegated art/consumable/banter/deployment choices. Human fun verdicts cannot be supplied by an agent. Paid Play/Signal+, paid Vertex evaluation, paid voice/music generation, public posting and contest submission remain separate gates. No unattended seeds are queued.
 
-## Current Handover
+## Invariants and limits
 
-1. **Live in production (`00148-nav` / `34a6c75`, promoted 2026-10-25; rollback `00146-cuf`)**: Waves 1–4, W0–W3 global showcase kit, 5-stat combat (`STR/AGI/INT/CHA/OBS` + Evade/Crit + 3-DoT `burn`/`bleed`/`corrode`), BGM overhaul (10 modern dark cyberpunk synthwave & electronic loops), and Content & Volume Expansion (41 enemies, 10 bosses, 54 encounters, 8+1 floors/act = 27 floors/run, 104 cards, 79 narrative events) — `✦ AI` mark & source preservation, Improvise ideas, HP 34/32/36 + `a1_n1_*` hazard/void angles, Architect HUD `?hud=1`, `?lang=` + browser-language default, 13-case English GM eval (Ollama & Vertex) + `GeminiTextLLM` thread-local session & 3rd recovery retry, English prose pass, per-act shop/rest 2.0 WebP art parity, phone combat density (`375–412 px`, `tw: 50–57`), named RNG streams (`engine/streams.ts`), replay-verified daily leaderboard (`ui/replay/`, `mythos_v2/replay.py`), and contest demo codes (`MYTHOS_DEMO_CODES`, `?demo=<code>`).
-2. **Next up (`docs/NEXT_PLAN.md` & `docs/plans/2026-10-24-global-showcase-2026.md`)**: All agent-actionable engineering, content, video (`outputs/trailer/cinematic/mythos2_cinematic_showcase.mp4`, `outputs/trailer/ai/mythos2_ai_features_en.mp4`), documentation (`docs/contest/architecture-en.md`, `devpost-en.md`, `pitch-en.md`, `README.md`), and Cloud Run deployment items are complete. Remaining items are `[owner]` / `[hold]` only (owner feel check `docs/test/mythos2_fun_check.md`, public-repo decision, and contest submission when announced). Paid Play release and Signal+ remain on hold (`docs/DECISIONS.md`).
-3. **Testing & Cost rules**: always muted (`?mute=1`), at most one browser tab, prefer headless Playwright. **Never call Vertex Veo API** (blocked in `scripts/trailer/gen_veo.py`); new images use Codex image only.
-4. **AI GM**: local Ollama `gemma4:8b-64k` (`.env` default `gemma4:latest` is not installed); cloud = Vertex `gemini-3.8-flash` (`.env` `MODEL`, passed by `make deploy*`). Authored pools exist on both sides (`talk.py` ↔ `ui/shell/talkLines.ts`, kept in sync by a test).
-
-## Open Risks
-
-- Saves are client-trusted (single-player, no competitive stakes); the server stores blobs only.
-- Mixed-bot win rate varies ±6 % by seed block — compare balance A/B on identical blocks.
-- The overnight harness's held-out task bank and Dev Graph experiments targeted 1.x and stay on branch `1.0`; new unattended seeds must be written against the 2.0 tree.
+- Rules run in the browser's pure seeded TS engine; the AI GM is off the critical path, with authored fallbacks. Server saves are client-trusted JSON.
+- Browser QA is muted and uses at most one tab; prefer headless Playwright. Never invoke Vertex Veo. New images use Codex image.
+- Balance comparisons need identical seed blocks and system-usage telemetry; assisted UI wins do not prove balance or fun.
+- Local GM: `gemma4:8b-64k`; `.env`'s `gemma4:latest` is not installed. Keep paid model quality checks separate from fake-response/UI plumbing checks.
+- `make api` stops other mythos_api processes; isolated QA uses private uvicorn ports and an in-memory store.

@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-11-04
+Last updated: 2026-11-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-11-04 (late): on `main`, not deployed, all gates green; full Deep + Signal+ (KO and EN) and Sea + Signal+ UI runs won. Districts 16 → 34 (every act/route draws 2 of 3+; `DistrictDef.route`), callbacks 11 → 31, events → 317 (Act 1, Deep 4/6, Sea and DLC 2 pools filled; Sea conflicts/IX/quiet scenes; second personal scenes for the DLC companions), camp nights 14/14, duos 18 (Sea pairs), consumables 16, codex 41, achievements 85; backgrounds and DLC-companion approval reach the late districts. Owner calls: keep the 4 new consumables? (sim −2..−5 %, bot undervalues status items, see PROGRESS_LOG); approve the Codex art (34 districts' scenes/portraits, ~45 events, 3 duo cut-ins, 4 item icons); fun check §16.** 2026-11-04: Built: recruit map marks, level 3/5 perks, undo for no-reveal actions, world echoes 3 → 16, Deep boot screen, eight callback scenes + four Glass Library codas + two Glass Library districts (W1 done), companion pride lines, IX habit reading (W2-2), Paradox 10 "IX Learns" (W2-1). Fixed: Paradox 6–10 were clamped to 5 since the start; Act 4–6 local GM lines; chronicle prompt. Owner calls waiting: fun check §14, deploy, Codex art OK (8 events, 2 districts, 6 NPCs), Paradox 6–10 now tuned to greedy P10 53 % (reversible), W2-3 (contest-gated, Vertex eval billed).** 2026-11-03: on `main`, not deployed: the bot now takes companions (it always went alone at Act 2), Acts 2–3 re-tuned to match (fresh 41.6 %, Deep 27.3 %); reverse-engineering 1–3 analysed (`docs/plans/2026-11-03-reverse-engineering-1-3.md`). Next: owner deploy call, fun check, pick which of the three prototypes to build.** 2026-11-02: DLC 3 The Unwritten Sea + bot re-tune are live in `00173-mab` (`8973143`, rollback `00171-yuj`; preview 5/5 + url-smoke on preview and production). Next: owner plays `docs/test/mythos2_fun_check.md` §12–13 (fun, tide/rewind feel, late damage) and OKs new sea music (Lyria bills Vertex).** 2026-11-01: DLC 2 parallel Act 2 and the party and growth rework went live in `00171-yuj` (`de62fd1`). Earlier history: `docs/PROGRESS_LOG.md` and `COMPLETED_SUMMARY.md`.
+> ▶ NEXT SESSION: On `main`; runtime `505ccff` is live in `00185-yev` (2026-11-05), production checks 5/5 and real-click smoke 3/3. Read `docs/NEXT_PLAN.md`: next inspect Android size-check and purchase-UI readiness using `docs/plans/2026-11-05-play-store-release-plan.md`; collect human Deep/Sea and Chronicle verdicts separately. The delegated art/consumable/deploy calls are resolved; paid Play, paid evaluations and public submission remain separate gates. Only `main` and archive `1.0` remain as branches.
 
 ## Snapshot
 
@@ -27,7 +27,7 @@ Layout:
 - Deployed URL smoke (real clicks, anonymous, muted; run after `make verify-preview`): `make url-smoke URL=https://<service>.run.app`.
 - Local play: `make api` (busy → `MYTHOS_API_PORT=8010 make api`); dev UI `cd src/mythos_ui && npx vite`; sandbox `/?sandbox=combat&mute=1&enc=<id>`.
 - Local GM model: `gemma4:8b-64k` (`.env`'s `gemma4:latest` is not installed) — `OLLAMA_MODEL_STORY=gemma4:8b-64k make api`.
-- Balance: `simulateRun(seed, archetype, CONTENT, policy, { paradox, onFight })` (P0: greedy ≈ 97 % · mixed ≈ 43 % · basic 0 %; vary `run.seed`, not `run.rng`, to vary rolls).
+- Balance: `simulateRun(seed, archetype, CONTENT, policy, { paradox, onFight })` (historical rates depend on content and policy; vary `run.seed`, not `run.rng`, to vary rolls).
 
 ## Guardrails
 

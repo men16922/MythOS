@@ -70,8 +70,8 @@ Admin accounts (`MYTHOS_ADMIN_EMAILS`, verified Google email on the token) have 
 Signal+ (`mythos_v2.billing`): the app buys through the local `BillingPlugin` (Play Billing 8) with
 `obfuscatedAccountId` = the player id from `/plan`; the server verifies the token with `purchases.subscriptionsv2`,
 acknowledges it and stores one `v2_entitlements` row (erased with the account). `GET /plan` re-asks Google once the
-stored expiry passed — renewals, cancellations and refunds without an RTDN endpoint. Needs the service account in Play
-Console (`docs/play-store.md` step 7); until then purchases answer 503 and everyone stays free. The web has no checkout.
+stored expiry passed. There is no RTDN endpoint: refunds/revocations before that expiry can leave stale access and must be resolved and device-tested before selling Signal+. Needs the service account in Play
+Console (release plan phase B); until then purchases answer 503 and everyone stays free. The web has no checkout. See `docs/plans/2026-11-05-play-store-release-plan.md`.
 
 ## Contest demo codes (off by default)
 

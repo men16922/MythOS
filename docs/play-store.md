@@ -107,7 +107,7 @@ Screenshot order: 01 HAETAE boss fight, 02 the Incinerator elite (burning ground
 
 ## App content answers
 
-**App access — draft requiring verification**: offline play is unrestricted, but cloud saves, leaderboard posting and AI require Google sign-in. Supply English reviewer access instructions and reusable access resources for every restricted feature; validate them on the actual Play-installed Android app. A web demo link alone is insufficient. See the release plan §5.
+**App access — draft requiring verification**: offline play is unrestricted, but cloud saves, leaderboard posting and AI require Google sign-in. Supply English reviewer access instructions and reusable access resources for every restricted feature; validate them on the actual Play-installed Android app. A web demo link alone is insufficient. The [data and review audit](plans/2026-11-05-play-data-and-review-audit.md) contains English instructions, required private account resources and an acceptance record; none is yet device-accepted.
 
 **Ads**: no ads.
 
@@ -129,26 +129,15 @@ it is not in the Families program.
 | Shares location, digital purchases | No location sharing; digital purchases only in the later Signal+ release |
 | AI-generated content | Yes: GM narration, companion replies and IX lines. Output is constrained by system prompts, has authored fallbacks, and can be reported in-app (Settings → AI 대사 신고, plus inline flags) |
 
-**Data safety — historical draft, not final declarations.** Reconcile each row against the release build, SDK behavior, retention and service-provider exceptions. Do not assume all transfers are exempt from sharing disclosure. Purchase rows apply only when billing is activated.
+**Data safety — code-audited draft, still blocked for submission.** Use the [data inventory and evidence](plans/2026-11-05-play-data-and-review-audit.md), which supersedes the old answer table. The audit identifies actual SDK versions, per-data purposes/optional status, D1–D8 gaps and reviewer acceptance checks.
 
-| Data type | Collected | Optional | Purpose | Notes |
-| --- | --- | --- | --- | --- |
-| Personal info → Email address | Yes | Yes (sign-in is optional) | Account management | Firebase Authentication; the game server never stores it |
-| Personal info → Name | Yes | Yes | Account management, App functionality | Google display name (Firebase Auth); the player-chosen display name on the leaderboard |
-| Personal info → User IDs | Yes | Yes | Account management, App functionality | Firebase uid; the server keys data by a one-way hash of it |
-| Personal info → Other info | Yes | Yes | Account management | Google profile photo URL (Firebase Auth) |
-| App activity → Other user-generated content | Yes | Yes | App functionality | Companion chat messages: sent to Vertex AI to write the reply, processed ephemerally, not stored. Reported AI lines: stored 90 days without a user id |
-| App activity → Other actions | Yes | Yes | App functionality | Game progress, run history, daily leaderboard results (cloud saves) |
-| App info and performance → Crash logs, Diagnostics | Yes | Yes (Settings toggle) | Analytics | Firebase Crashlytics: stack, device model, OS/app version |
-| Device or other IDs | Yes | Yes | Analytics, App functionality | Crashlytics installation id; the FCM push token, held by Firebase |
-| Financial info → Purchase history | Yes | Yes (only with Signal+) | App functionality | Play purchase token, product, subscription state and expiry, to grant Signal+; payment details stay with Google Play |
+- Firebase Auth collects account attributes; the game hash ID is pseudonymous. SDK collection counts even when the game DB never receives the value.
+- Crashlytics is default-on with a Settings opt-out. The notification switch controls topics, not proven FCM identifier collection; do not mark every SDK identifier optional based on that switch.
+- AI inputs include companion/NPC messages, improvised actions and selected past context. Full comms logs stay local, but selected text can be sent again and generated game/chronicle content can be saved. Provider retention remains unverified; do not declare everything ephemeral.
+- Reports are pruned after 90 days **on the next report insertion**, not by a scheduled expiry. Cloud Logging global `_Default=30 days` and `_Required=400 days` were verified on 11-05; other retention scopes remain open.
+- Sharing exceptions, SDK-derived location, transport and account deletion require final candidate/provider checks. No advertising/location permissions does not prove that SDKs collect no derived data. Do not submit a blanket “nothing shared” or “all data optional.”
 
-- Is all user data encrypted in transit? **Yes** (HTTPS).
-- Can users request deletion? **Yes**: in-app (Settings → 계정 삭제) and the account-deletion URL.
-- Location, contacts, photos, files, audio, health, messages, web history, installed apps: **not collected**.
-- Server access logs (IP, user agent) live in Cloud Logging for 30 days for security. Recheck the actual retention and the current Data safety treatment of IP-derived data and SDK identifiers; do not infer an exemption solely because location is unused.
-
-**Account deletion**: the URL above. In the app: Settings → 계정 삭제 → 영구 삭제. The intended scope is saves, run history, leaderboard rows and the Firebase sign-in record. Verify Auth deletion permissions and the real result before declaring it complete. Reconcile retained logs/reports and their periods with the deployed policy and storage configuration.
+**Account deletion**: in-app deletion removes saves, history, daily rows, AI spend and entitlements, then separately attempts Firebase account deletion. A successful game-data deletion can still return `sign_in_record_deleted=false`; it does not cancel a Play subscription or remove local progress. The current public policy's unconditional immediate deletion wording must be corrected and the dedicated-account/end-to-end result verified. Developer contact and external deletion handling are still missing acceptance evidence.
 
 **Other declarations**: not a news app, no health or COVID features, not a government app, no financial features
 (Signal+ purchases apply only to the later billing-enabled release). The

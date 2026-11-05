@@ -3,6 +3,14 @@
 Last updated: 2026-11-05
 
 
+## 2026-11-05 — Audit Play data declarations and reviewer access
+
+- **Changed**: `docs/plans/2026-11-05-play-data-and-review-audit.md` records code/SDK inventory, proposed data categories, eight unresolved discrepancies (D1–D8), English review instructions and required acceptance evidence. Replaced the old Data safety answer table in `play-store.md`; linked release plan/owner checklist and advanced the handoff. No declarations submitted and no deployed policy changed.
+- **Verified**: Gradle release runtime resolves Firebase Auth 24.0.1, Crashlytics 20.0.3, Messaging 25.0.1, Installations 18.0.0; no Firebase Analytics dependency. Merged release manifest has no collection-disable flags. Live read-only Cloud Logging: global `_Default=30 days`, `_Required=400 days / locked`, only the corresponding project sinks. Evidence: `outputs/play-data-dependencies.txt`, `outputs/play-data-log-{retention,sinks}.txt`.
+- **Findings**: notification off only unsubscribes topics; it does not establish identifier opt-out. Crash reports default on and send unredacted error strings. Reports older than 90 days are pruned only on the next insert. Firebase Auth deletion may fail after game-data deletion. UID hashes are pseudonymous. Selected comms text is retransmitted to AI, while improvisation/chronicle content may persist in cloud saves; blanket ephemeral/anonymous claims are unsupported.
+- **Limits**: this is source/configuration evidence, not a network trace or compliance approval. Provider retention/geography, DB backups, final sharing categories, physical/Play-signed devices, contacts and reusable reviewer resources remain unverified. No private user data/credentials read, paid model calls, account creation, IAM changes, invitations or publication. Native code and runtime are unchanged; prior full gate is the baseline, with doc budgets/link targets/diff checks for this documentation-only batch.
+- **Next**: measure and resolve D1 FCM identifier controls; D3 independent report expiry; D4/D6 policy accuracy, then remaining owner/device/Console acceptance. Prior automatic push prohibition remains; local commit only.
+
 ## 2026-11-05 — Fix Android startup warnings and outdated-WebView blank screen
 
 - **Diagnosed / fixed**: repeated API 36 cold process starts showed safe-area CSS injection errors in 1/3 runs (4 messages). The installed Capacitor 8.5.2 injects before `documentElement` exists; the app never uses these custom properties. Set supported `SystemBars.insetsHandling=native`, retaining native padding. Final 3/3 starts: zero matching warnings, native fatals or attached JS exceptions; same portrait 412×863 / landscape 863×412 viewport, landscape Back opens pause, rotation preserves the saved run. Evidence: `outputs/android-insets-{before,after,final}/`; settled final screenshot `landscape-final-settled-device.png`.

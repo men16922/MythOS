@@ -8,6 +8,10 @@ turns on cloud saves, the AI GM and leaderboard submits. Invite keys are gone (`
 Code: `src/mythos_v2/auth.py` (token check, config), `daily.py` (ordering, names, KST dates), `store.py`
 (`v2_daily_scores`), `api.py` (routes). Scripts: `scripts/firebase/`. Tests: `tests/test_v2_{auth,daily,api,store,firebase_scripts}.py`.
 
+## Production data location and recovery
+
+The 2026-11-05 read-only inspection identifies Neon PostgreSQL (configured hostname region `us-east-1`) as the production save store, with Cloud Run in `us-central1`. Gemini resolves to the `global` Vertex endpoint. Actual Neon history window, snapshots/external copies and restore/deletion reconciliation remain unverified. Evidence and precise next checks: [data-location/backup audit](plans/2026-11-05-data-locations-backup-audit.md).
+
 ## Sign-in modes
 
 | `MYTHOS_AUTH` | Where | Identity |

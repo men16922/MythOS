@@ -5,6 +5,12 @@ Last updated: 2026-11-05
 
 Older entries: [November archive](../bin/docs/archive/progress-2026-11.md).
 
+## 2026-11-05 — Verify data locations and scope backup/retention gaps
+
+- **Verified read-only**: production still `00185-yev` at 100%. DB connection is Neon PostgreSQL, `sslmode=require`, documented hostname region `us-east-1`; deployed source plus live env resolves Gemini to `global`. Active `global/google/gemini-3.8-flash` PublisherModelConfig GET returned specific 404 missing-config (documented default-disabled request/response logging). Cloud Logging refreshed: default 30 days, required 400/locked. No rows, prompts or credentials exposed; no inference or cloud writes.
+- **Changed**: corrected stale Cloud SQL claim in Devpost draft; added provider evidence and exact Neon recovery/restore/deletion-reconciliation acceptance to release, data and operations docs. Existing policy already names Neon and avoids blanket location/zero-retention claims; no runtime change. Doc budget, relative links, diff and credential-pattern checks passed; code tests were not rerun for this docs-only change. Details: `docs/plans/2026-11-05-data-locations-backup-audit.md`.
+- **Limits / next**: actual Neon history window/snapshots/exports and restore evidence remain missing: no API auth/connector, browser access unavailable, native Chrome window unavailable. Asked owner for non-secret facts; no answer yet. Provider retention terms are not measured erasure. Next independent work: D6 diagnostics toggle/pending-report acceptance without transmitting reports. Physical/Play-signed, signing/contact/reviewer/deletion and production retention/publication gates remain. No deployment/upload/push; automatic push restriction still applies.
+
 ## 2026-11-05 — Preserve debug upgrades and keep event input visible after rotation
 
 - **Verified upgrade**: same-debug-certificate `fa41a72` v1 → `f3e012a` v2 via install-r, no clear within either case. Run/profile/mute/diagnostics/push stayed byte-identical with consent on and legacy off/pending queue; same combat resumed. Legacy off queue stayed dormant during 30 s reconnect, then explicit re-enable reconciled it and off cleaned registration. Zero attached JS exceptions; no messages/tokens exposed.

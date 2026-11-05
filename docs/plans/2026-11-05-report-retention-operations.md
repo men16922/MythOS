@@ -30,6 +30,8 @@ First deploy the job **without `--apply`** and inspect a successful count-only e
 
 Monitor job failures and a missing successful run for more than 26 hours. An execution success and the JSON row count are required evidence; a scheduler definition alone proves nothing. Retrying after failure is safe. Purged report bodies cannot be restored by rolling back code; backups and any restoration/re-purge policy need separate approval and documentation.
 
+The production DB is Neon PostgreSQL, with `us-east-1` in the configured hostname; Cloud Run is in `us-central1`. [D7 audit](2026-11-05-data-locations-backup-audit.md) records the evidence and missing recovery-window/copy inventory. Before any restore is promoted, reconcile previously accepted account deletions and expired reports on the isolated restored target; current-row purge alone does not prove historical-copy erasure. No restore or production purge was performed.
+
 ## Acceptance record
 
 | Requirement | Evidence | State |

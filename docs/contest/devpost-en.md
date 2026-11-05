@@ -147,12 +147,12 @@ Neo-Seoul under **IX**, a polite administrator AI that scores every citizen and 
 ## Built With (Google Cloud & Stack)
 
 - **Google Cloud:** Cloud Run (FastAPI API + SPA hosting, tagged preview revisions), Vertex AI (`gemini-3.8-flash` with
-  4 s hedged retries), Firebase Authentication (Google sign-in + judge `?demo=` codes), Cloud SQL for PostgreSQL (with
-  in-memory fallback), Cloud Billing Budgets + Cloud Pub/Sub + Cloud Run Functions (`vertex_cap` spend kill-switch),
+  4 s hedged retries), Firebase Authentication (Google sign-in + judge `?demo=` codes), Cloud Billing Budgets + Cloud Pub/Sub + Cloud Run Functions (`vertex_cap` spend kill-switch),
   Firebase Cloud Messaging + Cloud Scheduler (daily-seed notifications), Cloud Logging, Firebase Crashlytics & App
   Distribution (Android).
 - **Client & Engine:** TypeScript, React 19, Vite, Capacitor (Android), Web Audio API (procedural SFX + adaptive act
   stems), Playwright.
+- **Database:** Neon PostgreSQL for production game data; in-memory storage is a local fallback.
 - **Backend & Tooling:** Python 3.12, FastAPI, Pydantic, Node.js (`replay_verify.mjs`), FFmpeg + Pillow (automated
   trailer pipeline).
 

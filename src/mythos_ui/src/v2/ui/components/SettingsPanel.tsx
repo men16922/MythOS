@@ -1,6 +1,6 @@
 // Mythos 2.0 — settings modal (language, BGM, SFX, fast animations, the Google account, the Signal+ plan and AI
 // allowance; daily notification and crash reports in the Android app).
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Lang, MetaProfile } from '../../engine/types.ts'
 import { pushControl } from '../common/nativeBridge.ts'
 import { AccountSection } from './AccountControl.tsx'
@@ -42,6 +42,7 @@ function DailyPushToggle({ lang }: { lang: Lang }) {
   const control = pushControl()
   const [on, setOn] = useState(() => control?.enabled() ?? false)
   const [busy, setBusy] = useState(false)
+  const request = useRef(0)
   const [hint, setHint] = useState<string | null>(null)
   if (!control) return null
   const base = ko ? '매일 저녁, 오늘의 시드가 열렸다고 알려 준다' : 'An evening nudge when the Daily Signal opens'
@@ -51,11 +52,16 @@ function DailyPushToggle({ lang }: { lang: Lang }) {
       label={ko ? '오늘의 시드 알림' : 'Daily Signal alerts'}
       hint={hint ?? base}
       onClick={() => {
-        if (busy) return
+        if (busy && !on) return // Off can cancel a pending enable; re-enable waits for cleanup.
+        const current = ++request.current
         setBusy(true)
         const next = !on
         setOn(next) // optimistic; settled below
+        setHint(next
+          ? ko ? '알림 연결을 기다리는 중이다. 다시 눌러 취소할 수 있다.' : 'Waiting for the notification connection. Tap again to cancel.'
+          : ko ? '끄기 요청을 저장했다. 연결되면 구독과 등록 정보를 정리한다.' : 'Off is saved. Subscriptions and registration will be cleaned up when connected.')
         void control.set(next, lang).then((res) => {
+          if (current !== request.current) return
           setBusy(false)
           setOn(res === 'on')
           setHint(

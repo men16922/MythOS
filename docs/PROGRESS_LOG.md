@@ -5,6 +5,13 @@ Last updated: 2026-11-05
 
 Older entries: [November archive](../bin/docs/archive/progress-2026-11.md).
 
+## 2026-11-05 — Finish pending FCM cleanup before token deletion
+
+- **Diagnosed**: real SDK token deletion/renewal passed, but offline queued topic → off → reconnect in the same process recreated a token (regression failed). The installed topic adapter resolved on queueing; auto-init off alone did not cancel pending SDK work. A separate persisted-off restart did not reproduce the same failure.
+- **Changed**: native topic methods await SDK completion; off persists cleanup, disables auto-init, drains removals then deletes the token. Duplicate cleanup is shared; next launch retries interruption. Fresh never-enabled installs skip topic requests. Settings can cancel pending enable and ignores stale results. KO/EN policy drafts disclose temporary cleanup registration traffic. Opt-in instrumentation added; no token values logged.
+- **Verified**: actual deletion/renewal, same-process reconnect with duplicate off, interrupted cleanup/restart (30-second post-cleanup observations), actual Settings offline cancel/reconnect and online enable/off passed on API 36 / 16 KB; final off, no marker/token, zero attached JS exceptions. Eight served policy cases passed. Full gate Node 594, Python 352/15 DB skips; E2E and web/debug/instrumentation/AAB builds passed. Latest unsigned max base download 368,390,232 bytes; 16 KB config, four ELF alignments and debug zipalign passed. Artifact identity, commands and evidence: `docs/plans/2026-11-05-push-connected-acceptance.md`.
+- **Limits / next**: no notification send, token disclosure, account creation, production deployment, policy publication or push. Owned emulator/forward stopped; cleanup verified. Next: older-install debug upgrade acceptance, then keyboard/device coverage. Physical/Play-signed delivery, signing/contact/reviewer/deletion and production retention remain open; prior automatic push prohibition remains.
+
 ## 2026-11-05 — Rebuild Android candidate and verify API 24 offline lifecycle
 
 - **Changed**: rebuilt app web/debug APK/unsigned AAB from `fa41a72` including FCM consent and policy copy; no app source change. Candidate identity and scoped evidence: `docs/plans/2026-11-05-android-candidate-verification.md`. Five older log entries retained verbatim in the November archive.

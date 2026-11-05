@@ -3,7 +3,8 @@
 // The server never stores device tokens: Cloud Scheduler sends one message a day to the topic `daily-ko` /
 // `daily-en` (contract: online/CONTRACT.md "Push"; `make push-schedule`). This module only manages the player's opt-in:
 //   on  → notification permission (Android 13+), channel `daily`, subscribe `daily-<lang>`, unsubscribe the other;
-//   off → disable auto-init and delete the FCM token. Default OFF. A language change moves the subscription.
+//   off → disable auto-init, drain topic removal, then delete the FCM token. Default OFF.
+// Cleanup requires connectivity; native state retries interrupted cleanup on the next off reconciliation.
 // A tap on a notification whose data has `open=daily` (cold start or background) is relayed to the shell, which opens
 // the daily leaderboard on the title. A push that arrives while the game is in the foreground only raises a small
 // toast (the system shows nothing then).
@@ -16,7 +17,11 @@ import { createPushConsent } from './pushConsent.ts'
 /** localStorage: '1' = on (default off). Native auto-init also defaults off in the manifest. */
 const PUSH_KEY = 'mythos2.push'
 const CHANNEL_ID = 'daily'
-const registration = registerPlugin<{ setEnabled(options: { enabled: boolean }): Promise<void> }>('PushRegistration')
+const registration = registerPlugin<{
+  setEnabled(options: { enabled: boolean }): Promise<void>
+  subscribe(options: { topic: string }): Promise<void>
+  unsubscribe(options: { topic: string }): Promise<void>
+}>('PushRegistration')
 
 function read(key: string): string | null {
   try {
@@ -61,8 +66,8 @@ const control = createPushConsent({
   },
   registration: (on) => registration.setEnabled({ enabled: on }),
   channel: ensureChannel,
-  subscribe: async (topic) => { await FirebaseMessaging.subscribeToTopic({ topic }) },
-  unsubscribe: async (topic) => { await FirebaseMessaging.unsubscribeFromTopic({ topic }) },
+  subscribe: async (topic) => { await registration.subscribe({ topic }) },
+  unsubscribe: async (topic) => { await registration.unsubscribe({ topic }) },
 })
 
 function asData(value: unknown): Record<string, unknown> {

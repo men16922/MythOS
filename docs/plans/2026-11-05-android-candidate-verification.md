@@ -2,6 +2,8 @@
 
 Release authority: [Play Store plan](2026-11-05-play-store-release-plan.md). These are local QA results, not a signed release or Play acceptance.
 
+Latest artifact: superseded by the FCM cleanup candidate in [connected acceptance](2026-11-05-push-connected-acceptance.md). The hashes and device observations below remain historical evidence for `fa41a72`.
+
 ## Candidate identity
 
 Built from `fa41a7246eb1e8fb4ca642c128b9a820a4c55082`, including FCM consent controls and the corrected Settings copy. No app source changed during this verification.

@@ -19,8 +19,9 @@ export function createPushConsent(d: PushConsentDeps): PushControl {
   let desired = d.read()
   const disable = async (): Promise<void> => {
     d.write(false) // Persist the choice even when token deletion must be retried on restart.
-    await d.registration(false) // Native side disables auto-init before awaiting token deletion.
-    // Do not enqueue topic unsubscriptions here: they can request a fresh token just to remove a topic.
+    // Native side disables auto-init, drains previous topic work if needed, then deletes the token.
+    // It persists cleanup across process death and skips topic requests on a never-enabled install.
+    await d.registration(false)
   }
   const apply = async (on: boolean, lang: Lang, request: boolean, rev: number): Promise<PushToggleResult> => {
     const stale = (): boolean => rev !== revision

@@ -26,7 +26,9 @@ class RenderTest(unittest.TestCase):
                         self.assertIn('href="mailto:dev@example.com"', out)
                     else:
                         self.assertNotIn("mailto:", out)
-                        self.assertIn("Google Play", out)
+                        self.assertIn("지원 이메일이 아직 등록되지 않", out)
+                        self.assertIn("support email has not been configured", out)
+                        self.assertNotIn("developer email on the game's Google Play", out)
 
     def test_contact_email_is_validated_and_names_escaped(self) -> None:
         self.assertEqual(legal.contact_email(" a@b.co "), "a@b.co")

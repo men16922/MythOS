@@ -27,8 +27,8 @@ export function AiLinesSection({ lang }: { lang: Lang }) {
         </b>
         <small>
           {ko
-            ? 'GM, 동료, IX의 일부 대사는 AI가 쓴다. 불쾌하거나 부적절한 대사는 깃발을 눌러 알려 달라. 대사만 전달되고 누가 보냈는지는 남지 않는다.'
-            : 'Some GM, companion and IX lines are written by AI. Flag anything offensive or inappropriate. Only the line is sent, not who sent it.'}
+            ? 'GM, 동료, IX의 일부 대사는 AI가 쓴다. 부적절한 대사는 깃발로 신고할 수 있다. 대사와 나온 곳·언어를 보낸다. 신고자 ID를 별도로 남기지 않지만 대사에 개인정보가 있을 수 있다.'
+            : 'Some GM, companion and IX lines are written by AI. Flag inappropriate lines to send their text, context and language. We do not store a separate reporter ID, but the text may contain personal information.'}
         </small>
       </span>
       {lines.length ? (

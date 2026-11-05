@@ -24,7 +24,7 @@
 </ol>
 
 <h2>앱 없이 요청</h2>
-<p>게임에 접속할 수 없으면 {{CONTACT_KO_INLINE}}로 <b>로그인에 쓴 Google 이메일</b>을 적어 삭제를 요청하세요. 본인 확인 뒤 30일 안에 삭제하고 결과를 알려 드립니다.</p>
+<p>{{REQUEST_KO}}</p>
 
 <h2>삭제되는 정보</h2>
 <ul>
@@ -32,17 +32,18 @@
   <li>지난 작전 기록 전체</li>
   <li>오늘의 시드 순위표 항목(표시 이름과 결과)</li>
   <li>월별 AI 사용 금액과 Signal+ 구독 기록(구독 자체는 Google Play에서 해지하세요)</li>
-  <li>Google 로그인 정보(Firebase Authentication의 계정 식별자, 이메일, 이름, 사진)</li>
+  <li>Firebase 로그인 정보(계정 식별자, 이메일, 이름, 사진): 게임 데이터 삭제 뒤 별도로 삭제를 요청합니다. 사용자의 Google 계정 자체를 삭제하는 것은 아닙니다.</li>
 </ul>
-<p>서버 데이터는 요청 즉시 지워지며 되돌릴 수 없습니다.</p>
+<p>게임 데이터 삭제가 성공하면 되돌릴 수 없습니다. Firebase 로그인 정보 삭제가 실패하면 앱에 별도 안내가 표시됩니다. 다시 로그인해 계정 삭제를 재시도하거나 위 연락처로 요청하세요. 이 경우 게임 데이터가 삭제됐더라도 로그인 정보 삭제는 완료되지 않은 상태입니다.</p>
 
 <h2>남는 정보</h2>
 <ul>
-  <li>서버 접속 기록(IP, 익명 ID 등): 보안을 위해 최대 30일 보관 뒤 자동 삭제.</li>
-  <li>오류 보고(Android, 계정과 연결되지 않음): 최대 90일 보관 뒤 자동 삭제.</li>
-  <li>AI 대사 날짜별 호출 수 집계와 신고한 AI 대사(90일 보관): 누구의 것인지 저장하지 않아 계정과 연결되지 않습니다.</li>
+  <li>일반 서버 로그(IP, 가명 ID 등): 기본 30일 보관. 필수 클라우드 감사 로그는 별도 정책에 따라 400일 보관.</li>
+  <li>Android 오류 보고와 설치 식별자: Crashlytics는 90일 보관한 뒤 삭제 절차를 시작합니다. 오류 문자열에 개인정보가 들어 있을 수 있으며, 계정 삭제로 이미 전송된 보고서가 즉시 사라지지는 않습니다.</li>
+  <li>AI 호출 수 집계와 신고한 AI 대사: 신고자 ID로 연결하지 않아 계정 삭제 시 함께 지우지 않습니다. 신고 본문에 개인정보가 있다면 위 연락처로 삭제를 요청하세요. 90일 초과 신고는 현재 새 신고 접수 시 정리되므로 삭제가 지연될 수 있습니다.</li>
   <li>기기 안의 진행 기록: 기기에만 있으므로 앱을 지우거나 브라우저의 사이트 데이터를 지우면 사라집니다.</li>
 </ul>
+<p>백업과 서비스 제공자 보관본은 별도 삭제 절차를 따릅니다. Firebase는 로그인 정보 삭제를 시작한 뒤 운영·백업 시스템에서 제거하는 데 최대 180일이 걸릴 수 있다고 안내합니다. <a href="/privacy">개인정보처리방침</a>을 함께 확인하세요.</p>
 </section>
 
 <section class="lang" id="en" lang="en">
@@ -58,7 +59,7 @@
 </ol>
 
 <h2>Request without the app</h2>
-<p>If you cannot reach the game, email {{CONTACT_EN_INLINE}} with <b>the Google email you signed in with</b>. After confirming it is you, we delete the account within 30 days and tell you when it is done.</p>
+<p>{{REQUEST_EN}}</p>
 
 <h2>What is deleted</h2>
 <ul>
@@ -66,17 +67,18 @@
   <li>All finished-run records</li>
   <li>Daily Signal leaderboard entries (display name and results)</li>
   <li>Monthly AI spend and the Signal+ subscription record (cancel the subscription itself in Google Play)</li>
-  <li>Your Google sign-in record (account id, email, name, photo in Firebase Authentication)</li>
+  <li>Your Firebase sign-in record (account id, email, name, photo): deletion is attempted separately after game-data deletion. This does not delete your Google account itself.</li>
 </ul>
-<p>Server data is erased immediately and cannot be recovered.</p>
+<p>Successful game-data deletion cannot be undone. If Firebase sign-in record deletion fails, the app shows a separate message. Sign in again to retry account deletion or use the contact above. In this case, game data has been deleted but sign-in record deletion is not yet complete.</p>
 
 <h2>What is kept</h2>
 <ul>
-  <li>Server access logs (IP, the anonymous id, …): kept up to 30 days for security, then deleted automatically.</li>
-  <li>Crash reports (Android, not linked to your account): kept up to 90 days, then deleted automatically.</li>
-  <li>Daily AI-call counts and reported AI lines (kept 90 days): stored without any player id, so they are not linked to your account.</li>
+  <li>General server logs (IP, pseudonymous id, etc.): default retention of 30 days. Required cloud audit logs have a separate 400-day retention period.</li>
+  <li>Android crash reports and installation identifiers: Crashlytics starts its removal process after 90 days. Error strings may contain personal information, and account deletion does not immediately erase reports already sent.</li>
+  <li>AI-call aggregates and reported AI lines: not keyed by reporter id, so account deletion does not remove them. If report text contains personal information, request deletion using the contact above. Reports older than 90 days are currently cleaned up when a new report arrives, so removal can be delayed.</li>
   <li>Progress on your device: it lives only there and goes away when you uninstall the app or clear the browser's site data.</li>
 </ul>
+<p>Backups and provider-held copies follow separate removal processes. Firebase states that sign-in data removal from live and backup systems can take up to 180 days after deletion is initiated. See the <a href="/privacy">Privacy Policy</a>.</p>
 </section>
 </main>
 </body>

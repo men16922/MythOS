@@ -1,8 +1,8 @@
 """Public policy pages the app stores require: ``/privacy`` and ``/account-deletion`` (Korean + English).
 
 The HTML lives in ``legal/`` with ``{{PLACEHOLDER}}`` slots filled once at startup:
-- ``MYTHOS_CONTACT_EMAIL`` — the developer contact shown on both pages (a mailto link). Without it the pages point
-  at the developer email of the store listing instead, so a deploy without the variable is still truthful.
+- ``MYTHOS_CONTACT_EMAIL`` — the developer contact shown on both pages (a mailto link). Without it the pages
+  disclose the missing contact; a nonexistent Play listing must not be presented as a working request path.
 - ``MYTHOS_DEVELOPER_NAME`` — the developer name (default ``Project Mythos``); must match the Play listing.
 """
 
@@ -15,7 +15,7 @@ from pathlib import Path
 
 LEGAL_DIR = Path(__file__).parent / "legal"
 #: Bump when the policy text changes (shown as the effective date).
-EFFECTIVE_DATE = "2026-10-18"
+EFFECTIVE_DATE = "2026-11-05"
 DEFAULT_DEVELOPER = "Project Mythos"
 PAGES = {"privacy": "privacy.html", "account-deletion": "account-deletion.html"}
 
@@ -32,20 +32,34 @@ def _slots(email: str | None, developer: str) -> dict[str, str]:
     if email:
         link = f'<a href="mailto:{html.escape(email)}">{html.escape(email)}</a>'
         ko, en = f"문의: {link}", f"Email: {link}"
-        ko_inline = en_inline = link
+        request_ko = (
+            f"게임에 접속할 수 없으면 {link}로 <b>로그인에 쓴 Google 이메일</b>을 적어 삭제를 요청하세요. "
+            "본인 확인 뒤 30일 안에 처리하고 결과를 알려 드립니다. 비밀번호나 로그인 코드는 보내지 마세요."
+        )
+        request_en = (
+            f"If you cannot reach the game, email {link} with <b>the Google email you signed in with</b>. "
+            "After confirming your identity, we process the request within 30 days and report the result. "
+            "Do not send a password or sign-in code."
+        )
     else:
-        ko = "Google Play 스토어 등록정보에 있는 개발자 이메일로 연락하세요."
-        en = "Use the developer email shown on the game's Google Play store listing."
-        ko_inline = "Google Play 스토어 등록정보의 개발자 이메일"
-        en_inline = "the developer email on the game's Google Play store listing"
+        ko = "지원 이메일이 아직 등록되지 않았습니다. 현재 계정 삭제 요청 경로는 웹 게임의 설정 → 계정 삭제입니다."
+        en = "A support email has not been configured. The current deletion path is Settings → Delete account in the web game."
+        request_ko = (
+            '앱 없이도 <a href="/">웹 게임</a>에 같은 Google 계정으로 로그인한 뒤 설정 → 계정 삭제를 사용할 수 있습니다. '
+            "지원 이메일이 아직 등록되지 않아 로그인할 수 없는 경우의 별도 요청 경로는 현재 제공되지 않습니다."
+        )
+        request_en = (
+            'Without the app, sign in with the same Google account in the <a href="/">web game</a> and use Settings → Delete account. '
+            "A support email has not been configured, so a separate request path for users who cannot sign in is not yet available."
+        )
     return {
         "STYLE": (LEGAL_DIR / "_style.css").read_text(encoding="utf-8"),
         "EFFECTIVE": EFFECTIVE_DATE,
         "DEVELOPER": html.escape(developer),
         "CONTACT_KO": ko,
         "CONTACT_EN": en,
-        "CONTACT_KO_INLINE": ko_inline,
-        "CONTACT_EN_INLINE": en_inline,
+        "REQUEST_KO": request_ko,
+        "REQUEST_EN": request_en,
     }
 
 

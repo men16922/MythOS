@@ -98,8 +98,8 @@ over-budget November message disabled the API in ~10 s, a new-month message enab
 ## Account deletion, AI line reports, policy pages (Play policy)
 
 - **Account deletion** (Play: in-app + web): Settings → 계정 삭제 → inline confirmation → `DELETE /api/v2/account`. Pending
-  saves go out first and the DELETE is chained behind them; the server deletes `v2_saves`, `v2_run_history` and
-  `v2_daily_scores` rows in one transaction (`store.delete_player`; a test fails if a new table with `player_id` is
+  saves go out first and the DELETE is chained behind them; the server deletes `v2_saves`, `v2_run_history`,
+  `v2_daily_scores`, `v2_gm_spend` and `v2_entitlements` rows in one transaction (`store.delete_player`; a test fails if a new table with `player_id` is
   not covered), then the Firebase Auth user through the Identity Toolkit admin endpoint with the service account's own
   credentials (`auth.FirebaseAccountDeleter`, no firebase-admin). The client then signs out; this device keeps its
   local progress. The Cloud Run service account needs `roles/firebaseauth.admin` for the last step — without it
@@ -108,10 +108,12 @@ over-budget November message disabled the API in ~10 s, a new-month message enab
 - **AI line reports** (Play AI-generated content policy): every model-written line is noted in memory
   (`ui/common/aiLines.ts`); Settings → "AI 대사 신고" lists this session's lines with a flag each (the only place for the
   click-through IX comms and boss card), and chat replies plus the event/act GM cards carry an inline flag. A flag
-  posts only the line, its source and language to `v2_gm_reports` (`migrations/015`; no player id; pruned after 90
-  days); the `/admin` dashboard lists them.
+  posts the line, its source and language to `v2_gm_reports` (`migrations/015`; no reporter-id field, but text can
+  contain personal information). Current production prunes >90-day rows only on insert. The independent job
+  `python -m mythos_v2.report_retention` defaults to dry-run; `--apply` deletes expired reports. Scheduling and
+  production acceptance remain open in `docs/plans/2026-11-05-report-retention-operations.md`; the `/admin` dashboard lists reports.
 - **Policy pages**: `/privacy` and `/account-deletion` (Korean + English, `src/mythos_api/legal/`), filled at startup
-  with `MYTHOS_CONTACT_EMAIL` (without it they point at the store listing's developer email) and
+  with `MYTHOS_CONTACT_EMAIL` (without it they disclose the missing contact and offer the existing web-game deletion path) and
   `MYTHOS_DEVELOPER_NAME` (default `Project Mythos`); `make deploy` passes both from `.env`. Bump
   `legal.EFFECTIVE_DATE` when the text changes. These are the URLs for Play Console's privacy-policy and
   account-deletion fields.

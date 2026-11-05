@@ -90,7 +90,7 @@ function CrashReportsToggle({ ko }: { ko: boolean }) {
     <Toggle
       on={on}
       label={ko ? '오류 보고 보내기' : 'Send crash reports'}
-      hint={ko ? '앱이 멈추거나 오류가 나면 기술 정보만 익명으로 보낸다' : 'Sends anonymous technical details when the app crashes or errors'}
+      hint={ko ? '오류 메시지·기기 정보·설치 식별자를 Firebase로 보낸다. 끄면 이후 보고를 중단한다.' : 'Sends error messages, device details and installation identifiers to Firebase. Turn off to stop future reporting.'}
       onClick={() => {
         const next = !on
         setOn(next)

@@ -3,6 +3,12 @@
 Last updated: 2026-11-05
 
 
+## 2026-11-05 — Prepare independent report expiry and correct policy drafts
+
+- **Changed**: `report_retention.py` counts expired reports by default; explicit `--apply` deletes >90-day rows in PostgreSQL without new reports. UTC, bounded timeouts, no DB fallback/schema creation or sensitive output. Operations plan records production wiring/monitoring still needed. KO/EN policy and Settings copy now explains partial Firebase deletion, pseudonymous IDs, default-on diagnostics, AI persistence and scoped retention; missing contact no longer points to a nonexistent listing.
+- **Verified**: six command/isolated PostgreSQL tests and all 33 store tests passed (no DB skips). Policies passed 8 served browser cases (contact/no-contact × 390/1280 px × two pages), app-mode KO/EN copy passed with native sign-in disabled for layout QA, zero page errors; SDK behavior is not covered. Evidence: `outputs/report-{retention-tests,policy-store-db-tests}.txt`, `outputs/report-policy-rendered/`. `make check`: Node 594, Python 352/15 DB skips; E2E passed.
+- **Limits / next**: local drafts only; no production deletion, scheduled job, IAM/secret/account changes or policy publication. Developer contact requested, still missing. G2 remains open. Next: rebuild/re-measure Android candidate, updated-provider API 24 QA; production schedule/contact/deletion and signed-device acceptance remain. Prior automatic push prohibition remains.
+
 ## 2026-11-05 — Tie FCM registration to alert consent
 
 - **Changed**: fresh-install FCM auto-init defaults off; a native bridge enables registration after consent and disables it before token deletion. Saved off retries cleanup on launch. Late language requests cannot restore on; off bypasses stalled work and a later on waits for cleanup. No tokens cross the bridge; SDK versions are unchanged. Updated failure text and D1/release handoff.
@@ -11,11 +17,9 @@ Last updated: 2026-11-05
 
 ## 2026-11-05 — Audit Play data declarations and reviewer access
 
-- **Changed**: `docs/plans/2026-11-05-play-data-and-review-audit.md` records code/SDK inventory, proposed data categories, eight unresolved discrepancies (D1–D8), English review instructions and required acceptance evidence. Replaced the old Data safety answer table in `play-store.md`; linked release plan/owner checklist and advanced the handoff. No declarations submitted and no deployed policy changed.
-- **Verified**: Gradle release runtime resolves Firebase Auth 24.0.1, Crashlytics 20.0.3, Messaging 25.0.1, Installations 18.0.0; no Firebase Analytics dependency. Merged release manifest has no collection-disable flags. Live read-only Cloud Logging: global `_Default=30 days`, `_Required=400 days / locked`, only the corresponding project sinks. Evidence: `outputs/play-data-dependencies.txt`, `outputs/play-data-log-{retention,sinks}.txt`.
-- **Findings**: notification off only unsubscribes topics; it does not establish identifier opt-out. Crash reports default on and send unredacted error strings. Reports older than 90 days are pruned only on the next insert. Firebase Auth deletion may fail after game-data deletion. UID hashes are pseudonymous. Selected comms text is retransmitted to AI, while improvisation/chronicle content may persist in cloud saves; blanket ephemeral/anonymous claims are unsupported.
-- **Limits**: this is source/configuration evidence, not a network trace or compliance approval. Provider retention/geography, DB backups, final sharing categories, physical/Play-signed devices, contacts and reusable reviewer resources remain unverified. No private user data/credentials read, paid model calls, account creation, IAM changes, invitations or publication. Native code and runtime are unchanged; prior full gate is the baseline, with doc budgets/link targets/diff checks for this documentation-only batch.
-- **Next**: measure and resolve D1 FCM identifier controls; D3 independent report expiry; D4/D6 policy accuracy, then remaining owner/device/Console acceptance. Prior automatic push prohibition remains; local commit only.
+- **Changed**: `docs/plans/2026-11-05-play-data-and-review-audit.md` records the SDK/data inventory, D1–D8 discrepancies and English reviewer draft at baseline `d609698`; replaced the old Data safety answer table. No declaration or policy published.
+- **Verified**: Auth 24.0.1, Crashlytics 20.0.3, Messaging 25.0.1, Installations 18.0.0; no Analytics dependency or collection-disable manifest flags at that baseline. Live Logging `_Default=30 days`, `_Required=400 days / locked`, two default sinks. Evidence: `outputs/play-data-dependencies.txt`, `outputs/play-data-log-{retention,sinks}.txt`.
+- **Findings / next**: FCM topic-off was not identifier opt-out; raw crash/report text can identify users, report expiry depended on inserts, Firebase deletion can fail separately, hashes are pseudonymous and AI content can persist. Full details/acceptance remain in the audit. Contacts, reviewer resources, provider/backups and signed-device evidence were missing. Documentation-only local checkpoint; no private-data read, paid calls, IAM/account changes or push.
 
 ## 2026-11-05 — Fix Android startup warnings and outdated-WebView blank screen
 

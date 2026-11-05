@@ -4,7 +4,7 @@ Last updated: 2026-11-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: On `main`; runtime `505ccff` is live in `00185-yev` (2026-11-05), production checks 5/5 and real-click smoke 3/3. Read `docs/NEXT_PLAN.md`: Android size guard and purchase UI verified locally (Node 584, Python 346/12 DB skips; unsigned AAB ~368 MB download estimate). Next check native/16 KB compatibility using `docs/plans/2026-11-05-play-store-release-plan.md`; collect human Deep/Sea and Chronicle verdicts separately. The delegated art/consumable/deploy calls are resolved; paid Play, paid evaluations and public submission remain separate gates. Only `main` and archive `1.0` remain as branches. Documentation checkpoint is local: automatic approval review denied push (overnight restriction); manual push is required.
+> ▶ NEXT SESSION: On `main`; runtime `505ccff` is live in `00185-yev` (2026-11-05), production checks 5/5 and real-click smoke 3/3. Read `docs/NEXT_PLAN.md`: Android size guard and purchase UI verified locally (Node 584, Python 346/12 DB skips; unsigned AAB ~368 MB download estimate). 16 KB packaging and API 36 offline lifecycle QA passed; startup safe-area warning and remaining device/Play-signed checks are open in `docs/plans/2026-11-05-play-store-release-plan.md`; collect human Deep/Sea and Chronicle verdicts separately. The delegated art/consumable/deploy calls are resolved; paid Play, paid evaluations and public submission remain separate gates. Only `main` and archive `1.0` remain as branches. Documentation checkpoint is local: automatic approval review denied push (overnight restriction); manual push is required.
 
 ## Snapshot
 

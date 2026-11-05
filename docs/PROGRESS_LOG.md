@@ -3,6 +3,14 @@
 Last updated: 2026-11-05
 
 
+## 2026-11-05 — Android 16 KB packaging and offline lifecycle QA
+
+- **Verified packaging**: unsigned AAB from the preceding entry reports `PAGE_ALIGNMENT_16K`; arm64/x86_64 native ELF LOAD alignment is 16384 and RELRO has no trailing writable data on its shared page. All 87 bundletool-generated APKs passed `zipalign -c -P 16 4`; debug APK also passed. Evidence: `outputs/android-{bundle-config,elf-alignment,relro,split-alignment}.json`. Temporary APKs use the existing debug key, not release signing.
+- **Verified runtime**: isolated API 36 ARM64 `google_apis_ps16k` emulator (`getconf PAGE_SIZE=16384`), locally built debug APK, Wi-Fi/data disabled, muted. Native taps reached a new run and combat; Android Back opened pause; background/resume and force-stop/relaunch preserved the saved run, then Continue returned to combat. No unhandled JS exception during the attached test. Evidence/reproducer: `outputs/android-native-qa/`, `outputs/android-native-direct.py`; debug build log `outputs/android-debug-build.log`.
+- **Visual / limits**: settled portrait rendering inspected at 412×863 CSS pixels (`is-port is-touch`). The immediate resume screenshot precedes responsive layout; use `settled-combat-device.png` for the settled view. Startup log contains caught Capacitor SystemBars safe-area CSS errors (`document.documentElement` is null); no AndroidRuntime fatal captured. Do not describe the complete native console as error-free. Landscape, API 24, physical devices, signed Play install/update, auth/deletion/push and real billing remain unverified.
+- **Isolation**: SDK image and AVD created under ignored `outputs/`; existing AVD untouched. Only the owned emulator and CDP forward were stopped after QA. No source change, upload, deployment or push; prior full gate remains the source baseline.
+- **Next**: remaining release-device matrix and startup safe-area warning diagnosis; owner Console/contact/signing inputs. Play launch/Signal+ hold unchanged. Local documentation checkpoint only; automatic push prohibition remains.
+
 ## 2026-11-05 — Android download-size guard and unavailable purchase UI
 
 - **Diagnosed**: KO/EN mocked native billing showed an enabled purchase button while offer lookup was pending/null/rejected (all 6 unavailable cases); rejected lookups also caused unhandled browser errors. The modal and district tooltip described currently free CRPG as a paid benefit. Actual QA AAB is 369,453,529 bytes, which the old raw-file 200 MiB guard rejects regardless of delivered size.

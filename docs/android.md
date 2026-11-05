@@ -114,7 +114,12 @@ domain in Firebase Auth (`make firebase-auth-domains`, owner-run).
 - **Opt-in.** Settings → "오늘의 시드 알림" (default off). Turning it on asks for the notification permission
   (Android 13+), creates the channel `daily` ("오늘의 시드" / "Daily Signal", default importance, no vibration),
   subscribes `daily-<game language>` and unsubscribes the other. A language change moves the subscription; turning
-  it off unsubscribes both. A denied permission leaves it off with a hint to allow it in system settings.
+  it off disables FCM auto-init and requests token deletion without queuing new topic operations. Fresh installs
+  default auto-init off in the manifest; startup reconciles the saved choice and existing OS permission. Failed
+  removal leaves the saved choice off and retries on the next launch. A denied permission leaves it off with a
+  hint to allow it in system settings. A stalled language subscription does not block off; stale completion is
+  cleaned up again. Firebase Installation IDs and Crashlytics collection are separate, and pending SDK topic
+  retries/token renewal still require connected-device acceptance (data audit D1).
 - **Message.** Title/body per language, `data.open = "daily"`, channel `daily`, small icon `ic_stat_mythos`, accent
   `#3ef0ff` (the manifest also sets these as FCM defaults). A tap (app in the background or not running) opens the
   title with today's leaderboard and the daily item flagged. A push that arrives while the game is open shows only a

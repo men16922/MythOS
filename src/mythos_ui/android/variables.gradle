@@ -15,4 +15,6 @@ ext {
     cordovaAndroidVersion = '14.0.1'
     // @capacitor-firebase/authentication: bundle the Google sign-in SDKs (Credential Manager + Play services auth).
     rgcfaIncludeGoogle = true
+    // Shared by the messaging plugin and the app's registration-consent bridge.
+    firebaseMessagingVersion = '25.0.1'
 }

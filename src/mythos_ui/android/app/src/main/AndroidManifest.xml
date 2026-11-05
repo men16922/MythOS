@@ -24,6 +24,11 @@
 
         </activity>
 
+        <!-- Consent is owned by the Daily Signal toggle, not by notification permission alone.
+             This does not disable Crashlytics or delete Firebase Installation identifiers. -->
+        <meta-data android:name="firebase_messaging_auto_init_enabled" android:value="false" />
+        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+
         <!-- Daily notification (FCM topic daily-ko / daily-en, src/v2/native/push.ts): the small icon, accent and channel
              used when a message does not name them. -->
         <meta-data

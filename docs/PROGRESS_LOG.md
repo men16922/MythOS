@@ -3,6 +3,12 @@
 Last updated: 2026-11-05
 
 
+## 2026-11-05 — Tie FCM registration to alert consent
+
+- **Changed**: fresh-install FCM auto-init defaults off; a native bridge enables registration after consent and disables it before token deletion. Saved off retries cleanup on launch. Late language requests cannot restore on; off bypasses stalled work and a later on waits for cleanup. No tokens cross the bridge; SDK versions are unchanged. Updated failure text and D1/release handoff.
+- **Verified**: fresh-app native assertion failed before the manifest fix and passed after. Ten consent tests cover permission, failure and races (two failures reproduced before fixes). API 36 / 16 KB offline Settings denial, native flag enable/disable, no-token deletion and restart-off passed, zero attached JS exceptions. Final debug/instrumentation builds and muted browser E2E passed. Final `make check` passed: Node 594, Python 346 with 12 DB skips. Evidence: `outputs/push-consent-*`.
+- **Limits / next**: D1 stays open for connected existing-token deletion/renewal, persisted SDK topic retries, upgrade migration and Play-signed devices. Firebase Installation IDs/Crashlytics are separate; no app-wide identifier opt-out is claimed. Prior unsigned AAB must be rebuilt. Next independent work: D3 report retention, D4/D6 policy accuracy. No upload, deployment, notification send or push; prior automatic push prohibition remains.
+
 ## 2026-11-05 — Audit Play data declarations and reviewer access
 
 - **Changed**: `docs/plans/2026-11-05-play-data-and-review-audit.md` records code/SDK inventory, proposed data categories, eight unresolved discrepancies (D1–D8), English review instructions and required acceptance evidence. Replaced the old Data safety answer table in `play-store.md`; linked release plan/owner checklist and advanced the handoff. No declarations submitted and no deployed policy changed.

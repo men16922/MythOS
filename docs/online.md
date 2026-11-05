@@ -161,7 +161,7 @@ replays run at once per instance, 10 s each; a real full daily (533 steps) repla
 
 ## Daily push
 
-No device tokens are stored anywhere. The app subscribes to the FCM topic for its language (`daily-ko` /
+The game server stores no device tokens; the Firebase SDK and FCM manage registration tokens. The app subscribes to the FCM topic for its language (`daily-ko` /
 `daily-en`). Two Cloud Scheduler HTTP jobs (`mythos-daily-push-ko`, `-en`; default 19:00 Asia/Seoul, us-central1)
 post straight to `https://fcm.googleapis.com/v1/projects/<project>/messages:send` with an OAuth token for a service
 account (default `<project-number>-compute@developer.gserviceaccount.com`, override `PUSH_SA`). Message:

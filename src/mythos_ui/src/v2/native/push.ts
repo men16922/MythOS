@@ -3,22 +3,20 @@
 // The server never stores device tokens: Cloud Scheduler sends one message a day to the topic `daily-ko` /
 // `daily-en` (contract: online/CONTRACT.md "Push"; `make push-schedule`). This module only manages the player's opt-in:
 //   on  → notification permission (Android 13+), channel `daily`, subscribe `daily-<lang>`, unsubscribe the other;
-//   off → unsubscribe both. Default OFF. A language change moves the subscription.
+//   off → disable auto-init and delete the FCM token. Default OFF. A language change moves the subscription.
 // A tap on a notification whose data has `open=daily` (cold start or background) is relayed to the shell, which opens
 // the daily leaderboard on the title. A push that arrives while the game is in the foreground only raises a small
 // toast (the system shows nothing then).
 import { FirebaseMessaging, Importance } from '@capacitor-firebase/messaging'
-import { Capacitor } from '@capacitor/core'
+import { Capacitor, registerPlugin } from '@capacitor/core'
 import type { Lang } from '../engine/types.ts'
-import { emitNative, registerPush, type PushToggleResult } from '../ui/common/nativeBridge.ts'
+import { emitNative, registerPush } from '../ui/common/nativeBridge.ts'
+import { createPushConsent } from './pushConsent.ts'
 
-/** localStorage: '1' = on (default off); the topic currently subscribed. */
+/** localStorage: '1' = on (default off). Native auto-init also defaults off in the manifest. */
 const PUSH_KEY = 'mythos2.push'
-const TOPIC_KEY = 'mythos2.push.topic'
 const CHANNEL_ID = 'daily'
-const LANGS: readonly Lang[] = ['ko', 'en']
-
-const topicFor = (lang: Lang): string => `daily-${lang}`
+const registration = registerPlugin<{ setEnabled(options: { enabled: boolean }): Promise<void> }>('PushRegistration')
 
 function read(key: string): string | null {
   try {
@@ -50,47 +48,22 @@ async function ensureChannel(lang: Lang): Promise<void> {
   })
 }
 
-async function subscribeOnly(lang: Lang): Promise<void> {
-  const topic = topicFor(lang)
-  await FirebaseMessaging.subscribeToTopic({ topic })
-  write(TOPIC_KEY, topic)
-  for (const other of LANGS) if (other !== lang) await FirebaseMessaging.unsubscribeFromTopic({ topic: topicFor(other) }).catch(() => undefined)
-}
-
-async function setPush(on: boolean, lang: Lang): Promise<PushToggleResult> {
-  try {
-    if (!on) {
-      write(PUSH_KEY, '0')
-      for (const l of LANGS) await FirebaseMessaging.unsubscribeFromTopic({ topic: topicFor(l) }).catch(() => undefined)
-      write(TOPIC_KEY, null)
-      return 'off'
-    }
+const control = createPushConsent({
+  read: enabled,
+  write: (on) => {
+    write(PUSH_KEY, on ? '1' : '0')
+    write('mythos2.push.topic', null) // Retire the old topic cache; subscriptions are reconciled on launch.
+  },
+  permission: async (request) => {
     let perm = await FirebaseMessaging.checkPermissions()
-    if (perm.receive !== 'granted') perm = await FirebaseMessaging.requestPermissions()
-    if (perm.receive !== 'granted') {
-      write(PUSH_KEY, '0')
-      return 'denied'
-    }
-    await ensureChannel(lang)
-    await subscribeOnly(lang)
-    write(PUSH_KEY, '1')
-    return 'on'
-  } catch (err) {
-    console.warn('push toggle failed', err)
-    if (on) write(PUSH_KEY, '0')
-    return 'unavailable' // Firebase not configured in this build (no google-services.json) / Play services missing
-  }
-}
-
-async function syncLang(lang: Lang): Promise<void> {
-  if (!enabled() || read(TOPIC_KEY) === topicFor(lang)) return
-  try {
-    await ensureChannel(lang)
-    await subscribeOnly(lang)
-  } catch {
-    /* retried on the next language change / launch */
-  }
-}
+    if (request && perm.receive !== 'granted') perm = await FirebaseMessaging.requestPermissions()
+    return perm.receive === 'granted'
+  },
+  registration: (on) => registration.setEnabled({ enabled: on }),
+  channel: ensureChannel,
+  subscribe: async (topic) => { await FirebaseMessaging.subscribeToTopic({ topic }) },
+  unsubscribe: async (topic) => { await FirebaseMessaging.unsubscribeFromTopic({ topic }) },
+})
 
 function asData(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {}
@@ -99,7 +72,7 @@ function asData(value: unknown): Record<string, unknown> {
 /** App start: register the toggle and listen for taps / foreground pushes. */
 export function initPush(): void {
   if (!Capacitor.isNativePlatform()) return
-  registerPush({ enabled, set: setPush, syncLang })
+  registerPush(control)
   void FirebaseMessaging.addListener('notificationActionPerformed', (event) => {
     if (asData(event.notification.data).open === 'daily') emitNative({ kind: 'open-daily' })
   }).catch(() => undefined)

@@ -65,8 +65,8 @@ function DailyPushToggle({ lang }: { lang: Lang }) {
                 : 'Notifications are blocked. Allow them in system settings.'
               : res === 'unavailable'
                 ? ko
-                  ? '이 기기에서는 알림을 켤 수 없다.'
-                  : 'Notifications aren’t available on this device.'
+                  ? '알림 변경을 마치지 못했다. 연결을 확인하고 앱을 다시 열어라.'
+                  : 'The notification change could not finish. Check your connection and reopen the app.'
                 : null,
           )
         })

@@ -4,7 +4,7 @@ Last updated: 2026-11-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: On `main`; runtime `505ccff` is live in `00185-yev` (2026-11-05), production checks 5/5 and real-click smoke 3/3. Read `docs/NEXT_PLAN.md`: next inspect Android size-check and purchase-UI readiness using `docs/plans/2026-11-05-play-store-release-plan.md`; collect human Deep/Sea and Chronicle verdicts separately. The delegated art/consumable/deploy calls are resolved; paid Play, paid evaluations and public submission remain separate gates. Only `main` and archive `1.0` remain as branches.
+> ▶ NEXT SESSION: On `main`; runtime `505ccff` is live in `00185-yev` (2026-11-05), production checks 5/5 and real-click smoke 3/3. Read `docs/NEXT_PLAN.md`: next inspect Android size-check and purchase-UI readiness using `docs/plans/2026-11-05-play-store-release-plan.md`; collect human Deep/Sea and Chronicle verdicts separately. The delegated art/consumable/deploy calls are resolved; paid Play, paid evaluations and public submission remain separate gates. Only `main` and archive `1.0` remain as branches. Documentation checkpoint is local: automatic approval review denied push (overnight restriction); manual push is required.
 
 ## Snapshot
 

@@ -38,6 +38,8 @@ Save unchanged during the keyboard sequence; zero attached JS exceptions. Native
 
 ## Rebuilt local candidate and checks
 
+Artifact superseded by [diagnostics acceptance and updated candidate](2026-11-05-crash-offline-acceptance.md); the upgrade/keyboard results below remain scoped to their tested builds.
+
 Built from `f3e012a` plus this checkpoint's keyboard change; exact source hashes in `outputs/keyboard-artifacts.json`.
 
 - `make check` passed: Node 594; Python 352 run, 15 database skips. App web, debug APK and unsigned release AAB builds passed. Muted built-SPA E2E passed (`MYTHOS_V2_GM=off make test-e2e-v2`).

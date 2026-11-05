@@ -96,7 +96,7 @@ function CrashReportsToggle({ ko }: { ko: boolean }) {
     <Toggle
       on={on}
       label={ko ? '오류 보고 보내기' : 'Send crash reports'}
-      hint={ko ? '오류 메시지·기기 정보·설치 식별자를 Firebase로 보낸다. 끄면 이후 보고를 중단한다.' : 'Sends error messages, device details and installation identifiers to Firebase. Turn off to stop future reporting.'}
+      hint={ko ? '오류 메시지·기기 정보·설치 식별자를 Firebase로 보낸다. 끈 뒤 앱을 완전히 종료하고 다시 실행하면 자동 전송이 중단된다. 기기에 남은 보고서는 다시 켜면 전송될 수 있다.' : 'Sends error messages, device details and installation identifiers to Firebase. After turning off, fully close and reopen the app to stop automatic uploads. Reports kept on the device may be sent if you turn it on again.'}
       onClick={() => {
         const next = !on
         setOn(next)

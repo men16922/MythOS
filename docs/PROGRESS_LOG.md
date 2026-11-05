@@ -5,6 +5,13 @@ Last updated: 2026-11-05
 
 Older entries: [November archive](../bin/docs/archive/progress-2026-11.md).
 
+## 2026-11-05 — Verify offline diagnostics and disclose retained reports
+
+- **Measured**: actual API 36 Settings on/off persists through process restart; absent app choice defaults on. While off, synthetic JS error adds no native event; direct native non-fatal creates one local event, finalized into one retained report on restart. Explicit SDK QA deletion removed it; original five game/preferences values restored, native off, zero pending synthetic reports. Network disabled throughout, no report sent; owned emulator/forward stopped.
+- **Changed**: KO/EN Settings and privacy drafts explain next-run native automatic-upload disabling, local reports retained while off and possible upload on re-enable. Raw error strings can contain personal data. Default-on and collection logic unchanged. Native screenshots and eight policy cases passed without overflow/JS exceptions. Evidence/limits: `docs/plans/2026-11-05-crash-offline-acceptance.md`.
+- **Verified**: full gate Node 594, Python 352/15 DB skips; muted E2E, web/debug/AAB builds passed. Latest unsigned AAB max base download 368,390,744 bytes; 16 KB bundle, four ELF alignments and debug zipalign passed. Exact hashes are in the linked record. No fatal/ANR or connected/backend erasure claim; policy publication and physical/Play-signed acceptance remain.
+- **Next**: store-listing graphics/screenshot audit against the candidate. Contact/Neon Console facts, signing/reviewer/deletion, production retention/publication and human verdict gates remain. No deployment/upload/push; automatic push restriction remains.
+
 ## 2026-11-05 — Verify data locations and scope backup/retention gaps
 
 - **Verified read-only**: production still `00185-yev` at 100%. DB connection is Neon PostgreSQL, `sslmode=require`, documented hostname region `us-east-1`; deployed source plus live env resolves Gemini to `global`. Active `global/google/gemini-3.8-flash` PublisherModelConfig GET returned specific 404 missing-config (documented default-disabled request/response logging). Cloud Logging refreshed: default 30 days, required 400/locked. No rows, prompts or credentials exposed; no inference or cloud writes.

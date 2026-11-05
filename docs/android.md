@@ -46,7 +46,7 @@ Local QA on 2026-11-05: API 36 / WebView 133 / 16 KB runs the game; API 24's sto
 | Both orientations (the combat screen has phone portrait and landscape layouts) | default manifest |
 | Google sign-in (native account picker, then the native Firebase SDK holds the session and issues ID tokens). Title chip + Settings account section; sign-in adopts the account's cloud save (else uploads this device's), sign-out keeps local progress | `src/v2/native/authNative.ts`, `src/v2/net/auth.ts`, `src/v2/ui/components/AccountControl.tsx` |
 | "오늘의 시드 알림" (Settings, app build only, default off): FCM topic `daily-ko` / `daily-en`, channel `daily`; a tap opens the title with today's leaderboard | `src/v2/native/push.ts` |
-| Crashlytics: native crashes plus JS errors (window errors, unhandled rejections, React errors) as non-fatals, at most 20 per launch, with no player data. Players can turn it off in Settings ("오류 보고 보내기", app build only) | `src/v2/native/crash.ts` |
+| Crashlytics: native crashes plus JS non-fatals, at most 20 JS reports per launch; no explicit account/save attachment, but raw strings can contain personal data. Settings off stops new JS forwarding; native automatic-upload disabling applies on the next app run. Local reports can remain and may send after re-enable. [Offline acceptance](plans/2026-11-05-crash-offline-acceptance.md) | `src/v2/native/crash.ts` |
 
 ## Toolchain (macOS, one time)
 

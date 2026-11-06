@@ -1,15 +1,16 @@
-"""Google Play store graphics from the REAL game (headless, muted, one tab at a time, private ports).
+"""Google Play graphics and browser screenshot drafts (muted, one tab, private ports).
 
   .venv/bin/python scripts/android/store_assets.py [--out outputs/play-store] [--only icon,feature,shots]
 
 Writes (Play Console specs: docs/play-store.md):
-  icon-512.png                       512x512 app icon (the launcher glyph on its own background, no alpha)
+  icon-512.png                       512x512 app icon (32-bit RGBA PNG, launcher glyph on its own background)
   feature-ko.png / feature-en.png    1024x500 feature graphics (title key art + the game's own title type)
-  shots/<lang>/NN_<scene>.png        1920x1080 phone screenshots of real screens (16:9, landscape like the game)
+  shots/<lang>/NN_<scene>.png        1920x1080 browser fixtures; NOT native Android candidate captures
 
 Like scripts/trailer/record_trailer.py (whose scene helpers it reuses) it starts a throwaway API (in-memory store, open
 auth, GM off) and a private ``npx vite`` (the dev-only ``window.__m2`` hook jumps to the screens worth showing); it never
-touches the owner's dev ports. The screenshots are the game as rendered at a 960x540 phone-landscape viewport at 2x.
+touches the owner's dev ports. Screenshots use a 960x540 browser viewport at 2x and injected game states.
+Use candidate-identified Android screencaps for the final phone listing; these fixtures do not prove native UI.
 """
 
 from __future__ import annotations
@@ -215,24 +216,34 @@ def feature_graphics(base: str, out: Path, langs: list[str]) -> list[Path]:
 def icon(out: Path) -> Path:
     glyph, bg = make_icons.load_glyph()
     dest = out / "icon-512.png"
-    make_icons.place(glyph, bg, (512, 512), 0.66).convert("RGB").save(dest, optimize=True)
+    make_icons.place(glyph, bg, (512, 512), 0.66).convert("RGBA").save(dest, optimize=True)
     print("  icon-512.png")
     return dest
 
 
 def check(paths: list[Path]) -> None:
-    """Play's limits: PNG/JPEG, ≤ 8 MB, screenshots 320–3840 px with the long side ≤ 2x the short side."""
+    """Validate Play encodings/dimensions without silently rewriting the evidence files."""
     for path in paths:
         with Image.open(path) as im:
             w, h = im.size
-            if path.stat().st_size > 8 * 1024 * 1024:
-                raise SystemExit(f"{path.name}: over 8 MB")
-            if "shots" in path.parts and not (
-                min(w, h) >= 320 and max(w, h) <= 3840 and max(w, h) <= 2 * min(w, h)
-            ):
-                raise SystemExit(f"{path.name}: {w}x{h} outside Play's screenshot limits")
-            if im.mode not in ("RGB", "P", "L"):
-                im.convert("RGB").save(path)
+            if path.name == "icon-512.png":
+                if im.format != "PNG" or im.mode != "RGBA" or (w, h) != (512, 512):
+                    raise SystemExit(f"{path.name}: expected 512x512 32-bit RGBA PNG")
+                limit = 1024 * 1024
+            else:
+                if im.format not in ("PNG", "JPEG") or im.mode != "RGB":
+                    raise SystemExit(f"{path.name}: expected RGB PNG/JPEG without alpha")
+                limit = 8 * 1024 * 1024
+                if path.stem.startswith("feature-"):
+                    if (w, h) != (1024, 500):
+                        raise SystemExit(f"{path.name}: expected 1024x500 feature graphic")
+                elif "shots" in path.parts:
+                    if not (min(w, h) >= 320 and max(w, h) <= 3840 and max(w, h) <= 2 * min(w, h)):
+                        raise SystemExit(f"{path.name}: {w}x{h} outside Play's screenshot limits")
+                else:
+                    raise SystemExit(f"{path.name}: unknown store asset type")
+            if path.stat().st_size > limit:
+                raise SystemExit(f"{path.name}: exceeds {limit} bytes")
 
 
 def main() -> int:
@@ -292,6 +303,9 @@ def main() -> int:
         if "feature" in parts:
             written += feature_graphics(base, out, langs)
         if "shots" in parts:
+            print(
+                "Browser fixtures only: these screenshots are not native Android candidate evidence."
+            )
             written += screenshots(base, out, langs)
     finally:
         ui.terminate()

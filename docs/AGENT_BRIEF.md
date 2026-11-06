@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-11-05
+Last updated: 2026-11-06
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: On `main`; production remains `505ccff` / `00185-yev`. D6 offline Android diagnostics checks passed: toggle/restart persistence, absent-app-choice default on, native report retained while off and explicit QA cleanup. KO/EN Settings/privacy now explain next-run native automatic-upload disabling and retained reports on re-enable; collection behavior unchanged. Actual native copy, 8 policy cases, full gate (Node 594; Python 352/15 DB skips) and E2E passed. Latest unsigned AAB estimate 368,390,744 bytes, 16 KB verified; evidence: `docs/plans/2026-11-05-crash-offline-acceptance.md`. Next: audit store-listing graphics/screenshots against this Android candidate; distinguish native captures from browser fixtures. D7 confirms Neon `us-east-1` hostname region, global Gemini resolution and scoped logging defaults; actual recovery settings/contracts remain unknown. Owner contact/Neon answers, signing, physical/Play-signed/reviewer/account deletion, production retention scheduling and policy publication remain open. Human fun and paid/public release remain separate. Only `main` and archive `1.0` remain. Automatic approval review denied push (overnight restriction); manual push required.
+> ▶ NEXT SESSION: On `main`; production last verified `505ccff` / `00185-yev` (11-05, not rechecked). Store audit complete: `docs/plans/2026-11-06-store-listing-audit.md`; 10 identified native debug captures, 8 selected plus 3 graphics in `outputs/play-store-review-2026-11-06.zip`. Character frames held for recapture/diagnosis; full gate passed (Node 594; Python 356/15 DB skips). Next: physical/Play-signed install/update/auth/deletion/reviewer acceptance once owner signing/device/account inputs arrive. Independent local work: audit expanded-content IARC answers in `docs/play-store.md` against current content; do not submit the historical rating table. Latest unsigned AAB remains the diagnostics candidate (368,390,744-byte download estimate, 16 KB verified). Contact/Neon recovery facts, retention scheduling and policy publication remain open. Human fun and paid/public release are separate. Historical automatic push rejection remains; no push in this session.
 
 ## Snapshot
 

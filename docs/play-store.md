@@ -1,10 +1,10 @@
 # Google Play submission sheet
 
-Last updated: 2026-11-05
+Last updated: 2026-11-06
 
 Canonical release sequence, owners, gates and policy sources: [Play Store release plan](plans/2026-11-05-play-store-release-plan.md). The 2026-10-18 launch hold remains; planning does not activate a release. Recommended sequence: free app testing/release first, Signal+ later after billing and revocation verification.
 
-This is a **draft submission worksheet**, not a set of pre-approved Console answers. Reconcile every answer with the final Android candidate and its SDKs. Build instructions: `docs/android.md`. Graphics under `outputs/play-store/` are historical until regenerated from the candidate.
+This is a **draft submission worksheet**, not a set of pre-approved Console answers. Reconcile every answer with the final Android candidate and its SDKs. Build instructions: `docs/android.md`. Historical browser fixtures remain under `outputs/play-store/`. Current identified Android debug drafts are in `outputs/play-store-2026-11-06/`; see the [graphics audit](plans/2026-11-06-store-listing-audit.md). They still require final signed-candidate review.
 
 ## Owner steps, in order
 
@@ -93,17 +93,19 @@ This is a **draft submission worksheet**, not a set of pre-approved Console answ
 >
 > Play the whole game offline without signing in. No ads. Explore districts and resolve d20 dialogue in normal runs. AI-written lines require sign-in and are subject to usage limits. Korean and English.
 
-## Graphics (`outputs/play-store/`)
+## Graphics (`outputs/play-store-2026-11-06/`)
 
-| Asset | File | Play spec |
+| Asset | File | Validated export |
 | --- | --- | --- |
-| App icon | `icon-512.png` | 512×512 PNG, no alpha |
-| Feature graphic | `feature-ko.png` (ko), `feature-en.png` (en) | 1024×500, no alpha |
-| Phone screenshots | `shots/ko/*.png`, `shots/en/*.png` (7 each) | 2–8 per language, 16:9 1920×1080 qualifies for promotion |
+| App icon | `icon-512.png` | 512×512, 32-bit RGBA PNG, 105,053 bytes |
+| Feature graphic | `feature-ko.png`, `feature-en.png` | 1024×500 RGB PNG; existing candidate art/fonts |
+| Phone screenshot drafts | `shots/ko/*.png`, `shots/en/*.png` (5 captured, 4 selected each) | 1920×1080 RGB PNG, actual identified Android debug app |
 
-Screenshot order: 01 HAETAE boss fight, 02 the Incinerator elite (burning ground), 03 map, 04 event with odds,
-05 companion bond scene, 06 IX's offer, 07 title. Promo video (optional, a YouTube link):
-`outputs/trailer/cinematic/mythos2_cinematic_store.mp4`, uploaded to YouTube first.
+Order: combat → map/directive → event choices → character setup (held for recapture) → title. Lead with the first three gameplay frames. The title contains a daily date; refresh it before upload. `manifest.json` records hashes and localized alt text. Review bundle: `outputs/play-store-review-2026-11-06.zip` (11 selected images plus manifest/README). Preserve raw captures and candidate identity separately from upload files. The [audit](plans/2026-11-06-store-listing-audit.md) records provenance, visual limits and final-candidate checks.
+
+[Google's current specification](https://support.google.com/googleplay/android-developer/answer/9866151?hl=en) distinguishes the RGBA icon from RGB feature/screenshots. Dimensions alone do not qualify a game for promotion. `scripts/android/store_assets.py --only shots` produces browser fixtures, not native candidate evidence. Do not use historical browser images as final Android screenshots.
+
+Optional video remains historical: `outputs/trailer/cinematic/mythos2_cinematic_store.mp4`. Review against the release before any YouTube publication or listing use.
 
 ## App content answers
 

@@ -1,9 +1,16 @@
 # Progress Log
 
-Last updated: 2026-11-05
+Last updated: 2026-11-06
 
 
 Older entries: [November archive](../bin/docs/archive/progress-2026-11.md).
+
+## 2026-11-06 — Audit store graphics and identify native screenshot drafts
+
+- **Changed**: completed existing icon/validator WIP after reproducing RGB output and destructive RGBA rewriting; correct RGBA icon, non-mutating validation and explicit browser-fixture labeling. Four regression tests passed. Store worksheet now points to identified native drafts instead of historical browser captures.
+- **Verified**: installed diagnostics APK hash matches the candidate; all 1,706 public files match unsigned AAB. Ten native KO/EN captures (offline, muted, API 36 / 16 KB); 13 image exports pass encoding/geometry checks, native RGB pixels match raw captures, zero attached JS exceptions. Original storage verified after restart, native flags/display restored, owned emulator/forward stopped. Visual audit selects 8 native frames plus 3 graphics; optional character frames held for glyph/transient rendering review. ZIP integrity passed.
+- **Evidence**: `docs/plans/2026-11-06-store-listing-audit.md`, `outputs/play-store-2026-11-06/`, `outputs/play-store-review-2026-11-06.zip`. Full `make check` passed (Node 594; Python 356 run, 15 DB skips); browser E2E and Android rebuild not rerun (runtime unchanged).
+- **Next / limits**: physical/Play-signed acceptance needs signing, device and reviewer inputs; contact/Neon facts, retention scheduling and policy publication remain open. Independent local candidate: expanded-content IARC audit. No deploy/upload/publication/push; historical automatic push restriction remains. This is a debug listing draft, not release approval.
 
 ## 2026-11-05 — Verify offline diagnostics and disclose retained reports
 
